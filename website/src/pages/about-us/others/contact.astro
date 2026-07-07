@@ -1,0 +1,155 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+---
+
+<Layout 
+  title="Contact Us - Others" 
+  description="Contact information and office locations of the Jammu & Kashmir State Power Development Corporation."
+>
+  <div class="space-y-6">
+    <!-- Breadcrumbs -->
+    <nav class="text-xs text-gray-500" aria-label="Breadcrumbs">
+      <ol class="flex gap-2">
+        <li><a href="/" class="hover:underline">Home</a></li>
+        <li>/</li>
+        <li><span class="text-gray-400">About Us</span></li>
+        <li>/</li>
+        <li><span class="text-gray-400">Others</span></li>
+        <li>/</li>
+        <li><span class="font-semibold text-[#003366]">Contact</span></li>
+      </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="border-b border-gray-200 pb-4">
+      <h2 class="text-3xl font-extrabold text-[#003366]">Contact Corporate Offices</h2>
+      <p class="text-sm text-gray-600 mt-1">Official headquarters details and correspondence channels.</p>
+    </header>
+
+    <!-- Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      
+      <!-- Office Details -->
+      <section class="space-y-6">
+        
+        <!-- Srinagar Office -->
+        <div class="card-static">
+          <span class="text-[10px] text-orange-500 font-bold uppercase tracking-wider">Corporate Headquarters (Summer)</span>
+          <h3 class="font-extrabold text-[#003366] text-lg mt-1">Srinagar Office</h3>
+          <p class="text-xs text-gray-600 mt-2 leading-relaxed">
+            Exhibition Grounds, Jahangir Chowk, Srinagar, 190009
+          </p>
+          <div class="mt-4 pt-4 border-t border-gray-100 text-xs text-gray-500 space-y-1">
+            <p><strong>Phone:</strong> +91 194 2451665</p>
+            <p><strong>Email:</strong> md-jkspdcl@jk.gov.in</p>
+          </div>
+        </div>
+
+        <!-- Jammu Office -->
+        <div class="card-static">
+          <span class="text-[10px] text-orange-500 font-bold uppercase tracking-wider">Corporate Office (Winter)</span>
+          <h3 class="font-extrabold text-[#003366] text-lg mt-1">Jammu Office</h3>
+          <p class="text-xs text-gray-600 mt-2 leading-relaxed">
+            Ashok Nagar, Satwari, Jammu (J&K), 180004
+          </p>
+          <div class="mt-4 pt-4 border-t border-gray-100 text-xs text-gray-500 space-y-1">
+            <p><strong>Phone:</strong> +91 191 2430548 / 2439039</p>
+            <p><strong>Email:</strong> md-jkspdcl@jk.gov.in</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Message Form (Using Design System UI Classes) -->
+      <section class="card-static">
+        <h3 class="font-bold text-gray-900 text-lg mb-4 border-b border-gray-100 pb-2">Send Official Inquiry</h3>
+        
+        <!-- Feedback message box -->
+        <div id="form-feedback" class="hidden mb-4 p-4 rounded text-xs font-semibold" role="alert"></div>
+
+        <form id="contact-form" class="space-y-4">
+          <div class="form-group">
+            <label for="contact-name" class="form-label">Full Name <span class="text-red-600" aria-label="Required">*</span></label>
+            <input type="text" id="contact-name" class="form-input" placeholder="e.g. John Doe" required minlength="3" maxlength="100" />
+          </div>
+
+          <div class="form-group">
+            <label for="contact-email" class="form-label">Official Email <span class="text-red-600" aria-label="Required">*</span></label>
+            <input type="email" id="contact-email" class="form-input" placeholder="e.g. name@organisation.com" required maxlength="150" />
+          </div>
+
+          <div class="form-group">
+            <label for="contact-message" class="form-label">Inquiry Details <span class="text-red-600" aria-label="Required">*</span></label>
+            <textarea id="contact-message" class="form-input min-h-[100px]" placeholder="State your inquiry..." required minlength="10" maxlength="2000"></textarea>
+          </div>
+
+          <button type="submit" id="submit-btn" class="btn-primary w-full">Send Message</button>
+        </form>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- Client-side form handler -->
+  <script>
+    const form = document.getElementById('contact-form') as HTMLFormElement;
+    const feedback = document.getElementById('form-feedback') as HTMLDivElement;
+    const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+
+    if (form && feedback && submitBtn) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // UI Loading state
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
+        feedback.classList.add('hidden');
+
+        const nameInput = document.getElementById('contact-name') as HTMLInputElement;
+        const emailInput = document.getElementById('contact-email') as HTMLInputElement;
+        const messageInput = document.getElementById('contact-message') as HTMLTextAreaElement;
+
+        const payload = {
+          name: nameInput.value.trim(),
+          email: emailInput.value.trim(),
+          message: messageInput.value.trim()
+        };
+
+        try {
+          // Send request to NestJS backend proxy endpoint
+          const response = await fetch('/api/contact', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+          });
+
+          const result = await response.json();
+
+          if (response.ok && result.success) {
+            // Render success state
+            feedback.className = 'mb-4 p-4 rounded text-xs font-semibold bg-emerald-50 border border-emerald-200 text-emerald-800';
+            feedback.innerHTML = `<p>${result.message}</p>`;
+            feedback.classList.remove('hidden');
+            form.reset();
+          } else {
+            // Render validation errors
+            const errMsg = result.message || 'An error occurred during submission.';
+            feedback.className = 'mb-4 p-4 rounded text-xs font-semibold bg-rose-50 border border-rose-200 text-rose-800';
+            feedback.innerHTML = `<p>${Array.isArray(errMsg) ? errMsg.join('<br>') : errMsg}</p>`;
+            feedback.classList.remove('hidden');
+          }
+        } catch (err) {
+          // Network error state
+          feedback.className = 'mb-4 p-4 rounded text-xs font-semibold bg-rose-50 border border-rose-200 text-rose-800';
+          feedback.innerHTML = '<p>Unable to connect to the server. Please try again later.</p>';
+          feedback.classList.remove('hidden');
+        } finally {
+          // Reset UI button state
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send Message';
+        }
+      });
+    }
+  </script>
+</Layout>

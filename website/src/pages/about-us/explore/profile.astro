@@ -1,0 +1,113 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+---
+
+<Layout 
+  title="Profile - Explore About Us" 
+  description="Corporate Profile of the Jammu & Kashmir State Power Development Corporation."
+>
+  <div class="space-y-6">
+    <!-- Breadcrumbs -->
+    <nav class="text-xs text-gray-500" aria-label="Breadcrumbs">
+      <ol class="flex gap-2">
+        <li><a href="/" class="hover:underline">Home</a></li>
+        <li>/</li>
+        <li><span class="text-gray-400">About Us</span></li>
+        <li>/</li>
+        <li><span class="text-gray-400">Explore</span></li>
+        <li>/</li>
+        <li><span class="font-semibold text-[#003366]">Profile</span></li>
+      </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="border-b border-gray-200 pb-4">
+      <h2 class="text-3xl font-extrabold text-[#003366]">Corporate Profile</h2>
+      <p class="text-sm text-gray-600 mt-1">Incorporation details, legal status, and registration profile.</p>
+    </header>
+
+    <!-- Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Main Text -->
+      <article class="lg:col-span-2 space-y-6">
+        <p class="text-sm text-slate-700 leading-relaxed">
+          The corporate structure and legal parameters of the Jammu & Kashmir State Power Development Corporation Limited (JKSPDCL) are detailed below.
+        </p>
+
+        <!-- Profile Table -->
+        <div class="table-wrapper">
+          <table class="table-data" aria-label="Corporate Profile Parameters">
+            <thead>
+              <tr>
+                <th scope="col" class="w-1/3">Parameter</th>
+                <th scope="col" class="w-2/3">Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="font-bold text-[#003366]">Full Corporate Name</td>
+                <td>Jammu and Kashmir State Power Development Corporation Limited (JKSPDCL)</td>
+              </tr>
+              <tr>
+                <td class="font-bold text-[#003366]">Legal Status</td>
+                <td>Wholly owned Public Sector Undertaking (PSU) of the Government of Jammu & Kashmir</td>
+              </tr>
+              <tr>
+                <td class="font-bold text-[#003366]">Year of Incorporation</td>
+                <td>1995 (under the Companies Act)</td>
+              </tr>
+              <tr>
+                <td class="font-bold text-[#003366]">Mandate</td>
+                <td>Take over, execute, complete and operate power stations and power projects of the erstwhile Jammu & Kashmir State.</td>
+              </tr>
+              <tr>
+                <td class="font-bold text-[#003366]">Authorised Share Capital</td>
+                <td class="font-semibold text-slate-800">Rs. 5,000.00 Crores</td>
+              </tr>
+              <tr>
+                <td class="font-bold text-[#003366]">Paid-up Share Capital</td>
+                <td class="font-semibold text-slate-800">Rs. 2,593.3443 Crores</td>
+              </tr>
+              <tr>
+                <td class="font-bold text-[#003366]">Joint Venture Investments</td>
+                <td>
+                  <p class="font-semibold text-slate-800">Rs. 2,357.61 Crores</p>
+                  <p class="text-[11px] text-slate-500 mt-0.5">(Invested in JVs with NHPC namely Chenab Valley Power Projects CVPPPL & Ratle Hydroelectric Power Corporation RHPCL)</p>
+                </td>
+              </tr>
+              <tr>
+                <td class="font-bold text-[#003366]">Revenue from Power Sales</td>
+                <td>
+                  <p class="font-semibold text-slate-800">Rs. 1,136.94 Crores <span class="text-xs text-slate-400 font-normal">(Financial Year 2023-24)</span></p>
+                </td>
+              </tr>
+              <tr>
+                <td class="font-bold text-[#003366]">Profit Before Tax (PBT)</td>
+                <td>
+                  <p class="font-semibold text-slate-800">Rs. 361.64 Crores <span class="text-xs text-slate-400 font-normal">(Financial Year 2023-24)</span></p>
+                </td>
+              </tr>
+              <tr>
+                <td class="font-bold text-[#003366]">Generation Infrastructure</td>
+                <td>13 operating Hydroelectric Projects (HEPs) with a combined installed capacity of 1197.4 MW.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <!-- Sidebar Actions -->
+      <aside class="space-y-4">
+        <div class="card-static">
+          <h3 class="font-bold text-gray-900 mb-2 border-b border-gray-100 pb-2">Quick Navigation</h3>
+          <ul class="flex flex-col gap-2 text-xs font-semibold text-[#003366]">
+            <li><a href="/about-us/explore/overview" class="hover:underline block py-1">&rarr; Overview</a></li>
+            <li><a href="/about-us/explore/vision" class="hover:underline block py-1">&rarr; Vision Statement</a></li>
+            <li><a href="/about-us/explore/mission" class="hover:underline block py-1">&rarr; Mission Statement</a></li>
+            <li><a href="/about-us/explore/objectives" class="hover:underline block py-1">&rarr; Main Objectives</a></li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+</Layout>

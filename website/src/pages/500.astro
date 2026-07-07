@@ -1,0 +1,24 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout 
+  title="Server Error (500) - JKSPDC" 
+  description="Internal server error encountered on the JKSPDC portal."
+>
+  <div class="flex flex-col items-center justify-center text-center space-y-6 py-12">
+    <div class="bg-red-50 text-red-700 text-6xl font-black px-6 py-3 rounded-full border border-red-200 shadow-inner">
+      500
+    </div>
+    
+    <h2 class="text-3xl font-extrabold text-[#003366]">Internal Server Error</h2>
+    <p class="text-sm text-gray-600 max-w-md leading-relaxed">
+      The server encountered an internal error or misconfiguration and was unable to complete your request. Please try again later.
+    </p>
+
+    <div class="flex gap-4">
+      <a href="/" class="btn-primary text-xs">Return Home</a>
+      <a href="/about-us/others/contact" class="btn-outline text-xs">Report Issue</a>
+    </div>
+  </div>
+</Layout>

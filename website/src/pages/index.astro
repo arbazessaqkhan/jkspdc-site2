@@ -1,0 +1,204 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout 
+  title="Home" 
+  description="Official web portal of Jammu & Kashmir State Power Development Corporation (JKSPDCL). Powering Jammu & Kashmir with sustainable hydroelectricity and renewable energy."
+>
+  <!-- Main Banner / Hero Section -->
+  <section class="relative bg-gradient-to-br from-[#001f3f] via-[#003366] to-[#0b1329] text-white rounded-2xl p-8 md:p-16 mb-10 shadow-2xl overflow-hidden border-b-8 border-orange-500" aria-label="Introduction Banner">
+    <!-- Decorative background waves / glows -->
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(59,130,246,0.1),transparent)] pointer-events-none"></div>
+    <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    
+    <div class="relative max-w-4xl z-10">
+      <span class="inline-block bg-orange-500/25 border border-orange-500 text-orange-300 text-[10px] font-bold tracking-widest uppercase px-3 py-1 rounded-full mb-4">
+        UT Power Legacy Since 1905
+      </span>
+      <h2 class="text-3xl md:text-5xl font-extrabold mb-6 tracking-tight leading-tight">
+        Harnessing Clean & Sustainable Energy for Jammu & Kashmir
+      </h2>
+      <p class="text-sm md:text-lg text-slate-200 mb-8 leading-relaxed">
+        Jammu and Kashmir State Power Development Corporation Limited (JKSPDCL) systematically plans, executes, and operates major power stations across the Union Territory, driving economic growth and energy sufficiency.
+      </p>
+      <div class="flex flex-wrap gap-4">
+        <a href="/about-us/explore/overview" class="inline-block bg-gradient-to-r from-[#f15a24] to-orange-500 hover:from-orange-600 hover:to-orange-500 text-white text-sm font-semibold px-8 py-3.5 rounded-lg transition-all shadow-lg hover:-translate-y-0.5">Explore Our Journey</a>
+        <a href="/stakeholders/vendors/tender-bids" class="inline-block bg-white/10 hover:bg-white/20 text-white text-sm font-semibold px-8 py-3.5 rounded-lg transition-all border border-white/20 backdrop-blur-sm hover:-translate-y-0.5">View Active Tenders</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Key Metrics / Statistics Grid -->
+  <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12" aria-label="Key Performance Indicators">
+    <div class="bg-white rounded-xl shadow border border-slate-100 p-6 flex items-center justify-between transition-all hover:shadow-lg">
+      <div>
+        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Installed Capacity</p>
+        <p class="text-2xl font-black text-slate-900 mt-1">1197.4 MW</p>
+        <p class="text-[11px] text-slate-400 mt-1">Primarily catering to UT's DISCOMs</p>
+      </div>
+      <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-2xl" aria-hidden="true">⚡</div>
+    </div>
+    <div class="bg-white rounded-xl shadow border border-slate-100 p-6 flex items-center justify-between transition-all hover:shadow-lg">
+      <div>
+        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Operating Stations</p>
+        <p class="text-2xl font-black text-slate-900 mt-1">13 HEPs</p>
+        <p class="text-[11px] text-slate-400 mt-1">Including 900MW Baglihar Project</p>
+      </div>
+      <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center text-2xl" aria-hidden="true">🏗️</div>
+    </div>
+    <div class="bg-white rounded-xl shadow border border-slate-100 p-6 flex items-center justify-between transition-all hover:shadow-lg">
+      <div>
+        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Hydro Potential</p>
+        <p class="text-2xl font-black text-slate-900 mt-1">18,000 MW</p>
+        <p class="text-[11px] text-slate-400 mt-1">Estimated potential in J&K</p>
+      </div>
+      <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-2xl" aria-hidden="true">💧</div>
+    </div>
+    <div class="bg-white rounded-xl shadow border border-slate-100 p-6 flex items-center justify-between transition-all hover:shadow-lg">
+      <div>
+        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">JV Under Construction</p>
+        <p class="text-2xl font-black text-slate-900 mt-1">3094 MW</p>
+        <p class="text-[11px] text-slate-400 mt-1">Combined JVs in Chenab basin</p>
+      </div>
+      <div class="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center text-2xl" aria-hidden="true">🤝</div>
+    </div>
+  </section>
+
+  <!-- Core Content Grid: About Us & Tenders -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+    
+    <!-- About JKSPDCL Highlight (Left 2 Columns) -->
+    <div class="lg:col-span-2 space-y-6">
+      <div class="bg-white rounded-xl shadow border border-slate-150 p-6 md:p-8">
+        <h3 class="text-2xl font-extrabold text-[#003366] border-b border-slate-100 pb-3 mb-4">
+          About JKSPDCL
+        </h3>
+        
+        <p class="text-slate-700 text-sm leading-relaxed mb-4">
+          Jammu and Kashmir State Power Development Corporation Limited (JKSPDCL) is a wholly owned Public Sector Undertaking (PSU) of the Government of Jammu & Kashmir. Incorporated in 1995 under the Companies Act, our mandate is to take over, execute, complete and operate Power Stations and Power projects of the erstwhile Jammu & Kashmir State.
+        </p>
+
+        <p class="text-slate-700 text-sm leading-relaxed mb-6">
+          The journey of J&K in power development began with the historic <strong>4MW Mohra Hydroelectric Plant in 1905</strong>, marking the start of a legacy. Today, JKSPDC has an authorised share capital of Rs. 5000 crores, paid up share capital of Rs. 2593.3443 crores and generated revenue of Rs. 1136.94 crores from power sales in the financial year 2023-24 with PBT of Rs. 361.64 crores.
+        </p>
+
+        <!-- Capital and Investment Highlight Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+          <div class="bg-slate-50 border border-slate-100 rounded-lg p-4">
+            <h4 class="font-bold text-[#003366] text-xs uppercase tracking-wider">Authorized Share Capital</h4>
+            <p class="text-lg font-black text-slate-800 mt-1">Rs. 5,000 Crores</p>
+            <p class="text-[11px] text-slate-500 mt-0.5">Paid-up capital: Rs. 2,593.34 Crores</p>
+          </div>
+          <div class="bg-slate-50 border border-slate-100 rounded-lg p-4">
+            <h4 class="font-bold text-[#003366] text-xs uppercase tracking-wider">NHPC Joint Ventures</h4>
+            <p class="text-lg font-black text-slate-800 mt-1">Rs. 2,357.61 Crores</p>
+            <p class="text-[11px] text-slate-500 mt-0.5">Invested in CVPPPL & RHPCL</p>
+          </div>
+        </div>
+
+        <!-- Renewable segment transition banner -->
+        <div class="bg-gradient-to-r from-teal-500/10 to-blue-500/10 border border-teal-500/20 rounded-xl p-5 flex flex-col sm:flex-row gap-4 items-center justify-between">
+          <div class="space-y-1">
+            <h4 class="font-bold text-teal-900 text-sm flex items-center gap-1.5">
+              <span>🌱</span> Renewable Energy Segment Foray
+            </h4>
+            <p class="text-xs text-slate-600 leading-relaxed max-w-xl">
+              Leveraging experienced manpower, land, and water assets to expand into solar, wind, green hydrogen, and hybrid energy as part of India's "Panchamrit" pledge to meet 50% energy requirements from renewables by 2030.
+            </p>
+          </div>
+          <a href="/sustainability/environment/preamble" class="text-xs font-bold text-teal-800 bg-teal-100 hover:bg-teal-200 px-4 py-2 rounded-lg transition-colors whitespace-nowrap">
+            Read Policies &rarr;
+          </a>
+        </div>
+      </div>
+
+      <!-- Joint Venture Details -->
+      <div class="bg-white rounded-xl shadow border border-slate-150 p-6">
+        <h3 class="text-lg font-extrabold text-[#003366] border-b border-slate-100 pb-3 mb-4">
+          Joint Venture & Major Projects
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-slate-600">
+          <div>
+            <h4 class="font-bold text-slate-900 text-sm">Chenab Valley Power Projects (CVPPPL)</h4>
+            <p class="mt-1 leading-relaxed">
+              Incorporated in 2011, constructing 4 large projects in Chenab basin with combined installed capacity of 3094 MW: Pakal Dul (1000 MW), Kiru (624 MW), Kwar (540 MW) expected to commission in 2026, and Kirthai-II HEP (930 MW).
+            </p>
+          </div>
+          <div>
+            <h4 class="font-bold text-slate-900 text-sm">Ratle Hydroelectric Corporation (RHPCL)</h4>
+            <p class="mt-1 leading-relaxed">
+              Established in 2021 in JV with NHPC to implement the 850 MW Ratle Hydroelectric Project on Chenab river. The project is slated to be commissioned by May, 2026.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Tenders Registry (Right 1 Column) -->
+    <div class="bg-white rounded-xl shadow border border-slate-150 p-6 flex flex-col">
+      <h3 class="text-lg font-extrabold text-[#003366] border-b border-slate-100 pb-3 mb-4 flex items-center justify-between">
+        <span>Tenders & Announcements</span>
+        <span class="flex h-2 w-2 relative">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+        </span>
+      </h3>
+
+      <div class="flex-grow space-y-4">
+        <!-- Tender item 1 -->
+        <div class="border-b border-slate-100 pb-3 text-xs">
+          <span class="inline-block bg-orange-100 text-orange-800 font-bold px-2 py-0.5 rounded text-[9px] mb-1">SOLAR PROCUREMENT</span>
+          <a href="/stakeholders/vendors/tender-bids" class="font-bold text-[#003366] hover:underline block mb-1">
+            NIT/121/JKSPDCL/2026: DPR & Engineering for 15MW Grid-Connected Solar Project
+          </a>
+          <div class="flex justify-between text-slate-400 text-[10px] mt-1.5">
+            <span>Publish: 01-Jul-2026</span>
+            <span class="font-semibold text-slate-500">Closing: 15-Aug-2026</span>
+          </div>
+        </div>
+
+        <!-- Tender item 2 -->
+        <div class="border-b border-slate-100 pb-3 text-xs">
+          <span class="inline-block bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded text-[9px] mb-1">TELEMETRY / IT</span>
+          <a href="/stakeholders/vendors/tender-bids" class="font-bold text-[#003366] hover:underline block mb-1">
+            NIT/122/JKSPDCL/2026: Telemetry & SCADA Upgrades for Baglihar Stage-II (450MW)
+          </a>
+          <div class="flex justify-between text-slate-400 text-[10px] mt-1.5">
+            <span>Publish: 03-Jul-2026</span>
+            <span class="font-semibold text-slate-500">Closing: 22-Aug-2026</span>
+          </div>
+        </div>
+
+        <!-- Tender item 3 -->
+        <div class="border-b border-slate-100 pb-3 text-xs">
+          <span class="inline-block bg-green-100 text-green-800 font-bold px-2 py-0.5 rounded text-[9px] mb-1">CONSULTANCY SERVICES</span>
+          <a href="/stakeholders/vendors/tender-bids" class="font-bold text-[#003366] hover:underline block mb-1">
+            NIT/123/JKSPDCL/2026: Detailed Appraisal Consultancy for Kirthai-I HEP (390MW)
+          </a>
+          <div class="flex justify-between text-slate-400 text-[10px] mt-1.5">
+            <span>Publish: 05-Jul-2026</span>
+            <span class="font-semibold text-slate-500">Closing: 30-Aug-2026</span>
+          </div>
+        </div>
+
+        <!-- Tender item 4 -->
+        <div class="border-b border-slate-100 pb-3 text-xs">
+          <span class="inline-block bg-purple-100 text-purple-800 font-bold px-2 py-0.5 rounded text-[9px] mb-1">REHABILITATION</span>
+          <a href="/stakeholders/vendors/tender-bids" class="font-bold text-[#003366] hover:underline block mb-1">
+            NIT/124/JKSPDCL/2026: Renovation Works of Historic Mohra Plant (4MW)
+          </a>
+          <div class="flex justify-between text-slate-400 text-[10px] mt-1.5">
+            <span>Publish: 06-Jul-2026</span>
+            <span class="font-semibold text-slate-500">Closing: 10-Sep-2026</span>
+          </div>
+        </div>
+      </div>
+
+      <a href="/stakeholders/vendors/tender-bids" class="block text-center text-xs font-bold mt-4 text-[#003366] bg-slate-100 hover:bg-slate-200 py-2.5 rounded-lg transition-colors border border-slate-200">
+        View All Tenders & Bids &rarr;
+      </a>
+    </div>
+
+  </div>
+</Layout>

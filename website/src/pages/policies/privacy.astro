@@ -1,0 +1,54 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout 
+  title="Privacy Policy - Policies" 
+  description="Official Privacy Policy of the Jammu & Kashmir State Power Development Corporation."
+>
+  <div class="space-y-6">
+    <!-- Breadcrumbs -->
+    <nav class="text-xs text-gray-500" aria-label="Breadcrumbs">
+      <ol class="flex gap-2">
+        <li><a href="/" class="hover:underline">Home</a></li>
+        <li>/</li>
+        <li><span class="text-gray-400">Policies</span></li>
+        <li>/</li>
+        <li><span class="font-semibold text-[#003366]">Privacy Policy</span></li>
+      </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="border-b border-gray-200 pb-4">
+      <h2 class="text-3xl font-extrabold text-[#003366]">Privacy Policy</h2>
+      <p class="text-sm text-gray-600 mt-1">Official disclosure detailing how we handle user data and privacy on this portal.</p>
+    </header>
+
+    <!-- Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Main Text -->
+      <article class="lg:col-span-2 space-y-4">
+        <!-- Safety content placeholder -->
+        <div class="bg-gray-50 border border-gray-200 text-gray-700 rounded-lg p-6 text-center text-sm shadow-sm">
+          <p class="font-semibold text-gray-800 mb-1">Privacy Policy Charter Pending Official Approval</p>
+          <p class="text-xs text-gray-500">The authorized privacy policies are currently undergoing official review.</p>
+          <div class="mt-3 inline-block bg-neutral-200 text-neutral-800 px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider">
+            [Content Pending Approval]
+          </div>
+        </div>
+      </article>
+
+      <!-- Sidebar -->
+      <aside class="space-y-4">
+        <div class="card-static">
+          <h3 class="font-bold text-gray-900 mb-2 border-b border-gray-100 pb-2">Policies</h3>
+          <ul class="flex flex-col gap-2 text-xs font-semibold text-[#003366]">
+            <li><a href="/policies/terms" class="hover:underline block py-1">&rarr; Terms & Conditions</a></li>
+            <li><a href="/policies/hyperlinking" class="hover:underline block py-1">&rarr; Hyperlinking Policy</a></li>
+            <li><a href="/policies/accessibility" class="hover:underline block py-1">&rarr; Accessibility Statement</a></li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+</Layout>
