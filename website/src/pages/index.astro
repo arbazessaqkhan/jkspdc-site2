@@ -1,204 +1,469 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+
+const heroSlides = [
+  { id: 0, badge: "Powering Jammu & Kashmir since 1995", title: "Baglihar Hydroelectric Project", desc: "A 900 MW run-of-the-river hydroelectric plant on the Chenab River — one of India's most strategic power assets.", stat: "900", statUnit: "MW", statLabel: "Installed Capacity", statPct: 80, img: "/slider1.jpg", ctaText: "Explore Project", ctaHref: "/our-business/power-stations" },
+  { id: 1, badge: "Green Energy Initiative", title: "Uri Hydroelectric Power Station", desc: "The largest hydro project in J&K with 480 MW capacity, contributing massively to the northern grid.", stat: "480", statUnit: "MW", statLabel: "Installed Capacity", statPct: 55, img: "/slider2.jpg", ctaText: "View Details", ctaHref: "/our-business/power-stations" },
+  { id: 2, badge: "Under Construction", title: "Pakal Dul Hydroelectric Project", desc: "A 1,000 MW project on Marusudar River nearing completion — set to be the largest.", stat: "1000", statUnit: "MW", statLabel: "Planned Capacity", statPct: 70, img: "/slider3.jpg", ctaText: "Learn More", ctaHref: "/our-business/under-construction" },
+  { id: 3, badge: "Renewable Energy", title: "Solar Power Development", desc: "JKSPDC is expanding into solar with multiple projects across Ladakh and Jammu.", stat: "300", statUnit: "MW", statLabel: "Solar Target", statPct: 40, img: "/slider1.jpg", ctaText: "Solar Projects", ctaHref: "/sustainability/environment/preamble" },
+];
+
+const metrics = [
+  { icon: "zap", label: "Total Installed Capacity", value: 3820, unit: "MW", color: "from-blue-700 to-blue-500" },
+  { icon: "droplets", label: "Hydro Capacity", value: 3520, unit: "MW", color: "from-cyan-700 to-cyan-500" },
+  { icon: "sun", label: "Solar Capacity", value: 300, unit: "MW", color: "from-orange-500 to-orange-400" },
+  { icon: "hardhat", label: "Under Construction", value: 8, unit: "Projects", color: "from-emerald-700 to-emerald-500" },
+  { icon: "factory", label: "Operational Stations", value: 21, unit: "", color: "from-blue-700 to-blue-500" },
+  { icon: "users", label: "Employees", value: 4200, unit: "+", color: "from-cyan-700 to-cyan-500" },
+  { icon: "file-text", label: "Open Tenders", value: 12, unit: "", color: "from-orange-500 to-orange-400" },
+  { icon: "briefcase", label: "Ongoing Recruitments", value: 5, unit: "", color: "from-emerald-700 to-emerald-500" },
+];
+
+const quickLinks = [
+  { icon: "building", label: "About JKSPDC", desc: "Corporate profile & leadership", href: "/about-us/explore/overview", bg: "bg-blue-50", text: "text-blue-700" },
+  { icon: "factory", label: "Projects", desc: "Explore power stations", href: "/our-business/power-stations", bg: "bg-blue-50", text: "text-blue-700" },
+  { icon: "file-text", label: "Tender Portal", desc: "Live tenders & bids", href: "/stakeholders/vendors/tender-bids", bg: "bg-orange-50", text: "text-orange-600" },
+  { icon: "briefcase", label: "Careers", desc: "Open positions", href: "/stakeholders/career-seekers/current-openings", bg: "bg-emerald-50", text: "text-emerald-700" },
+  { icon: "scroll-text", label: "RTI", desc: "Right to Information", href: "/about-us/explore/overview", bg: "bg-blue-50", text: "text-blue-700" },
+  { icon: "landmark", label: "Investors", desc: "Financial reports", href: "/commercial/overview", bg: "bg-cyan-50", text: "text-cyan-700" },
+  { icon: "leaf", label: "CSR", desc: "Community initiatives", href: "/sustainability/environment/preamble", bg: "bg-emerald-50", text: "text-emerald-700" },
+  { icon: "newspaper", label: "Media Centre", desc: "Press & announcements", href: "/media/press-releases", bg: "bg-orange-50", text: "text-orange-600" },
+  { icon: "download", label: "Downloads", desc: "Documents & forms", href: "/stakeholders/vendors/tender-bids", bg: "bg-blue-50", text: "text-blue-700" },
+  { icon: "eye", label: "Vigilance", desc: "Integrity & compliance", href: "/about-us/explore/ethics-code", bg: "bg-red-50", text: "text-red-600" },
+];
+
+const projects = [
+  { name: "Baglihar Stage I & II", river: "Chenab", capacity: 900, district: "Ramban", status: "Operational", type: "Hydro", year: 2008 },
+  { name: "Uri Stage I", river: "Jhelum", capacity: 480, district: "Baramulla", status: "Operational", type: "Hydro", year: 1997 },
+  { name: "Uri Stage II", river: "Jhelum", capacity: 240, district: "Baramulla", status: "Operational", type: "Hydro", year: 2014 },
+  { name: "Salal Stage I & II", river: "Chenab", capacity: 345, district: "Reasi", status: "Operational", type: "Hydro", year: 1987 },
+  { name: "Dulhasti", river: "Chenab", capacity: 390, district: "Kishtwar", status: "Operational", type: "Hydro", year: 2007 },
+  { name: "Lower Jhelum", river: "Jhelum", capacity: 105, district: "Baramulla", status: "Operational", type: "Hydro", year: 2015 },
+  { name: "Chutak", river: "Suru", capacity: 44, district: "Kargil", status: "Operational", type: "Hydro", year: 2012 },
+  { name: "Nimmo Bazgo", river: "Indus", capacity: 45, district: "Leh", status: "Operational", type: "Hydro", year: 2013 },
+  { name: "Pakal Dul", river: "Marusudar", capacity: 1000, district: "Kishtwar", status: "Under Construction", type: "Hydro", year: 2026 },
+  { name: "Kiru", river: "Chenab", capacity: 624, district: "Kishtwar", status: "Under Construction", type: "Hydro", year: 2025 },
+  { name: "Kwar", river: "Chenab", capacity: 540, district: "Kishtwar", status: "Under Construction", type: "Hydro", year: 2026 },
+  { name: "Ratle", river: "Chenab", capacity: 850, district: "Kishtwar", status: "Under Construction", type: "Hydro", year: 2026 },
+  { name: "Sawalkot", river: "Chenab", capacity: 1856, district: "Ramban", status: "Upcoming", type: "Hydro", year: 2030 },
+  { name: "Bursar", river: "Marusudar", capacity: 800, district: "Kishtwar", status: "Upcoming", type: "Hydro", year: 2031 },
+  { name: "Kirthai II", river: "Chenab", capacity: 930, district: "Kishtwar", status: "Upcoming", type: "Hydro", year: 2029 },
+  { name: "Ladakh Solar Park I", river: "—", capacity: 100, district: "Leh", status: "Under Construction", type: "Solar", year: 2025 },
+  { name: "Jammu Solar Cluster", river: "—", capacity: 200, district: "Jammu", status: "Upcoming", type: "Solar", year: 2026 },
+];
+
+const tenders = [
+  { nit: "NIT-521/2025", title: "Civil Works — Baglihar Stage II Refurbishment", dept: "Civil", value: "Rs. 42.5 Cr", closing: "28 Jun 2025", status: "Open" },
+  { nit: "NIT-518/2025", title: "Supply of Transformers for Ratle HEP", dept: "Electrical", value: "Rs. 87.3 Cr", closing: "15 Jul 2025", status: "Open" },
+  { nit: "NIT-515/2025", title: "Security Services for Srinagar HQ (3 Years)", dept: "Admin", value: "Rs. 6.1 Cr", closing: "05 Jul 2025", status: "Open" },
+  { nit: "NIT-509/2025", title: "Pakal Dul HEP — E&M Equipment Supply", dept: "Electrical", value: "Rs. 230 Cr", closing: "20 Aug 2025", status: "Open" },
+  { nit: "NIT-506/2025", title: "IT Infrastructure Upgrade — Datacenter", dept: "IT", value: "Rs. 12.8 Cr", closing: "01 Jul 2025", status: "Closing Soon" },
+  { nit: "NIT-501/2025", title: "EPC for Jammu Solar Cluster — Phase I", dept: "Renewable", value: "Rs. 165 Cr", closing: "30 Sep 2025", status: "Open" },
+];
+
+const careers = [
+  { title: "Junior Engineer (Civil)", posts: 120, qual: "B.E/B.Tech Civil", lastDate: "30 Jun 2025", pay: "Rs.35,400-1,12,400" },
+  { title: "Junior Engineer (Electrical)", posts: 90, qual: "B.E/B.Tech Electrical", lastDate: "30 Jun 2025", pay: "Rs.35,400-1,12,400" },
+  { title: "Accounts Assistant", posts: 40, qual: "B.Com with Tally", lastDate: "15 Jul 2025", pay: "Rs.29,200-92,300" },
+  { title: "Data Entry Operator", posts: 35, qual: "12th + Diploma in IT", lastDate: "20 Jul 2025", pay: "Rs.19,900-63,200" },
+  { title: "Assistant Engineer (E&M)", posts: 25, qual: "B.E/B.Tech + 2yr Exp", lastDate: "31 Jul 2025", pay: "Rs.56,100-1,77,500" },
+];
+
+const corpStats = [
+  { label: "Authorised Capital", value: "Rs.5,000 Cr" },
+  { label: "Paid-Up Capital", value: "Rs.2,593 Cr" },
+  { label: "Revenue 2023-24", value: "Rs.1,136 Cr" },
+  { label: "JV Investment", value: "Rs.2,357 Cr" },
+];
 ---
 
-<Layout 
-  title="Home" 
-  description="Official web portal of Jammu & Kashmir State Power Development Corporation (JKSPDCL). Powering Jammu & Kashmir with sustainable hydroelectricity and renewable energy."
->
-  <!-- Main Banner / Hero Section -->
-  <section class="relative bg-gradient-to-br from-[#001f3f] via-[#003366] to-[#0b1329] text-white rounded-2xl p-8 md:p-16 mb-10 shadow-2xl overflow-hidden border-b-8 border-orange-500" aria-label="Introduction Banner">
-    <!-- Decorative background waves / glows -->
-    <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(59,130,246,0.1),transparent)] pointer-events-none"></div>
-    <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl pointer-events-none"></div>
-    
-    <div class="relative max-w-4xl z-10">
-      <span class="inline-block bg-orange-500/25 border border-orange-500 text-orange-300 text-[10px] font-bold tracking-widest uppercase px-3 py-1 rounded-full mb-4">
-        UT Power Legacy Since 1905
-      </span>
-      <h2 class="text-3xl md:text-5xl font-extrabold mb-6 tracking-tight leading-tight">
-        Harnessing Clean & Sustainable Energy for Jammu & Kashmir
-      </h2>
-      <p class="text-sm md:text-lg text-slate-200 mb-8 leading-relaxed">
-        Jammu and Kashmir State Power Development Corporation Limited (JKSPDCL) systematically plans, executes, and operates major power stations across the Union Territory, driving economic growth and energy sufficiency.
-      </p>
-      <div class="flex flex-wrap gap-4">
-        <a href="/about-us/explore/overview" class="inline-block bg-gradient-to-r from-[#f15a24] to-orange-500 hover:from-orange-600 hover:to-orange-500 text-white text-sm font-semibold px-8 py-3.5 rounded-lg transition-all shadow-lg hover:-translate-y-0.5">Explore Our Journey</a>
-        <a href="/stakeholders/vendors/tender-bids" class="inline-block bg-white/10 hover:bg-white/20 text-white text-sm font-semibold px-8 py-3.5 rounded-lg transition-all border border-white/20 backdrop-blur-sm hover:-translate-y-0.5">View Active Tenders</a>
+<Layout title="Home | JKSPDC Official Portal" description="Official enterprise portal of Jammu and Kashmir State Power Development Corporation Ltd. Powering the future of J&K through clean, sustainable, and reliable energy generation.">
+
+  <!-- HERO SLIDER -->
+  <section id="home" class="relative w-full overflow-hidden bg-[#002244]" style="height: calc(100vh - 9.5rem); min-height: 520px; max-height: 780px;">
+    <div id="hero-slides" class="absolute inset-0">
+      {heroSlides.map((slide, i) => (
+        <div id={`slide-${slide.id}`} class={`absolute inset-0 transition-opacity duration-700 ${i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
+          <img src={slide.img} alt={slide.title} class="w-full h-full object-cover" />
+          <div class="absolute inset-0 bg-gradient-to-r from-[#002244]/95 via-[#002244]/70 to-[#002244]/20"></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+        </div>
+      ))}
+    </div>
+    <div class="relative z-20 max-w-7xl mx-auto h-full px-4 flex items-center">
+      <div class="max-w-2xl text-white">
+        <div id="hero-badge" class="inline-flex items-center bg-orange-500 text-white text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-5">{heroSlides[0].badge}</div>
+        <h1 id="hero-title" class="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight tracking-tight">{heroSlides[0].title}</h1>
+        <p id="hero-desc" class="mt-5 text-base sm:text-lg text-white/85 max-w-xl leading-relaxed">{heroSlides[0].desc}</p>
+        <div class="mt-8 flex flex-wrap items-center gap-3">
+          <a id="hero-cta" href={heroSlides[0].ctaHref} class="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-400 text-white font-semibold px-6 h-12 rounded-md transition-colors text-sm shadow-lg">{heroSlides[0].ctaText} &rarr;</a>
+          <button class="inline-flex items-center gap-2 border border-white/40 bg-white/5 backdrop-blur-sm text-white hover:bg-white/15 px-6 h-12 rounded-md transition-colors text-sm font-medium">&#9654; Corporate Video</button>
+        </div>
+      </div>
+      <div class="hidden lg:block absolute right-8 bottom-24 z-20">
+        <div class="bg-black/40 backdrop-blur-md border border-white/15 rounded-2xl p-6 pr-10 min-w-[220px]">
+          <div id="hero-stat-label" class="text-white/60 text-xs uppercase tracking-widest font-medium">{heroSlides[0].statLabel}</div>
+          <div class="flex items-end gap-1 mt-2">
+            <span id="hero-stat-value" class="text-white text-6xl font-bold leading-none">{heroSlides[0].stat}</span>
+            <span id="hero-stat-unit" class="text-orange-400 text-xl font-semibold pb-1">{heroSlides[0].statUnit}</span>
+          </div>
+          <div class="mt-4 h-1.5 bg-white/15 rounded-full overflow-hidden">
+            <div id="hero-stat-bar" class="h-full bg-orange-500 rounded-full transition-all duration-700" style={`width:${heroSlides[0].statPct}%`}></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20">
+      {heroSlides.map((_, i) => (
+        <button data-dot={String(i)} class={`h-1.5 rounded-full transition-all duration-300 ${i === 0 ? 'w-10 bg-orange-500' : 'w-4 bg-white/40'}`} aria-label={`Slide ${i + 1}`}></button>
+      ))}
+    </div>
+    <button id="hero-prev" class="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-white/20 transition border border-white/20 text-2xl" aria-label="Previous">&#8249;</button>
+    <button id="hero-next" class="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-white/20 transition border border-white/20 text-2xl" aria-label="Next">&#8250;</button>
+  </section>
+
+  <!-- METRICS DASHBOARD -->
+  <section class="relative -mt-10 z-20 pb-6">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+        <div class="flex items-center justify-between px-6 pt-5 pb-3 border-b border-slate-100">
+          <div>
+            <div class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Live Corporate Dashboard</div>
+            <div class="text-lg font-bold text-slate-900">Enterprise Performance Metrics</div>
+          </div>
+          <div class="flex items-center gap-2 text-xs text-slate-400">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-slow-pulse"></span>
+            <span>Updated in real time</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-slate-100">
+          {metrics.map((m) => (
+            <div class="p-5 hover:bg-slate-50 transition group cursor-pointer">
+              <div class={`w-10 h-10 rounded-lg bg-gradient-to-br ${m.color} flex items-center justify-center mb-3 shadow-md group-hover:scale-110 transition-transform text-white`}>
+                <Icon name={m.icon} size={18} strokeWidth={2} />
+              </div>
+              <div class="text-xs text-slate-400 uppercase tracking-wider font-medium">{m.label}</div>
+              <div class="mt-1 text-2xl xl:text-3xl font-bold text-slate-900 tabular-nums">
+                <span class="metric-counter" data-target={String(m.value)}>0</span>
+                <span class="text-base font-semibold text-blue-700 ml-1">{m.unit}</span>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Key Metrics / Statistics Grid -->
-  <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12" aria-label="Key Performance Indicators">
-    <div class="bg-white rounded-xl shadow border border-slate-100 p-6 flex items-center justify-between transition-all hover:shadow-lg">
-      <div>
-        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Installed Capacity</p>
-        <p class="text-2xl font-black text-slate-900 mt-1">1197.4 MW</p>
-        <p class="text-[11px] text-slate-400 mt-1">Primarily catering to UT's DISCOMs</p>
+  <!-- QUICK ACCESS GRID -->
+  <section class="py-16 md:py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="mb-8">
+        <div class="text-xs uppercase tracking-widest text-orange-500 font-bold">Quick Access</div>
+        <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mt-2">Navigate the corporation</h2>
+        <p class="text-slate-500 mt-2 max-w-2xl">One-click access to the most-used services and information across the corporation.</p>
       </div>
-      <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-2xl" aria-hidden="true">⚡</div>
-    </div>
-    <div class="bg-white rounded-xl shadow border border-slate-100 p-6 flex items-center justify-between transition-all hover:shadow-lg">
-      <div>
-        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Operating Stations</p>
-        <p class="text-2xl font-black text-slate-900 mt-1">13 HEPs</p>
-        <p class="text-[11px] text-slate-400 mt-1">Including 900MW Baglihar Project</p>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        {quickLinks.map((link) => (
+          <a href={link.href} class="group relative bg-white border border-slate-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+            <div class={`w-11 h-11 rounded-xl ${link.bg} ${link.text} flex items-center justify-center mb-4`}>
+              <Icon name={link.icon} size={22} strokeWidth={1.75} />
+            </div>
+            <div class="font-semibold text-slate-800 text-sm">{link.label}</div>
+            <div class="text-xs text-slate-500 mt-1 leading-relaxed">{link.desc}</div>
+            <span class="absolute bottom-4 right-4 text-slate-300 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-sm">&rarr;</span>
+          </a>
+        ))}
       </div>
-      <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center text-2xl" aria-hidden="true">🏗️</div>
-    </div>
-    <div class="bg-white rounded-xl shadow border border-slate-100 p-6 flex items-center justify-between transition-all hover:shadow-lg">
-      <div>
-        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Hydro Potential</p>
-        <p class="text-2xl font-black text-slate-900 mt-1">18,000 MW</p>
-        <p class="text-[11px] text-slate-400 mt-1">Estimated potential in J&K</p>
-      </div>
-      <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-2xl" aria-hidden="true">💧</div>
-    </div>
-    <div class="bg-white rounded-xl shadow border border-slate-100 p-6 flex items-center justify-between transition-all hover:shadow-lg">
-      <div>
-        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">JV Under Construction</p>
-        <p class="text-2xl font-black text-slate-900 mt-1">3094 MW</p>
-        <p class="text-[11px] text-slate-400 mt-1">Combined JVs in Chenab basin</p>
-      </div>
-      <div class="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center text-2xl" aria-hidden="true">🤝</div>
     </div>
   </section>
 
-  <!-- Core Content Grid: About Us & Tenders -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-    
-    <!-- About JKSPDCL Highlight (Left 2 Columns) -->
-    <div class="lg:col-span-2 space-y-6">
-      <div class="bg-white rounded-xl shadow border border-slate-150 p-6 md:p-8">
-        <h3 class="text-2xl font-extrabold text-[#003366] border-b border-slate-100 pb-3 mb-4">
-          About JKSPDCL
-        </h3>
-        
-        <p class="text-slate-700 text-sm leading-relaxed mb-4">
-          Jammu and Kashmir State Power Development Corporation Limited (JKSPDCL) is a wholly owned Public Sector Undertaking (PSU) of the Government of Jammu & Kashmir. Incorporated in 1995 under the Companies Act, our mandate is to take over, execute, complete and operate Power Stations and Power projects of the erstwhile Jammu & Kashmir State.
-        </p>
-
-        <p class="text-slate-700 text-sm leading-relaxed mb-6">
-          The journey of J&K in power development began with the historic <strong>4MW Mohra Hydroelectric Plant in 1905</strong>, marking the start of a legacy. Today, JKSPDC has an authorised share capital of Rs. 5000 crores, paid up share capital of Rs. 2593.3443 crores and generated revenue of Rs. 1136.94 crores from power sales in the financial year 2023-24 with PBT of Rs. 361.64 crores.
-        </p>
-
-        <!-- Capital and Investment Highlight Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-          <div class="bg-slate-50 border border-slate-100 rounded-lg p-4">
-            <h4 class="font-bold text-[#003366] text-xs uppercase tracking-wider">Authorized Share Capital</h4>
-            <p class="text-lg font-black text-slate-800 mt-1">Rs. 5,000 Crores</p>
-            <p class="text-[11px] text-slate-500 mt-0.5">Paid-up capital: Rs. 2,593.34 Crores</p>
-          </div>
-          <div class="bg-slate-50 border border-slate-100 rounded-lg p-4">
-            <h4 class="font-bold text-[#003366] text-xs uppercase tracking-wider">NHPC Joint Ventures</h4>
-            <p class="text-lg font-black text-slate-800 mt-1">Rs. 2,357.61 Crores</p>
-            <p class="text-[11px] text-slate-500 mt-0.5">Invested in CVPPPL & RHPCL</p>
-          </div>
+  <!-- PROJECT EXPLORER -->
+  <section id="projects" class="py-16 md:py-24 bg-gradient-to-b from-slate-50 to-slate-100">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+        <div>
+          <div class="text-xs uppercase tracking-widest text-orange-500 font-bold">Project Portfolio</div>
+          <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mt-2">Interactive Project Explorer</h2>
+          <p class="text-slate-500 mt-2 max-w-2xl">Discover operational hydroelectric plants, ongoing constructions and upcoming renewable projects across J&K.</p>
         </div>
-
-        <!-- Renewable segment transition banner -->
-        <div class="bg-gradient-to-r from-teal-500/10 to-blue-500/10 border border-teal-500/20 rounded-xl p-5 flex flex-col sm:flex-row gap-4 items-center justify-between">
-          <div class="space-y-1">
-            <h4 class="font-bold text-teal-900 text-sm flex items-center gap-1.5">
-              <span>🌱</span> Renewable Energy Segment Foray
-            </h4>
-            <p class="text-xs text-slate-600 leading-relaxed max-w-xl">
-              Leveraging experienced manpower, land, and water assets to expand into solar, wind, green hydrogen, and hybrid energy as part of India's "Panchamrit" pledge to meet 50% energy requirements from renewables by 2030.
-            </p>
-          </div>
-          <a href="/sustainability/environment/preamble" class="text-xs font-bold text-teal-800 bg-teal-100 hover:bg-teal-200 px-4 py-2 rounded-lg transition-colors whitespace-nowrap">
-            Read Policies &rarr;
-          </a>
+        <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 rounded-lg border bg-white px-4 py-2 text-xs text-slate-600"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> 21 Operational</div>
+          <div class="flex items-center gap-2 rounded-lg border bg-white px-4 py-2 text-xs text-slate-600"><span class="w-2 h-2 rounded-full bg-orange-500"></span> 8 Under Construction</div>
         </div>
       </div>
-
-      <!-- Joint Venture Details -->
-      <div class="bg-white rounded-xl shadow border border-slate-150 p-6">
-        <h3 class="text-lg font-extrabold text-[#003366] border-b border-slate-100 pb-3 mb-4">
-          Joint Venture & Major Projects
-        </h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-slate-600">
-          <div>
-            <h4 class="font-bold text-slate-900 text-sm">Chenab Valley Power Projects (CVPPPL)</h4>
-            <p class="mt-1 leading-relaxed">
-              Incorporated in 2011, constructing 4 large projects in Chenab basin with combined installed capacity of 3094 MW: Pakal Dul (1000 MW), Kiru (624 MW), Kwar (540 MW) expected to commission in 2026, and Kirthai-II HEP (930 MW).
-            </p>
+      <div class="flex items-center gap-1 mb-6 bg-white border border-slate-200 rounded-lg p-1 w-fit flex-wrap">
+        {['All', 'Operational', 'Under Construction', 'Upcoming', 'Solar'].map((tab) => (
+          <button data-tab={tab} class={`project-tab px-4 py-1.5 rounded-md text-sm font-medium transition-all ${tab === 'All' ? 'bg-[#003366] text-white shadow' : 'text-slate-600 hover:bg-slate-100'}`}>{tab === 'All' ? 'All Projects' : tab}</button>
+        ))}
+      </div>
+      <div class="mb-6">
+        <div class="relative max-w-sm">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 flex items-center">
+            <Icon name="search" size={14} strokeWidth={2} />
+          </span>
+          <input id="project-search" type="text" placeholder="Search projects..." class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white" />
+        </div>
+      </div>
+      <div id="projects-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {projects.map((p) => (
+          <div class="project-card bg-white rounded-xl border border-slate-200 p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-300" data-status={p.status} data-type={p.type} data-name={p.name.toLowerCase()}>
+            <div class="flex items-start justify-between mb-3">
+              <div>
+                <div class="font-bold text-slate-900 text-sm">{p.name}</div>
+                <div class="text-xs text-slate-500 mt-0.5">{p.district} — {p.river} River</div>
+              </div>
+              <span class={`text-xs font-bold uppercase px-2 py-0.5 rounded-full whitespace-nowrap ${p.status === 'Operational' ? 'bg-emerald-100 text-emerald-700' : p.status === 'Under Construction' ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-600'}`}>{p.status}</span>
+            </div>
+            <div class="flex items-end gap-1 mb-3">
+              <span class="text-3xl font-bold text-[#003366]">{p.capacity}</span>
+              <span class="text-sm text-orange-500 font-semibold pb-0.5">MW</span>
+            </div>
+            <div class="flex items-center justify-between text-xs text-slate-500">
+              <span class={`font-medium flex items-center gap-1 ${p.type === 'Solar' ? 'text-orange-600' : 'text-blue-600'}`}>
+                <Icon name={p.type === 'Solar' ? 'sun' : 'droplets'} size={12} strokeWidth={2} />
+                {p.type}
+              </span>
+              <span>Est. {p.year}</span>
+              <a href="/our-business/power-stations" class="text-blue-600 hover:underline font-medium">Details &rarr;</a>
+            </div>
           </div>
-          <div>
-            <h4 class="font-bold text-slate-900 text-sm">Ratle Hydroelectric Corporation (RHPCL)</h4>
-            <p class="mt-1 leading-relaxed">
-              Established in 2021 in JV with NHPC to implement the 850 MW Ratle Hydroelectric Project on Chenab river. The project is slated to be commissioned by May, 2026.
-            </p>
+        ))}
+      </div>
+      <div class="text-center mt-10">
+        <a href="/our-business/power-stations" class="inline-flex items-center gap-2 border border-slate-300 hover:border-blue-400 text-slate-700 hover:text-blue-700 px-6 py-2.5 rounded-lg text-sm font-medium bg-white transition-colors">View All Projects &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACTIVE TENDERS -->
+  <section id="tenders" class="py-16 md:py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
+        <div>
+          <div class="text-xs uppercase tracking-widest text-orange-500 font-bold">Procurement</div>
+          <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mt-2">Active Tenders &amp; Bids</h2>
+          <p class="text-slate-500 mt-2">All currently open tenders from JKSPDCL. Download bid documents and submit online.</p>
+        </div>
+        <a href="/stakeholders/vendors/tender-bids" class="inline-flex items-center gap-2 bg-[#003366] hover:bg-[#002244] text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap shadow">View All Tenders &rarr;</a>
+      </div>
+      <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-50 text-slate-600 text-xs uppercase tracking-wider">
+            <tr>
+              <th class="px-5 py-3 text-left font-semibold">NIT No.</th>
+              <th class="px-5 py-3 text-left font-semibold">Description</th>
+              <th class="px-5 py-3 text-left font-semibold hidden md:table-cell">Dept.</th>
+              <th class="px-5 py-3 text-left font-semibold hidden lg:table-cell">Est. Value</th>
+              <th class="px-5 py-3 text-left font-semibold">Closing</th>
+              <th class="px-5 py-3 text-left font-semibold">Status</th>
+              <th class="px-5 py-3"></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            {tenders.map((t) => (
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-5 py-4 font-mono font-semibold text-[#003366] text-xs">{t.nit}</td>
+                <td class="px-5 py-4 text-slate-800 font-medium max-w-xs">{t.title}</td>
+                <td class="px-5 py-4 text-slate-500 hidden md:table-cell">{t.dept}</td>
+                <td class="px-5 py-4 text-slate-700 font-semibold hidden lg:table-cell">{t.value}</td>
+                <td class="px-5 py-4 text-slate-600">{t.closing}</td>
+                <td class="px-5 py-4"><span class={`text-xs font-bold uppercase px-2.5 py-1 rounded-full ${t.status === 'Open' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>{t.status}</span></td>
+                <td class="px-5 py-4"><a href="/stakeholders/vendors/tender-bids" class="text-blue-600 hover:underline font-medium text-xs whitespace-nowrap">Bid Docs &rarr;</a></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT SECTION -->
+  <section id="about" class="py-16 md:py-24 bg-gradient-to-br from-[#002244] to-[#003366] text-white">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="grid lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <div class="text-xs uppercase tracking-widest text-orange-400 font-bold mb-4">About JKSPDC</div>
+          <h2 class="text-3xl md:text-4xl font-bold leading-tight mb-6">Powering J&K Since 1995</h2>
+          <p class="text-white/80 leading-relaxed mb-4">Jammu and Kashmir State Power Development Corporation Limited (JKSPDCL) is a wholly owned Public Sector Undertaking (PSU) of the Government of Jammu &amp; Kashmir, incorporated in 1995 under the Companies Act.</p>
+          <p class="text-white/80 leading-relaxed mb-8">With an authorised share capital of Rs.5,000 crores, JKSPDC has investments of Rs.2,357.61 crores in joint ventures with NHPC — including CVPPPL and RHPCL.</p>
+          <div class="grid grid-cols-2 gap-4 mb-8">
+            {corpStats.map(stat => (
+              <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/15">
+                <div class="text-white/60 text-xs uppercase tracking-wide mb-1">{stat.label}</div>
+                <div class="text-xl font-bold text-orange-400">{stat.value}</div>
+              </div>
+            ))}
+          </div>
+          <a href="/about-us/explore/overview" class="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-400 text-white font-semibold px-6 py-3 rounded-lg text-sm transition-colors">Learn More About Us &rarr;</a>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="rounded-2xl overflow-hidden shadow-2xl aspect-[4/3]"><img src="/slider2.jpg" alt="JKSPDC project" class="w-full h-full object-cover" /></div>
+          <div class="rounded-2xl overflow-hidden shadow-2xl aspect-[4/3] mt-8"><img src="/slider3.jpg" alt="JKSPDC dam" class="w-full h-full object-cover" /></div>
+          <div class="rounded-2xl overflow-hidden shadow-2xl aspect-[4/3] -mt-8"><img src="/slider1.jpg" alt="JKSPDC station" class="w-full h-full object-cover" /></div>
+          <div class="bg-orange-500 rounded-2xl p-6 flex flex-col justify-center">
+            <div class="text-4xl font-bold">30+</div>
+            <div class="text-sm font-semibold mt-1">Years of Excellence</div>
+            <div class="text-xs text-orange-100 mt-2">Harnessing J&K hydro potential since 1995</div>
           </div>
         </div>
       </div>
     </div>
+  </section>
 
-    <!-- Active Tenders Registry (Right 1 Column) -->
-    <div class="bg-white rounded-xl shadow border border-slate-150 p-6 flex flex-col">
-      <h3 class="text-lg font-extrabold text-[#003366] border-b border-slate-100 pb-3 mb-4 flex items-center justify-between">
-        <span>Tenders & Announcements</span>
-        <span class="flex h-2 w-2 relative">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-        </span>
-      </h3>
-
-      <div class="flex-grow space-y-4">
-        <!-- Tender item 1 -->
-        <div class="border-b border-slate-100 pb-3 text-xs">
-          <span class="inline-block bg-orange-100 text-orange-800 font-bold px-2 py-0.5 rounded text-[9px] mb-1">SOLAR PROCUREMENT</span>
-          <a href="/stakeholders/vendors/tender-bids" class="font-bold text-[#003366] hover:underline block mb-1">
-            NIT/121/JKSPDCL/2026: DPR & Engineering for 15MW Grid-Connected Solar Project
-          </a>
-          <div class="flex justify-between text-slate-400 text-[10px] mt-1.5">
-            <span>Publish: 01-Jul-2026</span>
-            <span class="font-semibold text-slate-500">Closing: 15-Aug-2026</span>
-          </div>
+  <!-- CAREERS SECTION -->
+  <section id="careers" class="py-16 md:py-24 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
+        <div>
+          <div class="text-xs uppercase tracking-widest text-orange-500 font-bold">Join Our Team</div>
+          <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mt-2">Current Career Openings</h2>
+          <p class="text-slate-500 mt-2">Build a meaningful career in India's premier hydro power PSU.</p>
         </div>
-
-        <!-- Tender item 2 -->
-        <div class="border-b border-slate-100 pb-3 text-xs">
-          <span class="inline-block bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded text-[9px] mb-1">TELEMETRY / IT</span>
-          <a href="/stakeholders/vendors/tender-bids" class="font-bold text-[#003366] hover:underline block mb-1">
-            NIT/122/JKSPDCL/2026: Telemetry & SCADA Upgrades for Baglihar Stage-II (450MW)
-          </a>
-          <div class="flex justify-between text-slate-400 text-[10px] mt-1.5">
-            <span>Publish: 03-Jul-2026</span>
-            <span class="font-semibold text-slate-500">Closing: 22-Aug-2026</span>
+        <a href="/stakeholders/career-seekers/current-openings" class="inline-flex items-center gap-2 border border-slate-300 hover:border-blue-400 text-slate-700 hover:text-blue-700 px-5 py-2.5 rounded-lg text-sm font-medium bg-white whitespace-nowrap transition-colors">All Openings &rarr;</a>
+      </div>
+      <div class="space-y-3">
+        {careers.map((job) => (
+          <div class="bg-white border border-slate-200 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:shadow-md hover:border-blue-200 transition-all">
+            <div class="flex-1">
+              <div class="flex items-center gap-3 flex-wrap">
+                <h3 class="font-bold text-slate-900 text-sm">{job.title}</h3>
+                <span class="bg-emerald-100 text-emerald-700 text-xs font-bold uppercase px-2 py-0.5 rounded-full">Open</span>
+              </div>
+              <div class="flex flex-wrap gap-4 mt-2 text-xs text-slate-500">
+                <span>{job.posts} Posts</span>
+                <span>{job.qual}</span>
+                <span>{job.pay}</span>
+                <span>Last Date: {job.lastDate}</span>
+              </div>
+            </div>
+            <a href="/stakeholders/career-seekers/current-openings" class="shrink-0 inline-flex items-center gap-2 bg-[#003366] hover:bg-[#002244] text-white px-5 py-2 rounded-lg text-xs font-semibold transition-colors shadow">Apply Now</a>
           </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT SECTION -->
+  <section id="contact" class="py-16 md:py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="text-center mb-12">
+        <div class="text-xs uppercase tracking-widest text-orange-500 font-bold">Get In Touch</div>
+        <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mt-2">Contact JKSPDCL</h2>
+        <p class="text-slate-500 mt-2 max-w-xl mx-auto">Reach out to our offices in Srinagar or Jammu for enquiries, tenders, and official correspondence.</p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200">
+          <div class="w-11 h-11 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-4">
+            <Icon name="map-pin" size={20} strokeWidth={1.75} />
+          </div>
+          <h3 class="font-bold text-slate-900 mb-2">Srinagar Office</h3>
+          <p class="text-sm text-slate-600 leading-relaxed mb-3">Exhibition Grounds, Jahangir Chowk,<br />Srinagar, J&K — 190009</p>
+          <a href="tel:+911942451665" class="text-sm text-blue-600 hover:underline flex items-center gap-1.5 mt-1">
+            <Icon name="phone" size={13} strokeWidth={2} /> +91 194 2451665
+          </a>
+          <a href="mailto:md-jkspdcl@jk.gov.in" class="text-sm text-blue-600 hover:underline flex items-center gap-1.5 mt-1">
+            <Icon name="mail" size={13} strokeWidth={2} /> md-jkspdcl@jk.gov.in
+          </a>
         </div>
-
-        <!-- Tender item 3 -->
-        <div class="border-b border-slate-100 pb-3 text-xs">
-          <span class="inline-block bg-green-100 text-green-800 font-bold px-2 py-0.5 rounded text-[9px] mb-1">CONSULTANCY SERVICES</span>
-          <a href="/stakeholders/vendors/tender-bids" class="font-bold text-[#003366] hover:underline block mb-1">
-            NIT/123/JKSPDCL/2026: Detailed Appraisal Consultancy for Kirthai-I HEP (390MW)
-          </a>
-          <div class="flex justify-between text-slate-400 text-[10px] mt-1.5">
-            <span>Publish: 05-Jul-2026</span>
-            <span class="font-semibold text-slate-500">Closing: 30-Aug-2026</span>
+        <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200">
+          <div class="w-11 h-11 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center mb-4">
+            <Icon name="building" size={20} strokeWidth={1.75} />
           </div>
+          <h3 class="font-bold text-slate-900 mb-2">Jammu Office</h3>
+          <p class="text-sm text-slate-600 leading-relaxed mb-3">Ashok Nagar, Satwari,<br />Jammu, J&K — 180004</p>
+          <a href="tel:+911912430548" class="text-sm text-blue-600 hover:underline flex items-center gap-1.5 mt-1">
+            <Icon name="phone" size={13} strokeWidth={2} /> +91 191 2430548 / 2439039
+          </a>
+          <a href="mailto:md-jkspdcl@jk.gov.in" class="text-sm text-blue-600 hover:underline flex items-center gap-1.5 mt-1">
+            <Icon name="mail" size={13} strokeWidth={2} /> md-jkspdcl@jk.gov.in
+          </a>
         </div>
-
-        <!-- Tender item 4 -->
-        <div class="border-b border-slate-100 pb-3 text-xs">
-          <span class="inline-block bg-purple-100 text-purple-800 font-bold px-2 py-0.5 rounded text-[9px] mb-1">REHABILITATION</span>
-          <a href="/stakeholders/vendors/tender-bids" class="font-bold text-[#003366] hover:underline block mb-1">
-            NIT/124/JKSPDCL/2026: Renovation Works of Historic Mohra Plant (4MW)
-          </a>
-          <div class="flex justify-between text-slate-400 text-[10px] mt-1.5">
-            <span>Publish: 06-Jul-2026</span>
-            <span class="font-semibold text-slate-500">Closing: 10-Sep-2026</span>
+        <div class="bg-gradient-to-br from-[#002244] to-[#003366] rounded-2xl p-6 text-white">
+          <div class="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center mb-4">
+            <Icon name="mail" size={20} strokeWidth={1.75} />
           </div>
+          <h3 class="font-bold mb-2">Online Grievance</h3>
+          <p class="text-sm text-white/80 leading-relaxed mb-4">Submit complaints, RTI applications or general enquiries through our online portal.</p>
+          <a href="/contact-us" class="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-400 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors">Submit Enquiry &rarr;</a>
         </div>
       </div>
-
-      <a href="/stakeholders/vendors/tender-bids" class="block text-center text-xs font-bold mt-4 text-[#003366] bg-slate-100 hover:bg-slate-200 py-2.5 rounded-lg transition-colors border border-slate-200">
-        View All Tenders & Bids &rarr;
-      </a>
     </div>
+  </section>
 
-  </div>
 </Layout>
+
+<script is:inline>
+(function () {
+  var slides = [
+    { badge: "Powering Jammu & Kashmir since 1995", title: "Baglihar Hydroelectric Project", desc: "A 900 MW run-of-the-river hydroelectric plant on the Chenab River.", stat: "900", statUnit: "MW", statLabel: "Installed Capacity", statPct: 80, ctaText: "Explore Project", ctaHref: "/our-business/power-stations" },
+    { badge: "Green Energy Initiative", title: "Uri Hydroelectric Power Station", desc: "The largest hydro project in J&K with 480 MW capacity.", stat: "480", statUnit: "MW", statLabel: "Installed Capacity", statPct: 55, ctaText: "View Details", ctaHref: "/our-business/power-stations" },
+    { badge: "Under Construction", title: "Pakal Dul Hydroelectric Project", desc: "A 1,000 MW project on Marusudar River nearing completion.", stat: "1000", statUnit: "MW", statLabel: "Planned Capacity", statPct: 70, ctaText: "Learn More", ctaHref: "/our-business/under-construction" },
+    { badge: "Renewable Energy", title: "Solar Power Development", desc: "JKSPDC is expanding into solar with projects across Ladakh and Jammu.", stat: "300", statUnit: "MW", statLabel: "Solar Target", statPct: 40, ctaText: "Solar Projects", ctaHref: "/sustainability/environment/preamble" }
+  ];
+  var cur = 0, total = slides.length;
+  var slideEls = [], dots = document.querySelectorAll('[data-dot]');
+  for (var i = 0; i < total; i++) slideEls.push(document.getElementById('slide-' + i));
+
+  function goTo(n) {
+    if (slideEls[cur]) { slideEls[cur].classList.replace('opacity-100','opacity-0'); slideEls[cur].classList.replace('z-10','z-0'); }
+    if (dots[cur]) dots[cur].className = 'h-1.5 rounded-full transition-all duration-300 w-4 bg-white/40';
+    cur = ((n % total) + total) % total;
+    if (slideEls[cur]) { slideEls[cur].classList.replace('opacity-0','opacity-100'); slideEls[cur].classList.replace('z-0','z-10'); }
+    if (dots[cur]) dots[cur].className = 'h-1.5 rounded-full transition-all duration-300 w-10 bg-orange-500';
+    var s = slides[cur];
+    var badge = document.getElementById('hero-badge'); if (badge) badge.textContent = s.badge;
+    var title = document.getElementById('hero-title'); if (title) title.textContent = s.title;
+    var desc = document.getElementById('hero-desc'); if (desc) desc.textContent = s.desc;
+    var sv = document.getElementById('hero-stat-value'); if (sv) sv.textContent = s.stat;
+    var su = document.getElementById('hero-stat-unit'); if (su) su.textContent = s.statUnit;
+    var sl = document.getElementById('hero-stat-label'); if (sl) sl.textContent = s.statLabel;
+    var sb = document.getElementById('hero-stat-bar'); if (sb) sb.style.width = s.statPct + '%';
+    var cta = document.getElementById('hero-cta'); if (cta) { cta.textContent = s.ctaText + ' \u2192'; cta.href = s.ctaHref; }
+  }
+
+  var prev = document.getElementById('hero-prev'); if (prev) prev.onclick = function() { goTo(cur-1); };
+  var next = document.getElementById('hero-next'); if (next) next.onclick = function() { goTo(cur+1); };
+  dots.forEach(function(d) { d.onclick = function() { goTo(parseInt(d.dataset.dot,10)); }; });
+  setInterval(function() { goTo(cur+1); }, 6000);
+
+  var counters = document.querySelectorAll('.metric-counter'), counted = false;
+  function animateCounters() {
+    counters.forEach(function(el) {
+      var target = parseInt(el.dataset.target, 10), val = 0, step = Math.max(1, target/80);
+      var t = setInterval(function() {
+        val = Math.min(val + step, target);
+        el.textContent = Math.round(val).toLocaleString('en-IN');
+        if (val >= target) clearInterval(t);
+      }, 20);
+    });
+  }
+  if ('IntersectionObserver' in window && counters.length) {
+    var obs = new IntersectionObserver(function(entries) {
+      if (entries[0].isIntersecting && !counted) { counted = true; animateCounters(); }
+    }, { threshold: 0.3 });
+    obs.observe(counters[0].closest('section'));
+  } else animateCounters();
+
+  var cards = document.querySelectorAll('.project-card');
+  var tabBtns = document.querySelectorAll('.project-tab');
+  var searchEl = document.getElementById('project-search');
+  var activeTab = 'All';
+  function filterProjects() {
+    var q = searchEl ? searchEl.value.toLowerCase() : '';
+    cards.forEach(function(c) {
+      var tabOk = activeTab==='All' || c.dataset.status===activeTab || (activeTab==='Solar' && c.dataset.type==='Solar');
+      c.style.display = (tabOk && (!q || c.dataset.name.includes(q))) ? '' : 'none';
+    });
+  }
+  tabBtns.forEach(function(btn) {
+    btn.onclick = function() {
+      tabBtns.forEach(function(t) { t.className = 'project-tab px-4 py-1.5 rounded-md text-sm font-medium transition-all text-slate-600 hover:bg-slate-100'; });
+      btn.className = 'project-tab px-4 py-1.5 rounded-md text-sm font-medium transition-all bg-[#003366] text-white shadow';
+      activeTab = btn.dataset.tab;
+      filterProjects();
+    };
+  });
+  if (searchEl) searchEl.oninput = filterProjects;
+})();
+</script>

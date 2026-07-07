@@ -1,5 +1,30 @@
 @import "tailwindcss";
 
+/* Ticker animation */
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-ticker {
+  animation: ticker 35s linear infinite;
+}
+
+/* Counter animation */
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Slow pulse for status indicators */
+@keyframes slow-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.animate-slow-pulse {
+  animation: slow-pulse 2.5s ease-in-out infinite;
+}
+
+
 @theme {
   --color-brand-primary: #003366;
   --color-brand-primary-dark: #002244;
@@ -7,10 +32,10 @@
   --color-brand-secondary-hover: #d94814;
   --color-brand-accent: #008080;
   --color-brand-accent-hover: #006666;
-  
+
   --shadow-card: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-card-hover: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  
+
   --radius-btn: 4px;
   --radius-card: 8px;
 }
@@ -65,11 +90,11 @@ html {
   border: 1px solid transparent;
   transition: all 0.2s ease-in-out;
   cursor: pointer;
-  
+
   &:hover {
     background-color: var(--color-brand-primary-dark);
   }
-  
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -89,11 +114,11 @@ html {
   border: 1px solid transparent;
   transition: all 0.2s ease-in-out;
   cursor: pointer;
-  
+
   &:hover {
     background-color: var(--color-brand-secondary-hover);
   }
-  
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -113,12 +138,12 @@ html {
   border: 1px solid var(--color-brand-primary);
   transition: all 0.2s ease-in-out;
   cursor: pointer;
-  
+
   &:hover {
     background-color: var(--color-brand-primary);
     color: #ffffff;
   }
-  
+
   &:disabled {
     opacity: 0.6;
     color: var(--color-brand-primary);
@@ -143,7 +168,7 @@ html {
   padding: 1.5rem;
   box-shadow: var(--shadow-card);
   transition: all 0.2s ease-in-out;
-  
+
   &:hover {
     box-shadow: var(--shadow-card-hover);
     transform: translateY(-2px);
@@ -174,7 +199,7 @@ html {
   background-color: #ffffff;
   color: #111827;
   transition: border-color 0.2s ease;
-  
+
   &:focus {
     border-color: var(--color-brand-primary);
     outline: none;
@@ -190,7 +215,7 @@ html {
   background-color: #ffffff;
   color: #111827;
   transition: border-color 0.2s ease;
-  
+
   &:focus {
     border-color: var(--color-brand-primary);
     outline: none;
@@ -226,7 +251,7 @@ html {
   border-collapse: collapse;
   text-align: left;
   font-size: 0.875rem;
-  
+
   & th {
     background-color: #f3f4f6;
     color: #1f2937;
@@ -234,13 +259,13 @@ html {
     padding: 0.875rem 1rem;
     border-bottom: 2px solid #e5e7eb;
   }
-  
+
   & td {
     padding: 0.875rem 1rem;
     border-bottom: 1px solid #e5e7eb;
     color: #4b5563;
   }
-  
+
   & tbody tr:hover {
     background-color: #f9fafb;
   }
@@ -283,4 +308,12 @@ html {
   background-color: #eff6ff;
   color: #1e40af;
   border-color: #3b82f6;
+}
+
+grid-column: span 4 / span 4 !important;
+}
+
+.grid-cols-1.lg\:grid-cols-3.gap-8:has(article):has(aside) aside {
+  grid-column: span 1 / span 1 !important;
+}
 }

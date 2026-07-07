@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import Icon from '../components/Icon.astro';
 
 interface Props {
   title: string;
@@ -56,6 +57,30 @@ const currentYear = new Date().getFullYear();
         background-color: #333333 !important;
         color: #ffffff !important;
       }
+
+      /* ── Ticker scroll animation ───────────────────────────────── */
+      @keyframes ticker-scroll {
+        0%   { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+      }
+      .animate-ticker {
+        display: flex;
+        white-space: nowrap;
+        animation: ticker-scroll 38s linear infinite;
+        will-change: transform;
+      }
+      .animate-ticker:hover {
+        animation-play-state: paused;
+      }
+
+      /* ── Slow pulse for status dots ────────────────────────────── */
+      @keyframes slow-pulse {
+        0%, 100% { opacity: 1; }
+        50%       { opacity: 0.35; }
+      }
+      .animate-slow-pulse {
+        animation: slow-pulse 2.5s ease-in-out infinite;
+      }
     </style>
   </head>
   <body class="min-h-screen flex flex-col bg-slate-50 text-slate-800 font-sans transition-colors duration-150">
@@ -68,27 +93,56 @@ const currentYear = new Date().getFullYear();
       <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
         <!-- Office Info / Contact Helpline -->
         <div class="hidden sm:flex items-center gap-4">
-          <span>📞 Jammu Office: +91 191 2430548</span>
-          <span>📞 Srinagar Office: +91 194 2451665</span>
+          <span class="flex items-center gap-1.5"><Icon name="phone" size={12} strokeWidth={2} /> Jammu Office: +91 191 2430548</span>
+          <span class="flex items-center gap-1.5"><Icon name="phone" size={12} strokeWidth={2} /> Srinagar Office: +91 194 2451665</span>
         </div>
         <!-- Accessibility Controls -->
         <div class="flex items-center gap-4 ml-auto">
           <div class="flex items-center gap-2" aria-label="Font Adjustments">
-            <button class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 rounded text-[10px] font-bold" onclick="document.documentElement.style.fontSize = '14px'" aria-label="Decrease Font Size">A-</button>
-            <button class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 rounded text-[10px] font-bold" onclick="document.documentElement.style.fontSize = '16px'" aria-label="Normal Font Size">A</button>
-            <button class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 rounded text-[10px] font-bold" onclick="document.documentElement.style.fontSize = '18px'" aria-label="Increase Font Size">A+</button>
+            <button class="flex items-center gap-1 px-2 py-0.5 bg-slate-800 hover:bg-slate-700 rounded text-[10px] font-bold" onclick="document.documentElement.style.fontSize = '14px'" aria-label="Decrease Font Size">
+              <Icon name="minus" size={10} strokeWidth={2.5} /> A
+            </button>
+            <button class="flex items-center px-2 py-0.5 bg-slate-800 hover:bg-slate-700 rounded text-[10px] font-bold" onclick="document.documentElement.style.fontSize = '16px'" aria-label="Normal Font Size">A</button>
+            <button class="flex items-center gap-1 px-2 py-0.5 bg-slate-800 hover:bg-slate-700 rounded text-[10px] font-bold" onclick="document.documentElement.style.fontSize = '18px'" aria-label="Increase Font Size">
+              <Icon name="plus" size={10} strokeWidth={2.5} /> A
+            </button>
           </div>
           <span class="text-slate-600">|</span>
           <!-- Contrast Switcher -->
-          <button class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 rounded text-[10px] font-semibold" onclick="document.body.classList.toggle('high-contrast')" aria-label="Toggle High Contrast Mode">👁️ Contrast</button>
+          <button class="flex items-center gap-1.5 px-2 py-0.5 bg-slate-800 hover:bg-slate-700 rounded text-[10px] font-semibold" onclick="document.body.classList.toggle('high-contrast')" aria-label="Toggle High Contrast Mode"><Icon name="contrast" size={12} strokeWidth={2} /> Contrast</button>
           <span class="text-slate-600">|</span>
           <!-- Language Selector -->
-          <a href="#" class="hover:text-white transition-colors font-semibold" aria-label="Switch Language to Hindi">हिन्दी</a>
+          <a href="#" class="flex items-center gap-1 hover:text-white transition-colors font-semibold" aria-label="Switch Language to Hindi"><Icon name="globe" size={12} strokeWidth={2} /> हिन्दी</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live News Ticker Bar -->
+    <div class="bg-orange-500 text-white relative overflow-hidden" aria-live="polite" aria-label="Live announcements" style="border-top:1px solid rgba(0,0,0,0.1); border-bottom:1px solid rgba(0,0,0,0.1);">
+      <div class="flex items-stretch" style="max-width:100%;">
+        <div class="shrink-0 bg-[#002244] text-white text-xs font-bold px-4 flex items-center gap-2 uppercase tracking-wide" style="white-space:nowrap;">
+          <span class="w-2 h-2 rounded-full bg-red-500 animate-slow-pulse" style="display:inline-block;flex-shrink:0;"></span>
+          Live
+        </div>
+        <div style="overflow:hidden; flex:1; position:relative;">
+          <div class="animate-ticker" style="gap: 3rem; padding: 0.5rem 0; font-size: 0.8rem; font-weight: 500;">
+            <span style="padding-right:3rem;">› NEW: Recruitment 2025 — 250 Junior Engineer posts announced. Apply by 30 Jun 2025</span>
+            <span style="padding-right:3rem;">› TENDER: NIT-521 for Baglihar Refurbishment closing 28 Jun 2025</span>
+            <span style="padding-right:3rem;">› PRESS: JKSPDC signs MoU for 3,000 MW hydro expansion with NHPC</span>
+            <span style="padding-right:3rem;">› CORRIGENDUM: COR/2025/56 issued for Pakal Dul E&amp;M works</span>
+            <span style="padding-right:3rem;">› INVESTOR: 32nd AGM scheduled for 25 Jun 2025</span>
+            <span style="padding-right:3rem;">› NEW: Recruitment 2025 — 250 Junior Engineer posts announced. Apply by 30 Jun 2025</span>
+            <span style="padding-right:3rem;">› TENDER: NIT-521 for Baglihar Refurbishment closing 28 Jun 2025</span>
+            <span style="padding-right:3rem;">› PRESS: JKSPDC signs MoU for 3,000 MW hydro expansion with NHPC</span>
+            <span style="padding-right:3rem;">› CORRIGENDUM: COR/2025/56 issued for Pakal Dul E&amp;M works</span>
+            <span style="padding-right:3rem;">› INVESTOR: 32nd AGM scheduled for 25 Jun 2025</span>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Header Section (GIGW/Government Standards) -->
+
     <header class="bg-gradient-to-r from-[#002244] via-[#003366] to-[#004488] text-white shadow-lg border-b-4 border-[#f15a24]">
       <div class="max-w-7xl mx-auto px-4 py-5 flex flex-col lg:flex-row justify-between items-center gap-4">
         <!-- Logo and Brand Identity -->
@@ -111,7 +165,7 @@ const currentYear = new Date().getFullYear();
             <p class="text-orange-400 font-bold uppercase tracking-wider text-[10px]">UT's Installed Capacity</p>
             <p class="text-base font-extrabold text-white">1197.4 MW</p>
           </div>
-          <span class="text-xl">⚡</span>
+          <span class="text-orange-400"><Icon name="zap" size={18} strokeWidth={2} /></span>
         </div>
       </div>
 
@@ -179,13 +233,13 @@ const currentYear = new Date().getFullYear();
               <!-- Single Column Dropdown -->
               <div class="absolute left-0 mt-0 hidden group-hover:block group-focus-within:block bg-white text-slate-800 shadow-2xl border-t-4 border-[#f15a24] rounded-b-lg z-50 py-2 w-[260px] transition-all duration-200 ease-out">
                 <ul class="flex flex-col gap-0.5 text-xs px-2">
-                  <li><a href="/our-business/power-stations" class="block p-2 rounded hover:bg-slate-100 hover:text-[#003366]">⚡ Power Stations</a></li>
-                  <li><a href="/our-business/construction" class="block p-2 rounded hover:bg-slate-100 hover:text-[#003366]">🛠️ Construction Projects</a></li>
-                  <li><a href="/our-business/under-development" class="block p-2 rounded hover:bg-slate-100 hover:text-[#003366]">📈 Under Development Projects</a></li>
-                  <li><a href="/our-business/jv-subsidiary-projects" class="block p-2 rounded hover:bg-slate-100 hover:text-[#003366]">🤝 JV / Subsidiary Projects</a></li>
-                  <li><a href="/our-business/turnkey" class="block p-2 rounded hover:bg-slate-100 hover:text-[#003366]">📦 Deposit / Turnkey</a></li>
-                  <li><a href="/our-business/consultancy" class="block p-2 rounded hover:bg-slate-100 hover:text-[#003366]">💼 Consultancy</a></li>
-                  <li><a href="/our-business/jv-companies" class="block p-2 rounded hover:bg-slate-100 hover:text-[#003366]">🏢 JV & Subsidiary Companies</a></li>
+                  <li><a href="/our-business/power-stations" class="flex items-center gap-2 p-2 rounded hover:bg-slate-100 hover:text-[#003366]"><Icon name="zap" size={13} strokeWidth={1.75} class="text-blue-600 shrink-0" /> Power Stations</a></li>
+                  <li><a href="/our-business/construction" class="flex items-center gap-2 p-2 rounded hover:bg-slate-100 hover:text-[#003366]"><Icon name="hardhat" size={13} strokeWidth={1.75} class="text-blue-600 shrink-0" /> Construction Projects</a></li>
+                  <li><a href="/our-business/under-development" class="flex items-center gap-2 p-2 rounded hover:bg-slate-100 hover:text-[#003366]"><Icon name="trending-up" size={13} strokeWidth={1.75} class="text-blue-600 shrink-0" /> Under Development Projects</a></li>
+                  <li><a href="/our-business/jv-subsidiary-projects" class="flex items-center gap-2 p-2 rounded hover:bg-slate-100 hover:text-[#003366]"><Icon name="users" size={13} strokeWidth={1.75} class="text-blue-600 shrink-0" /> JV / Subsidiary Projects</a></li>
+                  <li><a href="/our-business/turnkey" class="flex items-center gap-2 p-2 rounded hover:bg-slate-100 hover:text-[#003366]"><Icon name="briefcase" size={13} strokeWidth={1.75} class="text-blue-600 shrink-0" /> Deposit / Turnkey</a></li>
+                  <li><a href="/our-business/consultancy" class="flex items-center gap-2 p-2 rounded hover:bg-slate-100 hover:text-[#003366]"><Icon name="bar-chart" size={13} strokeWidth={1.75} class="text-blue-600 shrink-0" /> Consultancy</a></li>
+                  <li><a href="/our-business/jv-companies" class="flex items-center gap-2 p-2 rounded hover:bg-slate-100 hover:text-[#003366]"><Icon name="building" size={13} strokeWidth={1.75} class="text-blue-600 shrink-0" /> JV &amp; Subsidiary Companies</a></li>
                 </ul>
               </div>
             </li>
@@ -310,9 +364,9 @@ const currentYear = new Date().getFullYear();
               <!-- Dropdown Panel (Right-aligned) -->
               <div class="absolute right-0 mt-0 hidden group-hover:block group-focus-within:block bg-white text-slate-800 shadow-2xl border-t-4 border-[#f15a24] rounded-b-lg z-50 py-2 w-[220px] transition-all duration-200 ease-out">
                 <ul class="flex flex-col gap-0.5 text-xs px-2">
-                  <li><a href="/media/press-releases" class="block p-2 rounded hover:bg-slate-100 hover:text-[#003366]">📰 Press Releases</a></li>
-                  <li><a href="/media/gallery" class="block p-2 rounded hover:bg-slate-100 hover:text-[#003366]">📸 Galleries (Photo/Video)</a></li>
-                  <li><a href="/media/downloads" class="block p-2 rounded hover:bg-slate-100 hover:text-[#003366]">📥 Downloads & Booklets</a></li>
+                  <li><a href="/media/press-releases" class="flex items-center gap-2 p-2 rounded hover:bg-slate-100 hover:text-[#003366]"><Icon name="newspaper" size={13} strokeWidth={1.75} class="text-blue-600 shrink-0" /> Press Releases</a></li>
+                  <li><a href="/media/gallery" class="flex items-center gap-2 p-2 rounded hover:bg-slate-100 hover:text-[#003366]"><Icon name="eye" size={13} strokeWidth={1.75} class="text-blue-600 shrink-0" /> Galleries (Photo/Video)</a></li>
+                  <li><a href="/media/downloads" class="flex items-center gap-2 p-2 rounded hover:bg-slate-100 hover:text-[#003366]"><Icon name="download" size={13} strokeWidth={1.75} class="text-blue-600 shrink-0" /> Downloads &amp; Booklets</a></li>
                 </ul>
               </div>
             </li>
@@ -329,8 +383,8 @@ const currentYear = new Date().getFullYear();
               class="bg-white/10 hover:bg-white/20 focus:bg-white text-xs text-white focus:text-slate-900 px-3 py-1.5 rounded border border-white/10 focus:border-white focus:outline-none transition-colors w-36 lg:w-44 placeholder-white/50" 
               required
             />
-            <button type="submit" class="p-1.5 bg-[#f15a24] hover:bg-orange-600 rounded text-xs text-white font-bold" aria-label="Submit Search">
-              🔍
+            <button type="submit" class="p-1.5 bg-[#f15a24] hover:bg-orange-600 rounded text-xs text-white font-bold flex items-center justify-center" aria-label="Submit Search">
+              <Icon name="search" size={14} strokeWidth={2.5} />
             </button>
           </form>
         </div>
@@ -342,84 +396,152 @@ const currentYear = new Date().getFullYear();
       <slot />
     </main>
 
-    <!-- Footer Section (Redesigned & Premium) -->
-    <footer class="bg-slate-950 text-slate-300 border-t-4 border-[#003366] pt-12 pb-8 text-sm">
+    <!-- Footer Section (Professional Dark Slate) -->
+    <footer class="bg-slate-800 text-slate-300 border-t-2 border-orange-500 pt-14 pb-8 text-sm">
       <div class="max-w-7xl mx-auto px-4">
+
         <!-- Footer Core Columns -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 border-b border-slate-800 pb-8 mb-8">
-          
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 border-b border-slate-700 pb-10 mb-8">
+
           <!-- Column 1: About Corporate -->
-          <div class="flex flex-col gap-3">
-            <div class="flex items-center gap-2">
-              <img src="/logo.png" alt="JKSPDCL logo" class="h-10 w-auto bg-white/10 p-1 rounded" />
-              <h2 class="font-extrabold text-white text-base tracking-wide">JKSPDCL</h2>
+          <div class="flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+              <div class="bg-white p-1.5 rounded-xl h-14 w-28 flex items-center justify-center shadow-lg border border-slate-300 shrink-0">
+                <img src="/logo.png" alt="JKSPDCL logo" class="h-full w-full object-contain" />
+              </div>
             </div>
             <p class="text-xs text-slate-400 leading-relaxed">
-              Jammu & Kashmir State Power Development Corporation Limited (JKSPDCL) is a PSU wholly owned by the Government of J&K, mandated with harnessing power potential across the region since 1995.
+              JKSPDCL is a wholly owned PSU of the Government of J&K, mandated with harnessing power potential across the region since 1995.
             </p>
-            <a href="/about-us/explore/overview" class="text-xs text-orange-400 hover:text-orange-300 font-semibold hover:underline flex items-center gap-1 mt-1">
+            <a href="/about-us/explore/overview" class="text-xs text-orange-400 hover:text-orange-300 font-semibold flex items-center gap-1 mt-1 transition-colors duration-200">
               Read Our History &rarr;
             </a>
           </div>
 
           <!-- Column 2: Web Policies & Accessibility -->
-          <div class="flex flex-col gap-2.5">
-            <h2 class="font-bold text-white uppercase tracking-wider text-xs border-l-2 border-orange-500 pl-2">Website Policies</h2>
-            <div class="grid grid-cols-1 gap-1.5 text-xs text-slate-400">
-              <a href="/policies/privacy" class="hover:text-white transition-colors">Privacy Policy</a>
-              <a href="/policies/terms" class="hover:text-white transition-colors">Terms & Conditions</a>
-              <a href="/policies/hyperlinking" class="hover:text-white transition-colors">Hyperlinking Policy</a>
-              <a href="/policies/accessibility" class="hover:text-white transition-colors">Accessibility Statement</a>
-              <a href="/sitemap" class="hover:text-white transition-colors">Sitemap</a>
-              <a href="/help" class="hover:text-white transition-colors">Help & FAQ</a>
+          <div class="flex flex-col gap-1">
+            <h2 class="font-bold text-white uppercase tracking-wider text-xs mb-4 pb-2 border-b border-slate-600">Website Policies</h2>
+            <div class="flex flex-col gap-2 text-xs text-slate-400">
+              <a href="/policies/privacy" class="hover:text-orange-400 hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
+                <span class="text-slate-600">›</span> Privacy Policy
+              </a>
+              <a href="/policies/terms" class="hover:text-orange-400 hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
+                <span class="text-slate-600">›</span> Terms & Conditions
+              </a>
+              <a href="/policies/hyperlinking" class="hover:text-orange-400 hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
+                <span class="text-slate-600">›</span> Hyperlinking Policy
+              </a>
+              <a href="/policies/accessibility" class="hover:text-orange-400 hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
+                <span class="text-slate-600">›</span> Accessibility Statement
+              </a>
+              <a href="/sitemap" class="hover:text-orange-400 hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
+                <span class="text-slate-600">›</span> Sitemap
+              </a>
+              <a href="/help" class="hover:text-orange-400 hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
+                <span class="text-slate-600">›</span> Help & FAQ
+              </a>
             </div>
           </div>
 
           <!-- Column 3: Contact Directory -->
-          <div class="flex flex-col gap-3 text-xs text-slate-400">
-            <h2 class="font-bold text-white uppercase tracking-wider text-xs border-l-2 border-orange-500 pl-2">Contact Directory</h2>
-            
-            <div class="space-y-1">
-              <h3 class="font-bold text-slate-200">Srinagar Office</h3>
-              <p>Exhibition Grounds, Jahangir Chowk, Srinagar, 190009</p>
-              <p>📞 Phone: +91 194 2451665</p>
+          <div class="flex flex-col gap-1 text-xs text-slate-400">
+            <h2 class="font-bold text-white uppercase tracking-wider text-xs mb-4 pb-2 border-b border-slate-600">Contact Directory</h2>
+            <div class="space-y-2">
+              <p class="font-semibold text-slate-200 text-xs uppercase tracking-wide">Srinagar Office</p>
+              <p class="leading-relaxed">Exhibition Grounds, Jahangir Chowk,<br/>Srinagar — 190009</p>
+              <p>
+                <a href="tel:+911942451665" class="hover:text-orange-400 transition-colors inline-flex items-center gap-1.5">
+                  <Icon name="phone" size={13} strokeWidth={2} />
+                  +91 194 2451665
+                </a>
+              </p>
             </div>
-            
-            <div class="space-y-1 pt-1.5">
-              <h3 class="font-bold text-slate-200">Jammu Office</h3>
-              <p>Ashok Nagar, Satwari, Jammu (J&K), 180004</p>
-              <p>📞 Phone: +91 191 2430548 / 2439039</p>
+            <div class="space-y-2 mt-4 pt-3 border-t border-slate-700">
+              <p class="font-semibold text-slate-200 text-xs uppercase tracking-wide">Jammu Office</p>
+              <p class="leading-relaxed">Ashok Nagar, Satwari,<br/>Jammu (J&K) — 180004</p>
+              <p>
+                <a href="tel:+911912430548" class="hover:text-orange-400 transition-colors inline-flex items-center gap-1.5">
+                  <Icon name="phone" size={13} strokeWidth={2} />
+                  +91 191 2430548 / 2439039
+                </a>
+              </p>
             </div>
           </div>
 
           <!-- Column 4: Quick Links -->
-          <div class="flex flex-col gap-2.5 text-xs text-slate-400">
-            <h2 class="font-bold text-white uppercase tracking-wider text-xs border-l-2 border-orange-500 pl-2">Quick Navigation</h2>
-            <a href="/our-business/power-stations" class="hover:text-white transition-colors">⚡ Installed Power Stations</a>
-            <a href="/stakeholders/vendors/tender-bids" class="hover:text-white transition-colors">📄 Tenders & Bid Registry</a>
-            <a href="/commercial/overview" class="hover:text-white transition-colors">💼 Commercial Cell</a>
-            <a href="/sustainability/environment/preamble" class="hover:text-white transition-colors">🌱 Environment Clearances</a>
-            <a href="/media/press-releases" class="hover:text-white transition-colors">📰 Press Releases</a>
-            
-            <!-- Official Email -->
-            <div class="mt-2 pt-2 border-t border-slate-800 text-[11px]">
-              <p class="font-semibold text-slate-300">Official Correspondence:</p>
-              <a href="mailto:md-jkspdcl@jk.gov.in" class="text-orange-400 hover:underline">md-jkspdcl@jk.gov.in</a>
+          <div class="flex flex-col gap-1 text-xs text-slate-400">
+            <h2 class="font-bold text-white uppercase tracking-wider text-xs mb-4 pb-2 border-b border-slate-600">Quick Navigation</h2>
+            <div class="flex flex-col gap-2">
+              <a href="/our-business/power-stations" class="hover:text-orange-400 hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
+                <Icon name="zap" size={13} strokeWidth={2} class="text-orange-500" /> Installed Power Stations
+              </a>
+              <a href="/stakeholders/vendors/tender-bids" class="hover:text-orange-400 hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
+                <Icon name="file-text" size={13} strokeWidth={2} class="text-orange-500" /> Tenders &amp; Bid Registry
+              </a>
+              <a href="/commercial/overview" class="hover:text-orange-400 hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
+                <Icon name="briefcase" size={13} strokeWidth={2} class="text-orange-500" /> Commercial Cell
+              </a>
+              <a href="/sustainability/environment/preamble" class="hover:text-orange-400 hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
+                <Icon name="leaf" size={13} strokeWidth={2} class="text-orange-500" /> Environment Clearances
+              </a>
+              <a href="/media/press-releases" class="hover:text-orange-400 hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
+                <Icon name="newspaper" size={13} strokeWidth={2} class="text-orange-500" /> Press Releases
+              </a>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-700">
+              <p class="font-semibold text-slate-300 text-[11px] mb-1.5">Official Email</p>
+              <a href="mailto:md-jkspdcl@jk.gov.in" class="text-slate-400 hover:text-orange-400 hover:underline transition-colors inline-flex items-center gap-1.5 text-[11px]">
+                <Icon name="mail" size={12} strokeWidth={2} />
+                md-jkspdcl@jk.gov.in
+              </a>
             </div>
           </div>
 
         </div>
 
         <!-- Copyright and Compliance Info -->
-        <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-3 text-[11px] text-slate-500">
           <p>&copy; {currentYear} Jammu & Kashmir State Power Development Corporation Limited. All rights reserved.</p>
-          <div class="flex items-center gap-4">
-            <p>Design and Developed by <span class="text-slate-400 font-semibold">JKSPDCL</span></p>
-            <span>|</span>
-            <p>Last Updated: {new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+          <div class="flex items-center gap-3 flex-wrap justify-center md:justify-end">
+            <span>Design and Developed by <span class="text-slate-400 font-semibold">JKSPDCL</span></span>
+            <span class="text-slate-700">|</span>
+            <span>Last Updated: {new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
           </div>
         </div>
+
       </div>
     </footer>
+
+    <!-- Floating Scroll to Top Button -->
+    <button
+      id="scroll-to-top-btn"
+      class="fixed bottom-8 right-8 z-50 bg-[#002244] hover:bg-orange-500 text-white w-12 h-12 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 opacity-0 pointer-events-none focus:outline-none focus:ring-2 focus:ring-orange-400 border-2 border-white/20 hover:scale-110"
+      aria-label="Scroll to top of page"
+    >
+      <Icon name="arrow-up" size={20} strokeWidth={2.5} />
+    </button>
+
+    <!-- Scroll to Top Script -->
+    <script is:inline>
+      (function () {
+        var btn = document.getElementById('scroll-to-top-btn');
+        if (!btn) return;
+        function onScroll() {
+          if (window.scrollY > 300) {
+            btn.style.opacity = '1';
+            btn.style.pointerEvents = 'auto';
+          } else {
+            btn.style.opacity = '0';
+            btn.style.pointerEvents = 'none';
+          }
+        }
+        window.addEventListener('scroll', onScroll, { passive: true });
+        btn.addEventListener('click', function () {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      })();
+    </script>
+
   </body>
 </html>
+
