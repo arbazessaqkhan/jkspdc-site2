@@ -26,29 +26,32 @@
 
 
 @theme {
-  --color-brand-primary: #0284C7;
-  --color-brand-primary-dark: #0369A1;
-  --color-brand-secondary: #0EA5E9;
-  --color-brand-secondary-hover: #38BDF8;
-  --color-brand-accent: #D8681B;
+  /* === Government PSU Palette (JKSPDCL Blue) === */
+  --color-brand-primary: #0B4F9C;
+  --color-brand-primary-dark: #084A8F;
+  --color-brand-primary-deeper: #073A80;
+  --color-brand-secondary: #1A5276;
+  --color-brand-secondary-hover: #154360;
+  --color-brand-accent: #D8681B;       /* Kept ONLY for hero/slider elements */
   --color-brand-accent-hover: #C65D18;
 
-  --color-brand-text: #0C4A6E;
-  --color-brand-muted: #475569;
-  --color-brand-border: #BAE6FD;
+  --color-brand-text: #1B2A41;
+  --color-brand-muted: #4B5563;
+  --color-brand-border: #BDD7EE;
   --color-brand-success: #1E8E3E;
   --color-brand-warning: #D97706;
   --color-brand-error: #C62828;
 
-  --color-brand-bg-subtle: #F0F9FF;
-  --color-brand-header-tint: #E0F2FE;
-  --color-brand-footer: #0C4A6E;
+  --color-brand-bg-subtle: #EAF4FF;
+  --color-brand-bg-light: #D6EAF8;
+  --color-brand-header-tint: #D6EAF8;
+  --color-brand-footer: #083B73;
 
-  --shadow-card: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-card-hover: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-card: 0 2px 4px -1px rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --shadow-card-hover: 0 8px 16px -4px rgb(11 79 156 / 0.15), 0 4px 6px -4px rgb(11 79 156 / 0.1);
 
   --radius-btn: 4px;
-  --radius-card: 8px;
+  --radius-card: 6px;
 }
 
 /* Custom utility variables for GIGW font-accessibility settings */
@@ -57,7 +60,7 @@
 }
 
 html {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: "Noto Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   scroll-behavior: smooth;
   color: var(--color-brand-text);
   background-color: #ffffff;
@@ -266,21 +269,21 @@ html {
   font-size: 0.875rem;
 
   & th {
-    background-color: #f3f4f6;
-    color: #1f2937;
+    background-color: #D6EAF8;
+    color: #1A5276;
     font-weight: 600;
     padding: 0.875rem 1rem;
-    border-bottom: 2px solid #e5e7eb;
+    border-bottom: 2px solid #BDD7EE;
   }
 
   & td {
     padding: 0.875rem 1rem;
     border-bottom: 1px solid #e5e7eb;
-    color: #4b5563;
+    color: #374151;
   }
 
   & tbody tr:hover {
-    background-color: #f9fafb;
+    background-color: #EAF4FF;
   }
 }
 

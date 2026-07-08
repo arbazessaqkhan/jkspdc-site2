@@ -21,16 +21,16 @@ const metrics = [
 ];
 
 const quickLinks = [
-  { icon: "building", label: "About JKSPDC", desc: "Corporate profile & leadership", href: "/about-us/explore/overview", bg: "bg-blue-50", text: "text-blue-700" },
-  { icon: "factory", label: "Projects", desc: "Explore power stations", href: "/our-business/power-stations", bg: "bg-blue-50", text: "text-blue-700" },
-  { icon: "file-text", label: "Tender Portal", desc: "Live tenders & bids", href: "/stakeholders/vendors/tender-bids", bg: "bg-orange-50", text: "text-orange-600" },
-  { icon: "briefcase", label: "Careers", desc: "Open positions", href: "/stakeholders/career-seekers/current-openings", bg: "bg-emerald-50", text: "text-emerald-700" },
-  { icon: "scroll-text", label: "RTI", desc: "Right to Information", href: "/about-us/explore/overview", bg: "bg-blue-50", text: "text-blue-700" },
-  { icon: "landmark", label: "Investors", desc: "Financial reports", href: "/commercial/overview", bg: "bg-cyan-50", text: "text-cyan-700" },
-  { icon: "leaf", label: "CSR", desc: "Community initiatives", href: "/sustainability/environment/preamble", bg: "bg-emerald-50", text: "text-emerald-700" },
-  { icon: "newspaper", label: "Media Centre", desc: "Press & announcements", href: "/media/press-releases", bg: "bg-orange-50", text: "text-orange-600" },
-  { icon: "download", label: "Downloads", desc: "Documents & forms", href: "/stakeholders/vendors/tender-bids", bg: "bg-blue-50", text: "text-blue-700" },
-  { icon: "eye", label: "Vigilance", desc: "Integrity & compliance", href: "/about-us/explore/ethics-code", bg: "bg-red-50", text: "text-red-600" },
+  { icon: "building", label: "About JKSPDC", desc: "Corporate profile & leadership", href: "/about-us/explore/overview", bg: "bg-[#EAF4FF]", text: "text-[#0B4F9C]" },
+  { icon: "factory", label: "Projects", desc: "Explore power stations", href: "/our-business/power-stations", bg: "bg-[#EAF4FF]", text: "text-[#0B4F9C]" },
+  { icon: "file-text", label: "Tender Portal", desc: "Live tenders & bids", href: "/stakeholders/vendors/tender-bids", bg: "bg-[#EAF4FF]", text: "text-[#0B4F9C]" },
+  { icon: "briefcase", label: "Careers", desc: "Open positions", href: "/stakeholders/career-seekers/current-openings", bg: "bg-[#EAF4FF]", text: "text-[#0B4F9C]" },
+  { icon: "scroll-text", label: "RTI", desc: "Right to Information", href: "/about-us/explore/overview", bg: "bg-[#EAF4FF]", text: "text-[#0B4F9C]" },
+  { icon: "landmark", label: "Investors", desc: "Financial reports", href: "/commercial/overview", bg: "bg-[#EAF4FF]", text: "text-[#0B4F9C]" },
+  { icon: "leaf", label: "CSR", desc: "Community initiatives", href: "/sustainability/environment/preamble", bg: "bg-[#EAF4FF]", text: "text-[#0B4F9C]" },
+  { icon: "newspaper", label: "Media Centre", desc: "Press & announcements", href: "/media/press-releases", bg: "bg-[#EAF4FF]", text: "text-[#0B4F9C]" },
+  { icon: "download", label: "Downloads", desc: "Documents & forms", href: "/stakeholders/vendors/tender-bids", bg: "bg-[#EAF4FF]", text: "text-[#0B4F9C]" },
+  { icon: "eye", label: "Vigilance", desc: "Integrity & compliance", href: "/about-us/explore/ethics-code", bg: "bg-[#EAF4FF]", text: "text-[#0B4F9C]" },
 ];
 
 const projects = [
@@ -123,41 +123,40 @@ const corpStats = [
     <button id="hero-next" class="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-white/20 transition border border-white/20 text-2xl" aria-label="Next">&#8250;</button>
   </section>
 
-  <!-- METRICS DASHBOARD -->
-  <section class="relative -mt-10 z-20 pb-6">
-    <div class="max-w-7xl mx-auto px-4">
-      <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
-        <div class="flex items-center justify-between px-6 pt-5 pb-3 border-b border-slate-100">
+  <!-- MAIN CONTAINER WITH MAX-WIDTH AND SIDE MARGINS FOR PROPER CONTENT SPACINGS -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12 relative z-20">
+
+    <!-- METRICS DASHBOARD -->
+    <section class="relative -mt-20">
+      <div class="bg-white rounded-xl shadow-md border border-[#BDD7EE] overflow-hidden">
+        <div class="flex items-center justify-between px-6 pt-4 pb-3 border-b border-[#D6EAF8] bg-[#EAF4FF]">
           <div>
-            <div class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Live Corporate Dashboard</div>
-            <div class="text-lg font-bold text-slate-900">Enterprise Performance Metrics</div>
+            <div class="text-xs uppercase tracking-widest text-[#0B4F9C] font-semibold">Corporate Dashboard</div>
+            <div class="text-lg font-bold text-[#1A5276]">Enterprise Performance Metrics</div>
           </div>
-          
         </div>
         <div class="grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-slate-100">
           {metrics.map((m) => (
-            <div class="p-5 hover:bg-slate-50 transition group cursor-pointer">
-              <div class={`w-10 h-10 rounded-lg bg-gradient-to-br ${m.color} flex items-center justify-center mb-3 shadow-md group-hover:scale-110 transition-transform text-white`}>
+            <div class="p-5 hover:bg-[#EAF4FF] transition group cursor-pointer border-r border-b border-[#D6EAF8] last:border-r-0">
+              <div class={`w-10 h-10 rounded-lg bg-gradient-to-br ${m.color} flex items-center justify-center mb-3 shadow-sm group-hover:scale-110 transition-transform text-white`}>
                 <Icon name={m.icon} size={18} strokeWidth={2} />
               </div>
-              <div class="text-xs text-slate-400 uppercase tracking-wider font-medium">{m.label}</div>
-              <div class="mt-1 text-2xl xl:text-3xl font-bold text-slate-900 tabular-nums">
+              <div class="text-xs text-[#0B4F9C] uppercase tracking-wider font-medium">{m.label}</div>
+              <div class="mt-1 text-2xl xl:text-3xl font-bold text-[#1A5276] tabular-nums">
                 <span class="metric-counter" data-target={String(m.value)}>0</span>
-                <span class="text-base font-semibold text-blue-700 ml-1">{m.unit}</span>
+                <span class="text-base font-semibold text-[#0B4F9C] ml-1">{m.unit}</span>
               </div>
             </div>
           ))}
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- QUICK ACCESS GRID -->
-  <section class="py-16 md:py-20 bg-white">
-    <div class="max-w-7xl mx-auto px-4">
+    <!-- QUICK ACCESS GRID -->
+    <section class="bg-white rounded-2xl border border-[#BDD7EE] p-8 md:p-10 shadow-sm">
       <div class="mb-8">
-        <div class="text-xs uppercase tracking-widest text-orange-500 font-bold">Quick Access</div>
-        <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mt-2">Navigate the corporation</h2>
+        <div class="text-xs uppercase tracking-widest text-[#0B4F9C] font-bold">Quick Access</div>
+        <h2 class="text-3xl md:text-4xl font-bold text-[#1A5276] mt-2">Navigate the corporation</h2>
         <p class="text-slate-500 mt-2 max-w-2xl">One-click access to the most-used services and information across the corporation.</p>
       </div>
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -172,26 +171,24 @@ const corpStats = [
           </a>
         ))}
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- PROJECT EXPLORER -->
-  <section id="projects" class="py-16 md:py-24 bg-gradient-to-b from-slate-50 to-slate-100">
-    <div class="max-w-7xl mx-auto px-4">
+    <!-- PROJECT EXPLORER -->
+    <section id="projects" class="bg-[#EAF4FF] rounded-2xl border border-[#BDD7EE] p-8 md:p-10 shadow-sm">
       <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
         <div>
-          <div class="text-xs uppercase tracking-widest text-orange-500 font-bold">Project Portfolio</div>
-          <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mt-2">Interactive Project Explorer</h2>
+          <div class="text-xs uppercase tracking-widest text-[#0B4F9C] font-bold">Project Portfolio</div>
+          <h2 class="text-3xl md:text-4xl font-bold text-[#1A5276] mt-2">Interactive Project Explorer</h2>
           <p class="text-slate-500 mt-2 max-w-2xl">Discover operational hydroelectric plants, ongoing constructions and upcoming renewable projects across J&K.</p>
         </div>
         <div class="flex items-center gap-2">
-          <div class="flex items-center gap-2 rounded-lg border bg-white px-4 py-2 text-xs text-slate-600"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> 21 Operational</div>
-          <div class="flex items-center gap-2 rounded-lg border bg-white px-4 py-2 text-xs text-slate-600"><span class="w-2 h-2 rounded-full bg-orange-500"></span> 8 Under Construction</div>
+          <div class="flex items-center gap-2 rounded-lg border border-[#BDD7EE] bg-white px-4 py-2 text-xs text-[#1A5276] font-medium"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> 21 Operational</div>
+          <div class="flex items-center gap-2 rounded-lg border border-[#BDD7EE] bg-white px-4 py-2 text-xs text-[#1A5276] font-medium"><span class="w-2 h-2 rounded-full bg-[#0B4F9C]"></span> 8 Under Construction</div>
         </div>
       </div>
       <div class="flex items-center gap-1 mb-6 bg-white border border-slate-200 rounded-lg p-1 w-fit flex-wrap">
         {['All', 'Operational', 'Under Construction', 'Upcoming', 'Solar'].map((tab) => (
-          <button data-tab={tab} class={`project-tab px-4 py-1.5 rounded-md text-sm font-medium transition-all ${tab === 'All' ? 'bg-[#003366] text-white shadow' : 'text-slate-600 hover:bg-slate-100'}`}>{tab === 'All' ? 'All Projects' : tab}</button>
+          <button data-tab={tab} class={`project-tab px-4 py-1.5 rounded-md text-sm font-medium transition-all ${tab === 'All' ? 'bg-[#0B4F9C] text-white shadow' : 'text-slate-600 hover:bg-slate-100'}`}>{tab === 'All' ? 'All Projects' : tab}</button>
         ))}
       </div>
       <div class="mb-6">
@@ -210,11 +207,11 @@ const corpStats = [
                 <div class="font-bold text-slate-900 text-sm">{p.name}</div>
                 <div class="text-xs text-slate-500 mt-0.5">{p.district} — {p.river} River</div>
               </div>
-              <span class={`text-xs font-bold uppercase px-2 py-0.5 rounded-full whitespace-nowrap ${p.status === 'Operational' ? 'bg-emerald-100 text-emerald-700' : p.status === 'Under Construction' ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-600'}`}>{p.status}</span>
+              <span class={`text-xs font-bold uppercase px-2 py-0.5 rounded-full whitespace-nowrap ${p.status === 'Operational' ? 'bg-emerald-100 text-emerald-700' : p.status === 'Under Construction' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600'}`}>{p.status}</span>
             </div>
             <div class="flex items-end gap-1 mb-3">
-              <span class="text-3xl font-bold text-[#003366]">{p.capacity}</span>
-              <span class="text-sm text-orange-500 font-semibold pb-0.5">MW</span>
+              <span class="text-3xl font-bold text-[#0B4F9C]">{p.capacity}</span>
+              <span class="text-sm text-[#0B4F9C] font-semibold pb-0.5">MW</span>
             </div>
             <div class="flex items-center justify-between text-xs text-slate-500">
               <span class={`font-medium flex items-center gap-1 ${p.type === 'Solar' ? 'text-orange-600' : 'text-blue-600'}`}>
@@ -230,23 +227,21 @@ const corpStats = [
       <div class="text-center mt-10">
         <a href="/our-business/power-stations" class="inline-flex items-center gap-2 border border-slate-300 hover:border-blue-400 text-slate-700 hover:text-blue-700 px-6 py-2.5 rounded-lg text-sm font-medium bg-white transition-colors">View All Projects &rarr;</a>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ACTIVE TENDERS -->
-  <section id="tenders" class="py-16 md:py-24 bg-white">
-    <div class="max-w-7xl mx-auto px-4">
+    <!-- ACTIVE TENDERS -->
+    <section id="tenders" class="bg-white rounded-2xl border border-[#BDD7EE] p-8 md:p-10 shadow-sm">
       <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
         <div>
-          <div class="text-xs uppercase tracking-widest text-[#D8681B] font-bold">Procurement</div>
-          <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mt-2">Active Tenders &amp; Bids</h2>
+          <div class="text-xs uppercase tracking-widest text-[#0B4F9C] font-bold">Procurement</div>
+          <h2 class="text-3xl md:text-4xl font-bold text-[#1A5276] mt-2">Active Tenders &amp; Bids</h2>
           <p class="text-slate-500 mt-2">All currently open tenders from JKSPDCL. Download bid documents and submit online.</p>
         </div>
-        <a href="/stakeholders/vendors/tender-bids" class="inline-flex items-center gap-2 bg-[#0284C7] hover:bg-[#0369A1] text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap shadow">View All Tenders &rarr;</a>
+        <a href="/stakeholders/vendors/tender-bids" class="inline-flex items-center gap-2 bg-[#0B4F9C] hover:bg-[#084A8F] text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap shadow">View All Tenders &rarr;</a>
       </div>
       <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
         <table class="w-full text-sm">
-          <thead class="bg-slate-50 text-slate-600 text-xs uppercase tracking-wider">
+          <thead class="bg-[#D6EAF8] text-[#1A5276] text-xs uppercase tracking-wider border-b border-[#BDD7EE]">
             <tr>
               <th class="px-5 py-3 text-left font-semibold">NIT No.</th>
               <th class="px-5 py-3 text-left font-semibold">Description</th>
@@ -260,7 +255,7 @@ const corpStats = [
           <tbody class="divide-y divide-slate-100">
             {tenders.map((t) => (
               <tr class="hover:bg-slate-50 transition-colors">
-                <td class="px-5 py-4 font-mono font-semibold text-[#003366] text-xs">{t.nit}</td>
+                <td class="px-5 py-4 font-mono font-semibold text-[#0B4F9C] text-xs">{t.nit}</td>
                 <td class="px-5 py-4 text-slate-800 font-medium max-w-xs">{t.title}</td>
                 <td class="px-5 py-4 text-slate-500 hidden md:table-cell">{t.dept}</td>
                 <td class="px-5 py-4 text-slate-700 font-semibold hidden lg:table-cell">{t.value}</td>
@@ -272,12 +267,10 @@ const corpStats = [
           </tbody>
         </table>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ABOUT SECTION -->
-  <section id="about" class="py-16 md:py-24 bg-gradient-to-br from-[#0369A1] to-[#0284C7] text-white">
-    <div class="max-w-7xl mx-auto px-4">
+    <!-- ABOUT SECTION -->
+    <section id="about" class="bg-gradient-to-br from-[#084A8F] to-[#0B4F9C] text-white rounded-2xl p-8 md:p-10 shadow-lg border border-white/10">
       <div class="grid lg:grid-cols-2 gap-12 items-center">
         <div>
           <div class="text-xs uppercase tracking-widest text-[#FFE0C2] font-bold mb-4">About JKSPDC</div>
@@ -292,36 +285,34 @@ const corpStats = [
               </div>
             ))}
           </div>
-          <a href="/about-us/explore/overview" class="inline-flex items-center gap-2 bg-[#D8681B] hover:bg-[#C65D18] text-white font-semibold px-6 py-3 rounded-lg text-sm transition-colors">Learn More About Us &rarr;</a>
+          <a href="/about-us/explore/overview" class="inline-flex items-center gap-2 bg-white hover:bg-[#EAF4FF] text-[#0B4F9C] font-semibold px-6 py-3 rounded-lg text-sm transition-colors border border-white/30">Learn More About Us &rarr;</a>
         </div>
         <div class="grid grid-cols-2 gap-4">
           <div class="rounded-2xl overflow-hidden shadow-2xl aspect-[4/3]"><img src="/slider2.jpg" alt="JKSPDC project" class="w-full h-full object-cover" /></div>
           <div class="rounded-2xl overflow-hidden shadow-2xl aspect-[4/3] mt-8"><img src="/slider3.jpg" alt="JKSPDC dam" class="w-full h-full object-cover" /></div>
           <div class="rounded-2xl overflow-hidden shadow-2xl aspect-[4/3] -mt-8"><img src="/slider1.jpg" alt="JKSPDC station" class="w-full h-full object-cover" /></div>
-          <div class="bg-[#D8681B] rounded-2xl p-6 flex flex-col justify-center">
+          <div class="bg-[#0B4F9C] rounded-2xl p-6 flex flex-col justify-center border-2 border-white/20">
             <div class="text-4xl font-bold">30+</div>
             <div class="text-sm font-semibold mt-1">Years of Excellence</div>
-            <div class="text-xs text-orange-100 mt-2">Harnessing J&K hydro potential since 1995</div>
+            <div class="text-xs text-blue-200 mt-2">Harnessing J&K hydro potential since 1995</div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- CAREERS SECTION -->
-  <section id="careers" class="py-16 md:py-24 bg-slate-50">
-    <div class="max-w-7xl mx-auto px-4">
+    <!-- CAREERS SECTION -->
+    <section id="careers" class="bg-white rounded-2xl border border-[#BDD7EE] p-8 md:p-10 shadow-sm">
       <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
         <div>
-          <div class="text-xs uppercase tracking-widest text-[#D8681B] font-bold">Join Our Team</div>
-          <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mt-2">Current Career Openings</h2>
+          <div class="text-xs uppercase tracking-widest text-[#0B4F9C] font-bold">Join Our Team</div>
+          <h2 class="text-3xl md:text-4xl font-bold text-[#1A5276] mt-2">Current Career Openings</h2>
           <p class="text-slate-500 mt-2">Build a meaningful career in India's premier hydro power PSU.</p>
         </div>
-        <a href="/stakeholders/career-seekers/current-openings" class="inline-flex items-center gap-2 border border-slate-300 hover:border-[#0EA5E9] text-slate-700 hover:text-[#0EA5E9] px-5 py-2.5 rounded-lg text-sm font-medium bg-white whitespace-nowrap transition-colors">All Openings &rarr;</a>
+        <a href="/stakeholders/career-seekers/current-openings" class="inline-flex items-center gap-2 border border-slate-300 hover:border-[#106EE9] text-slate-700 hover:text-[#106EE9] px-5 py-2.5 rounded-lg text-sm font-medium bg-white whitespace-nowrap transition-colors">All Openings &rarr;</a>
       </div>
       <div class="space-y-3">
         {careers.map((job) => (
-          <div class="bg-white border border-slate-200 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:shadow-md hover:border-[#0EA5E9] transition-all">
+          <div class="bg-white border border-slate-200 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:shadow-md hover:border-[#106EE9] transition-all">
             <div class="flex-1">
               <div class="flex items-center gap-3 flex-wrap">
                 <h3 class="font-bold text-slate-900 text-sm">{job.title}</h3>
@@ -334,59 +325,59 @@ const corpStats = [
                 <span>Last Date: {job.lastDate}</span>
               </div>
             </div>
-            <a href="/stakeholders/career-seekers/current-openings" class="shrink-0 inline-flex items-center gap-2 bg-[#0284C7] hover:bg-[#0369A1] text-white px-5 py-2 rounded-lg text-xs font-semibold transition-colors shadow">Apply Now</a>
+            <a href="/stakeholders/career-seekers/current-openings" class="shrink-0 inline-flex items-center gap-2 bg-[#0B4F9C] hover:bg-[#084A8F] text-white px-5 py-2 rounded-lg text-xs font-semibold transition-colors shadow">Apply Now</a>
           </div>
         ))}
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- CONTACT SECTION -->
-  <section id="contact" class="py-16 md:py-24 bg-white">
-    <div class="max-w-7xl mx-auto px-4">
+    <!-- CONTACT SECTION -->
+    <section id="contact" class="bg-[#EAF4FF] rounded-2xl border border-[#BDD7EE] p-8 md:p-10 shadow-sm">
       <div class="text-center mb-12">
-        <div class="text-xs uppercase tracking-widest text-[#D8681B] font-bold">Get In Touch</div>
-        <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mt-2">Contact JKSPDCL</h2>
+        <div class="text-xs uppercase tracking-widest text-[#0B4F9C] font-bold">Get In Touch</div>
+        <h2 class="text-3xl md:text-4xl font-bold text-[#1A5276] mt-2">Contact JKSPDCL</h2>
         <p class="text-slate-500 mt-2 max-w-xl mx-auto">Reach out to our offices in Srinagar or Jammu for enquiries, tenders, and official correspondence.</p>
       </div>
       <div class="grid md:grid-cols-3 gap-6">
-        <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200">
-          <div class="w-11 h-11 rounded-xl bg-[#F0F9FF] text-[#0284C7] flex items-center justify-center mb-4">
+        <div class="bg-white rounded-2xl p-6 border border-[#BDD7EE] shadow-sm">
+          <div class="w-11 h-11 rounded-xl bg-[#EAF4FF] text-[#0B4F9C] flex items-center justify-center mb-4">
             <Icon name="map-pin" size={20} strokeWidth={1.75} />
           </div>
-          <h3 class="font-bold text-slate-900 mb-2">Srinagar Office</h3>
+          <h3 class="font-bold text-[#1A5276] mb-2">Srinagar Office</h3>
           <p class="text-sm text-slate-600 leading-relaxed mb-3">Exhibition Grounds, Jahangir Chowk,<br />Srinagar, J&K — 190009</p>
-          <a href="tel:+911942451665" class="text-sm text-[#0EA5E9] hover:underline flex items-center gap-1.5 mt-1">
+          <a href="tel:+911942451665" class="text-sm text-[#106EE9] hover:underline flex items-center gap-1.5 mt-1">
             <Icon name="phone" size={13} strokeWidth={2} /> +91 194 2451665
           </a>
-          <a href="mailto:md-jkspdcl@jk.gov.in" class="text-sm text-[#0EA5E9] hover:underline flex items-center gap-1.5 mt-1">
+          <a href="mailto:md-jkspdcl@jk.gov.in" class="text-sm text-[#106EE9] hover:underline flex items-center gap-1.5 mt-1">
             <Icon name="mail" size={13} strokeWidth={2} /> md-jkspdcl@jk.gov.in
           </a>
         </div>
-        <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200">
-          <div class="w-11 h-11 rounded-xl bg-[#FFE0C2] text-[#D8681B] flex items-center justify-center mb-4">
+        <div class="bg-white rounded-2xl p-6 border border-[#BDD7EE] shadow-sm">
+          <div class="w-11 h-11 rounded-xl bg-[#EAF4FF] text-[#0B4F9C] flex items-center justify-center mb-4">
             <Icon name="building" size={20} strokeWidth={1.75} />
           </div>
-          <h3 class="font-bold text-slate-900 mb-2">Jammu Office</h3>
+          <h3 class="font-bold text-[#1A5276] mb-2">Jammu Office</h3>
           <p class="text-sm text-slate-600 leading-relaxed mb-3">Ashok Nagar, Satwari,<br />Jammu, J&K — 180004</p>
-          <a href="tel:+911912430548" class="text-sm text-[#0EA5E9] hover:underline flex items-center gap-1.5 mt-1">
+          <a href="tel:+911912430548" class="text-sm text-[#106EE9] hover:underline flex items-center gap-1.5 mt-1">
             <Icon name="phone" size={13} strokeWidth={2} /> +91 191 2430548 / 2439039
           </a>
-          <a href="mailto:md-jkspdcl@jk.gov.in" class="text-sm text-[#0EA5E9] hover:underline flex items-center gap-1.5 mt-1">
+          <a href="mailto:md-jkspdcl@jk.gov.in" class="text-sm text-[#106EE9] hover:underline flex items-center gap-1.5 mt-1">
             <Icon name="mail" size={13} strokeWidth={2} /> md-jkspdcl@jk.gov.in
           </a>
         </div>
-        <div class="bg-gradient-to-br from-[#0369A1] to-[#0284C7] rounded-2xl p-6 text-white">
+        <div class="bg-gradient-to-br from-[#084A8F] to-[#0B4F9C] rounded-2xl p-6 text-white shadow-md border border-white/10">
           <div class="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center mb-4">
             <Icon name="mail" size={20} strokeWidth={1.75} />
           </div>
           <h3 class="font-bold mb-2">Online Grievance</h3>
           <p class="text-sm text-white/80 leading-relaxed mb-4">Submit complaints, RTI applications or general enquiries through our online portal.</p>
-          <a href="/contact-us" class="inline-flex items-center gap-2 bg-[#D8681B] hover:bg-[#C65D18] text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors">Submit Enquiry &rarr;</a>
+          <a href="/contact-us" class="inline-flex items-center gap-2 bg-white hover:bg-[#EAF4FF] text-[#0B4F9C] text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors border border-white/30">Submit Enquiry &rarr;</a>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+
+  </div>
+
 
 </Layout>
 
@@ -456,7 +447,7 @@ const corpStats = [
   tabBtns.forEach(function(btn) {
     btn.onclick = function() {
       tabBtns.forEach(function(t) { t.className = 'project-tab px-4 py-1.5 rounded-md text-sm font-medium transition-all text-slate-600 hover:bg-slate-100'; });
-      btn.className = 'project-tab px-4 py-1.5 rounded-md text-sm font-medium transition-all bg-[#003366] text-white shadow';
+      btn.className = 'project-tab px-4 py-1.5 rounded-md text-sm font-medium transition-all bg-[#0B4F9C] text-white shadow';
       activeTab = btn.dataset.tab;
       filterProjects();
     };
