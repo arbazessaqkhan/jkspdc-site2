@@ -78,26 +78,26 @@ const corpStats = [
 ];
 ---
 
-<Layout title="Home | JKSPDC Official Portal" description="Official enterprise portal of Jammu and Kashmir State Power Development Corporation Ltd. Powering the future of J&K through clean, sustainable, and reliable energy generation.">
+<Layout title="Home | JKSPDC Official Portal" description="Official enterprise portal of Jammu and Kashmir State Power Development Corporation Ltd. Powering the future of J&K through clean, sustainable, and reliable energy generation." isHome={true}>
 
   <!-- HERO SLIDER -->
-  <section id="home" class="relative w-full overflow-hidden bg-[#002244]" style="height: calc(100vh - 9.5rem); min-height: 520px; max-height: 780px;">
+  <section id="home" class="relative w-full overflow-hidden bg-[#084A8F]" style="height: calc(100vh - 240px); min-height: 580px;">
     <div id="hero-slides" class="absolute inset-0">
       {heroSlides.map((slide, i) => (
         <div id={`slide-${slide.id}`} class={`absolute inset-0 transition-opacity duration-700 ${i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
           <img src={slide.img} alt={slide.title} class="w-full h-full object-cover" />
-          <div class="absolute inset-0 bg-gradient-to-r from-[#002244]/95 via-[#002244]/70 to-[#002244]/20"></div>
+          <div class="absolute inset-0 bg-gradient-to-r from-[#084A8F]/90 via-[#084A8F]/60 to-[#084A8F]/20"></div>
           <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
         </div>
       ))}
     </div>
     <div class="relative z-20 max-w-7xl mx-auto h-full px-4 flex items-center">
       <div class="max-w-2xl text-white">
-        <div id="hero-badge" class="inline-flex items-center bg-orange-500 text-white text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-5">{heroSlides[0].badge}</div>
+        <div id="hero-badge" class="inline-flex items-center bg-[#D8681B] text-white text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-5">{heroSlides[0].badge}</div>
         <h1 id="hero-title" class="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight tracking-tight">{heroSlides[0].title}</h1>
         <p id="hero-desc" class="mt-5 text-base sm:text-lg text-white/85 max-w-xl leading-relaxed">{heroSlides[0].desc}</p>
         <div class="mt-8 flex flex-wrap items-center gap-3">
-          <a id="hero-cta" href={heroSlides[0].ctaHref} class="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-400 text-white font-semibold px-6 h-12 rounded-md transition-colors text-sm shadow-lg">{heroSlides[0].ctaText} &rarr;</a>
+          <a id="hero-cta" href={heroSlides[0].ctaHref} class="inline-flex items-center gap-2 bg-[#D8681B] hover:bg-[#C65D18] text-white font-semibold px-6 h-12 rounded-md transition-colors text-sm shadow-lg">{heroSlides[0].ctaText} &rarr;</a>
           <button class="inline-flex items-center gap-2 border border-white/40 bg-white/5 backdrop-blur-sm text-white hover:bg-white/15 px-6 h-12 rounded-md transition-colors text-sm font-medium">&#9654; Corporate Video</button>
         </div>
       </div>
@@ -106,17 +106,17 @@ const corpStats = [
           <div id="hero-stat-label" class="text-white/60 text-xs uppercase tracking-widest font-medium">{heroSlides[0].statLabel}</div>
           <div class="flex items-end gap-1 mt-2">
             <span id="hero-stat-value" class="text-white text-6xl font-bold leading-none">{heroSlides[0].stat}</span>
-            <span id="hero-stat-unit" class="text-orange-400 text-xl font-semibold pb-1">{heroSlides[0].statUnit}</span>
+            <span id="hero-stat-unit" class="text-[#D8681B] text-xl font-semibold pb-1">{heroSlides[0].statUnit}</span>
           </div>
           <div class="mt-4 h-1.5 bg-white/15 rounded-full overflow-hidden">
-            <div id="hero-stat-bar" class="h-full bg-orange-500 rounded-full transition-all duration-700" style={`width:${heroSlides[0].statPct}%`}></div>
+            <div id="hero-stat-bar" class="h-full bg-[#D8681B] rounded-full transition-all duration-700" style={`width:${heroSlides[0].statPct}%`}></div>
           </div>
         </div>
       </div>
     </div>
     <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20">
       {heroSlides.map((_, i) => (
-        <button data-dot={String(i)} class={`h-1.5 rounded-full transition-all duration-300 ${i === 0 ? 'w-10 bg-orange-500' : 'w-4 bg-white/40'}`} aria-label={`Slide ${i + 1}`}></button>
+        <button data-dot={String(i)} class={`h-1.5 rounded-full transition-all duration-300 ${i === 0 ? 'w-10 bg-[#D8681B]' : 'w-4 bg-white/40'}`} aria-label={`Slide ${i + 1}`}></button>
       ))}
     </div>
     <button id="hero-prev" class="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-white/20 transition border border-white/20 text-2xl" aria-label="Previous">&#8249;</button>
@@ -132,10 +132,7 @@ const corpStats = [
             <div class="text-xs uppercase tracking-widest text-slate-400 font-semibold">Live Corporate Dashboard</div>
             <div class="text-lg font-bold text-slate-900">Enterprise Performance Metrics</div>
           </div>
-          <div class="flex items-center gap-2 text-xs text-slate-400">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-slow-pulse"></span>
-            <span>Updated in real time</span>
-          </div>
+          
         </div>
         <div class="grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-slate-100">
           {metrics.map((m) => (
@@ -241,11 +238,11 @@ const corpStats = [
     <div class="max-w-7xl mx-auto px-4">
       <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
         <div>
-          <div class="text-xs uppercase tracking-widest text-orange-500 font-bold">Procurement</div>
+          <div class="text-xs uppercase tracking-widest text-[#D8681B] font-bold">Procurement</div>
           <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mt-2">Active Tenders &amp; Bids</h2>
           <p class="text-slate-500 mt-2">All currently open tenders from JKSPDCL. Download bid documents and submit online.</p>
         </div>
-        <a href="/stakeholders/vendors/tender-bids" class="inline-flex items-center gap-2 bg-[#003366] hover:bg-[#002244] text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap shadow">View All Tenders &rarr;</a>
+        <a href="/stakeholders/vendors/tender-bids" class="inline-flex items-center gap-2 bg-[#0284C7] hover:bg-[#0369A1] text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap shadow">View All Tenders &rarr;</a>
       </div>
       <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
         <table class="w-full text-sm">
@@ -279,11 +276,11 @@ const corpStats = [
   </section>
 
   <!-- ABOUT SECTION -->
-  <section id="about" class="py-16 md:py-24 bg-gradient-to-br from-[#002244] to-[#003366] text-white">
+  <section id="about" class="py-16 md:py-24 bg-gradient-to-br from-[#0369A1] to-[#0284C7] text-white">
     <div class="max-w-7xl mx-auto px-4">
       <div class="grid lg:grid-cols-2 gap-12 items-center">
         <div>
-          <div class="text-xs uppercase tracking-widest text-orange-400 font-bold mb-4">About JKSPDC</div>
+          <div class="text-xs uppercase tracking-widest text-[#FFE0C2] font-bold mb-4">About JKSPDC</div>
           <h2 class="text-3xl md:text-4xl font-bold leading-tight mb-6">Powering J&K Since 1995</h2>
           <p class="text-white/80 leading-relaxed mb-4">Jammu and Kashmir State Power Development Corporation Limited (JKSPDCL) is a wholly owned Public Sector Undertaking (PSU) of the Government of Jammu &amp; Kashmir, incorporated in 1995 under the Companies Act.</p>
           <p class="text-white/80 leading-relaxed mb-8">With an authorised share capital of Rs.5,000 crores, JKSPDC has investments of Rs.2,357.61 crores in joint ventures with NHPC — including CVPPPL and RHPCL.</p>
@@ -291,17 +288,17 @@ const corpStats = [
             {corpStats.map(stat => (
               <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/15">
                 <div class="text-white/60 text-xs uppercase tracking-wide mb-1">{stat.label}</div>
-                <div class="text-xl font-bold text-orange-400">{stat.value}</div>
+                <div class="text-xl font-bold text-[#FFE0C2]">{stat.value}</div>
               </div>
             ))}
           </div>
-          <a href="/about-us/explore/overview" class="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-400 text-white font-semibold px-6 py-3 rounded-lg text-sm transition-colors">Learn More About Us &rarr;</a>
+          <a href="/about-us/explore/overview" class="inline-flex items-center gap-2 bg-[#D8681B] hover:bg-[#C65D18] text-white font-semibold px-6 py-3 rounded-lg text-sm transition-colors">Learn More About Us &rarr;</a>
         </div>
         <div class="grid grid-cols-2 gap-4">
           <div class="rounded-2xl overflow-hidden shadow-2xl aspect-[4/3]"><img src="/slider2.jpg" alt="JKSPDC project" class="w-full h-full object-cover" /></div>
           <div class="rounded-2xl overflow-hidden shadow-2xl aspect-[4/3] mt-8"><img src="/slider3.jpg" alt="JKSPDC dam" class="w-full h-full object-cover" /></div>
           <div class="rounded-2xl overflow-hidden shadow-2xl aspect-[4/3] -mt-8"><img src="/slider1.jpg" alt="JKSPDC station" class="w-full h-full object-cover" /></div>
-          <div class="bg-orange-500 rounded-2xl p-6 flex flex-col justify-center">
+          <div class="bg-[#D8681B] rounded-2xl p-6 flex flex-col justify-center">
             <div class="text-4xl font-bold">30+</div>
             <div class="text-sm font-semibold mt-1">Years of Excellence</div>
             <div class="text-xs text-orange-100 mt-2">Harnessing J&K hydro potential since 1995</div>
@@ -316,15 +313,15 @@ const corpStats = [
     <div class="max-w-7xl mx-auto px-4">
       <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
         <div>
-          <div class="text-xs uppercase tracking-widest text-orange-500 font-bold">Join Our Team</div>
+          <div class="text-xs uppercase tracking-widest text-[#D8681B] font-bold">Join Our Team</div>
           <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mt-2">Current Career Openings</h2>
           <p class="text-slate-500 mt-2">Build a meaningful career in India's premier hydro power PSU.</p>
         </div>
-        <a href="/stakeholders/career-seekers/current-openings" class="inline-flex items-center gap-2 border border-slate-300 hover:border-blue-400 text-slate-700 hover:text-blue-700 px-5 py-2.5 rounded-lg text-sm font-medium bg-white whitespace-nowrap transition-colors">All Openings &rarr;</a>
+        <a href="/stakeholders/career-seekers/current-openings" class="inline-flex items-center gap-2 border border-slate-300 hover:border-[#0EA5E9] text-slate-700 hover:text-[#0EA5E9] px-5 py-2.5 rounded-lg text-sm font-medium bg-white whitespace-nowrap transition-colors">All Openings &rarr;</a>
       </div>
       <div class="space-y-3">
         {careers.map((job) => (
-          <div class="bg-white border border-slate-200 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:shadow-md hover:border-blue-200 transition-all">
+          <div class="bg-white border border-slate-200 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:shadow-md hover:border-[#0EA5E9] transition-all">
             <div class="flex-1">
               <div class="flex items-center gap-3 flex-wrap">
                 <h3 class="font-bold text-slate-900 text-sm">{job.title}</h3>
@@ -337,7 +334,7 @@ const corpStats = [
                 <span>Last Date: {job.lastDate}</span>
               </div>
             </div>
-            <a href="/stakeholders/career-seekers/current-openings" class="shrink-0 inline-flex items-center gap-2 bg-[#003366] hover:bg-[#002244] text-white px-5 py-2 rounded-lg text-xs font-semibold transition-colors shadow">Apply Now</a>
+            <a href="/stakeholders/career-seekers/current-openings" class="shrink-0 inline-flex items-center gap-2 bg-[#0284C7] hover:bg-[#0369A1] text-white px-5 py-2 rounded-lg text-xs font-semibold transition-colors shadow">Apply Now</a>
           </div>
         ))}
       </div>
@@ -348,44 +345,44 @@ const corpStats = [
   <section id="contact" class="py-16 md:py-24 bg-white">
     <div class="max-w-7xl mx-auto px-4">
       <div class="text-center mb-12">
-        <div class="text-xs uppercase tracking-widest text-orange-500 font-bold">Get In Touch</div>
+        <div class="text-xs uppercase tracking-widest text-[#D8681B] font-bold">Get In Touch</div>
         <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mt-2">Contact JKSPDCL</h2>
         <p class="text-slate-500 mt-2 max-w-xl mx-auto">Reach out to our offices in Srinagar or Jammu for enquiries, tenders, and official correspondence.</p>
       </div>
       <div class="grid md:grid-cols-3 gap-6">
         <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200">
-          <div class="w-11 h-11 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-4">
+          <div class="w-11 h-11 rounded-xl bg-[#F0F9FF] text-[#0284C7] flex items-center justify-center mb-4">
             <Icon name="map-pin" size={20} strokeWidth={1.75} />
           </div>
           <h3 class="font-bold text-slate-900 mb-2">Srinagar Office</h3>
           <p class="text-sm text-slate-600 leading-relaxed mb-3">Exhibition Grounds, Jahangir Chowk,<br />Srinagar, J&K — 190009</p>
-          <a href="tel:+911942451665" class="text-sm text-blue-600 hover:underline flex items-center gap-1.5 mt-1">
+          <a href="tel:+911942451665" class="text-sm text-[#0EA5E9] hover:underline flex items-center gap-1.5 mt-1">
             <Icon name="phone" size={13} strokeWidth={2} /> +91 194 2451665
           </a>
-          <a href="mailto:md-jkspdcl@jk.gov.in" class="text-sm text-blue-600 hover:underline flex items-center gap-1.5 mt-1">
+          <a href="mailto:md-jkspdcl@jk.gov.in" class="text-sm text-[#0EA5E9] hover:underline flex items-center gap-1.5 mt-1">
             <Icon name="mail" size={13} strokeWidth={2} /> md-jkspdcl@jk.gov.in
           </a>
         </div>
         <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200">
-          <div class="w-11 h-11 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center mb-4">
+          <div class="w-11 h-11 rounded-xl bg-[#FFE0C2] text-[#D8681B] flex items-center justify-center mb-4">
             <Icon name="building" size={20} strokeWidth={1.75} />
           </div>
           <h3 class="font-bold text-slate-900 mb-2">Jammu Office</h3>
           <p class="text-sm text-slate-600 leading-relaxed mb-3">Ashok Nagar, Satwari,<br />Jammu, J&K — 180004</p>
-          <a href="tel:+911912430548" class="text-sm text-blue-600 hover:underline flex items-center gap-1.5 mt-1">
+          <a href="tel:+911912430548" class="text-sm text-[#0EA5E9] hover:underline flex items-center gap-1.5 mt-1">
             <Icon name="phone" size={13} strokeWidth={2} /> +91 191 2430548 / 2439039
           </a>
-          <a href="mailto:md-jkspdcl@jk.gov.in" class="text-sm text-blue-600 hover:underline flex items-center gap-1.5 mt-1">
+          <a href="mailto:md-jkspdcl@jk.gov.in" class="text-sm text-[#0EA5E9] hover:underline flex items-center gap-1.5 mt-1">
             <Icon name="mail" size={13} strokeWidth={2} /> md-jkspdcl@jk.gov.in
           </a>
         </div>
-        <div class="bg-gradient-to-br from-[#002244] to-[#003366] rounded-2xl p-6 text-white">
+        <div class="bg-gradient-to-br from-[#0369A1] to-[#0284C7] rounded-2xl p-6 text-white">
           <div class="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center mb-4">
             <Icon name="mail" size={20} strokeWidth={1.75} />
           </div>
           <h3 class="font-bold mb-2">Online Grievance</h3>
           <p class="text-sm text-white/80 leading-relaxed mb-4">Submit complaints, RTI applications or general enquiries through our online portal.</p>
-          <a href="/contact-us" class="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-400 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors">Submit Enquiry &rarr;</a>
+          <a href="/contact-us" class="inline-flex items-center gap-2 bg-[#D8681B] hover:bg-[#C65D18] text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors">Submit Enquiry &rarr;</a>
         </div>
       </div>
     </div>
@@ -410,7 +407,7 @@ const corpStats = [
     if (dots[cur]) dots[cur].className = 'h-1.5 rounded-full transition-all duration-300 w-4 bg-white/40';
     cur = ((n % total) + total) % total;
     if (slideEls[cur]) { slideEls[cur].classList.replace('opacity-0','opacity-100'); slideEls[cur].classList.replace('z-0','z-10'); }
-    if (dots[cur]) dots[cur].className = 'h-1.5 rounded-full transition-all duration-300 w-10 bg-orange-500';
+    if (dots[cur]) dots[cur].className = 'h-1.5 rounded-full transition-all duration-300 w-10 bg-[#D8681B]';
     var s = slides[cur];
     var badge = document.getElementById('hero-badge'); if (badge) badge.textContent = s.badge;
     var title = document.getElementById('hero-title'); if (title) title.textContent = s.title;
