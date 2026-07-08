@@ -1,0 +1,78 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+---
+
+<Layout 
+  title="GSTIN Registration Details - Explore About Us" 
+  description="Official Goods and Services Tax Identification Number (GSTIN) registration details of JKSPDCL."
+>
+  <div class="space-y-6">
+    <!-- Breadcrumbs -->
+    <nav class="text-xs text-gray-500" aria-label="Breadcrumbs">
+      <ol class="flex gap-2">
+        <li><a href="/" class="hover:underline">Home</a></li>
+        <li>/</li>
+        <li><span class="text-gray-400">About Us</span></li>
+        <li>/</li>
+        <li><span class="text-gray-400">Explore</span></li>
+        <li>/</li>
+        <li><span class="font-semibold text-[#0B4F9C]">GSTIN Registration</span></li>
+      </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="border-b border-gray-200 pb-4">
+      <h2 class="text-3xl font-extrabold text-[#0B4F9C]">GSTIN Registration Details</h2>
+      <p class="text-sm text-gray-600 mt-1">Official taxation registries of Jammu & Kashmir State Power Development Corporation Limited.</p>
+    </header>
+
+    <!-- Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Main Text -->
+      <article class="lg:col-span-2 space-y-4">
+        <div class="bg-white border border-[#BDD7EE] rounded-xl p-6 shadow-sm">
+          <h3 class="text-lg font-bold text-[#0B4F9C] mb-4 pb-2 border-b border-slate-100">Tax Identification Summary</h3>
+          <div class="overflow-x-auto">
+            <table class="table-data">
+              <thead>
+                <tr>
+                  <th>State/UT</th>
+                  <th>GSTIN Number</th>
+                  <th>Registration Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Jammu & Kashmir (UT)</td>
+                  <td class="font-mono font-bold text-[#0B4F9C]">01AAACJ4890F1Z2</td>
+                  <td><span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full">Active</span></td>
+                </tr>
+                <tr>
+                  <td>Ladakh (UT)</td>
+                  <td class="font-mono font-bold text-[#0B4F9C]">37AAACJ4890F1Z4</td>
+                  <td><span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full">Active</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-6 text-xs text-slate-500 leading-relaxed space-y-2 border-t border-slate-100 pt-4">
+            <p><strong>Note:</strong> Vendors, contractors, and service providers must reference the correct GSTIN on all tax invoices submitted for billing.</p>
+            <p>For any queries related to TDS under GST or financial transactions, please contact the Commercial and Accounts division.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Sidebar Actions -->
+      <aside class="space-y-4">
+        <div class="card-static">
+          <h3 class="font-bold text-gray-900 mb-2 border-b border-gray-100 pb-2">Quick Navigation</h3>
+          <ul class="flex flex-col gap-2 text-xs font-semibold text-[#0B4F9C]">
+            <li><a href="/about-us/explore/overview" class="hover:underline block py-1">&rarr; Overview</a></li>
+            <li><a href="/about-us/explore/profile" class="hover:underline block py-1">&rarr; Corporate Profile</a></li>
+            <li><a href="/about-us/explore/objectives" class="hover:underline block py-1">&rarr; Main Objectives</a></li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+</Layout>

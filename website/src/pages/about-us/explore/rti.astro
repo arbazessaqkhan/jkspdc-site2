@@ -1,0 +1,84 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+---
+
+<Layout 
+  title="RTI Act (Section 4) - About Us | JKSPDC Official Portal" 
+  description="Right to Information Act disclosures under Section 4 by Jammu & Kashmir State Power Development Corporation Limited (JKSPDCL)."
+>
+  <div class="space-y-6">
+    <!-- Breadcrumbs -->
+    <nav class="text-xs text-gray-500" aria-label="Breadcrumbs">
+      <ol class="flex gap-2">
+        <li><a href="/" class="hover:underline">Home</a></li>
+        <li>/</li>
+        <li><span class="text-gray-400">RTI</span></li>
+        <li>/</li>
+        <li><span class="font-semibold text-[#0B4F9C]">RTI Act (Sec 4)</span></li>
+      </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="border-b border-gray-200 pb-4">
+      <h2 class="text-3xl font-extrabold text-[#0B4F9C]">Right to Information Act – Section 4</h2>
+      <p class="text-sm text-gray-600 mt-1">Mandatory disclosures under the RTI Act, 2005 by JKSPDCL.</p>
+    </header>
+
+    <!-- Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <article class="lg:col-span-2 space-y-6">
+
+        <div class="bg-blue-50 border-l-4 border-[#0B4F9C] rounded-r-lg p-4 text-sm text-[#0B4F9C]">
+          <strong>Statutory Obligation:</strong> In accordance with Section 4(1)(b) of the Right to Information Act, 2005, JKSPDCL proactively publishes the following information for public awareness.
+        </div>
+
+        <div class="space-y-3">
+          {[
+            { clause: 'i',   title: 'Organisation, Functions & Duties', link: '/about-us/explore/overview' },
+            { clause: 'ii',  title: 'Powers & Duties of Officers and Employees', link: '/about-us/explore/roles-responsibility' },
+            { clause: 'iii', title: 'Procedure followed in decision-making', link: '/about-us/explore/overview' },
+            { clause: 'iv',  title: 'Norms set for discharge of functions', link: '/about-us/explore/objectives' },
+            { clause: 'v',   title: 'Rules, Regulations, Instructions & Records', link: '/policies/privacy' },
+            { clause: 'vi',  title: 'Statement of categories of documents held', link: '/media/downloads' },
+            { clause: 'vii', title: 'Particulars of arrangement for consultation', link: '/about-us/others/contact' },
+            { clause: 'viii',title: 'Statement of Boards, Councils, Committees', link: '/about-us/management/board' },
+            { clause: 'ix',  title: 'Directory of officers and employees', link: '/about-us/explore/executives-directory' },
+            { clause: 'x',   title: 'Monthly remuneration of each officer', link: '/about-us/explore/executives-directory' },
+            { clause: 'xi',  title: 'Budget allocated to each Agency', link: '/stakeholders/investors/annual-reports' },
+            { clause: 'xii', title: 'Manner of execution of subsidy programmes', link: '/sustainability/csr/overview' },
+            { clause: 'xiii',title: 'Particulars of recipients of concessions', link: '/sustainability/csr/overview' },
+            { clause: 'xiv', title: 'Information available in electronic form', link: '/' },
+            { clause: 'xv',  title: 'Particulars of Information Dissemination Facility', link: '/about-us/others/contact' },
+            { clause: 'xvi', title: 'Name, designation of PIOs', link: '/about-us/others/contact' },
+          ].map((item) => (
+            <a href={item.link} class="flex items-center justify-between gap-4 group bg-white hover:bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 transition-colors">
+              <div class="flex items-start gap-3">
+                <span class="shrink-0 w-7 h-7 bg-[#0B4F9C]/10 text-[#0B4F9C] rounded-full flex items-center justify-center text-xs font-bold">{item.clause}</span>
+                <span class="text-sm text-slate-700 group-hover:text-[#0B4F9C] font-medium">{item.title}</span>
+              </div>
+              <svg class="w-4 h-4 text-slate-400 group-hover:text-[#0B4F9C] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+          ))}
+        </div>
+
+      </article>
+
+      <!-- Sidebar -->
+      <aside class="space-y-4">
+        <div class="card-static">
+          <h3 class="font-bold text-gray-900 mb-2 border-b border-gray-100 pb-2">RTI Resources</h3>
+          <ul class="flex flex-col gap-2 text-xs font-semibold text-[#0B4F9C]">
+            <li><a href="/about-us/others/contact" class="hover:underline block py-1">&rarr; Contact PIO</a></li>
+            <li><a href="/media/downloads" class="hover:underline block py-1">&rarr; Download RTI Forms</a></li>
+            <li><a href="/about-us/explore/overview" class="hover:underline block py-1">&rarr; Corporate Overview</a></li>
+          </ul>
+        </div>
+        <div class="card-static bg-amber-50 border-amber-200">
+          <p class="text-xs text-amber-800 leading-relaxed">
+            For filing an RTI application, please contact the <strong>Public Information Officer (PIO)</strong> at JKSPDCL head office, Jammu or Srinagar.
+          </p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</Layout>
