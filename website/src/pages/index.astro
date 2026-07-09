@@ -9,16 +9,7 @@ const heroSlides = [
   { id: 3, badge: "Renewable Energy", title: "Solar Power Development", desc: "JKSPDC is expanding into solar with multiple projects across Ladakh and Jammu.", stat: "300", statUnit: "MW", statLabel: "Solar Target", statPct: 40, img: "/slider1.jpg", ctaText: "Solar Projects", ctaHref: "/sustainability/environment/preamble" },
 ];
 
-const metrics = [
-  { icon: "zap", label: "Total Installed Capacity", value: 3820, unit: "MW", color: "from-blue-700 to-blue-500" },
-  { icon: "droplets", label: "Hydro Capacity", value: 3520, unit: "MW", color: "from-cyan-700 to-cyan-500" },
-  { icon: "sun", label: "Solar Capacity", value: 300, unit: "MW", color: "from-orange-500 to-orange-400" },
-  { icon: "hardhat", label: "Under Construction", value: 8, unit: "Projects", color: "from-emerald-700 to-emerald-500" },
-  { icon: "factory", label: "Operational Stations", value: 21, unit: "", color: "from-blue-700 to-blue-500" },
-  { icon: "users", label: "Employees", value: 4200, unit: "+", color: "from-cyan-700 to-cyan-500" },
-  { icon: "file-text", label: "Open Tenders", value: 12, unit: "", color: "from-orange-500 to-orange-400" },
-  { icon: "briefcase", label: "Ongoing Recruitments", value: 5, unit: "", color: "from-emerald-700 to-emerald-500" },
-];
+
 
 const quickLinks = [
   { icon: "building", label: "About JKSPDC", desc: "Corporate profile & leadership", href: "/about-us/explore/overview", bg: "bg-[#EAF4FF]", text: "text-[#0B4F9C]" },
@@ -126,28 +117,83 @@ const corpStats = [
   <!-- MAIN CONTAINER WITH MAX-WIDTH AND SIDE MARGINS FOR PROPER CONTENT SPACINGS -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12 relative z-20">
 
-    <!-- METRICS DASHBOARD -->
-    <section class="relative -mt-20">
-      <div class="bg-white rounded-xl shadow-md border border-[#BDD7EE] overflow-hidden">
-        <div class="flex items-center justify-between px-6 pt-4 pb-3 border-b border-[#D6EAF8] bg-[#EAF4FF]">
-          <div>
-            <div class="text-xs uppercase tracking-widest text-[#0B4F9C] font-semibold">Corporate Dashboard</div>
-            <div class="text-lg font-bold text-[#1A5276]">Enterprise Performance Metrics</div>
-          </div>
+    <!-- KEY DIGNITARIES SECTION -->
+    <section class="relative z-30">
+      <div class="bg-gradient-to-br from-[#083B73] to-[#0A2E5C] rounded-2xl border border-[#0B4F9C]/50 p-8 md:p-10 shadow-xl text-white">
+        <div class="text-center mb-8">
+          <span class="text-[10px] uppercase tracking-widest text-[#BDD7EE] font-extrabold bg-white/10 px-3 py-1 rounded-full border border-white/10">Leadership & Governance</span>
+          <h2 class="text-2xl md:text-3xl font-extrabold text-white mt-3 text-balance">Key Dignitaries</h2>
+          <div class="w-16 h-0.5 bg-[#D8681B] mx-auto mt-3 rounded-full"></div>
         </div>
-        <div class="grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-slate-100">
-          {metrics.map((m) => (
-            <div class="p-5 hover:bg-[#EAF4FF] transition group cursor-pointer border-r border-b border-[#D6EAF8] last:border-r-0">
-              <div class={`w-10 h-10 rounded-lg bg-gradient-to-br ${m.color} flex items-center justify-center mb-3 shadow-sm group-hover:scale-110 transition-transform text-white`}>
-                <Icon name={m.icon} size={18} strokeWidth={2} />
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+          <!-- Dignitary 1: LG -->
+          <div class="group bg-white rounded-xl border border-white/10 shadow-md p-5 flex flex-col justify-between hover:shadow-2xl hover:scale-[1.02] transition-[transform,box-shadow] duration-300 w-full text-slate-800 text-center">
+            <div>
+              <div class="w-24 h-24 rounded-full overflow-hidden bg-slate-100 mx-auto border-2 border-[#0B4F9C]/20 shadow-inner relative">
+                <img src="/dignitaries/manoj_sinha.png" alt="Shri Manoj Sinha" width="96" height="96" class="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105" />
               </div>
-              <div class="text-xs text-[#0B4F9C] uppercase tracking-wider font-medium">{m.label}</div>
-              <div class="mt-1 text-2xl xl:text-3xl font-bold text-[#1A5276] tabular-nums">
-                <span class="metric-counter" data-target={String(m.value)}>0</span>
-                <span class="text-base font-semibold text-[#0B4F9C] ml-1">{m.unit}</span>
-              </div>
+              <h3 class="font-bold text-slate-900 text-sm leading-snug mt-4 group-hover:text-[#0B4F9C] transition-colors">Shri Manoj Sinha</h3>
+              <p class="text-[10px] text-[#0B4F9C] font-extrabold uppercase tracking-wide mt-1.5">Lieutenant Governor</p>
+              <p class="text-[9px] text-slate-500 font-semibold uppercase tracking-wider mt-0.5 leading-tight">UT of Jammu and Kashmir</p>
             </div>
-          ))}
+            <div class="mt-4">
+              <a href="/about-us/management/board" class="inline-flex items-center justify-center w-full py-1.5 border border-slate-200 hover:border-[#0B4F9C] text-[10px] font-bold text-slate-600 hover:text-white hover:bg-[#0B4F9C] rounded transition-[background-color,border-color,color] duration-150">
+                Profile Details
+              </a>
+            </div>
+          </div>
+
+          <!-- Dignitary 2: CM -->
+          <div class="group bg-white rounded-xl border border-white/10 shadow-md p-5 flex flex-col justify-between hover:shadow-2xl hover:scale-[1.02] transition-[transform,box-shadow] duration-300 w-full text-slate-800 text-center">
+            <div>
+              <div class="w-24 h-24 rounded-full overflow-hidden bg-slate-100 mx-auto border-2 border-[#0B4F9C]/20 shadow-inner relative">
+                <img src="/dignitaries/omar_abdullah.png" alt="Shri Omar Abdullah" width="96" height="96" class="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105" />
+              </div>
+              <h3 class="font-bold text-slate-900 text-sm leading-snug mt-4 group-hover:text-[#0B4F9C] transition-colors">Shri Omar Abdullah</h3>
+              <p class="text-[9px] text-[#0B4F9C] font-extrabold uppercase tracking-wide mt-1.5">Hon'ble Chief Minister</p>
+              <p class="text-[9px] text-slate-500 font-semibold uppercase tracking-wider mt-0.5 leading-tight">Power Development Dept, UT of J&K</p>
+            </div>
+            <div class="mt-4">
+              <a href="/about-us/management/board" class="inline-flex items-center justify-center w-full py-1.5 border border-slate-200 hover:border-[#0B4F9C] text-[10px] font-bold text-slate-600 hover:text-white hover:bg-[#0B4F9C] rounded transition-[background-color,border-color,color] duration-150">
+                Profile Details
+              </a>
+            </div>
+          </div>
+
+          <!-- Dignitary 3: FC/ACS PDD -->
+          <div class="group bg-white rounded-xl border border-white/10 shadow-md p-5 flex flex-col justify-between hover:shadow-2xl hover:scale-[1.02] transition-[transform,box-shadow] duration-300 w-full text-slate-800 text-center">
+            <div>
+              <div class="w-24 h-24 rounded-full overflow-hidden bg-slate-100 mx-auto border-2 border-[#0B4F9C]/20 shadow-inner relative">
+                <img src="/dignitaries/ashwani_kumar.png" alt="Shri Ashwani Kumar (IAS)" width="96" height="96" class="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105" />
+              </div>
+              <h3 class="font-bold text-slate-900 text-sm leading-snug mt-4 group-hover:text-[#0B4F9C] transition-colors">Shri Ashwani Kumar (IAS)</h3>
+              <p class="text-[9px] text-[#0B4F9C] font-extrabold uppercase tracking-wide mt-1.5">Financial Commissioner (ACS)</p>
+              <p class="text-[9px] text-slate-500 font-semibold uppercase tracking-wider mt-0.5 leading-tight">Power Development Dept, UT of J&K</p>
+            </div>
+            <div class="mt-4">
+              <a href="/about-us/management/board" class="inline-flex items-center justify-center w-full py-1.5 border border-slate-200 hover:border-[#0B4F9C] text-[10px] font-bold text-slate-600 hover:text-white hover:bg-[#0B4F9C] rounded transition-[background-color,border-color,color] duration-150">
+                Profile Details
+              </a>
+            </div>
+          </div>
+
+          <!-- Dignitary 4: MD -->
+          <div class="group bg-white rounded-xl border border-white/10 shadow-md p-5 flex flex-col justify-between hover:shadow-2xl hover:scale-[1.02] transition-[transform,box-shadow] duration-300 w-full text-slate-800 text-center">
+            <div>
+              <div class="w-24 h-24 rounded-full overflow-hidden bg-slate-100 mx-auto border-2 border-[#0B4F9C]/20 shadow-inner relative">
+                <img src="/dignitaries/rahul_yadav.jpg" alt="Shri Rahul Yadav (IAS)" width="96" height="96" class="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105" />
+              </div>
+              <h3 class="font-bold text-slate-900 text-sm leading-snug mt-4 group-hover:text-[#0B4F9C] transition-colors">Shri Rahul Yadav (IAS)</h3>
+              <p class="text-[9px] text-[#0B4F9C] font-extrabold uppercase tracking-wide mt-1.5">Managing Director</p>
+              <p class="text-[9px] text-slate-500 font-semibold uppercase tracking-wider mt-0.5 leading-tight">JKSPDC</p>
+            </div>
+            <div class="mt-4">
+              <a href="/about-us/management/board" class="inline-flex items-center justify-center w-full py-1.5 border border-slate-200 hover:border-[#0B4F9C] text-[10px] font-bold text-slate-600 hover:text-white hover:bg-[#0B4F9C] rounded transition-[background-color,border-color,color] duration-150">
+                Profile Details
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -196,7 +242,7 @@ const corpStats = [
           <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 flex items-center">
             <Icon name="search" size={14} strokeWidth={2} />
           </span>
-          <input id="project-search" type="text" placeholder="Search projects..." class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white" />
+          <input id="project-search" type="text" placeholder="Search projects…" class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 bg-white" />
         </div>
       </div>
       <div id="projects-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -415,23 +461,7 @@ const corpStats = [
   dots.forEach(function(d) { d.onclick = function() { goTo(parseInt(d.dataset.dot,10)); }; });
   setInterval(function() { goTo(cur+1); }, 6000);
 
-  var counters = document.querySelectorAll('.metric-counter'), counted = false;
-  function animateCounters() {
-    counters.forEach(function(el) {
-      var target = parseInt(el.dataset.target, 10), val = 0, step = Math.max(1, target/80);
-      var t = setInterval(function() {
-        val = Math.min(val + step, target);
-        el.textContent = Math.round(val).toLocaleString('en-IN');
-        if (val >= target) clearInterval(t);
-      }, 20);
-    });
-  }
-  if ('IntersectionObserver' in window && counters.length) {
-    var obs = new IntersectionObserver(function(entries) {
-      if (entries[0].isIntersecting && !counted) { counted = true; animateCounters(); }
-    }, { threshold: 0.3 });
-    obs.observe(counters[0].closest('section'));
-  } else animateCounters();
+
 
   var cards = document.querySelectorAll('.project-card');
   var tabBtns = document.querySelectorAll('.project-tab');
