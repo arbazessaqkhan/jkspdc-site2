@@ -9,19 +9,17 @@ const heroSlides = [
   { id: 3, badge: "Renewable Energy", title: "Solar Power Development", desc: "JKSPDC is expanding into solar with multiple projects across Ladakh and Jammu.", stat: "300", statUnit: "MW", statLabel: "Solar Target", statPct: 40, img: "/slider1.jpg", ctaText: "Solar Projects", ctaHref: "/sustainability/environment/preamble" },
 ];
 
-
-
 const quickLinks = [
-  { icon: "building", label: "About JKSPDC", desc: "Corporate profile & leadership", href: "/about-us/explore/overview", bg: "bg-[#EAF4FF]", text: "text-[#0B4F9C]" },
-  { icon: "factory", label: "Projects", desc: "Explore power stations", href: "/our-business/power-stations", bg: "bg-[#EAF4FF]", text: "text-[#0B4F9C]" },
-  { icon: "file-text", label: "Tender Portal", desc: "Live tenders & bids", href: "/stakeholders/vendors/tender-bids", bg: "bg-[#EAF4FF]", text: "text-[#0B4F9C]" },
-  { icon: "briefcase", label: "Careers", desc: "Open positions", href: "/stakeholders/career-seekers/current-openings", bg: "bg-[#EAF4FF]", text: "text-[#0B4F9C]" },
-  { icon: "scroll-text", label: "RTI", desc: "Right to Information", href: "/about-us/explore/overview", bg: "bg-[#EAF4FF]", text: "text-[#0B4F9C]" },
-  { icon: "landmark", label: "Investors", desc: "Financial reports", href: "/commercial/overview", bg: "bg-[#EAF4FF]", text: "text-[#0B4F9C]" },
-  { icon: "leaf", label: "CSR", desc: "Community initiatives", href: "/sustainability/environment/preamble", bg: "bg-[#EAF4FF]", text: "text-[#0B4F9C]" },
-  { icon: "newspaper", label: "Media Centre", desc: "Press & announcements", href: "/media/press-releases", bg: "bg-[#EAF4FF]", text: "text-[#0B4F9C]" },
-  { icon: "download", label: "Downloads", desc: "Documents & forms", href: "/stakeholders/vendors/tender-bids", bg: "bg-[#EAF4FF]", text: "text-[#0B4F9C]" },
-  { icon: "eye", label: "Vigilance", desc: "Integrity & compliance", href: "/about-us/explore/ethics-code", bg: "bg-[#EAF4FF]", text: "text-[#0B4F9C]" },
+  { icon: "building", label: "About JKSPDC", desc: "Corporate profile & leadership", href: "/about-us/explore/overview" },
+  { icon: "factory", label: "Projects", desc: "Explore power stations", href: "/our-business/power-stations" },
+  { icon: "file-text", label: "Tender Portal", desc: "Live tenders & bids", href: "/stakeholders/vendors/tender-bids" },
+  { icon: "briefcase", label: "Careers", desc: "Open positions", href: "/stakeholders/career-seekers/current-openings" },
+  { icon: "scroll-text", label: "RTI", desc: "Right to Information", href: "/about-us/explore/overview" },
+  { icon: "landmark", label: "Investors", desc: "Financial reports", href: "/commercial/overview" },
+  { icon: "leaf", label: "CSR", desc: "Community initiatives", href: "/sustainability/environment/preamble" },
+  { icon: "newspaper", label: "Media Centre", desc: "Press & announcements", href: "/media/press-releases" },
+  { icon: "download", label: "Downloads", desc: "Documents & forms", href: "/stakeholders/vendors/tender-bids" },
+  { icon: "eye", label: "Vigilance", desc: "Integrity & compliance", href: "/about-us/explore/ethics-code" },
 ];
 
 const projects = [
@@ -53,19 +51,11 @@ const tenders = [
   { nit: "NIT-501/2025", title: "EPC for Jammu Solar Cluster — Phase I", dept: "Renewable", value: "Rs. 165 Cr", closing: "30 Sep 2025", status: "Open" },
 ];
 
-const careers = [
-  { title: "Junior Engineer (Civil)", posts: 120, qual: "B.E/B.Tech Civil", lastDate: "30 Jun 2025", pay: "Rs.35,400-1,12,400" },
-  { title: "Junior Engineer (Electrical)", posts: 90, qual: "B.E/B.Tech Electrical", lastDate: "30 Jun 2025", pay: "Rs.35,400-1,12,400" },
-  { title: "Accounts Assistant", posts: 40, qual: "B.Com with Tally", lastDate: "15 Jul 2025", pay: "Rs.29,200-92,300" },
-  { title: "Data Entry Operator", posts: 35, qual: "12th + Diploma in IT", lastDate: "20 Jul 2025", pay: "Rs.19,900-63,200" },
-  { title: "Assistant Engineer (E&M)", posts: 25, qual: "B.E/B.Tech + 2yr Exp", lastDate: "31 Jul 2025", pay: "Rs.56,100-1,77,500" },
-];
-
 const corpStats = [
-  { label: "Authorised Capital", value: "Rs.5,000 Cr" },
-  { label: "Paid-Up Capital", value: "Rs.2,593 Cr" },
-  { label: "Revenue 2023-24", value: "Rs.1,136 Cr" },
-  { label: "JV Investment", value: "Rs.2,357 Cr" },
+  { label: "Authorised Capital", value: "Rs. 5,000 Cr" },
+  { label: "Paid-Up Capital", value: "Rs. 2,593 Cr" },
+  { label: "Revenue 2023-24", value: "Rs. 1,136 Cr" },
+  { label: "JV Investment", value: "Rs. 2,357 Cr" },
 ];
 ---
 
@@ -77,241 +67,235 @@ const corpStats = [
       {heroSlides.map((slide, i) => (
         <div id={`slide-${slide.id}`} class={`absolute inset-0 transition-opacity duration-700 ${i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
           <img src={slide.img} alt={slide.title} class="w-full h-full object-cover" />
-          <div class="absolute inset-0 bg-gradient-to-r from-[#084A8F]/90 via-[#084A8F]/60 to-[#084A8F]/20"></div>
-          <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-          
-          <!-- Slide Text Content Centered -->
-          <div class="absolute inset-0 z-20 max-w-7xl mx-auto h-full px-4 flex items-center">
-            <div class="max-w-2xl text-white">
-              <div class="inline-flex items-center bg-[#D8681B] text-white text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-5">{slide.badge}</div>
-              <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight tracking-tight text-balance">{slide.title}</h2>
-              <p class="mt-5 text-base sm:text-lg text-white/85 max-w-xl leading-relaxed text-pretty">{slide.desc}</p>
-              <div class="mt-8 flex flex-wrap items-center gap-3">
-                <a href={slide.ctaHref} class="inline-flex items-center gap-2 bg-[#D8681B] hover:bg-[#C65D18] text-white font-semibold px-6 h-12 rounded-md transition-colors text-sm shadow-lg">{slide.ctaText} &rarr;</a>
-                <button class="inline-flex items-center gap-2 border border-white/40 bg-white/5 backdrop-blur-sm text-white hover:bg-white/15 px-6 h-12 rounded-md transition-colors text-sm font-medium">&#9654; Corporate Video</button>
+          <div class="absolute inset-0 bg-gradient-to-r from-[#084A8F]/92 via-[#084A8F]/60 to-[#084A8F]/15"></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent"></div>
+
+          <!-- Slide Content -->
+          <div class="absolute inset-0 z-20 flex items-center">
+            <div class="w-full max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
+              <div class="max-w-2xl text-white">
+                <div class="inline-flex items-center bg-[#D8681B] text-white text-[11px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-6">{slide.badge}</div>
+                <h2 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.1] tracking-tight text-balance">{slide.title}</h2>
+                <p class="mt-5 text-base sm:text-lg text-white/80 max-w-xl leading-relaxed">{slide.desc}</p>
+                <div class="mt-8 flex flex-wrap items-center gap-3">
+                  <a href={slide.ctaHref} class="inline-flex items-center gap-2 bg-[#D8681B] hover:bg-[#C65D18] text-white font-semibold px-7 h-12 rounded-md transition-colors text-sm shadow-lg">{slide.ctaText} &rarr;</a>
+                  <button class="inline-flex items-center gap-2 border border-white/40 bg-white/8 backdrop-blur-sm text-white hover:bg-white/18 px-6 h-12 rounded-md transition-colors text-sm font-medium">&#9654; Corporate Video</button>
+                </div>
               </div>
             </div>
-            
-            <!-- Stat Box (Desktop) -->
-            <div class="hidden lg:block absolute right-8 bottom-24 z-20">
-              <div class="bg-black/40 backdrop-blur-md border border-white/15 rounded-2xl p-6 pr-10 min-w-[220px]">
-                <div class="text-white/60 text-xs uppercase tracking-widest font-medium">{slide.statLabel}</div>
-                <div class="flex items-end gap-1 mt-2">
-                  <span class="text-white text-6xl font-bold leading-none font-variant-numeric: tabular-nums">{slide.stat}</span>
-                  <span class="text-[#D8681B] text-xl font-semibold pb-1">{slide.statUnit}</span>
-                </div>
-                <div class="mt-4 h-1.5 bg-white/15 rounded-full overflow-hidden">
-                  <div class="h-full bg-[#D8681B] rounded-full transition-all duration-700" style={`width:${slide.statPct}%`}></div>
-                </div>
+          </div>
+
+          <!-- Stat Box -->
+          <div class="hidden lg:block absolute right-10 bottom-20 z-20">
+            <div class="bg-black/40 backdrop-blur-md border border-white/15 rounded-2xl p-6 pr-12 min-w-[230px]">
+              <div class="text-white/55 text-[10px] uppercase tracking-[0.15em] font-semibold">{slide.statLabel}</div>
+              <div class="flex items-end gap-1.5 mt-3">
+                <span class="text-white text-6xl font-extrabold leading-none tabular-nums">{slide.stat}</span>
+                <span class="text-[#D8681B] text-2xl font-bold pb-1">{slide.statUnit}</span>
+              </div>
+              <div class="mt-4 h-1.5 bg-white/15 rounded-full overflow-hidden">
+                <div class="h-full bg-[#D8681B] rounded-full transition-all duration-700" style={`width:${slide.statPct}%`}></div>
               </div>
             </div>
           </div>
         </div>
       ))}
     </div>
-    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20">
+
+    <!-- Dots -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2.5 z-20">
       {heroSlides.map((_, i) => (
         <button data-dot={String(i)} class={`h-1.5 rounded-full transition-all duration-300 ${i === 0 ? 'w-10 bg-[#D8681B]' : 'w-4 bg-white/40'}`} aria-label={`Slide ${i + 1}`}></button>
       ))}
     </div>
-    <button id="hero-prev" class="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-white/20 transition border border-white/20 text-2xl" aria-label="Previous">&#8249;</button>
-    <button id="hero-next" class="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-white/20 transition border border-white/20 text-2xl" aria-label="Next">&#8250;</button>
+    <button id="hero-prev" class="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-white/20 transition border border-white/20 text-xl" aria-label="Previous">&#8249;</button>
+    <button id="hero-next" class="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-white/20 transition border border-white/20 text-xl" aria-label="Next">&#8250;</button>
   </section>
 
-  <!-- MAIN CONTAINER WITH MAX-WIDTH AND SIDE MARGINS FOR PROPER CONTENT SPACINGS -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12 relative z-20">
+  <!-- PAGE BODY — unified container + consistent vertical rhythm -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 space-y-14">
 
-    <!-- KEY DIGNITARIES SECTION -->
-    <section class="relative z-30">
-      <div class="bg-gradient-to-br from-[#083B73] to-[#0A2E5C] rounded-2xl border border-[#0B4F9C]/50 p-8 md:p-10 shadow-xl text-white">
-        <div class="text-center mb-8">
-          <span class="text-[10px] uppercase tracking-widest text-[#BDD7EE] font-extrabold bg-white/10 px-3 py-1 rounded-full border border-white/10">Leadership & Governance</span>
-          <h2 class="text-2xl md:text-3xl font-extrabold text-white mt-3 text-balance">Key Dignitaries</h2>
-          <div class="w-16 h-0.5 bg-[#D8681B] mx-auto mt-3 rounded-full"></div>
+    <!-- ============================================================ -->
+    <!-- KEY DIGNITARIES                                               -->
+    <!-- ============================================================ -->
+    <section aria-labelledby="dignitaries-heading">
+      <div class="bg-gradient-to-br from-[#083B73] to-[#0A2E5C] rounded-2xl border border-white/10 shadow-xl text-white overflow-hidden">
+        <!-- Section Header -->
+        <div class="px-8 md:px-12 pt-10 pb-8 text-center">
+          <span class="inline-block text-[11px] uppercase tracking-[0.14em] text-[#BDD7EE] font-extrabold bg-white/10 px-4 py-1.5 rounded-full border border-white/15 mb-4">Leadership &amp; Governance</span>
+          <h2 id="dignitaries-heading" class="text-2xl md:text-3xl font-extrabold text-white">Key Dignitaries</h2>
+          <div class="w-12 h-0.5 bg-[#D8681B] mx-auto mt-4 rounded-full"></div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
-          <!-- Dignitary 1: LG -->
-          <div class="group bg-white rounded-xl border border-white/10 shadow-md p-5 flex flex-col justify-between hover:shadow-2xl hover:scale-[1.02] transition-[transform,box-shadow] duration-300 w-full text-slate-800 text-center">
-            <div>
-              <div class="w-24 h-24 rounded-full overflow-hidden bg-slate-100 mx-auto border-2 border-[#0B4F9C]/20 shadow-inner relative">
-                <img src="/dignitaries/manoj_sinha.png" alt="Shri Manoj Sinha" width="96" height="96" class="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105" />
-              </div>
-              <h3 class="font-bold text-slate-900 text-sm leading-snug mt-4 group-hover:text-[#0B4F9C] transition-colors">Shri Manoj Sinha</h3>
-              <p class="text-[10px] text-[#0B4F9C] font-extrabold uppercase tracking-wide mt-1.5">Lieutenant Governor</p>
-              <p class="text-[9px] text-slate-500 font-semibold uppercase tracking-wider mt-0.5 leading-tight">UT of Jammu and Kashmir</p>
-            </div>
-            <div class="mt-4">
-              <a href="/dignitaries/manoj-sinha" class="inline-flex items-center justify-center w-full py-1.5 border border-slate-200 hover:border-[#0B4F9C] text-[10px] font-bold text-slate-600 hover:text-white hover:bg-[#0B4F9C] rounded transition-[background-color,border-color,color] duration-150">
-                Profile Details
-              </a>
-            </div>
-          </div>
+        <!-- Cards Grid -->
+        <div class="px-8 md:px-12 pb-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
 
-          <!-- Dignitary 2: CM -->
-          <div class="group bg-white rounded-xl border border-white/10 shadow-md p-5 flex flex-col justify-between hover:shadow-2xl hover:scale-[1.02] transition-[transform,box-shadow] duration-300 w-full text-slate-800 text-center">
-            <div>
-              <div class="w-24 h-24 rounded-full overflow-hidden bg-slate-100 mx-auto border-2 border-[#0B4F9C]/20 shadow-inner relative">
-                <img src="/dignitaries/omar_abdullah.png" alt="Shri Omar Abdullah" width="96" height="96" class="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105" />
+          <!-- Dignitary Card Pattern (shared styles via inline classes) -->
+          {[
+            { img: "/dignitaries/manoj_sinha.png", name: "Shri Manoj Sinha", role: "Lieutenant Governor", org: "UT of Jammu and Kashmir", href: "/dignitaries/manoj-sinha" },
+            { img: "/dignitaries/omar_abdullah.png", name: "Shri Omar Abdullah", role: "Hon'ble Chief Minister", org: "Power Development Dept, UT of J&K", href: "/dignitaries/omar-abdullah" },
+            { img: "/dignitaries/ashwani_kumar.png", name: "Shri Ashwani Kumar (IAS)", role: "Financial Commissioner (ACS)", org: "Power Development Dept, UT of J&K", href: "/dignitaries/ashwani-kumar" },
+            { img: "/dignitaries/rahul_yadav.jpg", name: "Shri Rahul Yadav (IAS)", role: "Managing Director", org: "JKSPDC", href: "/dignitaries/rahul-yadav" },
+          ].map(d => (
+            <div class="group bg-white rounded-xl border border-slate-100 shadow-sm p-6 flex flex-col items-center text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+              <div class="w-28 h-28 rounded-full overflow-hidden bg-slate-100 border-[3px] border-[#0B4F9C]/20 shadow-md flex-shrink-0">
+                <img src={d.img} alt={d.name} width="112" height="112" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" />
               </div>
-              <h3 class="font-bold text-slate-900 text-sm leading-snug mt-4 group-hover:text-[#0B4F9C] transition-colors">Shri Omar Abdullah</h3>
-              <p class="text-[9px] text-[#0B4F9C] font-extrabold uppercase tracking-wide mt-1.5">Hon'ble Chief Minister</p>
-              <p class="text-[9px] text-slate-500 font-semibold uppercase tracking-wider mt-0.5 leading-tight">Power Development Dept, UT of J&K</p>
-            </div>
-            <div class="mt-4">
-              <a href="/dignitaries/omar-abdullah" class="inline-flex items-center justify-center w-full py-1.5 border border-slate-200 hover:border-[#0B4F9C] text-[10px] font-bold text-slate-600 hover:text-white hover:bg-[#0B4F9C] rounded transition-[background-color,border-color,color] duration-150">
+              <div class="mt-4 flex-1 flex flex-col items-center">
+                <h3 class="font-bold text-slate-900 text-sm leading-snug group-hover:text-[#0B4F9C] transition-colors">{d.name}</h3>
+                <p class="text-[10px] text-[#0B4F9C] font-extrabold uppercase tracking-wide mt-2">{d.role}</p>
+                <p class="text-[10px] text-slate-400 font-medium mt-1 leading-snug">{d.org}</p>
+              </div>
+              <a href={d.href} class="mt-5 w-full inline-flex items-center justify-center py-2 border border-slate-200 hover:border-[#0B4F9C] text-[11px] font-bold text-slate-600 hover:text-white hover:bg-[#0B4F9C] rounded-lg transition-all duration-150">
                 Profile Details
               </a>
             </div>
-          </div>
-
-          <!-- Dignitary 3: FC/ACS PDD -->
-          <div class="group bg-white rounded-xl border border-white/10 shadow-md p-5 flex flex-col justify-between hover:shadow-2xl hover:scale-[1.02] transition-[transform,box-shadow] duration-300 w-full text-slate-800 text-center">
-            <div>
-              <div class="w-24 h-24 rounded-full overflow-hidden bg-slate-100 mx-auto border-2 border-[#0B4F9C]/20 shadow-inner relative">
-                <img src="/dignitaries/ashwani_kumar.png" alt="Shri Ashwani Kumar (IAS)" width="96" height="96" class="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105" />
-              </div>
-              <h3 class="font-bold text-slate-900 text-sm leading-snug mt-4 group-hover:text-[#0B4F9C] transition-colors">Shri Ashwani Kumar (IAS)</h3>
-              <p class="text-[9px] text-[#0B4F9C] font-extrabold uppercase tracking-wide mt-1.5">Financial Commissioner (ACS)</p>
-              <p class="text-[9px] text-slate-500 font-semibold uppercase tracking-wider mt-0.5 leading-tight">Power Development Dept, UT of J&K</p>
-            </div>
-            <div class="mt-4">
-              <a href="/dignitaries/ashwani-kumar" class="inline-flex items-center justify-center w-full py-1.5 border border-slate-200 hover:border-[#0B4F9C] text-[10px] font-bold text-slate-600 hover:text-white hover:bg-[#0B4F9C] rounded transition-[background-color,border-color,color] duration-150">
-                Profile Details
-              </a>
-            </div>
-          </div>
-
-          <!-- Dignitary 4: MD -->
-          <div class="group bg-white rounded-xl border border-white/10 shadow-md p-5 flex flex-col justify-between hover:shadow-2xl hover:scale-[1.02] transition-[transform,box-shadow] duration-300 w-full text-slate-800 text-center">
-            <div>
-              <div class="w-24 h-24 rounded-full overflow-hidden bg-slate-100 mx-auto border-2 border-[#0B4F9C]/20 shadow-inner relative">
-                <img src="/dignitaries/rahul_yadav.jpg" alt="Shri Rahul Yadav (IAS)" width="96" height="96" class="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105" />
-              </div>
-              <h3 class="font-bold text-slate-900 text-sm leading-snug mt-4 group-hover:text-[#0B4F9C] transition-colors">Shri Rahul Yadav (IAS)</h3>
-              <p class="text-[9px] text-[#0B4F9C] font-extrabold uppercase tracking-wide mt-1.5">Managing Director</p>
-              <p class="text-[9px] text-slate-500 font-semibold uppercase tracking-wider mt-0.5 leading-tight">JKSPDC</p>
-            </div>
-            <div class="mt-4">
-              <a href="/dignitaries/rahul-yadav" class="inline-flex items-center justify-center w-full py-1.5 border border-slate-200 hover:border-[#0B4F9C] text-[10px] font-bold text-slate-600 hover:text-white hover:bg-[#0B4F9C] rounded transition-[background-color,border-color,color] duration-150">
-                Profile Details
-              </a>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </section>
 
-    <!-- QUICK ACCESS GRID -->
-    <section class="bg-white rounded-2xl border border-[#BDD7EE] p-8 md:p-10 shadow-sm">
-      <div class="mb-8">
-        <div class="text-xs uppercase tracking-widest text-[#0B4F9C] font-bold">Quick Access</div>
-        <h2 class="text-3xl md:text-4xl font-bold text-[#1A5276] mt-2">Navigate the corporation</h2>
-        <p class="text-slate-500 mt-2 max-w-2xl">One-click access to the most-used services and information across the corporation.</p>
+    <!-- ============================================================ -->
+    <!-- QUICK ACCESS GRID                                             -->
+    <!-- ============================================================ -->
+    <section aria-labelledby="quick-access-heading" class="bg-white rounded-2xl border border-[#BDD7EE] shadow-sm overflow-hidden">
+      <div class="px-8 md:px-12 pt-10 pb-3">
+        <div class="text-[11px] uppercase tracking-[0.14em] text-[#0B4F9C] font-extrabold mb-2">Quick Access</div>
+        <h2 id="quick-access-heading" class="text-2xl md:text-3xl font-extrabold text-[#1A5276]">Navigate the corporation</h2>
+        <p class="text-sm text-slate-500 mt-2.5 max-w-2xl leading-relaxed">One-click access to the most-used services and information across the corporation.</p>
       </div>
-      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        {quickLinks.map((link) => (
-          <a href={link.href} class="group relative bg-white border border-slate-200 rounded-xl p-5 hover:border-blue-300 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden">
-            <div class={`w-11 h-11 rounded-xl ${link.bg} ${link.text} flex items-center justify-center mb-4`}>
-              <Icon name={link.icon} size={22} strokeWidth={1.75} />
-            </div>
-            <div class="font-semibold text-slate-800 text-sm">{link.label}</div>
-            <div class="text-xs text-slate-500 mt-1 leading-relaxed">{link.desc}</div>
-            <span class="absolute bottom-4 right-4 text-slate-300 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-sm">&rarr;</span>
-          </a>
-        ))}
-      </div>
-    </section>
-
-    <!-- PROJECT EXPLORER -->
-    <section id="projects" class="bg-[#EAF4FF] rounded-2xl border border-[#BDD7EE] p-8 md:p-10 shadow-sm">
-      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
-        <div>
-          <div class="text-xs uppercase tracking-widest text-[#0B4F9C] font-bold">Project Portfolio</div>
-          <h2 class="text-3xl md:text-4xl font-bold text-[#1A5276] mt-2">Interactive Project Explorer</h2>
-          <p class="text-slate-500 mt-2 max-w-2xl">Discover operational hydroelectric plants, ongoing constructions and upcoming renewable projects across J&K.</p>
-        </div>
-        <div class="flex items-center gap-2">
-          <div class="flex items-center gap-2 rounded-lg border border-[#BDD7EE] bg-white px-4 py-2 text-xs text-[#1A5276] font-medium"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> 21 Operational</div>
-          <div class="flex items-center gap-2 rounded-lg border border-[#BDD7EE] bg-white px-4 py-2 text-xs text-[#1A5276] font-medium"><span class="w-2 h-2 rounded-full bg-[#0B4F9C]"></span> 8 Under Construction</div>
-        </div>
-      </div>
-      <div class="flex items-center gap-1 mb-6 bg-white border border-slate-200 rounded-lg p-1 w-fit flex-wrap">
-        {['All', 'Operational', 'Under Construction', 'Upcoming', 'Solar'].map((tab) => (
-          <button data-tab={tab} class={`project-tab px-4 py-1.5 rounded-md text-sm font-medium transition-all ${tab === 'All' ? 'bg-[#0B4F9C] text-white shadow' : 'text-slate-600 hover:bg-slate-100'}`}>{tab === 'All' ? 'All Projects' : tab}</button>
-        ))}
-      </div>
-      <div class="mb-6">
-        <div class="relative max-w-sm">
-          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 flex items-center">
-            <Icon name="search" size={14} strokeWidth={2} />
-          </span>
-          <input id="project-search" type="text" placeholder="Search projects…" class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 bg-white" />
-        </div>
-      </div>
-      <div id="projects-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {projects.map((p) => (
-          <div class="project-card bg-white rounded-xl border border-slate-200 p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-300" data-status={p.status} data-type={p.type} data-name={p.name.toLowerCase()}>
-            <div class="flex items-start justify-between mb-3">
+      <div class="px-8 md:px-12 pb-10 pt-8">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {quickLinks.map((link) => (
+            <a href={link.href} class="group relative bg-white border border-slate-200 rounded-xl p-5 hover:border-[#0B4F9C]/40 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col gap-3">
+              <div class="w-11 h-11 rounded-xl bg-[#EAF4FF] text-[#0B4F9C] flex items-center justify-center flex-shrink-0">
+                <Icon name={link.icon} size={20} strokeWidth={1.75} />
+              </div>
               <div>
-                <div class="font-bold text-slate-900 text-sm">{p.name}</div>
-                <div class="text-xs text-slate-500 mt-0.5">{p.district} — {p.river} River</div>
+                <div class="font-semibold text-slate-800 text-sm leading-snug">{link.label}</div>
+                <div class="text-xs text-slate-500 mt-1 leading-relaxed">{link.desc}</div>
               </div>
-              <span class={`text-xs font-bold uppercase px-2 py-0.5 rounded-full whitespace-nowrap ${p.status === 'Operational' ? 'bg-emerald-100 text-emerald-700' : p.status === 'Under Construction' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600'}`}>{p.status}</span>
-            </div>
-            <div class="flex items-end gap-1 mb-3">
-              <span class="text-3xl font-bold text-[#0B4F9C]">{p.capacity}</span>
-              <span class="text-sm text-[#0B4F9C] font-semibold pb-0.5">MW</span>
-            </div>
-            <div class="flex items-center justify-between text-xs text-slate-500">
-              <span class={`font-medium flex items-center gap-1 ${p.type === 'Solar' ? 'text-orange-600' : 'text-blue-600'}`}>
-                <Icon name={p.type === 'Solar' ? 'sun' : 'droplets'} size={12} strokeWidth={2} />
-                {p.type}
-              </span>
-              <span>Est. {p.year}</span>
-              <a href="/our-business/power-stations" class="text-blue-600 hover:underline font-medium">Details &rarr;</a>
-            </div>
-          </div>
-        ))}
-      </div>
-      <div class="text-center mt-10">
-        <a href="/our-business/power-stations" class="inline-flex items-center gap-2 border border-slate-300 hover:border-blue-400 text-slate-700 hover:text-blue-700 px-6 py-2.5 rounded-lg text-sm font-medium bg-white transition-colors">View All Projects &rarr;</a>
+              <span class="absolute bottom-4 right-4 text-[#0B4F9C] opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 text-sm font-bold">&rarr;</span>
+            </a>
+          ))}
+        </div>
       </div>
     </section>
 
-    <!-- ACTIVE TENDERS -->
-    <section id="tenders" class="bg-white rounded-2xl border border-[#BDD7EE] p-8 md:p-10 shadow-sm">
-      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
-        <div>
-          <div class="text-xs uppercase tracking-widest text-[#0B4F9C] font-bold">Procurement</div>
-          <h2 class="text-3xl md:text-4xl font-bold text-[#1A5276] mt-2">Active Tenders &amp; Bids</h2>
-          <p class="text-slate-500 mt-2">All currently open tenders from JKSPDCL. Download bid documents and submit online.</p>
+    <!-- ============================================================ -->
+    <!-- PROJECT EXPLORER                                              -->
+    <!-- ============================================================ -->
+    <section id="projects" aria-labelledby="projects-heading" class="bg-[#EAF4FF] rounded-2xl border border-[#BDD7EE] shadow-sm overflow-hidden">
+      <!-- Section Header -->
+      <div class="px-8 md:px-12 pt-10 pb-0">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-5">
+          <div>
+            <div class="text-[11px] uppercase tracking-[0.14em] text-[#0B4F9C] font-extrabold mb-2">Project Portfolio</div>
+            <h2 id="projects-heading" class="text-2xl md:text-3xl font-extrabold text-[#1A5276]">Interactive Project Explorer</h2>
+            <p class="text-sm text-slate-500 mt-2.5 max-w-xl leading-relaxed">Discover operational hydroelectric plants, ongoing constructions and upcoming renewable projects across J&K.</p>
+          </div>
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <div class="flex items-center gap-2 rounded-lg border border-[#BDD7EE] bg-white px-3.5 py-2 text-xs text-[#1A5276] font-semibold">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span> 21 Operational
+            </div>
+            <div class="flex items-center gap-2 rounded-lg border border-[#BDD7EE] bg-white px-3.5 py-2 text-xs text-[#1A5276] font-semibold">
+              <span class="w-2 h-2 rounded-full bg-[#0B4F9C]"></span> 8 Under Construction
+            </div>
+          </div>
         </div>
-        <a href="/stakeholders/vendors/tender-bids" class="inline-flex items-center gap-2 bg-[#0B4F9C] hover:bg-[#084A8F] text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap shadow">View All Tenders &rarr;</a>
       </div>
-      <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
+
+      <!-- Filters + Search -->
+      <div class="px-8 md:px-12 pt-8">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div class="flex items-center gap-1 bg-white border border-slate-200 rounded-lg p-1 flex-wrap">
+            {['All', 'Operational', 'Under Construction', 'Upcoming', 'Solar'].map((tab) => (
+              <button data-tab={tab} class={`project-tab px-4 py-1.5 rounded-md text-xs font-semibold transition-all ${tab === 'All' ? 'bg-[#0B4F9C] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}>
+                {tab === 'All' ? 'All Projects' : tab}
+              </button>
+            ))}
+          </div>
+          <div class="relative sm:ml-auto">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 flex items-center">
+              <Icon name="search" size={13} strokeWidth={2} />
+            </span>
+            <input id="project-search" type="text" placeholder="Search projects…" class="w-full sm:w-56 pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C]/40 bg-white" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Project Cards Grid -->
+      <div class="px-8 md:px-12 pt-6 pb-3">
+        <div id="projects-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {projects.map((p) => (
+            <div class="project-card bg-white rounded-xl border border-slate-200 p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-250" data-status={p.status} data-type={p.type} data-name={p.name.toLowerCase()}>
+              <div class="flex items-start justify-between mb-4">
+                <div class="flex-1 min-w-0 pr-3">
+                  <div class="font-bold text-slate-900 text-sm leading-snug">{p.name}</div>
+                  <div class="text-xs text-slate-400 mt-1">{p.district} — {p.river} River</div>
+                </div>
+                <span class={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full whitespace-nowrap flex-shrink-0 ${p.status === 'Operational' ? 'bg-emerald-100 text-emerald-700' : p.status === 'Under Construction' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600'}`}>{p.status}</span>
+              </div>
+              <div class="flex items-end gap-1.5 mb-4">
+                <span class="text-3xl font-extrabold text-[#0B4F9C] leading-none tabular-nums">{p.capacity}</span>
+                <span class="text-sm text-[#0B4F9C] font-semibold mb-0.5">MW</span>
+              </div>
+              <div class="flex items-center justify-between text-xs text-slate-500">
+                <span class={`font-medium flex items-center gap-1 ${p.type === 'Solar' ? 'text-orange-600' : 'text-blue-600'}`}>
+                  <Icon name={p.type === 'Solar' ? 'sun' : 'droplets'} size={12} strokeWidth={2} />
+                  {p.type}
+                </span>
+                <span class="text-slate-400">Est. {p.year}</span>
+                <a href="/our-business/power-stations" class="text-[#0B4F9C] hover:underline font-semibold">Details &rarr;</a>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- View All -->
+      <div class="px-8 md:px-12 pt-8 pb-10 text-center">
+        <a href="/our-business/power-stations" class="inline-flex items-center gap-2 border border-slate-300 hover:border-[#0B4F9C] text-slate-600 hover:text-[#0B4F9C] px-7 py-2.5 rounded-lg text-sm font-semibold bg-white transition-colors shadow-sm">View All Projects &rarr;</a>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- ACTIVE TENDERS                                                -->
+    <!-- ============================================================ -->
+    <section id="tenders" aria-labelledby="tenders-heading" class="bg-white rounded-2xl border border-[#BDD7EE] shadow-sm overflow-hidden">
+      <div class="px-8 md:px-12 pt-10 pb-8">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-5">
+          <div>
+            <div class="text-[11px] uppercase tracking-[0.14em] text-[#0B4F9C] font-extrabold mb-2">Procurement</div>
+            <h2 id="tenders-heading" class="text-2xl md:text-3xl font-extrabold text-[#1A5276]">Active Tenders &amp; Bids</h2>
+            <p class="text-sm text-slate-500 mt-2.5 leading-relaxed">All currently open tenders from JKSPDCL. Download bid documents and submit online.</p>
+          </div>
+          <a href="/stakeholders/vendors/tender-bids" class="inline-flex items-center gap-2 bg-[#0B4F9C] hover:bg-[#084A8F] text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap shadow-sm flex-shrink-0">View All Tenders &rarr;</a>
+        </div>
+      </div>
+      <div class="overflow-x-auto border-t border-slate-100">
         <table class="w-full text-sm">
-          <thead class="bg-[#D6EAF8] text-[#1A5276] text-xs uppercase tracking-wider border-b border-[#BDD7EE]">
+          <thead class="bg-[#D6EAF8] text-[#1A5276] text-[11px] uppercase tracking-wider border-b border-[#BDD7EE]">
             <tr>
-              <th class="px-5 py-3 text-left font-semibold">NIT No.</th>
-              <th class="px-5 py-3 text-left font-semibold">Description</th>
-              <th class="px-5 py-3 text-left font-semibold hidden md:table-cell">Dept.</th>
-              <th class="px-5 py-3 text-left font-semibold hidden lg:table-cell">Est. Value</th>
-              <th class="px-5 py-3 text-left font-semibold">Closing</th>
-              <th class="px-5 py-3 text-left font-semibold">Status</th>
-              <th class="px-5 py-3"></th>
+              <th class="px-6 py-3.5 text-left font-semibold">NIT No.</th>
+              <th class="px-6 py-3.5 text-left font-semibold">Description</th>
+              <th class="px-6 py-3.5 text-left font-semibold hidden md:table-cell">Dept.</th>
+              <th class="px-6 py-3.5 text-left font-semibold hidden lg:table-cell">Est. Value</th>
+              <th class="px-6 py-3.5 text-left font-semibold">Closing</th>
+              <th class="px-6 py-3.5 text-left font-semibold">Status</th>
+              <th class="px-6 py-3.5"></th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
             {tenders.map((t) => (
-              <tr class="hover:bg-slate-50 transition-colors">
-                <td class="px-5 py-4 font-mono font-semibold text-[#0B4F9C] text-xs">{t.nit}</td>
-                <td class="px-5 py-4 text-slate-800 font-medium max-w-xs">{t.title}</td>
-                <td class="px-5 py-4 text-slate-500 hidden md:table-cell">{t.dept}</td>
-                <td class="px-5 py-4 text-slate-700 font-semibold hidden lg:table-cell">{t.value}</td>
-                <td class="px-5 py-4 text-slate-600">{t.closing}</td>
-                <td class="px-5 py-4"><span class={`text-xs font-bold uppercase px-2.5 py-1 rounded-full ${t.status === 'Open' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>{t.status}</span></td>
-                <td class="px-5 py-4"><a href="/stakeholders/vendors/tender-bids" class="text-blue-600 hover:underline font-medium text-xs whitespace-nowrap">Bid Docs &rarr;</a></td>
+              <tr class="hover:bg-[#EAF4FF]/50 transition-colors">
+                <td class="px-6 py-4 font-mono font-semibold text-[#0B4F9C] text-xs whitespace-nowrap">{t.nit}</td>
+                <td class="px-6 py-4 text-slate-800 font-medium max-w-xs text-sm">{t.title}</td>
+                <td class="px-6 py-4 text-slate-500 text-xs hidden md:table-cell">{t.dept}</td>
+                <td class="px-6 py-4 text-slate-700 font-semibold text-xs hidden lg:table-cell">{t.value}</td>
+                <td class="px-6 py-4 text-slate-500 text-xs whitespace-nowrap">{t.closing}</td>
+                <td class="px-6 py-4"><span class={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${t.status === 'Open' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>{t.status}</span></td>
+                <td class="px-6 py-4"><a href="/stakeholders/vendors/tender-bids" class="text-[#0B4F9C] hover:underline font-semibold text-xs whitespace-nowrap">Bid Docs &rarr;</a></td>
               </tr>
             ))}
           </tbody>
@@ -319,120 +303,134 @@ const corpStats = [
       </div>
     </section>
 
-    <!-- ABOUT SECTION -->
-    <section id="about" class="bg-gradient-to-br from-[#084A8F] to-[#0B4F9C] text-white rounded-2xl p-8 md:p-10 shadow-lg border border-white/10">
-      <div class="grid lg:grid-cols-2 gap-12 items-center">
-        <div>
-          <div class="text-xs uppercase tracking-widest text-[#FFE0C2] font-bold mb-4">About JKSPDC</div>
-          <h2 class="text-3xl md:text-4xl font-bold leading-tight mb-6">Powering J&K Since 1995</h2>
-          <p class="text-white/80 leading-relaxed mb-4">Jammu and Kashmir State Power Development Corporation Limited (JKSPDCL) is a wholly owned Public Sector Undertaking (PSU) of the Government of Jammu &amp; Kashmir, incorporated in 1995 under the Companies Act.</p>
-          <p class="text-white/80 leading-relaxed mb-8">With an authorised share capital of Rs.5,000 crores, JKSPDC has investments of Rs.2,357.61 crores in joint ventures with NHPC — including CVPPPL and RHPCL.</p>
-          <div class="grid grid-cols-2 gap-4 mb-8">
+    <!-- ============================================================ -->
+    <!-- ABOUT JKSPDC                                                  -->
+    <!-- ============================================================ -->
+    <section id="about" aria-labelledby="about-heading" class="bg-gradient-to-br from-[#073A80] to-[#0B4F9C] text-white rounded-2xl shadow-xl border border-white/10 overflow-hidden">
+      <div class="px-8 md:px-12 py-12 lg:py-14 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+
+        <!-- Left: Text Column -->
+        <div class="flex flex-col">
+          <div class="text-[11px] uppercase tracking-[0.14em] text-[#FFE0C2] font-extrabold mb-4">About JKSPDC</div>
+          <h2 id="about-heading" class="text-2xl md:text-3xl lg:text-4xl font-extrabold leading-tight mb-6">Powering J&amp;K Since 1995</h2>
+          <div class="space-y-4 mb-8">
+            <p class="text-white/80 text-sm leading-relaxed">
+              Jammu and Kashmir State Power Development Corporation Limited (JKSPDCL) is a wholly owned Public Sector Undertaking (PSU) of the Government of Jammu &amp; Kashmir, incorporated in 1995 under the Companies Act.
+            </p>
+            <p class="text-white/80 text-sm leading-relaxed">
+              With an authorised share capital of Rs.&nbsp;5,000 crores, JKSPDC has investments of Rs.&nbsp;2,357.61 crores in joint ventures with NHPC — including CVPPPL and RHPCL — harnessing the vast hydroelectric potential of the region.
+            </p>
+          </div>
+
+          <!-- Stat Cards Grid -->
+          <div class="grid grid-cols-2 gap-4 mb-9">
             {corpStats.map(stat => (
-              <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/15">
-                <div class="text-white/60 text-xs uppercase tracking-wide mb-1">{stat.label}</div>
-                <div class="text-xl font-bold text-[#FFE0C2]">{stat.value}</div>
+              <div class="bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/15 transition-colors">
+                <div class="text-white/55 text-[10px] uppercase tracking-[0.12em] font-semibold mb-2">{stat.label}</div>
+                <div class="text-[#FFE0C2] text-xl font-extrabold leading-snug">{stat.value}</div>
               </div>
             ))}
           </div>
-          <a href="/about-us/explore/overview" class="inline-flex items-center gap-2 bg-white hover:bg-[#EAF4FF] text-[#0B4F9C] font-semibold px-6 py-3 rounded-lg text-sm transition-colors border border-white/30">Learn More About Us &rarr;</a>
+
+          <div>
+            <a href="/about-us/explore/overview" class="inline-flex items-center gap-2 bg-white hover:bg-[#EAF4FF] text-[#0B4F9C] font-semibold px-7 py-3 rounded-lg text-sm transition-colors border border-white/20 shadow-sm">
+              Learn More About Us &rarr;
+            </a>
+          </div>
         </div>
+
+        <!-- Right: Image Mosaic -->
         <div class="grid grid-cols-2 gap-4">
-          <div class="rounded-2xl overflow-hidden shadow-2xl aspect-[4/3]"><img src="/slider2.jpg" alt="JKSPDC project" class="w-full h-full object-cover" /></div>
-          <div class="rounded-2xl overflow-hidden shadow-2xl aspect-[4/3] mt-8"><img src="/slider3.jpg" alt="JKSPDC dam" class="w-full h-full object-cover" /></div>
-          <div class="rounded-2xl overflow-hidden shadow-2xl aspect-[4/3] -mt-8"><img src="/slider1.jpg" alt="JKSPDC station" class="w-full h-full object-cover" /></div>
-          <div class="bg-[#0B4F9C] rounded-2xl p-6 flex flex-col justify-center border-2 border-white/20">
-            <div class="text-4xl font-bold">30+</div>
-            <div class="text-sm font-semibold mt-1">Years of Excellence</div>
-            <div class="text-xs text-blue-200 mt-2">Harnessing J&K hydro potential since 1995</div>
+          <!-- Top row: two images at equal height -->
+          <div class="rounded-xl overflow-hidden shadow-xl aspect-[4/3]">
+            <img src="/slider2.jpg" alt="JKSPDC hydroelectric project" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+          </div>
+          <div class="rounded-xl overflow-hidden shadow-xl aspect-[4/3]">
+            <img src="/slider3.jpg" alt="JKSPDC dam construction" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+          </div>
+          <!-- Bottom row: one image + one stat card -->
+          <div class="rounded-xl overflow-hidden shadow-xl aspect-[4/3]">
+            <img src="/slider1.jpg" alt="JKSPDC power station" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+          </div>
+          <div class="bg-white/15 backdrop-blur-sm rounded-xl border-2 border-white/25 aspect-[4/3] flex flex-col items-center justify-center text-center p-5 hover:bg-white/20 transition-colors">
+            <div class="text-5xl font-extrabold text-white leading-none">30+</div>
+            <div class="text-sm font-bold text-[#FFE0C2] mt-2.5">Years of Excellence</div>
+            <div class="text-xs text-white/60 mt-2 leading-relaxed max-w-[120px]">Harnessing J&K hydro potential since 1995</div>
           </div>
         </div>
+
       </div>
     </section>
 
-    <!-- CAREERS SECTION -->
-    <section id="careers" class="bg-white rounded-2xl border border-[#BDD7EE] p-8 md:p-10 shadow-sm">
-      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
-        <div>
-          <div class="text-xs uppercase tracking-widest text-[#0B4F9C] font-bold">Join Our Team</div>
-          <h2 class="text-3xl md:text-4xl font-bold text-[#1A5276] mt-2">Current Career Openings</h2>
-          <p class="text-slate-500 mt-2">Build a meaningful career in India's premier hydro power PSU.</p>
-        </div>
-        <a href="/stakeholders/career-seekers/current-openings" class="inline-flex items-center gap-2 border border-slate-300 hover:border-[#106EE9] text-slate-700 hover:text-[#106EE9] px-5 py-2.5 rounded-lg text-sm font-medium bg-white whitespace-nowrap transition-colors">All Openings &rarr;</a>
+    <!-- ============================================================ -->
+    <!-- CONTACT SECTION                                               -->
+    <!-- ============================================================ -->
+    <section id="contact" aria-labelledby="contact-heading" class="bg-[#EAF4FF] rounded-2xl border border-[#BDD7EE] shadow-sm overflow-hidden">
+      <div class="px-8 md:px-12 pt-10 pb-4 text-center">
+        <div class="text-[11px] uppercase tracking-[0.14em] text-[#0B4F9C] font-extrabold mb-2">Get In Touch</div>
+        <h2 id="contact-heading" class="text-2xl md:text-3xl font-extrabold text-[#1A5276]">Contact JKSPDCL</h2>
+        <p class="text-sm text-slate-500 mt-2.5 max-w-lg mx-auto leading-relaxed">Reach out to our offices in Srinagar or Jammu for enquiries, tenders, and official correspondence.</p>
       </div>
-      <div class="space-y-3">
-        {careers.map((job) => (
-          <div class="bg-white border border-slate-200 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:shadow-md hover:border-[#106EE9] transition-all">
-            <div class="flex-1">
-              <div class="flex items-center gap-3 flex-wrap">
-                <h3 class="font-bold text-slate-900 text-sm">{job.title}</h3>
-                <span class="bg-emerald-100 text-emerald-700 text-xs font-bold uppercase px-2 py-0.5 rounded-full">Open</span>
-              </div>
-              <div class="flex flex-wrap gap-4 mt-2 text-xs text-slate-500">
-                <span>{job.posts} Posts</span>
-                <span>{job.qual}</span>
-                <span>{job.pay}</span>
-                <span>Last Date: {job.lastDate}</span>
-              </div>
-            </div>
-            <a href="/stakeholders/career-seekers/current-openings" class="shrink-0 inline-flex items-center gap-2 bg-[#0B4F9C] hover:bg-[#084A8F] text-white px-5 py-2 rounded-lg text-xs font-semibold transition-colors shadow">Apply Now</a>
-          </div>
-        ))}
-      </div>
-    </section>
 
-    <!-- CONTACT SECTION -->
-    <section id="contact" class="bg-[#EAF4FF] rounded-2xl border border-[#BDD7EE] p-8 md:p-10 shadow-sm">
-      <div class="text-center mb-12">
-        <div class="text-xs uppercase tracking-widest text-[#0B4F9C] font-bold">Get In Touch</div>
-        <h2 class="text-3xl md:text-4xl font-bold text-[#1A5276] mt-2">Contact JKSPDCL</h2>
-        <p class="text-slate-500 mt-2 max-w-xl mx-auto">Reach out to our offices in Srinagar or Jammu for enquiries, tenders, and official correspondence.</p>
-      </div>
-      <div class="grid md:grid-cols-3 gap-6">
-        <div class="bg-white rounded-2xl p-6 border border-[#BDD7EE] shadow-sm">
-          <div class="w-11 h-11 rounded-xl bg-[#EAF4FF] text-[#0B4F9C] flex items-center justify-center mb-4">
+      <div class="px-8 md:px-12 pt-8 pb-10 grid md:grid-cols-3 gap-5">
+
+        <!-- Srinagar Office -->
+        <div class="bg-white rounded-xl p-6 border border-[#BDD7EE] shadow-sm flex flex-col">
+          <div class="w-11 h-11 rounded-xl bg-[#EAF4FF] text-[#0B4F9C] flex items-center justify-center flex-shrink-0 mb-5">
             <Icon name="map-pin" size={20} strokeWidth={1.75} />
           </div>
-          <h3 class="font-bold text-[#1A5276] mb-2">Srinagar Office</h3>
-          <p class="text-sm text-slate-600 leading-relaxed mb-3">Exhibition Grounds, Jahangir Chowk,<br />Srinagar, J&K — 190009</p>
-          <a href="tel:+911942451665" class="text-sm text-[#106EE9] hover:underline flex items-center gap-1.5 mt-1">
-            <Icon name="phone" size={13} strokeWidth={2} /> +91 194 2451665
-          </a>
-          <a href="mailto:md-jkspdcl@jk.gov.in" class="text-sm text-[#106EE9] hover:underline flex items-center gap-1.5 mt-1">
-            <Icon name="mail" size={13} strokeWidth={2} /> md-jkspdcl@jk.gov.in
-          </a>
+          <h3 class="font-bold text-[#1A5276] text-base mb-3">Srinagar Office</h3>
+          <p class="text-sm text-slate-600 leading-relaxed mb-4">Exhibition Grounds, Jahangir Chowk,<br />Srinagar, J&K — 190009</p>
+          <div class="flex flex-col gap-2 mt-auto">
+            <a href="tel:+911942451665" class="text-sm text-[#0B4F9C] hover:underline inline-flex items-center gap-2">
+              <Icon name="phone" size={13} strokeWidth={2} /> +91 194 2451665
+            </a>
+            <a href="mailto:md-jkspdcl@jk.gov.in" class="text-sm text-[#0B4F9C] hover:underline inline-flex items-center gap-2 break-all">
+              <Icon name="mail" size={13} strokeWidth={2} /> md-jkspdcl@jk.gov.in
+            </a>
+          </div>
         </div>
-        <div class="bg-white rounded-2xl p-6 border border-[#BDD7EE] shadow-sm">
-          <div class="w-11 h-11 rounded-xl bg-[#EAF4FF] text-[#0B4F9C] flex items-center justify-center mb-4">
+
+        <!-- Jammu Office -->
+        <div class="bg-white rounded-xl p-6 border border-[#BDD7EE] shadow-sm flex flex-col">
+          <div class="w-11 h-11 rounded-xl bg-[#EAF4FF] text-[#0B4F9C] flex items-center justify-center flex-shrink-0 mb-5">
             <Icon name="building" size={20} strokeWidth={1.75} />
           </div>
-          <h3 class="font-bold text-[#1A5276] mb-2">Jammu Office</h3>
-          <p class="text-sm text-slate-600 leading-relaxed mb-3">Ashok Nagar, Satwari,<br />Jammu, J&K — 180004</p>
-          <a href="tel:+911912430548" class="text-sm text-[#106EE9] hover:underline flex items-center gap-1.5 mt-1">
-            <Icon name="phone" size={13} strokeWidth={2} /> +91 191 2430548 / 2439039
-          </a>
-          <a href="mailto:md-jkspdcl@jk.gov.in" class="text-sm text-[#106EE9] hover:underline flex items-center gap-1.5 mt-1">
-            <Icon name="mail" size={13} strokeWidth={2} /> md-jkspdcl@jk.gov.in
-          </a>
+          <h3 class="font-bold text-[#1A5276] text-base mb-3">Jammu Office</h3>
+          <p class="text-sm text-slate-600 leading-relaxed mb-4">Ashok Nagar, Satwari,<br />Jammu, J&K — 180004</p>
+          <div class="flex flex-col gap-2 mt-auto">
+            <a href="tel:+911912430548" class="text-sm text-[#0B4F9C] hover:underline inline-flex items-center gap-2">
+              <Icon name="phone" size={13} strokeWidth={2} /> +91 191 2430548 / 2439039
+            </a>
+            <a href="mailto:md-jkspdcl@jk.gov.in" class="text-sm text-[#0B4F9C] hover:underline inline-flex items-center gap-2 break-all">
+              <Icon name="mail" size={13} strokeWidth={2} /> md-jkspdcl@jk.gov.in
+            </a>
+          </div>
         </div>
-        <div class="bg-gradient-to-br from-[#084A8F] to-[#0B4F9C] rounded-2xl p-6 text-white shadow-md border border-white/10">
-          <div class="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center mb-4">
+
+        <!-- Online Grievance -->
+        <div class="bg-gradient-to-br from-[#073A80] to-[#0B4F9C] rounded-xl p-6 text-white shadow-md border border-white/10 flex flex-col">
+          <div class="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0 mb-5">
             <Icon name="mail" size={20} strokeWidth={1.75} />
           </div>
-          <h3 class="font-bold mb-2">Online Grievance</h3>
-          <p class="text-sm text-white/80 leading-relaxed mb-4">Submit complaints, RTI applications or general enquiries through our online portal.</p>
-          <a href="/contact-us" class="inline-flex items-center gap-2 bg-white hover:bg-[#EAF4FF] text-[#0B4F9C] text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors border border-white/30">Submit Enquiry &rarr;</a>
+          <h3 class="font-bold text-base mb-3">Online Grievance</h3>
+          <p class="text-sm text-white/75 leading-relaxed flex-1">Submit complaints, RTI applications or general enquiries through our online portal.</p>
+          <a href="/contact-us" class="mt-5 inline-flex items-center gap-2 bg-white hover:bg-[#EAF4FF] text-[#0B4F9C] text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors border border-white/20 self-start">
+            Submit Enquiry &rarr;
+          </a>
         </div>
+
       </div>
     </section>
 
   </div>
-
+  <!-- end page body -->
 
 </Layout>
 
 <script is:inline>
 (function () {
+  /* ── HERO SLIDER ─────────────────────────────────────────── */
   var cur = 0, total = 4;
   var slideEls = [], dots = document.querySelectorAll('[data-dot]');
   for (var i = 0; i < total; i++) slideEls.push(document.getElementById('slide-' + i));
@@ -447,26 +445,29 @@ const corpStats = [
 
   var prev = document.getElementById('hero-prev'); if (prev) prev.onclick = function() { goTo(cur-1); };
   var next = document.getElementById('hero-next'); if (next) next.onclick = function() { goTo(cur+1); };
-  dots.forEach(function(d) { d.onclick = function() { goTo(parseInt(d.dataset.dot,10)); }; });
+  dots.forEach(function(d) { d.onclick = function() { goTo(parseInt(d.dataset.dot, 10)); }; });
   setInterval(function() { goTo(cur+1); }, 6000);
 
-
-
+  /* ── PROJECT FILTER ──────────────────────────────────────── */
   var cards = document.querySelectorAll('.project-card');
   var tabBtns = document.querySelectorAll('.project-tab');
   var searchEl = document.getElementById('project-search');
   var activeTab = 'All';
+
   function filterProjects() {
     var q = searchEl ? searchEl.value.toLowerCase() : '';
     cards.forEach(function(c) {
-      var tabOk = activeTab==='All' || c.dataset.status===activeTab || (activeTab==='Solar' && c.dataset.type==='Solar');
+      var tabOk = activeTab === 'All' || c.dataset.status === activeTab || (activeTab === 'Solar' && c.dataset.type === 'Solar');
       c.style.display = (tabOk && (!q || c.dataset.name.includes(q))) ? '' : 'none';
     });
   }
+
   tabBtns.forEach(function(btn) {
     btn.onclick = function() {
-      tabBtns.forEach(function(t) { t.className = 'project-tab px-4 py-1.5 rounded-md text-sm font-medium transition-all text-slate-600 hover:bg-slate-100'; });
-      btn.className = 'project-tab px-4 py-1.5 rounded-md text-sm font-medium transition-all bg-[#0B4F9C] text-white shadow';
+      tabBtns.forEach(function(t) {
+        t.className = 'project-tab px-4 py-1.5 rounded-md text-xs font-semibold transition-all text-slate-600 hover:bg-slate-100';
+      });
+      btn.className = 'project-tab px-4 py-1.5 rounded-md text-xs font-semibold transition-all bg-[#0B4F9C] text-white shadow-sm';
       activeTab = btn.dataset.tab;
       filterProjects();
     };
