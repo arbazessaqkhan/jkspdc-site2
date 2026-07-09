@@ -200,7 +200,7 @@ const currentYear = new Date().getFullYear();
 
     <!-- Top Utility Bar (Accessibility & Bilingual Switchers) -->
     <div class="bg-[#083B73] text-slate-100 text-xs py-2 border-b border-[#0B4F9C]/30">
-      <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
         <!-- Office Info / Contact Helpline -->
         <div class="hidden sm:flex items-center gap-4">
           <span class="flex items-center gap-1.5"><Icon name="phone" size={12} strokeWidth={2} /> Jammu Office: +91 191 2430548</span>
@@ -280,18 +280,19 @@ const currentYear = new Date().getFullYear();
     </div>
 
     <header class="bg-[#EAF4FF] border-b-2 border-[#0B4F9C] shadow-sm">
-      <div class="max-w-full px-4 py-4 flex items-center justify-between">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
         <!-- Left Logo -->
-        <a href="/" class="flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C] rounded p-1" aria-label="JKSPDCL Home">
+        <a href="/" class="flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C] rounded p-1 lg:-ml-[22px]" aria-label="JKSPDCL Home">
           <img src="/logo.png" alt="JKSPDCL Logo" class="h-14 w-auto object-contain" />
         </a>
 
         <!-- Centered Organization Name -->
         <div class="flex-1 text-center px-4">
-          <h1 class="text-lg md:text-2xl font-bold text-[#0B4F9C] leading-tight text-balance">
-            Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL)
+          <h1 class="text-lg md:text-2xl font-bold text-[#0B4F9C] leading-tight">
+            Jammu &amp; Kashmir State Power Development Corporation Limited
           </h1>
-          <p class="text-sm md:text-base font-bold text-[#0B4F9C] mt-1.5" lang="hi">
+          <p class="text-sm md:text-base font-bold text-[#0B4F9C] mt-0.5">(JKSPDCL)</p>
+          <p class="text-sm md:text-base font-bold text-[#0B4F9C] mt-1" lang="hi">
             जम्मू और कश्मीर राज्य विद्युत विकास निगम लिमिटेड (जेकेएसपीडीसीएल)
           </p>
         </div>
@@ -315,8 +316,8 @@ const currentYear = new Date().getFullYear();
 
       <!-- Navigation Bar (With CSS and Keyboard Accessible Dropdowns) -->
       <nav class="bg-[#0B4F9C] border-t border-white/10 relative" aria-label="Primary Navigation">
-        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
-          <ul class="flex flex-wrap gap-0 text-sm font-semibold">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+          <ul class="flex flex-wrap w-full justify-between text-sm font-semibold">
             <!-- Home -->
             <li>
               <a href="/" class="block px-3.5 py-3.5 text-white hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent hover:border-white/60 focus-visible:outline-none focus-visible:bg-[#084A8F]">
@@ -449,7 +450,7 @@ const currentYear = new Date().getFullYear();
 
     <!-- Footer Section (Professional Dark Slate) -->
     <footer class="bg-[#083B73] text-slate-200 border-t-4 border-[#0B4F9C] pt-14 pb-8 text-sm">
-      <div class="max-w-7xl mx-auto px-4">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <!-- Footer Core Columns -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 border-b border-slate-700 pb-10 mb-8">
