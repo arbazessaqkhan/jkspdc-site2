@@ -1,0 +1,111 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
+---
+
+<Layout 
+  title="Profile - Shri Ashwani Kumar (FC / ACS PDD)" 
+  description="Official profile of Shri Ashwani Kumar (IAS), the Financial Commissioner (Additional Chief Secretary) of the Power Development Department in the Union Territory of Jammu and Kashmir."
+>
+  <div class="space-y-6">
+    <!-- Breadcrumbs -->
+    <nav class="text-xs text-gray-500" aria-label="Breadcrumbs">
+      <ol class="flex gap-2">
+        <li><a href="/" class="hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0B4F9C] rounded px-1">Home</a></li>
+        <li>/</li>
+        <li><span class="text-gray-400">Key Dignitaries</span></li>
+        <li>/</li>
+        <li><span class="font-semibold text-[#0B4F9C]">Shri Ashwani Kumar (IAS)</span></li>
+      </ol>
+    </nav>
+
+    <!-- Back Button -->
+    <div>
+      <a 
+        href="/" 
+        class="inline-flex items-center gap-2 px-3 py-1.5 border border-slate-200 hover:border-[#0B4F9C] text-xs font-bold text-slate-600 hover:text-white hover:bg-[#0B4F9C] rounded transition-[background-color,border-color,color] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C]/50"
+      >
+        <Icon name="arrow-left" size={12} strokeWidth={2.5} /> Back to Home
+      </a>
+    </div>
+
+    <!-- Main Container -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <!-- Left Column: Portrait Card & Stats -->
+      <div class="space-y-6">
+        <div class="bg-gradient-to-br from-[#083B73] to-[#0A2E5C] rounded-2xl border border-[#0B4F9C]/50 p-6 shadow-lg text-white text-center">
+          <div class="w-36 h-36 rounded-full overflow-hidden bg-white mx-auto border-4 border-white/20 shadow-md relative">
+            <img 
+              src="/dignitaries/ashwani_kumar.png" 
+              alt="Shri Ashwani Kumar (IAS)" 
+              width="144" 
+              height="144" 
+              class="w-full h-full object-cover object-top"
+            />
+          </div>
+          <h2 class="text-xl font-extrabold text-white mt-4 text-balance">Shri Ashwani Kumar (IAS)</h2>
+          <p class="text-xs text-[#BDD7EE] font-bold uppercase tracking-wider mt-1.5">Financial Commissioner (ACS)</p>
+          <p class="text-[10px] text-white/70 font-semibold uppercase tracking-widest mt-0.5">Power Development Department, J&K</p>
+          
+          <div class="w-12 h-0.5 bg-[#D8681B] mx-auto mt-4 rounded-full"></div>
+          
+          <div class="mt-4 text-left text-xs space-y-2.5 bg-black/15 p-3 rounded-lg border border-white/10">
+            <div class="flex justify-between">
+              <span class="text-white/60 font-semibold">IAS Batch</span>
+              <span class="font-bold">1992 (AGMUT Cadre)</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-white/60 font-semibold">Education</span>
+              <span class="font-bold text-right">B.E. (Elec.), M.A. (Duke)</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-white/60 font-semibold">Office Location</span>
+              <span class="font-bold text-right">Civil Secretariat, J&K</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Biography & Career details -->
+      <div class="lg:col-span-2 space-y-6">
+        <div class="bg-white rounded-2xl border border-[#BDD7EE] p-6 md:p-8 shadow-sm space-y-6">
+          
+          <!-- Heading Section -->
+          <div>
+            <h1 class="text-2xl font-extrabold text-[#0B4F9C] text-balance">Official Profile</h1>
+            <p class="text-xs text-gray-500 mt-1">Administrative credentials and biographical details of the Financial Commissioner.</p>
+          </div>
+
+          <!-- Section 1: Biography -->
+          <section class="space-y-3">
+            <h3 class="text-sm font-bold text-[#0B4F9C] uppercase tracking-wider border-b border-slate-100 pb-1.5">Biography</h3>
+            <p class="text-sm text-slate-600 leading-relaxed text-pretty">
+              Shri Ashwani Kumar is a senior officer of the Indian Administrative Service (IAS) belonging to the 1992 batch (AGMUT cadre). He assumed charge as the Financial Commissioner (Additional Chief Secretary) of the Power Development Department, Government of Jammu and Kashmir, on February 23, 2026.
+            </p>
+            <p class="text-sm text-slate-600 leading-relaxed text-pretty">
+              Shri Kumar holds a Bachelor of Engineering (B.E.) in Electrical Engineering. Recognizing the interdisciplinary demands of modern public administration, he also earned a Master of Arts (M.A.) in International Development from Duke University, USA. His engineering credentials combined with administrative training enable him to drive strategic power sector improvements.
+            </p>
+          </section>
+
+          <!-- Section 2: Administrative Career & Portfolios -->
+          <section class="space-y-3">
+            <h3 class="text-sm font-bold text-[#0B4F9C] uppercase tracking-wider border-b border-slate-100 pb-1.5">Key Responsibilities</h3>
+            <p class="text-sm text-slate-600 leading-relaxed text-pretty">
+              As the Financial Commissioner (Additional Chief Secretary) of the Power Development Department (PDD), Shri Kumar is responsible for supervising the transmission, distribution, and overall generation framework within Jammu &amp; Kashmir.
+            </p>
+            <p class="text-sm text-slate-600 leading-relaxed text-pretty">
+              His current portfolio and charges include:
+            </p>
+            <ul class="list-disc pl-5 text-sm text-slate-600 space-y-1 text-pretty">
+              <li><strong>Administrative Secretary, Power Development Department:</strong> Directs financial and administrative policies for power distribution utilities and corporate boards in the UT.</li>
+              <li><strong>Administrative Secretary, Mining Department:</strong> Holds the additional charge of supervising mining policy, geological surveys, and resource management.</li>
+              <li><strong>Senior Policy Advisor:</strong> Coordinates with central agencies, the Central Electricity Authority (CEA), and corporate joint ventures (like CVPPL) on power dispatch reforms.</li>
+            </ul>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>

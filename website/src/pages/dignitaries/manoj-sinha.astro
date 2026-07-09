@@ -1,0 +1,110 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
+---
+
+<Layout 
+  title="Profile - Shri Manoj Sinha (Hon'ble Lieutenant Governor)" 
+  description="Official profile of Shri Manoj Sinha, the Hon'ble Lieutenant Governor of the Union Territory of Jammu and Kashmir."
+>
+  <div class="space-y-6">
+    <!-- Breadcrumbs -->
+    <nav class="text-xs text-gray-500" aria-label="Breadcrumbs">
+      <ol class="flex gap-2">
+        <li><a href="/" class="hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0B4F9C] rounded px-1">Home</a></li>
+        <li>/</li>
+        <li><span class="text-gray-400">Key Dignitaries</span></li>
+        <li>/</li>
+        <li><span class="font-semibold text-[#0B4F9C]">Shri Manoj Sinha</span></li>
+      </ol>
+    </nav>
+
+    <!-- Back Button -->
+    <div>
+      <a 
+        href="/" 
+        class="inline-flex items-center gap-2 px-3 py-1.5 border border-slate-200 hover:border-[#0B4F9C] text-xs font-bold text-slate-600 hover:text-white hover:bg-[#0B4F9C] rounded transition-[background-color,border-color,color] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C]/50"
+      >
+        <Icon name="arrow-left" size={12} strokeWidth={2.5} /> Back to Home
+      </a>
+    </div>
+
+    <!-- Main Container -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <!-- Left Column: Portrait Card & Stats -->
+      <div class="space-y-6">
+        <div class="bg-gradient-to-br from-[#083B73] to-[#0A2E5C] rounded-2xl border border-[#0B4F9C]/50 p-6 shadow-lg text-white text-center">
+          <div class="w-36 h-36 rounded-full overflow-hidden bg-white mx-auto border-4 border-white/20 shadow-md relative">
+            <img 
+              src="/dignitaries/manoj_sinha.png" 
+              alt="Shri Manoj Sinha" 
+              width="144" 
+              height="144" 
+              class="w-full h-full object-cover object-top"
+            />
+          </div>
+          <h2 class="text-xl font-extrabold text-white mt-4 text-balance">Shri Manoj Sinha</h2>
+          <p class="text-xs text-[#BDD7EE] font-bold uppercase tracking-wider mt-1.5">Lieutenant Governor</p>
+          <p class="text-[10px] text-white/70 font-semibold uppercase tracking-widest mt-0.5">UT of Jammu and Kashmir</p>
+          
+          <div class="w-12 h-0.5 bg-[#D8681B] mx-auto mt-4 rounded-full"></div>
+          
+          <div class="mt-4 text-left text-xs space-y-2.5 bg-black/15 p-3 rounded-lg border border-white/10">
+            <div class="flex justify-between">
+              <span class="text-white/60 font-semibold">Assumed Office</span>
+              <span class="font-bold">August 07, 2020</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-white/60 font-semibold">Education</span>
+              <span class="font-bold text-right">M.Tech (Civil Eng.), IIT(BHU)</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-white/60 font-semibold">Secretariat</span>
+              <span class="font-bold">Lok Bhavan, J&K</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Biography & Career details -->
+      <div class="lg:col-span-2 space-y-6">
+        <div class="bg-white rounded-2xl border border-[#BDD7EE] p-6 md:p-8 shadow-sm space-y-6">
+          
+          <!-- Heading Section -->
+          <div>
+            <h1 class="text-2xl font-extrabold text-[#0B4F9C] text-balance">Official Profile</h1>
+            <p class="text-xs text-gray-500 mt-1">Detailed administrative background and biographical summary of the Lieutenant Governor.</p>
+          </div>
+
+          <!-- Section 1: Biography -->
+          <section class="space-y-3">
+            <h3 class="text-sm font-bold text-[#0B4F9C] uppercase tracking-wider border-b border-slate-100 pb-1.5">Biography</h3>
+            <p class="text-sm text-slate-600 leading-relaxed text-pretty">
+              Shri Manoj Sinha assumed office as the second Lieutenant Governor of the Union Territory of Jammu and Kashmir on August 7, 2020. A seasoned administrator and statesman, Shri Sinha has dedicated over four decades to public service and governance in India.
+            </p>
+            <p class="text-sm text-slate-600 leading-relaxed text-pretty">
+              He was born on July 1, 1959, in Ghazipur, Uttar Pradesh. A trained Civil Engineer, Shri Sinha completed both his Bachelor of Technology (B.Tech) and Master of Technology (M.Tech) in Civil Engineering from the prestigious Institute of Technology, Banaras Hindu University (IIT-BHU). His academic background in engineering has strongly influenced his focus on infrastructure development and structured administrative reform.
+            </p>
+          </section>
+
+          <!-- Section 2: Political & Administrative Career -->
+          <section class="space-y-3">
+            <h3 class="text-sm font-bold text-[#0B4F9C] uppercase tracking-wider border-b border-slate-100 pb-1.5">Public & Ministerial Career</h3>
+            <p class="text-sm text-slate-600 leading-relaxed text-pretty">
+              Prior to his appointment as the Lieutenant Governor of J&K, Shri Sinha served three terms as a Member of Parliament (Lok Sabha) representing the Ghazipur constituency in Uttar Pradesh (1996, 1999, and 2014).
+            </p>
+            <p class="text-sm text-slate-600 leading-relaxed text-pretty">
+              During his third term, he was appointed to the Union Council of Ministers, where he held critical portfolios:
+            </p>
+            <ul class="list-disc pl-5 text-sm text-slate-600 space-y-1 text-pretty">
+              <li><strong>Union Minister of State for Railways:</strong> Spearheaded massive railway expansion, technology upgrades, and modernization initiatives across northern and eastern India.</li>
+              <li><strong>Union Minister of State (Independent Charge) for Communications:</strong> Directed reforms in telecom spectrum auctions, postal services modernization, and the rural digital connectivity drive.</li>
+            </ul>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>

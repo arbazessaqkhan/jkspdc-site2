@@ -1,0 +1,111 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
+---
+
+<Layout 
+  title="Profile - Shri Rahul Yadav (MD JKSPDC)" 
+  description="Official profile of Shri Rahul Yadav (IAS), the Managing Director of the Jammu & Kashmir State Power Development Corporation (JKSPDC)."
+>
+  <div class="space-y-6">
+    <!-- Breadcrumbs -->
+    <nav class="text-xs text-gray-500" aria-label="Breadcrumbs">
+      <ol class="flex gap-2">
+        <li><a href="/" class="hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0B4F9C] rounded px-1">Home</a></li>
+        <li>/</li>
+        <li><span class="text-gray-400">Key Dignitaries</span></li>
+        <li>/</li>
+        <li><span class="font-semibold text-[#0B4F9C]">Shri Rahul Yadav (IAS)</span></li>
+      </ol>
+    </nav>
+
+    <!-- Back Button -->
+    <div>
+      <a 
+        href="/" 
+        class="inline-flex items-center gap-2 px-3 py-1.5 border border-slate-200 hover:border-[#0B4F9C] text-xs font-bold text-slate-600 hover:text-white hover:bg-[#0B4F9C] rounded transition-[background-color,border-color,color] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C]/50"
+      >
+        <Icon name="arrow-left" size={12} strokeWidth={2.5} /> Back to Home
+      </a>
+    </div>
+
+    <!-- Main Container -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <!-- Left Column: Portrait Card & Stats -->
+      <div class="space-y-6">
+        <div class="bg-gradient-to-br from-[#083B73] to-[#0A2E5C] rounded-2xl border border-[#0B4F9C]/50 p-6 shadow-lg text-white text-center">
+          <div class="w-36 h-36 rounded-full overflow-hidden bg-white mx-auto border-4 border-white/20 shadow-md relative">
+            <img 
+              src="/dignitaries/rahul_yadav.jpg" 
+              alt="Shri Rahul Yadav (IAS)" 
+              width="144" 
+              height="144" 
+              class="w-full h-full object-cover object-top"
+            />
+          </div>
+          <h2 class="text-xl font-extrabold text-white mt-4 text-balance">Shri Rahul Yadav (IAS)</h2>
+          <p class="text-xs text-[#BDD7EE] font-bold uppercase tracking-wider mt-1.5">Managing Director</p>
+          <p class="text-[10px] text-white/70 font-semibold uppercase tracking-widest mt-0.5">JKSPDC</p>
+          
+          <div class="w-12 h-0.5 bg-[#D8681B] mx-auto mt-4 rounded-full"></div>
+          
+          <div class="mt-4 text-left text-xs space-y-2.5 bg-black/15 p-3 rounded-lg border border-white/10">
+            <div class="flex justify-between">
+              <span class="text-white/60 font-semibold">IAS Batch</span>
+              <span class="font-bold">2014 (AGMUT Cadre)</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-white/60 font-semibold">Education</span>
+              <span class="font-bold text-right">B.Tech (ECE)</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-white/60 font-semibold">Corporate Office</span>
+              <span class="font-bold text-right">JKSPDC, Jammu/Srinagar</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Biography & Career details -->
+      <div class="lg:col-span-2 space-y-6">
+        <div class="bg-white rounded-2xl border border-[#BDD7EE] p-6 md:p-8 shadow-sm space-y-6">
+          
+          <!-- Heading Section -->
+          <div>
+            <h1 class="text-2xl font-extrabold text-[#0B4F9C] text-balance">Official Profile</h1>
+            <p class="text-xs text-gray-500 mt-1">Detailed administrative background and corporate portfolios of the Managing Director.</p>
+          </div>
+
+          <!-- Section 1: Biography -->
+          <section class="space-y-3">
+            <h3 class="text-sm font-bold text-[#0B4F9C] uppercase tracking-wider border-b border-slate-100 pb-1.5">Biography</h3>
+            <p class="text-sm text-slate-600 leading-relaxed text-pretty">
+              Shri Rahul Yadav is a senior officer of the Indian Administrative Service (IAS) belonging to the 2014 batch (AGMUT cadre). He currently serves as the Managing Director of the Jammu &amp; Kashmir State Power Development Corporation (JKSPDC), leading the corporation's hydro, solar, and thermal projects execution.
+            </p>
+            <p class="text-sm text-slate-600 leading-relaxed text-pretty">
+              Shri Yadav holds a Bachelor of Technology (B.Tech) in Electronics and Communication Engineering. His technical education provides him with direct understanding of grid synchronization, control systems, and project management in power generation utilities.
+            </p>
+          </section>
+
+          <!-- Section 2: Administrative Career & Portfolios -->
+          <section class="space-y-3">
+            <h3 class="text-sm font-bold text-[#0B4F9C] uppercase tracking-wider border-b border-slate-100 pb-1.5">Key Corporate Portfolios</h3>
+            <p class="text-sm text-slate-600 leading-relaxed text-pretty">
+              As the Managing Director of JKSPDC, Shri Yadav oversees corporate administration, project planning, procurement, and joint-venture coordinates for massive infrastructure schemes (such as Pakal Dul, Kiru, and Kwar hydro power projects).
+            </p>
+            <p class="text-sm text-slate-600 leading-relaxed text-pretty">
+              His current charges and administrative posting profile include:
+            </p>
+            <ul class="list-disc pl-5 text-sm text-slate-600 space-y-1 text-pretty">
+              <li><strong>Managing Director, JKSPDC:</strong> Supervises operational hydro power stations, commercial sales, and tariff negotiations with buying utilities.</li>
+              <li><strong>Managing Director, J&amp;K Power Corporation Limited (JKPCL):</strong> Holds the additional charge of MD JKPCL to manage power purchase agreements and load dispatch coordinates.</li>
+              <li><strong>Prior Postings:</strong> Served in prominent roles including Commissioner of Jammu Municipal Corporation (JMC), Vice Chairman of Jammu Development Authority (JDA), and Deputy Commissioner of Kathua and Poonch districts.</li>
+            </ul>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
