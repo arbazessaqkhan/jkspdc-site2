@@ -16,4 +16,16 @@ export class ContactService {
       },
     });
   }
+
+  async findAll() {
+    return this.prisma.contactSubmission.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async deleteSubmission(id: string) {
+    return this.prisma.contactSubmission.delete({
+      where: { id },
+    });
+  }
 }

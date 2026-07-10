@@ -1,0 +1,258 @@
+---
+import '../styles/global.css';
+import Icon from '../components/Icon.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  activeTab: 'dashboard' | 'construction' | 'directors' | 'operational' | 'tenders' | 'careers' | 'press' | 'contacts' | 'users' | 'audit-logs';
+}
+
+const { title, description, activeTab } = Astro.props;
+const currentYear = new Date().getFullYear();
+const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Administrator';
+---
+
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} | JKSPDCL Admin Portal</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;850&family=Noto+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <style is:global>
+      /* Contrast support matching main website layout */
+      .high-contrast,
+      .high-contrast * {
+        background-color: #000000 !important;
+        background-image: none !important;
+        color: #ffff00 !important;
+        border-color: #ffff00 !important;
+        box-shadow: none !important;
+      }
+      .high-contrast a,
+      .high-contrast button {
+        color: #ffff00 !important;
+        text-decoration: underline !important;
+      }
+      .high-contrast a:hover,
+      .high-contrast button:hover {
+        background-color: #333333 !important;
+        color: #ffffff !important;
+      }
+    </style>
+    <script is:inline>
+      function adjustFontSize(action) {
+        var html = document.documentElement;
+        var cur = parseFloat(window.getComputedStyle(html).fontSize) || 16;
+        var nextSize = cur;
+        if (action === 'inc') {
+          if (cur < 24) nextSize = cur + 1;
+        } else if (action === 'dec') {
+          if (cur > 12) nextSize = cur - 1;
+        } else {
+          nextSize = 16;
+        }
+        var sizeStr = nextSize + 'px';
+        html.style.fontSize = sizeStr;
+        try {
+          localStorage.setItem('preferred-font-size', sizeStr);
+        } catch (e) {}
+      }
+
+      function toggleHighContrast() {
+        var html = document.documentElement;
+        var isDark = html.classList.toggle('high-contrast');
+        try {
+          localStorage.setItem('high-contrast', isDark ? 'true' : 'false');
+        } catch (e) {}
+      }
+
+      (function() {
+        try {
+          var savedSize = localStorage.getItem('preferred-font-size');
+          if (savedSize) {
+            document.documentElement.style.fontSize = savedSize;
+          }
+          var savedContrast = localStorage.getItem('high-contrast');
+          if (savedContrast === 'true') {
+            document.documentElement.classList.add('high-contrast');
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body class="min-h-screen flex bg-slate-50 text-slate-800 font-sans transition-colors duration-150 h-full overflow-hidden">
+    <a href="#main-admin-content" class="skip-link sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-blue-600 focus:text-white focus:px-4 focus:py-2 focus:rounded">Skip to Main Content</a>
+
+    <!-- Sidebar Navigation -->
+    <aside id="admin-sidebar" class="w-64 shrink-0 bg-slate-900 border-r border-slate-800 text-slate-300 flex flex-col h-full z-45 transform -translate-x-full md:translate-x-0 md:static fixed top-0 left-0 transition-transform duration-200 ease-in-out">
+      
+      <!-- Brand Logo / Title -->
+      <div class="h-16 flex items-center px-6 border-b border-slate-800 gap-3 shrink-0">
+        <img src="/logo.png" alt="JKSPDCL Logo" class="h-8 w-auto object-contain bg-white rounded p-0.5" />
+        <div class="flex flex-col">
+          <span class="text-sm font-extrabold text-white tracking-wide uppercase">JKSPDC</span>
+          <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Management Console</span>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="flex-grow py-6 px-4 overflow-y-auto flex flex-col gap-5" aria-label="Admin Navigation">
+        
+        <!-- SECTION: OVERVIEW -->
+        <div class="flex flex-col gap-1">
+          <p class="text-[10px] font-bold text-slate-500 uppercase px-3 tracking-widest mb-1.5 select-none">Overview</p>
+          <a href="/admin/dashboard" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'dashboard' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+            <Icon name="bar-chart" size={14} /> Dashboard Overview
+          </a>
+        </div>
+
+        <!-- SECTION: PORTAL CONTENT -->
+        <div class="flex flex-col gap-1">
+          <p class="text-[10px] font-bold text-slate-500 uppercase px-3 tracking-widest mb-1.5 select-none">Portal Content</p>
+          
+          <a href="/admin/board-of-directors" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'directors' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+            <Icon name="users" size={14} /> Board of Directors (BOD)
+          </a>
+
+          <a href="/admin/operational-projects" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'operational' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+            <Icon name="zap" size={14} /> Operational Projects
+          </a>
+
+          <a href="/admin/under-construction" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'construction' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+            <Icon name="hardhat" size={14} /> Under Construction
+          </a>
+
+          <a href="/admin/tenders" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'tenders' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+            <Icon name="file-text" size={14} /> Tenders &amp; Bids
+          </a>
+
+          <a href="/admin/careers" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'careers' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+            <Icon name="briefcase" size={14} /> Careers &amp; Vacancies
+          </a>
+
+          <a href="/admin/press-releases" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'press' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+            <Icon name="newspaper" size={14} /> Press Releases &amp; News
+          </a>
+        </div>
+
+        <!-- SECTION: INQUIRIES -->
+        <div class="flex flex-col gap-1">
+          <p class="text-[10px] font-bold text-slate-500 uppercase px-3 tracking-widest mb-1.5 select-none">Inquiries</p>
+          <a href="/admin/contacts" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'contacts' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+            <Icon name="mail" size={14} /> Contact Submissions
+          </a>
+        </div>
+
+        <!-- SECTION: SECURITY & LOGS -->
+        <div class="flex flex-col gap-1">
+          <p class="text-[10px] font-bold text-slate-500 uppercase px-3 tracking-widest mb-1.5 select-none">Security &amp; Logs</p>
+          <a href="/admin/users" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'users' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+            <Icon name="shield-check" size={14} /> User Accounts
+          </a>
+          <a href="/admin/audit-logs" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'audit-logs' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+            <Icon name="scroll-text" size={14} /> Audit Logs Feed
+          </a>
+        </div>
+
+      </nav>
+
+      <!-- Sidebar Footer / Simple copyright -->
+      <div class="p-4 border-t border-slate-800 text-[10px] text-slate-500 shrink-0 select-none">
+        <p>&copy; {currentYear} JKSPDCL Admin.</p>
+        <p class="mt-0.5">Auditing Standard: GIGW 3.0</p>
+      </div>
+    </aside>
+
+    <!-- Overlay on mobile to dismiss sidebar -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/40 z-40 hidden md:hidden"></div>
+
+    <!-- Main Content Panel -->
+    <div class="flex-grow flex flex-col min-w-0 h-full overflow-hidden">
+      
+      <!-- Top Action Bar -->
+      <header class="h-16 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between shrink-0 select-none">
+        
+        <!-- Toggle button on mobile -->
+        <button id="toggle-sidebar-btn" class="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded focus:outline-none" aria-label="Toggle Navigation Sidebar">
+          <Icon name="menu" size={20} />
+        </button>
+
+        <!-- Dynamic Page Title / Breadcrumb (desktop) -->
+        <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest hidden md:block">
+          JKSPDCL Admin / <span class="text-slate-800">{title}</span>
+        </h2>
+
+        <!-- Right Utilities & Profile Session -->
+        <div class="flex items-center gap-4 ml-auto">
+          
+          <!-- Accessibility Adjustments -->
+          <div class="flex items-center gap-1 bg-slate-100 p-1 rounded" aria-label="Font Controls" role="group">
+            <button class="px-2 py-1 bg-white hover:bg-slate-55 rounded text-[10px] font-bold text-slate-700 shadow-sm border border-slate-200 transition-colors" onclick="adjustFontSize('dec')" aria-label="Decrease Font Size" title="Decrease Font">A-</button>
+            <button class="px-2.5 py-1 bg-white hover:bg-slate-55 rounded text-[10px] font-bold text-slate-700 shadow-sm border border-slate-200 transition-colors" onclick="adjustFontSize('reset')" aria-label="Reset Font Size" title="Reset Font">A</button>
+            <button class="px-2 py-1 bg-white hover:bg-slate-55 rounded text-[10px] font-bold text-slate-700 shadow-sm border border-slate-200 transition-colors" onclick="adjustFontSize('inc')" aria-label="Increase Font Size" title="Increase Font">A+</button>
+          </div>
+
+          <button class="flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[10px] font-semibold transition-colors" onclick="toggleHighContrast()" aria-label="Toggle Contrast Mode">
+            <Icon name="contrast" size={11} strokeWidth={2} /> Contrast
+          </button>
+          
+          <span class="text-slate-350">|</span>
+
+          <!-- Profile Badge -->
+          <span class="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full border border-blue-100 text-[11px] font-bold flex items-center gap-1.5 select-none">
+            <span class="h-2 w-2 bg-green-500 rounded-full animate-pulse"></span>
+            {adminUserName}
+          </span>
+
+          <button id="admin-logout-btn" class="flex items-center gap-1.5 px-3 py-1.5 border border-red-200 text-red-650 hover:bg-red-50 hover:text-red-700 rounded text-xs font-semibold cursor-pointer transition-colors">
+            <Icon name="x" size={13} strokeWidth={2.5} /> Sign Out
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Slot Content -->
+      <main id="main-admin-content" class="flex-1 overflow-y-auto p-6 md:p-8 bg-slate-50 focus:outline-none" tabindex="-1">
+        <slot />
+      </main>
+
+    </div>
+
+    <script is:inline>
+      // Clear session cookie and redirect to login page on click
+      document.getElementById('admin-logout-btn')?.addEventListener('click', function() {
+        document.cookie = 'admin_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+        window.location.href = '/admin/login';
+      });
+
+      // Mobile sidebar logic
+      var sidebar = document.getElementById('admin-sidebar');
+      var toggleBtn = document.getElementById('toggle-sidebar-btn');
+      var overlay = document.getElementById('sidebar-overlay');
+
+      function toggleSidebar() {
+        var isOpen = sidebar.classList.contains('translate-x-0');
+        if (isOpen) {
+          sidebar.classList.remove('translate-x-0');
+          sidebar.classList.add('-translate-x-full');
+          overlay.classList.add('hidden');
+        } else {
+          sidebar.classList.remove('-translate-x-full');
+          sidebar.classList.add('translate-x-0');
+          overlay.classList.remove('hidden');
+        }
+      }
+
+      toggleBtn?.addEventListener('click', toggleSidebar);
+      overlay?.addEventListener('click', toggleSidebar);
+    </script>
+  </body>
+</html>

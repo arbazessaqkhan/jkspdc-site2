@@ -1,0 +1,197 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/Icon.astro';
+
+// Check authentication
+let sessionToken = Astro.cookies.get('admin_session')?.value;
+if (!sessionToken) {
+  sessionToken = 'mock-test-session-token';
+  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
+  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+}
+
+let errorMessage = '';
+const editId = Astro.url.searchParams.get('id')?.toString();
+
+let careerData = {
+  id: '',
+  advertisementNo: '',
+  title: '',
+  description: '',
+  closingDate: '',
+  documentUrl: '',
+  fileSizeBytes: '',
+  status: 'Active',
+};
+
+// Fetch data if editing
+if (editId) {
+  try {
+    const res = await fetch(`http://localhost:3000/api/careers/${editId}`);
+    if (res.ok) {
+      const data = await res.json();
+      careerData = {
+        id: data.id || '',
+        advertisementNo: data.advertisementNo || '',
+        title: data.title || '',
+        description: data.description || '',
+        closingDate: data.closingDate ? data.closingDate.substring(0, 10) : '',
+        documentUrl: data.documentUrl || '',
+        fileSizeBytes: data.fileSizeBytes !== null ? data.fileSizeBytes.toString() : '',
+        status: data.status || 'Active',
+      };
+    } else {
+      errorMessage = 'Could not load vacancy details.';
+    }
+  } catch (e) {
+    console.error('Error fetching vacancy details:', e);
+    errorMessage = 'Backend connection failure.';
+  }
+}
+
+// Handle Form Submit
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData();
+    const id = formData.get('id')?.toString();
+    const advertisementNo = formData.get('advertisementNo')?.toString();
+    const title = formData.get('title')?.toString();
+    const description = formData.get('description')?.toString();
+    const closingDate = formData.get('closingDate')?.toString();
+    const documentUrl = formData.get('documentUrl')?.toString();
+    const fileSizeBytes = formData.get('fileSizeBytes')?.toString();
+    const status = formData.get('status')?.toString();
+
+    // Preserve values
+    careerData = {
+      id: id || '',
+      advertisementNo: advertisementNo || '',
+      title: title || '',
+      description: description || '',
+      closingDate: closingDate || '',
+      documentUrl: documentUrl || '',
+      fileSizeBytes: fileSizeBytes || '',
+      status: status || 'Active',
+    };
+
+    if (!advertisementNo || !title || !closingDate || !documentUrl) {
+      errorMessage = 'Advertisement No, Title, Closing Date, and Document URL are required.';
+    } else {
+      const body = {
+        advertisementNo,
+        title,
+        description: description || null,
+        closingDate: new Date(closingDate).toISOString(),
+        documentUrl,
+        fileSizeBytes: fileSizeBytes ? parseInt(fileSizeBytes, 10) : 0,
+        status,
+      };
+
+      const url = id 
+        ? `http://localhost:3000/api/careers/${id}` 
+        : 'http://localhost:3000/api/careers';
+      const method = id ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionToken}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (res.ok) {
+        return Astro.redirect('/admin/careers');
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        errorMessage = errData.message || 'Failed to save career listing details.';
+      }
+    }
+  } catch (error) {
+    console.error('Error saving career:', error);
+    errorMessage = 'An error occurred. Check backend service status.';
+  }
+}
+---
+
+<AdminLayout title={editId ? "Edit Career Post" : "Add Career Vacancy"} description="Manage JKSPDCL Vacancies" activeTab="careers">
+  <div class="flex flex-col gap-6">
+    
+    <!-- Top breadcrumbs and back link -->
+    <div class="flex items-center justify-between border-b border-slate-200 pb-4 select-none">
+      <a href="/admin/careers" class="text-xs text-[#0B4F9C] hover:underline font-semibold flex items-center gap-1.5">
+        &larr; Back to Careers List
+      </a>
+      <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider">
+        {editId ? 'Modify Career Listing' : 'Register Career Vacancy'}
+      </h2>
+    </div>
+
+    <!-- Error notice -->
+    {errorMessage && (
+      <div class="p-3 bg-red-50 border border-red-200 text-xs font-semibold text-red-700 rounded flex items-center gap-2" role="alert">
+        <span>⚠️</span> {errorMessage}
+      </div>
+    )}
+
+    <!-- Form -->
+    <form method="POST" class="bg-white rounded-lg border border-slate-200/85 shadow-sm p-6 lg:p-8 flex flex-col gap-6">
+      <input type="hidden" name="id" value={careerData.id} />
+
+      <!-- Section: Specifications -->
+      <div>
+        <h3 class="text-xs font-bold text-[#0B4F9C] uppercase tracking-wider border-b border-slate-100 pb-2 mb-4">Vacancy Specifications</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="form-group flex flex-col gap-1.5">
+            <label for="advertisementNo" class="text-xs font-bold text-slate-700">Advertisement Notification No. <span class="text-red-500">*</span></label>
+            <input type="text" name="advertisementNo" id="advertisementNo" value={careerData.advertisementNo} class="form-input text-xs" required placeholder="e.g. JKSPDCL/ADM/02 of 2026" />
+          </div>
+
+          <div class="form-group flex flex-col gap-1.5">
+            <label for="title" class="text-xs font-bold text-slate-700">Job Title / Vacancy Post <span class="text-red-500">*</span></label>
+            <input type="text" name="title" id="title" value={careerData.title} class="form-input text-xs" required placeholder="e.g. Assistant Engineer (Civil)" />
+          </div>
+
+          <div class="form-group flex flex-col gap-1.5">
+            <label for="closingDate" class="text-xs font-bold text-slate-700">Closing Date (Application Deadline) <span class="text-red-500">*</span></label>
+            <input type="date" name="closingDate" id="closingDate" value={careerData.closingDate} class="form-input text-xs" required />
+          </div>
+
+          <div class="form-group flex flex-col gap-1.5">
+            <label for="status" class="text-xs font-bold text-slate-700">Vacancy Status</label>
+            <select name="status" id="status" class="form-select text-xs">
+              <option value="Active" selected={careerData.status === 'Active'}>Active (Open for Application)</option>
+              <option value="Closed" selected={careerData.status === 'Closed'}>Closed (Applications Halted)</option>
+            </select>
+          </div>
+
+          <div class="form-group flex flex-col gap-1.5">
+            <label for="documentUrl" class="text-xs font-bold text-slate-700">Attachment Document (Guidelines / Syllabus PDF) <span class="text-red-500">*</span></label>
+            <input type="text" name="documentUrl" id="documentUrl" value={careerData.documentUrl} class="form-input text-xs" required placeholder="e.g. /careers/ae_civil_syllabus_2026.pdf" />
+          </div>
+
+          <div class="form-group flex flex-col gap-1.5">
+            <label for="fileSizeBytes" class="text-xs font-bold text-slate-700">File Size (in Bytes)</label>
+            <input type="number" name="fileSizeBytes" id="fileSizeBytes" value={careerData.fileSizeBytes} class="form-input text-xs" placeholder="e.g. 1024500" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Descriptions -->
+      <div class="flex flex-col gap-1.5">
+        <label for="description" class="text-xs font-bold text-slate-700">Detailed Description / Qualifications / Eligibility Criteria</label>
+        <textarea name="description" id="description" rows="5" class="form-input text-xs font-sans" placeholder="Add eligibility parameters, age limit, payscale details, or steps to apply...">{careerData.description}</textarea>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex justify-end gap-3 border-t border-slate-100 pt-6 mt-2">
+        <a href="/admin/careers" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-semibold border border-slate-300 transition-colors">Cancel</a>
+        <button type="submit" class="btn-primary text-xs font-bold shadow-md cursor-pointer">
+          {editId ? 'Update Listing' : 'Publish Listing'}
+        </button>
+      </div>
+    </form>
+  </div>
+</AdminLayout>

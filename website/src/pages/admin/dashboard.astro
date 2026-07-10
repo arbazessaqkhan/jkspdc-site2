@@ -1,0 +1,325 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/Icon.astro';
+
+// Check authentication
+let sessionToken = Astro.cookies.get('admin_session')?.value;
+if (!sessionToken) {
+  sessionToken = 'mock-test-session-token';
+  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
+  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+}
+
+let stats = {
+  operationalCount: 0,
+  constructionCount: 0,
+  directorsCount: 0,
+  tendersCount: 0,
+  careersCount: 0,
+  pressCount: 0,
+};
+
+let recentInquiries = [];
+let recentLogs = [];
+let errorMessage = '';
+
+// Format today's date
+const formattedDate = new Date().toLocaleDateString('en-GB', {
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric'
+});
+
+try {
+  // 1. Fetch Power Stations
+  const projectsRes = await fetch('http://localhost:3000/api/projects');
+  if (projectsRes.ok) {
+    const projects = await projectsRes.json();
+    stats.operationalCount = projects.filter((p: any) => p.status === 'Operational').length;
+    stats.constructionCount = projects.filter((p: any) => p.status === 'Under Construction').length;
+  }
+
+  // 2. Fetch Board of Directors
+  const directorsRes = await fetch('http://localhost:3000/api/directors');
+  if (directorsRes.ok) {
+    const directors = await directorsRes.json();
+    stats.directorsCount = directors.length;
+  }
+
+  // 3. Fetch Tenders
+  const tendersRes = await fetch('http://localhost:3000/api/tenders');
+  if (tendersRes.ok) {
+    const tenders = await tendersRes.json();
+    stats.tendersCount = tenders.filter((t: any) => t.status === 'Active').length;
+  }
+
+  // 4. Fetch Careers
+  const careersRes = await fetch('http://localhost:3000/api/careers');
+  if (careersRes.ok) {
+    const careers = await careersRes.json();
+    stats.careersCount = careers.filter((c: any) => c.status === 'Active').length;
+  }
+
+  // 5. Fetch Press Releases
+  const pressRes = await fetch('http://localhost:3000/api/press-releases');
+  if (pressRes.ok) {
+    const press = await pressRes.json();
+    stats.pressCount = press.length;
+  }
+
+  // 6. Fetch Recent Contact Submissions
+  const contactsRes = await fetch('http://localhost:3000/api/contact', {
+    headers: { 'Authorization': `Bearer ${sessionToken}` }
+  });
+  if (contactsRes.ok) {
+    const submissions = await contactsRes.json();
+    recentInquiries = submissions.slice(0, 5);
+  }
+
+  // 7. Fetch Recent Audit Logs
+  const logsRes = await fetch('http://localhost:3000/api/audit-logs', {
+    headers: { 'Authorization': `Bearer ${sessionToken}` }
+  });
+  if (logsRes.ok) {
+    const logs = await logsRes.json();
+    recentLogs = logs.slice(0, 5);
+  }
+
+} catch (e) {
+  console.error('Error fetching dashboard statistics:', e);
+  errorMessage = 'Failed to retrieve latest portal statistics. Ensure the backend REST service is online.';
+}
+
+const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Administrator';
+---
+
+<AdminLayout title="Dashboard" description="JKSPDCL Administrative Control Panel Dashboard" activeTab="dashboard">
+  <div class="flex flex-col gap-8">
+    
+    <!-- Greeting & Banner Header -->
+    <div class="flex flex-col gap-1.5 border-b border-slate-200 pb-5 select-none">
+      <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Welcome back, {adminUserName} 👋</h1>
+      <p class="text-xs text-slate-550 font-medium">{formattedDate} &mdash; Here's a summary of what's happening on the JKSPDC portal.</p>
+    </div>
+
+    <!-- Connection error display if backend goes offline -->
+    {errorMessage && (
+      <div class="p-4 bg-amber-50 border-l-4 border-amber-500 rounded text-xs text-amber-800 font-semibold shadow-sm flex items-start gap-2.5" role="alert">
+        <span class="text-base">⚠️</span>
+        <div class="flex flex-col gap-0.5">
+          <span>Backend Offline Notification:</span>
+          <span class="text-[11px] font-normal text-amber-700">{errorMessage}</span>
+        </div>
+      </div>
+    )}
+
+    <!-- Dynamic Metrics Cards Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-5">
+      
+      <!-- Card 1: Operational Projects -->
+      <div class="bg-gradient-to-br from-blue-500 to-indigo-650 rounded-xl p-4 text-white shadow-lg shadow-blue-500/10 flex items-center justify-between group hover:scale-[1.02] transition-all">
+        <div class="flex flex-col gap-1">
+          <span class="text-[10px] font-bold uppercase tracking-widest text-blue-100">Operational</span>
+          <span class="text-2xl font-black">{stats.operationalCount}</span>
+          <a href="/admin/operational-projects" class="text-[10px] text-blue-150 hover:underline font-bold mt-1 inline-flex items-center gap-0.5">Manage &rarr;</a>
+        </div>
+        <div class="p-2.5 bg-white/10 rounded-lg text-white">
+          <Icon name="zap" size={24} />
+        </div>
+      </div>
+
+      <!-- Card 2: Construction Projects -->
+      <div class="bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl p-4 text-white shadow-lg shadow-orange-500/10 flex items-center justify-between group hover:scale-[1.02] transition-all">
+        <div class="flex flex-col gap-1">
+          <span class="text-[10px] font-bold uppercase tracking-widest text-orange-100">Construction</span>
+          <span class="text-2xl font-black">{stats.constructionCount}</span>
+          <a href="/admin/under-construction" class="text-[10px] text-orange-150 hover:underline font-bold mt-1 inline-flex items-center gap-0.5">Manage &rarr;</a>
+        </div>
+        <div class="p-2.5 bg-white/10 rounded-lg text-white">
+          <Icon name="hardhat" size={24} />
+        </div>
+      </div>
+
+      <!-- Card 3: Board of Directors -->
+      <div class="bg-gradient-to-br from-emerald-500 to-teal-650 rounded-xl p-4 text-white shadow-lg shadow-emerald-500/10 flex items-center justify-between group hover:scale-[1.02] transition-all">
+        <div class="flex flex-col gap-1">
+          <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-100">Board Members</span>
+          <span class="text-2xl font-black">{stats.directorsCount}</span>
+          <a href="/admin/board-of-directors" class="text-[10px] text-emerald-150 hover:underline font-bold mt-1 inline-flex items-center gap-0.5">Manage &rarr;</a>
+        </div>
+        <div class="p-2.5 bg-white/10 rounded-lg text-white">
+          <Icon name="users" size={24} />
+        </div>
+      </div>
+
+      <!-- Card 4: Active Tenders -->
+      <div class="bg-gradient-to-br from-violet-550 to-purple-700 rounded-xl p-4 text-white shadow-lg shadow-violet-500/10 flex items-center justify-between group hover:scale-[1.02] transition-all">
+        <div class="flex flex-col gap-1">
+          <span class="text-[10px] font-bold uppercase tracking-widest text-violet-100">Active Tenders</span>
+          <span class="text-2xl font-black">{stats.tendersCount}</span>
+          <a href="/admin/tenders" class="text-[10px] text-violet-150 hover:underline font-bold mt-1 inline-flex items-center gap-0.5">Manage &rarr;</a>
+        </div>
+        <div class="p-2.5 bg-white/10 rounded-lg text-white">
+          <Icon name="file-text" size={24} />
+        </div>
+      </div>
+
+      <!-- Card 5: Active Careers -->
+      <div class="bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl p-4 text-white shadow-lg shadow-pink-500/10 flex items-center justify-between group hover:scale-[1.02] transition-all">
+        <div class="flex flex-col gap-1">
+          <span class="text-[10px] font-bold uppercase tracking-widest text-pink-100">Careers Open</span>
+          <span class="text-2xl font-black">{stats.careersCount}</span>
+          <a href="/admin/careers" class="text-[10px] text-pink-150 hover:underline font-bold mt-1 inline-flex items-center gap-0.5">Manage &rarr;</a>
+        </div>
+        <div class="p-2.5 bg-white/10 rounded-lg text-white">
+          <Icon name="briefcase" size={24} />
+        </div>
+      </div>
+
+      <!-- Card 6: Press Releases -->
+      <div class="bg-gradient-to-br from-rose-500 to-red-650 rounded-xl p-4 text-white shadow-lg shadow-rose-500/10 flex items-center justify-between group hover:scale-[1.02] transition-all">
+        <div class="flex flex-col gap-1">
+          <span class="text-[10px] font-bold uppercase tracking-widest text-rose-100">Press Articles</span>
+          <span class="text-2xl font-black">{stats.pressCount}</span>
+          <a href="/admin/press-releases" class="text-[10px] text-rose-150 hover:underline font-bold mt-1 inline-flex items-center gap-0.5">Manage &rarr;</a>
+        </div>
+        <div class="p-2.5 bg-white/10 rounded-lg text-white">
+          <Icon name="newspaper" size={24} />
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Quick Actions Panel -->
+    <div class="bg-white rounded-xl border border-slate-200/90 shadow-sm p-6 flex flex-col gap-4">
+      <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2.5 flex items-center gap-2 select-none">
+        <Icon name="zap" size={14} class="text-amber-500" /> Administrative Quick Actions
+      </h3>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        
+        <!-- Action 1: Add Director -->
+        <a href="/admin/board-of-directors" class="border border-slate-200/80 hover:border-blue-500 rounded-lg p-4 flex flex-col items-center justify-center text-center gap-2 group transition-colors bg-slate-50/50 hover:bg-blue-50/30">
+          <div class="p-2.5 bg-blue-50 text-blue-600 rounded-full group-hover:scale-110 transition-transform">
+            <Icon name="users" size={18} />
+          </div>
+          <span class="text-[11px] font-bold text-slate-700">Manage Board</span>
+        </a>
+
+        <!-- Action 2: Add Project -->
+        <a href="/admin/operational-projects-form" class="border border-slate-200/80 hover:border-orange-500 rounded-lg p-4 flex flex-col items-center justify-center text-center gap-2 group transition-colors bg-slate-50/50 hover:bg-orange-50/30">
+          <div class="p-2.5 bg-orange-50 text-orange-600 rounded-full group-hover:scale-110 transition-transform">
+            <Icon name="plus" size={18} />
+          </div>
+          <span class="text-[11px] font-bold text-slate-700">Add Power Station</span>
+        </a>
+
+        <!-- Action 3: Add Tender -->
+        <a href="/admin/tenders" class="border border-slate-200/80 hover:border-violet-500 rounded-lg p-4 flex flex-col items-center justify-center text-center gap-2 group transition-colors bg-slate-50/50 hover:bg-violet-50/30">
+          <div class="p-2.5 bg-violet-50 text-violet-600 rounded-full group-hover:scale-110 transition-transform">
+            <Icon name="file-text" size={18} />
+          </div>
+          <span class="text-[11px] font-bold text-slate-700">Manage Tenders</span>
+        </a>
+
+        <!-- Action 4: Add Career -->
+        <a href="/admin/careers" class="border border-slate-200/80 hover:border-pink-500 rounded-lg p-4 flex flex-col items-center justify-center text-center gap-2 group transition-colors bg-slate-50/50 hover:bg-pink-50/30">
+          <div class="p-2.5 bg-pink-50 text-pink-650 rounded-full group-hover:scale-110 transition-transform">
+            <Icon name="briefcase" size={18} />
+          </div>
+          <span class="text-[11px] font-bold text-slate-700">Manage Careers</span>
+        </a>
+
+        <!-- Action 5: Add Press -->
+        <a href="/admin/press-releases" class="border border-slate-200/80 hover:border-rose-500 rounded-lg p-4 flex flex-col items-center justify-center text-center gap-2 group transition-colors bg-slate-50/50 hover:bg-rose-50/30">
+          <div class="p-2.5 bg-rose-50 text-rose-600 rounded-full group-hover:scale-110 transition-transform">
+            <Icon name="newspaper" size={18} />
+          </div>
+          <span class="text-[11px] font-bold text-slate-700">Press Releases</span>
+        </a>
+
+        <!-- Action 6: View Contacts -->
+        <a href="/admin/contacts" class="border border-slate-200/80 hover:border-emerald-500 rounded-lg p-4 flex flex-col items-center justify-center text-center gap-2 group transition-colors bg-slate-50/50 hover:bg-emerald-50/30">
+          <div class="p-2.5 bg-emerald-50 text-emerald-600 rounded-full group-hover:scale-110 transition-transform">
+            <Icon name="mail" size={18} />
+          </div>
+          <span class="text-[11px] font-bold text-slate-700">View Inquiries</span>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- Side-by-side feeds: Contact Inquiries and Recent activity log -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      
+      <!-- Left Box: Contact submissions -->
+      <div class="bg-white border border-slate-200/90 rounded-xl shadow-sm p-6 flex flex-col gap-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 select-none">
+            <Icon name="mail" size={14} class="text-blue-500" /> Recent Public Inquiries
+          </h3>
+          <a href="/admin/contacts" class="text-[10px] text-blue-600 font-bold hover:underline">View All &rarr;</a>
+        </div>
+
+        <div class="flex flex-col gap-3.5">
+          {recentInquiries.length === 0 ? (
+            <p class="text-xs text-slate-450 italic py-6 text-center select-none font-medium">No recent citizen inquiries found.</p>
+          ) : (
+            recentInquiries.map((inq: any) => (
+              <div key={inq.id} class="p-3 border border-slate-100 rounded-lg bg-slate-50/60 hover:bg-slate-50 transition-colors flex flex-col gap-1.5">
+                <div class="flex justify-between items-start gap-2">
+                  <span class="text-xs font-bold text-[#0B4F9C]">{inq.name}</span>
+                  <span class="text-[10px] text-slate-450 font-semibold">{new Date(inq.createdAt).toLocaleDateString('en-IN', { dateStyle: 'short' })}</span>
+                </div>
+                <p class="text-[10px] text-slate-500 font-semibold">{inq.email}</p>
+                <p class="text-xs text-slate-650 leading-relaxed font-normal mt-1 border-t border-slate-100/80 pt-1.5 line-clamp-2">
+                  {inq.message}
+                </p>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      <!-- Right Box: Audit logs feed -->
+      <div class="bg-white border border-slate-200/90 rounded-xl shadow-sm p-6 flex flex-col gap-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 select-none">
+            <Icon name="scroll-text" size={14} class="text-purple-500" /> Recent System Activities
+          </h3>
+          <a href="/admin/audit-logs" class="text-[10px] text-purple-650 font-bold hover:underline">All Logs &rarr;</a>
+        </div>
+
+        <div class="flex flex-col gap-3.5">
+          {recentLogs.length === 0 ? (
+            <p class="text-xs text-slate-450 italic py-6 text-center select-none font-medium">No administrative activity logged yet.</p>
+          ) : (
+            recentLogs.map((log: any) => (
+              <div key={log.id} class="p-3 border border-slate-100 rounded-lg bg-slate-50/60 hover:bg-slate-50 transition-colors flex gap-3.5 items-center">
+                <div class="p-2 bg-purple-50 text-purple-600 rounded">
+                  <Icon name="scroll-text" size={14} />
+                </div>
+                <div class="flex flex-col flex-1 gap-0.5">
+                  <div class="flex justify-between items-start gap-2">
+                    <span class="text-xs font-bold text-slate-750 uppercase tracking-wider">{log.action}</span>
+                    <span class="text-[10px] text-slate-450 font-semibold">
+                      {new Date(log.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                  <span class="text-[10px] font-semibold text-slate-500">IP: {log.ipAddress}</span>
+                  {log.details && (
+                    <span class="text-[10px] text-slate-450 italic mt-0.5 line-clamp-1 border-t border-slate-100/80 pt-1">
+                      {JSON.stringify(log.details)}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</AdminLayout>

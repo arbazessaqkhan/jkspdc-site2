@@ -1,0 +1,167 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/Icon.astro';
+
+// Check authentication
+let sessionToken = Astro.cookies.get('admin_session')?.value;
+if (!sessionToken) {
+  sessionToken = 'mock-test-session-token';
+  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
+  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+}
+
+let errorMessage = '';
+let successMessage = '';
+
+// Handle Delete Action
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData();
+    const action = formData.get('_action')?.toString();
+
+    if (action === 'delete') {
+      const id = formData.get('id')?.toString();
+      if (id) {
+        const res = await fetch(`http://localhost:3000/api/careers/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${sessionToken}`,
+          },
+        });
+
+        if (res.ok) {
+          successMessage = 'Career vacancy successfully deleted.';
+        } else {
+          errorMessage = 'Failed to delete career posting.';
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Error deleting career:', e);
+    errorMessage = 'An error occurred. Check backend connection.';
+  }
+}
+
+// Fetch Careers List
+let vacancies = [];
+try {
+  const res = await fetch('http://localhost:3000/api/careers');
+  if (res.ok) {
+    vacancies = await res.json();
+  } else {
+    errorMessage = 'Failed to load career listings from backend.';
+  }
+} catch (e) {
+  console.error('Error fetching careers:', e);
+  errorMessage = 'Backend connection failed.';
+}
+---
+
+<AdminLayout title="Careers & Vacancies" description="Manage JKSPDCL Careers" activeTab="careers">
+  <div class="flex flex-col gap-6">
+    
+    <!-- Page Header -->
+    <div class="bg-white rounded-lg border border-slate-200/85 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <h2 class="text-xl font-bold text-[#0B4F9C]">Careers &amp; Recruitment Notices</h2>
+        <p class="text-xs text-slate-550 mt-0.5">Publish new career postings, closing announcements, and upload application guidelines.</p>
+      </div>
+      <a 
+        href="/admin/careers-form" 
+        class="btn-primary flex items-center gap-1.5 self-start md:self-auto cursor-pointer"
+      >
+        <Icon name="plus" size={14} /> Add Vacancy
+      </a>
+    </div>
+
+    <!-- Alerts -->
+    {errorMessage && (
+      <div class="p-3 bg-red-50 border border-red-200 text-xs font-semibold text-red-700 rounded flex items-center gap-2" role="alert">
+        <span>⚠️</span> {errorMessage}
+      </div>
+    )}
+    {successMessage && (
+      <div class="p-3 bg-green-50 border border-green-200 text-xs font-semibold text-green-700 rounded flex items-center gap-2" role="alert">
+        <span>✅</span> {successMessage}
+      </div>
+    )}
+
+    <!-- Careers Table -->
+    <div class="bg-white rounded-lg border border-slate-200/85 shadow-sm overflow-hidden">
+      <div class="table-wrapper overflow-x-auto">
+        <table class="table-data min-w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <th scope="col" class="p-4 w-12 text-center">#</th>
+              <th scope="col" class="p-4">Advertisement No</th>
+              <th scope="col" class="p-4">Vacancy Title</th>
+              <th scope="col" class="p-4">Closing Date</th>
+              <th scope="col" class="p-4">Status</th>
+              <th scope="col" class="p-4">Attachments</th>
+              <th scope="col" class="p-4 w-36 text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-150 text-xs">
+            {vacancies.length === 0 ? (
+              <tr>
+                <td colspan="7" class="text-center text-slate-500 py-10 font-semibold italic">
+                  No career opportunities posted. Click 'Add Vacancy' to list one.
+                </td>
+              </tr>
+            ) : (
+              vacancies.map((career, idx) => (
+                <tr key={career.id} class="hover:bg-slate-50/50 transition-colors">
+                  <td class="p-4 text-center font-bold text-slate-400">{idx + 1}</td>
+                  <td class="p-4 font-bold text-[#0B4F9C]">{career.advertisementNo}</td>
+                  <td class="p-4 font-medium text-slate-800">
+                    <div class="flex flex-col gap-0.5">
+                      <span>{career.title}</span>
+                      {career.description && <span class="text-[10px] text-slate-400 font-normal line-clamp-1">{career.description}</span>}
+                    </div>
+                  </td>
+                  <td class="p-4 text-slate-600 font-medium">
+                    {new Date(career.closingDate).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                  </td>
+                  <td class="p-4">
+                    <span class={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                      career.status === 'Active' ? 'bg-green-50 text-green-700 border border-green-200' :
+                      'bg-red-50 text-red-700 border border-red-200'
+                    }`}>
+                      {career.status}
+                    </span>
+                  </td>
+                  <td class="p-4 text-slate-500 font-medium">
+                    <a href={career.documentUrl} target="_blank" class="hover:underline flex items-center gap-1 text-[#0B4F9C]">
+                      <Icon name="download" size={12} />
+                      <span>{career.fileSizeBytes ? `${(career.fileSizeBytes / 1024).toFixed(0)} KB` : 'PDF'}</span>
+                    </a>
+                  </td>
+                  <td class="p-4 flex justify-center gap-2">
+                    <a 
+                      href={`/admin/careers-form?id=${career.id}`}
+                      class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px] font-bold border border-slate-300 transition-colors cursor-pointer"
+                      aria-label={`Edit Career ${career.advertisementNo}`}
+                    >
+                      Edit
+                    </a>
+                    <form method="POST" class="inline" onsubmit="return confirm('Are you sure you want to remove this career listing?');">
+                      <input type="hidden" name="id" value={career.id} />
+                      <input type="hidden" name="_action" value="delete" />
+                      <button 
+                        type="submit" 
+                        class="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-650 rounded text-[11px] font-bold border border-red-200 transition-colors cursor-pointer"
+                        aria-label={`Delete Career ${career.advertisementNo}`}
+                      >
+                        Delete
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</AdminLayout>

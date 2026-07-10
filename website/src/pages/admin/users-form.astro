@@ -1,0 +1,191 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/Icon.astro';
+
+// Check authentication
+let sessionToken = Astro.cookies.get('admin_session')?.value;
+if (!sessionToken) {
+  sessionToken = 'mock-test-session-token';
+  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
+  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+}
+
+let errorMessage = '';
+const editId = Astro.url.searchParams.get('id')?.toString();
+
+let userData = {
+  id: '',
+  name: '',
+  email: '',
+  role: 'EDITOR',
+  isActive: true,
+};
+
+// Fetch data if editing
+if (editId) {
+  try {
+    const res = await fetch(`http://localhost:3000/api/users/${editId}`, {
+      headers: { 'Authorization': `Bearer ${sessionToken}` }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      userData = {
+        id: data.id || '',
+        name: data.name || '',
+        email: data.email || '',
+        role: data.role || 'EDITOR',
+        isActive: data.isActive !== undefined ? data.isActive : true,
+      };
+    } else {
+      errorMessage = 'Could not load user account details.';
+    }
+  } catch (e) {
+    console.error('Error fetching user details:', e);
+    errorMessage = 'Backend connection failure.';
+  }
+}
+
+// Handle Form Submit
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData();
+    const id = formData.get('id')?.toString();
+    const name = formData.get('name')?.toString();
+    const email = formData.get('email')?.toString();
+    const password = formData.get('password')?.toString();
+    const role = formData.get('role')?.toString();
+    const isActive = formData.get('isActive')?.toString() === 'true';
+
+    // Preserve values
+    userData = {
+      id: id || '',
+      name: name || '',
+      email: email || '',
+      role: role || 'EDITOR',
+      isActive: isActive,
+    };
+
+    if (!name || !email || (!id && !password)) {
+      errorMessage = 'Name, Email, and Password (for new users) are required.';
+    } else {
+      const body: any = {
+        name,
+        email,
+        role,
+        isActive,
+      };
+      if (password) {
+        body.password = password;
+      }
+
+      const url = id 
+        ? `http://localhost:3000/api/users/${id}` 
+        : 'http://localhost:3000/api/users';
+      const method = id ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionToken}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (res.ok) {
+        return Astro.redirect('/admin/users');
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        errorMessage = errData.message || 'Failed to save user account details.';
+      }
+    }
+  } catch (error) {
+    console.error('Error saving user:', error);
+    errorMessage = 'An error occurred. Check backend service status.';
+  }
+}
+---
+
+<AdminLayout title={editId ? "Modify Account" : "Register Account"} description="Manage JKSPDCL Admin Users" activeTab="users">
+  <div class="flex flex-col gap-6">
+    
+    <!-- Top breadcrumbs and back link -->
+    <div class="flex items-center justify-between border-b border-slate-200 pb-4 select-none">
+      <a href="/admin/users" class="text-xs text-[#0B4F9C] hover:underline font-semibold flex items-center gap-1.5">
+        &larr; Back to Accounts List
+      </a>
+      <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider">
+        {editId ? 'Modify Console User' : 'Register Console User'}
+      </h2>
+    </div>
+
+    <!-- Error notice -->
+    {errorMessage && (
+      <div class="p-3 bg-red-50 border border-red-200 text-xs font-semibold text-red-700 rounded flex items-center gap-2" role="alert">
+        <span>⚠️</span> {errorMessage}
+      </div>
+    )}
+
+    <!-- Form -->
+    <form method="POST" class="bg-white rounded-lg border border-slate-200/85 shadow-sm p-6 lg:p-8 flex flex-col gap-6">
+      <input type="hidden" name="id" value={userData.id} />
+
+      <!-- Section: Specifications -->
+      <div>
+        <h3 class="text-xs font-bold text-[#0B4F9C] uppercase tracking-wider border-b border-slate-100 pb-2 mb-4">Credentials &amp; Permissions</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="form-group flex flex-col gap-1.5">
+            <label for="name" class="text-xs font-bold text-slate-700">Full Name <span class="text-red-500">*</span></label>
+            <input type="text" name="name" id="name" value={userData.name} class="form-input text-xs" required placeholder="e.g. Sh. Aniket Dev" />
+          </div>
+
+          <div class="form-group flex flex-col gap-1.5">
+            <label for="email" class="text-xs font-bold text-slate-700">Official Email Address <span class="text-red-500">*</span></label>
+            <input type="email" name="email" id="email" value={userData.email} class="form-input text-xs" required placeholder="e.g. aniket.dev@jkspdc.co.in" />
+          </div>
+
+          <div class="form-group flex flex-col gap-1.5">
+            <label for="password" class="text-xs font-bold text-slate-700">
+              Secure Password {editId ? '(Leave empty to keep existing)' : <span class="text-red-500">*</span>}
+            </label>
+            <input 
+              type="password" 
+              name="password" 
+              id="password" 
+              class="form-input text-xs" 
+              required={!editId} 
+              placeholder="••••••••" 
+              minlength="6"
+            />
+          </div>
+
+          <div class="form-group flex flex-col gap-1.5">
+            <label for="role" class="text-xs font-bold text-slate-700">Access Role</label>
+            <select name="role" id="role" class="form-select text-xs">
+              <option value="ADMIN" selected={userData.role === 'ADMIN'}>ADMIN (Full Control)</option>
+              <option value="EDITOR" selected={userData.role === 'EDITOR'}>EDITOR (CRUD on Content)</option>
+              <option value="VIEWER" selected={userData.role === 'VIEWER'}>VIEWER (Read-Only)</option>
+            </select>
+          </div>
+
+          <div class="form-group flex flex-col gap-1.5">
+            <label for="isActive" class="text-xs font-bold text-slate-700">Status</label>
+            <select name="isActive" id="isActive" class="form-select text-xs">
+              <option value="true" selected={userData.isActive === true}>Active (Authorized to Sign In)</option>
+              <option value="false" selected={userData.isActive === false}>Inactive (Suspended Account)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex justify-end gap-3 border-t border-slate-100 pt-6 mt-2">
+        <a href="/admin/users" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-semibold border border-slate-300 transition-colors">Cancel</a>
+        <button type="submit" class="btn-primary text-xs font-bold shadow-md cursor-pointer">
+          {editId ? 'Update Account' : 'Register Account'}
+        </button>
+      </div>
+    </form>
+  </div>
+</AdminLayout>

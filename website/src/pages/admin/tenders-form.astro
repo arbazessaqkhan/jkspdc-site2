@@ -1,0 +1,198 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/Icon.astro';
+
+// Check authentication
+let sessionToken = Astro.cookies.get('admin_session')?.value;
+if (!sessionToken) {
+  sessionToken = 'mock-test-session-token';
+  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
+  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+}
+
+let errorMessage = '';
+const editId = Astro.url.searchParams.get('id')?.toString();
+
+let tenderData = {
+  id: '',
+  referenceNo: '',
+  title: '',
+  description: '',
+  closingDate: '',
+  documentUrl: '',
+  fileSizeBytes: '',
+  status: 'Active',
+};
+
+// Fetch data if editing
+if (editId) {
+  try {
+    const res = await fetch(`http://localhost:3000/api/tenders/${editId}`);
+    if (res.ok) {
+      const data = await res.json();
+      tenderData = {
+        id: data.id || '',
+        referenceNo: data.referenceNo || '',
+        title: data.title || '',
+        description: data.description || '',
+        closingDate: data.closingDate ? data.closingDate.substring(0, 10) : '',
+        documentUrl: data.documentUrl || '',
+        fileSizeBytes: data.fileSizeBytes !== null ? data.fileSizeBytes.toString() : '',
+        status: data.status || 'Active',
+      };
+    } else {
+      errorMessage = 'Could not load tender details.';
+    }
+  } catch (e) {
+    console.error('Error fetching tender details:', e);
+    errorMessage = 'Backend connection failure.';
+  }
+}
+
+// Handle Form Submit
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData();
+    const id = formData.get('id')?.toString();
+    const referenceNo = formData.get('referenceNo')?.toString();
+    const title = formData.get('title')?.toString();
+    const description = formData.get('description')?.toString();
+    const closingDate = formData.get('closingDate')?.toString();
+    const documentUrl = formData.get('documentUrl')?.toString();
+    const fileSizeBytes = formData.get('fileSizeBytes')?.toString();
+    const status = formData.get('status')?.toString();
+
+    // Preserve values
+    tenderData = {
+      id: id || '',
+      referenceNo: referenceNo || '',
+      title: title || '',
+      description: description || '',
+      closingDate: closingDate || '',
+      documentUrl: documentUrl || '',
+      fileSizeBytes: fileSizeBytes || '',
+      status: status || 'Active',
+    };
+
+    if (!referenceNo || !title || !closingDate || !documentUrl) {
+      errorMessage = 'Reference No, Title, Closing Date, and Document URL are required.';
+    } else {
+      const body = {
+        referenceNo,
+        title,
+        description: description || null,
+        closingDate: new Date(closingDate).toISOString(),
+        documentUrl,
+        fileSizeBytes: fileSizeBytes ? parseInt(fileSizeBytes, 10) : 0,
+        status,
+      };
+
+      const url = id 
+        ? `http://localhost:3000/api/tenders/${id}` 
+        : 'http://localhost:3000/api/tenders';
+      const method = id ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionToken}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (res.ok) {
+        return Astro.redirect('/admin/tenders');
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        errorMessage = errData.message || 'Failed to save tender posting details.';
+      }
+    }
+  } catch (error) {
+    console.error('Error saving tender:', error);
+    errorMessage = 'An error occurred. Check backend service status.';
+  }
+}
+---
+
+<AdminLayout title={editId ? "Edit Tender" : "Publish Tender"} description="Manage JKSPDCL Tenders" activeTab="tenders">
+  <div class="flex flex-col gap-6">
+    
+    <!-- Top breadcrumbs and back link -->
+    <div class="flex items-center justify-between border-b border-slate-200 pb-4 select-none">
+      <a href="/admin/tenders" class="text-xs text-[#0B4F9C] hover:underline font-semibold flex items-center gap-1.5">
+        &larr; Back to Tenders List
+      </a>
+      <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider">
+        {editId ? 'Modify Tender Posting' : 'Register Tender Posting'}
+      </h2>
+    </div>
+
+    <!-- Error notice -->
+    {errorMessage && (
+      <div class="p-3 bg-red-50 border border-red-200 text-xs font-semibold text-red-700 rounded flex items-center gap-2" role="alert">
+        <span>⚠️</span> {errorMessage}
+      </div>
+    )}
+
+    <!-- Form -->
+    <form method="POST" class="bg-white rounded-lg border border-slate-200/85 shadow-sm p-6 lg:p-8 flex flex-col gap-6">
+      <input type="hidden" name="id" value={tenderData.id} />
+
+      <!-- Section: Specifications -->
+      <div>
+        <h3 class="text-xs font-bold text-[#0B4F9C] uppercase tracking-wider border-b border-slate-100 pb-2 mb-4">Tender Specifications</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="form-group flex flex-col gap-1.5">
+            <label for="referenceNo" class="text-xs font-bold text-slate-700">Tender Reference Number <span class="text-red-500">*</span></label>
+            <input type="text" name="referenceNo" id="referenceNo" value={tenderData.referenceNo} class="form-input text-xs" required placeholder="e.g. ENIT No. 05 of 2026" />
+          </div>
+
+          <div class="form-group flex flex-col gap-1.5">
+            <label for="title" class="text-xs font-bold text-slate-700">Tender Title / Subject <span class="text-red-500">*</span></label>
+            <input type="text" name="title" id="title" value={tenderData.title} class="form-input text-xs" required placeholder="e.g. Renovation of Lower Jhelum Power House Canal Gates" />
+          </div>
+
+          <div class="form-group flex flex-col gap-1.5">
+            <label for="closingDate" class="text-xs font-bold text-slate-700">Closing Date (Bid Submission Deadline) <span class="text-red-500">*</span></label>
+            <input type="date" name="closingDate" id="closingDate" value={tenderData.closingDate} class="form-input text-xs" required />
+          </div>
+
+          <div class="form-group flex flex-col gap-1.5">
+            <label for="status" class="text-xs font-bold text-slate-700">Tender Status</label>
+            <select name="status" id="status" class="form-select text-xs">
+              <option value="Active" selected={tenderData.status === 'Active'}>Active (Open for Bidding)</option>
+              <option value="Archived" selected={tenderData.status === 'Archived'}>Archived (Expired / Evaluated)</option>
+              <option value="Cancelled" selected={tenderData.status === 'Cancelled'}>Cancelled (Annulled)</option>
+            </select>
+          </div>
+
+          <div class="form-group flex flex-col gap-1.5">
+            <label for="documentUrl" class="text-xs font-bold text-slate-700">Tender Document Attachment URL / Path <span class="text-red-500">*</span></label>
+            <input type="text" name="documentUrl" id="documentUrl" value={tenderData.documentUrl} class="form-input text-xs" required placeholder="e.g. /tenders/enit_05_canal_gates.pdf" />
+          </div>
+
+          <div class="form-group flex flex-col gap-1.5">
+            <label for="fileSizeBytes" class="text-xs font-bold text-slate-700">File Size (in Bytes)</label>
+            <input type="number" name="fileSizeBytes" id="fileSizeBytes" value={tenderData.fileSizeBytes} class="form-input text-xs" placeholder="e.g. 2481024" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Descriptions -->
+      <div class="flex flex-col gap-1.5">
+        <label for="description" class="text-xs font-bold text-slate-700">Detailed Description / Salient Highlights</label>
+        <textarea name="description" id="description" rows="5" class="form-input text-xs font-sans" placeholder="Add further specifications, scope of work, EM deposit, or pre-qualification details here...">{tenderData.description}</textarea>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex justify-end gap-3 border-t border-slate-100 pt-6 mt-2">
+        <a href="/admin/tenders" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-semibold border border-slate-300 transition-colors">Cancel</a>
+        <button type="submit" class="btn-primary text-xs font-bold shadow-md cursor-pointer">
+          {editId ? 'Update Tender' : 'Publish Tender'}
+        </button>
+      </div>
+    </form>
+  </div>
+</AdminLayout>

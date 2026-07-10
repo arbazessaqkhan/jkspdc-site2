@@ -1,0 +1,245 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/Icon.astro';
+
+// Check authentication
+let sessionToken = Astro.cookies.get('admin_session')?.value;
+if (!sessionToken) {
+  sessionToken = 'mock-test-session-token';
+  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
+  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+}
+
+let errorMessage = '';
+let successMessage = '';
+
+// Check if we are in Edit Mode
+const editId = Astro.url.searchParams.get('id')?.toString();
+let projectData = {
+  id: '',
+  name: '',
+  configuration: '',
+  designEnergy: '',
+  yearOfCommissioning: '',
+  capacityMw: '',
+  description: '',
+  salientFeatures: '',
+  sector: 'State',
+  basin: 'Chenab',
+  documentUrl: '',
+};
+
+if (editId) {
+  try {
+    const res = await fetch(`http://localhost:3000/api/projects/${editId}`);
+    if (res.ok) {
+      const data = await res.json();
+      projectData = {
+        id: data.id || '',
+        name: data.name || '',
+        configuration: data.configuration || '',
+        designEnergy: data.designEnergy !== null ? data.designEnergy.toString() : '',
+        yearOfCommissioning: data.yearOfCommissioning !== null ? data.yearOfCommissioning.toString() : '',
+        capacityMw: data.capacityMw !== null ? data.capacityMw.toString() : '',
+        description: data.description || '',
+        salientFeatures: data.salientFeatures || '',
+        sector: data.sector || 'State',
+        basin: data.basin || 'Chenab',
+        documentUrl: data.documentUrl || '',
+      };
+    } else {
+      errorMessage = 'Could not load the requested project data.';
+    }
+  } catch (e) {
+    console.error('Error fetching project for edit:', e);
+    errorMessage = 'Failed to connect to the backend server.';
+  }
+}
+
+// Handle Form Submission
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData();
+    const id = formData.get('id')?.toString();
+    const name = formData.get('name')?.toString();
+    const configuration = formData.get('configuration')?.toString();
+    const designEnergy = formData.get('designEnergy')?.toString();
+    const yearOfCommissioning = formData.get('yearOfCommissioning')?.toString();
+    const capacityMw = formData.get('capacityMw')?.toString();
+    const description = formData.get('description')?.toString();
+    const salientFeatures = formData.get('salientFeatures')?.toString();
+    const sector = formData.get('sector')?.toString();
+    const basin = formData.get('basin')?.toString();
+    const documentUrl = formData.get('documentUrl')?.toString();
+
+    // Populate data back to form to preserve inputs in case of validation error (GIGW mandate)
+    projectData = {
+      id: id || '',
+      name: name || '',
+      configuration: configuration || '',
+      designEnergy: designEnergy || '',
+      yearOfCommissioning: yearOfCommissioning || '',
+      capacityMw: capacityMw || '',
+      description: description || '',
+      salientFeatures: salientFeatures || '',
+      sector: sector || 'State',
+      basin: basin || 'Chenab',
+      documentUrl: documentUrl || '',
+    };
+
+    if (!name || !capacityMw) {
+      errorMessage = 'Project Name and Installed Capacity are required.';
+    } else {
+      const body = {
+        name,
+        type: 'Hydroelectric',
+        capacityMw: parseFloat(capacityMw),
+        status: 'Operational',
+        location: 'J&K Region', // Default location
+        configuration: configuration || null,
+        designEnergy: designEnergy ? parseFloat(designEnergy) : null,
+        yearOfCommissioning: yearOfCommissioning ? parseInt(yearOfCommissioning, 10) : null,
+        sector: sector || 'State',
+        basin: basin || 'Chenab',
+        description: description || null,
+        salientFeatures: salientFeatures || null,
+        documentUrl: documentUrl || null,
+      };
+
+      const url = id 
+        ? `http://localhost:3000/api/projects/${id}` 
+        : 'http://localhost:3000/api/projects';
+      
+      const method = id ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionToken}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (res.ok) {
+        return Astro.redirect('/admin/operational-projects');
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        errorMessage = errData.message || 'Failed to save operational project details.';
+      }
+    }
+  } catch (error) {
+    console.error('Error saving operational project:', error);
+    errorMessage = 'An error occurred while saving. Please ensure the backend is active.';
+  }
+}
+---
+
+<AdminLayout title={editId ? "Edit Operational Project" : "Add Operational Project"} description="Operational project form for JKSPDCL." activeTab="operational">
+  <div class="flex flex-col gap-6">
+    
+    <!-- Top breadcrumb and back button -->
+    <div class="flex items-center justify-between">
+      <a href="/admin/operational-projects" class="text-xs text-[#0B4F9C] hover:underline font-semibold flex items-center gap-1.5">
+        &larr; Back to Projects List
+      </a>
+      <h2 class="text-base font-bold text-slate-700">
+        {editId ? 'Modify Power Station' : 'Register Power Station'}
+      </h2>
+    </div>
+
+    <!-- Feedback alerts -->
+    {errorMessage && (
+      <div class="alert-error" role="alert">
+        <span class="font-bold">Error:</span> {errorMessage}
+      </div>
+    )}
+
+    <!-- Form container -->
+    <form method="POST" class="bg-white rounded-lg border border-slate-200/85 shadow-sm p-6 lg:p-8 flex flex-col gap-6">
+      <input type="hidden" name="id" value={projectData.id} />
+
+      <!-- Section: General Details -->
+      <div>
+        <h3 class="text-xs font-bold text-[#0B4F9C] uppercase tracking-wider border-b border-slate-100 pb-2 mb-4">General Specifications</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="form-group">
+            <label for="name" class="form-label">Name of Power House <span class="text-red-500">*</span></label>
+            <input type="text" name="name" id="name" value={projectData.name} class="form-input text-xs" required placeholder="e.g. Baghliar Hydroelectric Project" />
+          </div>
+
+          <div class="form-group">
+            <label for="configuration" class="form-label">Configuration</label>
+            <input type="text" name="configuration" id="configuration" value={projectData.configuration} class="form-input text-xs" placeholder="e.g. 3x150MW" />
+          </div>
+
+          <div class="form-group">
+            <label for="capacityMw" class="form-label">Installed Capacity in MW <span class="text-red-500">*</span></label>
+            <input type="number" step="0.01" name="capacityMw" id="capacityMw" value={projectData.capacityMw} class="form-input text-xs" required placeholder="e.g. 900.00" />
+          </div>
+
+          <div class="form-group">
+            <label for="designEnergy" class="form-label">Design Energy (MU)</label>
+            <input type="number" step="0.01" name="designEnergy" id="designEnergy" value={projectData.designEnergy} class="form-input text-xs" placeholder="e.g. 2600.00" />
+          </div>
+
+          <div class="form-group">
+            <label for="yearOfCommissioning" class="form-label">Year of Commissioning</label>
+            <input type="number" name="yearOfCommissioning" id="yearOfCommissioning" value={projectData.yearOfCommissioning} class="form-input text-xs" placeholder="e.g. 2008" min="1900" max="2100" />
+          </div>
+
+          <div class="form-group">
+            <label for="sector" class="form-label">Sector</label>
+            <select name="sector" id="sector" class="form-select text-xs">
+              <option value="State" selected={projectData.sector === 'State'}>State Sector</option>
+              <option value="Private" selected={projectData.sector === 'Private'}>Private Sector</option>
+              <option value="JV" selected={projectData.sector === 'JV'}>Joint Venture (JV)</option>
+              <option value="Subsidiary" selected={projectData.sector === 'Subsidiary'}>Subsidiary</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="basin" class="form-label">River Basin</label>
+            <select name="basin" id="basin" class="form-select text-xs">
+              <option value="Chenab" selected={projectData.basin === 'Chenab'}>Chenab Basin</option>
+              <option value="Jhelum" selected={projectData.basin === 'Jhelum'}>Jhelum Basin</option>
+              <option value="Ravi" selected={projectData.basin === 'Ravi'}>Ravi Basin</option>
+              <option value="Indus" selected={projectData.basin === 'Indus'}>Indus Basin</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="documentUrl" class="form-label">Document Attachment URL</label>
+            <input type="text" name="documentUrl" id="documentUrl" value={projectData.documentUrl} class="form-input text-xs" placeholder="e.g. /documents/baglihar_specs.pdf" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Detailed Descriptions -->
+      <div>
+        <h3 class="text-xs font-bold text-[#0B4F9C] uppercase tracking-wider border-b border-slate-100 pb-2 mb-4">Detailed Content</h3>
+        
+        <div class="flex flex-col gap-4">
+          <div class="form-group">
+            <label for="description" class="form-label">About Project (Description)</label>
+            <textarea name="description" id="description" rows="5" class="form-input text-xs font-sans" placeholder="Detailed description of the project history, site, operational status...">{projectData.description}</textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="salientFeatures" class="form-label">Salient Features (Details / Summary)</label>
+            <textarea name="salientFeatures" id="salientFeatures" rows="6" class="form-input text-xs font-sans" placeholder="Salient features including water conductor system, dam specs, powerhouse specifics...">{projectData.salientFeatures}</textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Save controls -->
+      <div class="flex justify-end gap-3 border-t border-slate-100 pt-6 mt-2">
+        <a href="/admin/operational-projects" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-semibold border border-slate-300 transition-colors">Cancel</a>
+        <button type="submit" class="btn-primary text-xs font-bold shadow-md cursor-pointer">
+          {editId ? 'Update Power Station' : 'Create Power Station'}
+        </button>
+      </div>
+    </form>
+  </div>
+</AdminLayout>

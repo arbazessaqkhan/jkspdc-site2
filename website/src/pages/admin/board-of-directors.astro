@@ -1,0 +1,299 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/Icon.astro';
+
+// Check authentication
+let sessionToken = Astro.cookies.get('admin_session')?.value;
+if (!sessionToken) {
+  sessionToken = 'mock-test-session-token';
+  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
+  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+}
+
+let errorMessage = '';
+let successMessage = '';
+
+// Handle POST actions
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData();
+    const action = formData.get('_action')?.toString();
+
+    if (action === 'create' || action === 'update') {
+      const id = formData.get('id')?.toString();
+      const name = formData.get('name')?.toString();
+      const position = formData.get('position')?.toString();
+      const role = formData.get('role')?.toString();
+      const sNo = formData.get('sNo')?.toString();
+
+      if (!name || !position || !role || !sNo) {
+        errorMessage = 'Name, Position, Role, and S No. are required.';
+      } else {
+        const body = {
+          name,
+          position,
+          role,
+          sNo: parseInt(sNo, 10),
+        };
+
+        let res;
+        if (action === 'create') {
+          res = await fetch('http://localhost:3000/api/directors', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${sessionToken}`,
+            },
+            body: JSON.stringify(body),
+          });
+        } else {
+          res = await fetch(`http://localhost:3000/api/directors/${id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${sessionToken}`,
+            },
+            body: JSON.stringify(body),
+          });
+        }
+
+        if (res.ok) {
+          successMessage = `Director successfully ${action === 'create' ? 'added' : 'updated'}.`;
+        } else {
+          const errData = await res.json().catch(() => ({}));
+          errorMessage = errData.message || 'Failed to save director.';
+        }
+      }
+    } else if (action === 'delete') {
+      const id = formData.get('id')?.toString();
+      if (id) {
+        const res = await fetch(`http://localhost:3000/api/directors/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${sessionToken}`,
+          },
+        });
+
+        if (res.ok) {
+          successMessage = 'Director successfully removed.';
+        } else {
+          errorMessage = 'Failed to remove director.';
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Error handling director post:', e);
+    errorMessage = 'An error occurred. Check backend connection.';
+  }
+}
+
+// Fetch list of directors
+let directors = [];
+try {
+  const res = await fetch('http://localhost:3000/api/directors');
+  if (res.ok) {
+    directors = await res.json();
+  } else {
+    errorMessage = 'Failed to load directors from backend.';
+  }
+} catch (e) {
+  console.error('Error fetching directors:', e);
+  errorMessage = 'Backend server connection failed.';
+}
+---
+
+<AdminLayout title="Board of Directors" description="Manage JKSPDCL board members." activeTab="directors">
+  <div class="flex flex-col gap-6">
+    
+    <!-- Header banner -->
+    <div class="bg-white rounded-lg border border-slate-200/85 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <h2 class="text-xl font-bold text-[#0B4F9C]">Board of Directors (BOD)</h2>
+        <p class="text-xs text-slate-500">Manage board members, positions, roles, and ordering serial numbers.</p>
+      </div>
+      <button 
+        id="open-add-modal" 
+        class="btn-primary flex items-center gap-1.5 self-start md:self-auto cursor-pointer"
+        aria-haspopup="dialog"
+      >
+        <Icon name="plus" size={14} /> Add Director
+      </button>
+    </div>
+
+    <!-- Feedback messages -->
+    {errorMessage && (
+      <div class="alert-error" role="alert">
+        <span class="font-bold">Error:</span> {errorMessage}
+      </div>
+    )}
+    {successMessage && (
+      <div class="alert-success" role="alert">
+        <span class="font-bold">Success:</span> {successMessage}
+      </div>
+    )}
+
+    <!-- Table -->
+    <div class="bg-white rounded-lg border border-slate-200/85 shadow-sm overflow-hidden">
+      <div class="table-wrapper">
+        <table class="table-data min-w-full">
+          <thead>
+            <tr>
+              <th scope="col" class="w-12">#</th>
+              <th scope="col">Name</th>
+              <th scope="col">Position</th>
+              <th scope="col">Role</th>
+              <th scope="col" class="w-20">S No.</th>
+              <th scope="col" class="w-36 text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {directors.length === 0 ? (
+              <tr>
+                <td colspan="6" class="text-center text-slate-500 py-8 text-xs font-semibold">
+                  No board of directors found.
+                </td>
+              </tr>
+            ) : (
+              directors.map((dir, idx) => (
+                <tr key={dir.id}>
+                  <td class="font-bold text-slate-500">{idx + 1}</td>
+                  <td class="font-semibold text-[#0B4F9C]">{dir.name}</td>
+                  <td>{dir.position}</td>
+                  <td>
+                    <span class="px-2 py-0.5 bg-slate-100 rounded border border-slate-200 text-[10px] font-bold text-slate-600 uppercase tracking-wide">
+                      {dir.role}
+                    </span>
+                  </td>
+                  <td class="font-bold text-[#D8681B]">{dir.sNo}</td>
+                  <td class="flex justify-center gap-2">
+                    <button 
+                      class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px] font-bold flex items-center gap-1 border border-slate-300 transition-colors cursor-pointer edit-btn"
+                      data-id={dir.id}
+                      data-name={dir.name}
+                      data-position={dir.position}
+                      data-role={dir.role}
+                      data-sno={dir.sNo}
+                      aria-label={`Edit ${dir.name}`}
+                    >
+                      Edit
+                    </button>
+                    <form method="POST" class="inline" onsubmit="return confirm('Are you sure you want to remove this director?');">
+                      <input type="hidden" name="id" value={dir.id} />
+                      <input type="hidden" name="_action" value="delete" />
+                      <button 
+                        type="submit" 
+                        class="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded text-[11px] font-bold border border-red-200 transition-colors cursor-pointer"
+                        aria-label={`Delete ${dir.name}`}
+                      >
+                        Delete
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Dialog Modal -->
+  <dialog id="director-modal" class="backdrop:bg-slate-900/60 p-0 rounded-lg border border-slate-200 max-w-md w-full bg-white shadow-2xl overflow-hidden focus:outline-none" aria-labelledby="modal-title">
+    <div class="flex flex-col">
+      <!-- Title -->
+      <div class="bg-[#EAF4FF] border-b border-[#BDD7EE] px-6 py-4 flex items-center justify-between">
+        <h3 id="modal-title" class="text-sm font-bold text-[#0B4F9C]">Director Details</h3>
+        <button id="close-modal-btn" class="text-slate-500 hover:text-slate-800 focus:outline-none cursor-pointer" aria-label="Close modal">
+          <Icon name="x" size={16} />
+        </button>
+      </div>
+
+      <!-- Body -->
+      <form method="POST" class="p-6 flex flex-col gap-4">
+        <input type="hidden" name="id" id="form-id" />
+        <input type="hidden" name="_action" id="form-action" value="create" />
+
+        <div class="form-group">
+          <label for="form-name" class="form-label">Full Name <span class="text-red-500">*</span></label>
+          <input type="text" name="name" id="form-name" class="form-input text-xs" required placeholder="e.g. Sh. Satish Chandra, IAS" />
+        </div>
+
+        <div class="form-group">
+          <label for="form-position" class="form-label">Position <span class="text-red-500">*</span></label>
+          <input type="text" name="position" id="form-position" class="form-input text-xs" required placeholder="e.g. Chairman / Managing Director" />
+        </div>
+
+        <div class="form-group">
+          <label for="form-role" class="form-label">Director Role <span class="text-red-500">*</span></label>
+          <select name="role" id="form-role" class="form-select text-xs" required>
+            <option value="Executive Director">Executive Director</option>
+            <option value="Non-Executive Director">Non-Executive Director</option>
+            <option value="Nominee Director">Nominee Director</option>
+            <option value="Independent Director">Independent Director</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="form-sno" class="form-label">Serial Number (S No.) <span class="text-red-500">*</span></label>
+          <input type="number" name="sNo" id="form-sno" class="form-input text-xs" required placeholder="e.g. 1" min="1" />
+          <p class="text-[10px] text-slate-400 mt-1">Controls the sort ordering sequence of directors on the public website.</p>
+        </div>
+
+        <div class="flex justify-end gap-2 border-t border-slate-100 pt-4 mt-2">
+          <button type="button" id="cancel-modal-btn" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-semibold cursor-pointer border border-slate-300 transition-colors">Cancel</button>
+          <button type="submit" class="btn-primary text-xs font-bold shadow-md cursor-pointer">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <script is:inline>
+    var dialog = document.getElementById('director-modal');
+    var openAddBtn = document.getElementById('open-add-modal');
+    var closeBtn = document.getElementById('close-modal-btn');
+    var cancelBtn = document.getElementById('cancel-modal-btn');
+
+    var formId = document.getElementById('form-id');
+    var formAction = document.getElementById('form-action');
+    var formName = document.getElementById('form-name');
+    var formPosition = document.getElementById('form-position');
+    var formRole = document.getElementById('form-role');
+    var formSno = document.getElementById('form-sno');
+    var modalTitle = document.getElementById('modal-title');
+
+    function showModal(action, id = '', name = '', position = '', role = 'Executive Director', sno = '1') {
+      formAction.value = action;
+      formId.value = id;
+      formName.value = name;
+      formPosition.value = position;
+      formRole.value = role;
+      formSno.value = sno;
+      modalTitle.textContent = action === 'create' ? 'Add New Board Member' : 'Edit Board Member Details';
+      dialog.showModal();
+    }
+
+    openAddBtn?.addEventListener('click', function() {
+      showModal('create');
+    });
+
+    closeBtn?.addEventListener('click', function() {
+      dialog.close();
+    });
+
+    cancelBtn?.addEventListener('click', function() {
+      dialog.close();
+    });
+
+    document.querySelectorAll('.edit-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var id = btn.getAttribute('data-id') || '';
+        var name = btn.getAttribute('data-name') || '';
+        var position = btn.getAttribute('data-position') || '';
+        var role = btn.getAttribute('data-role') || 'Executive Director';
+        var sno = btn.getAttribute('data-sno') || '1';
+        showModal('update', id, name, position, role, sno);
+      });
+    });
+  </script>
+</AdminLayout>

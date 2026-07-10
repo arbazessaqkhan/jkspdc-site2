@@ -1,0 +1,151 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/Icon.astro';
+
+// Check authentication
+let sessionToken = Astro.cookies.get('admin_session')?.value;
+if (!sessionToken) {
+  sessionToken = 'mock-test-session-token';
+  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
+  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+}
+
+let errorMessage = '';
+const editId = Astro.url.searchParams.get('id')?.toString();
+
+let pressData = {
+  id: '',
+  title: '',
+  content: '',
+  imageUrl: '',
+};
+
+// Fetch data if editing
+if (editId) {
+  try {
+    const res = await fetch(`http://localhost:3000/api/press-releases/${editId}`);
+    if (res.ok) {
+      const data = await res.json();
+      pressData = {
+        id: data.id || '',
+        title: data.title || '',
+        content: data.content || '',
+        imageUrl: data.imageUrl || '',
+      };
+    } else {
+      errorMessage = 'Could not load press release details.';
+    }
+  } catch (e) {
+    console.error('Error fetching press release details:', e);
+    errorMessage = 'Backend connection failure.';
+  }
+}
+
+// Handle Form Submit
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData();
+    const id = formData.get('id')?.toString();
+    const title = formData.get('title')?.toString();
+    const content = formData.get('content')?.toString();
+    const imageUrl = formData.get('imageUrl')?.toString();
+
+    // Preserve values
+    pressData = {
+      id: id || '',
+      title: title || '',
+      content: content || '',
+      imageUrl: imageUrl || '',
+    };
+
+    if (!title || !content) {
+      errorMessage = 'News Title and Content are required.';
+    } else {
+      const body = {
+        title,
+        content,
+        imageUrl: imageUrl || null,
+      };
+
+      const url = id 
+        ? `http://localhost:3000/api/press-releases/${id}` 
+        : 'http://localhost:3000/api/press-releases';
+      const method = id ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionToken}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (res.ok) {
+        return Astro.redirect('/admin/press-releases');
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        errorMessage = errData.message || 'Failed to save press release details.';
+      }
+    }
+  } catch (error) {
+    console.error('Error saving press release:', error);
+    errorMessage = 'An error occurred. Check backend service status.';
+  }
+}
+---
+
+<AdminLayout title={editId ? "Edit Press Release" : "Publish News Release"} description="Manage JKSPDCL Press Releases" activeTab="press">
+  <div class="flex flex-col gap-6">
+    
+    <!-- Top breadcrumbs and back link -->
+    <div class="flex items-center justify-between border-b border-slate-200 pb-4 select-none">
+      <a href="/admin/press-releases" class="text-xs text-[#0B4F9C] hover:underline font-semibold flex items-center gap-1.5">
+        &larr; Back to News List
+      </a>
+      <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider">
+        {editId ? 'Modify Press Release' : 'Register News Release'}
+      </h2>
+    </div>
+
+    <!-- Error notice -->
+    {errorMessage && (
+      <div class="p-3 bg-red-50 border border-red-200 text-xs font-semibold text-red-700 rounded flex items-center gap-2" role="alert">
+        <span>⚠️</span> {errorMessage}
+      </div>
+    )}
+
+    <!-- Form -->
+    <form method="POST" class="bg-white rounded-lg border border-slate-200/85 shadow-sm p-6 lg:p-8 flex flex-col gap-6">
+      <input type="hidden" name="id" value={pressData.id} />
+
+      <!-- Section: Specifications -->
+      <div class="flex flex-col gap-4">
+        <h3 class="text-xs font-bold text-[#0B4F9C] uppercase tracking-wider border-b border-slate-100 pb-2 mb-2">News Details</h3>
+        
+        <div class="form-group flex flex-col gap-1.5">
+          <label for="title" class="text-xs font-bold text-slate-700">News Headline / Title <span class="text-red-500">*</span></label>
+          <input type="text" name="title" id="title" value={pressData.title} class="form-input text-xs" required placeholder="e.g. Honorable Governor reviews Baghliar Hydroelectric Project Stage-II" />
+        </div>
+
+        <div class="form-group flex flex-col gap-1.5">
+          <label for="imageUrl" class="text-xs font-bold text-slate-700">News Banner Image URL</label>
+          <input type="text" name="imageUrl" id="imageUrl" value={pressData.imageUrl} class="form-input text-xs" placeholder="e.g. /images/news/baglihar_review.jpg" />
+        </div>
+
+        <div class="form-group flex flex-col gap-1.5">
+          <label for="content" class="text-xs font-bold text-slate-700">Detailed News Content <span class="text-red-500">*</span></label>
+          <textarea name="content" id="content" rows="12" class="form-input text-xs font-sans" required placeholder="Write or paste the official news statement or press release details here...">{pressData.content}</textarea>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex justify-end gap-3 border-t border-slate-100 pt-6 mt-2">
+        <a href="/admin/press-releases" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-semibold border border-slate-300 transition-colors">Cancel</a>
+        <button type="submit" class="btn-primary text-xs font-bold shadow-md cursor-pointer">
+          {editId ? 'Update News' : 'Publish News'}
+        </button>
+      </div>
+    </form>
+  </div>
+</AdminLayout>

@@ -1,6 +1,6 @@
 # JKSPDC Web Platform
 
-This repository contains the official web platform for the Jammu & Kashmir State Power Development Corporation (JKSPDC). 
+This repository contains the official web platform for the Jammu & Kashmir State Power Development Corporation (JKSPDC).
 
 The platform is designed in accordance with the Guidelines for Indian Government Websites (GIGW) 3.0, WCAG 2.2 AA accessibility standards, and CERT-In secure application standards.
 
