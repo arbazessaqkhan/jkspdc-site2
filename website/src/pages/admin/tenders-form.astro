@@ -18,6 +18,9 @@ let tenderData = {
   referenceNo: '',
   title: '',
   description: '',
+  documentType: 'NIT',
+  workCategory: 'Civil',
+  locationTag: 'HQ_SRINAGAR',
   closingDate: '',
   documentUrl: '',
   fileSizeBytes: '',
@@ -35,6 +38,9 @@ if (editId) {
         referenceNo: data.referenceNo || '',
         title: data.title || '',
         description: data.description || '',
+        documentType: data.documentType || 'NIT',
+        workCategory: data.workCategory || 'Civil',
+        locationTag: data.locationTag || 'HQ_SRINAGAR',
         closingDate: data.closingDate ? data.closingDate.substring(0, 10) : '',
         documentUrl: data.documentUrl || '',
         fileSizeBytes: data.fileSizeBytes !== null ? data.fileSizeBytes.toString() : '',
@@ -57,6 +63,9 @@ if (Astro.request.method === 'POST') {
     const referenceNo = formData.get('referenceNo')?.toString();
     const title = formData.get('title')?.toString();
     const description = formData.get('description')?.toString();
+    const documentType = formData.get('documentType')?.toString();
+    const workCategory = formData.get('workCategory')?.toString();
+    const locationTag = formData.get('locationTag')?.toString();
     const closingDate = formData.get('closingDate')?.toString();
     const documentUrl = formData.get('documentUrl')?.toString();
     const fileSizeBytes = formData.get('fileSizeBytes')?.toString();
@@ -68,20 +77,26 @@ if (Astro.request.method === 'POST') {
       referenceNo: referenceNo || '',
       title: title || '',
       description: description || '',
+      documentType: documentType || 'NIT',
+      workCategory: workCategory || 'Civil',
+      locationTag: locationTag || 'HQ_SRINAGAR',
       closingDate: closingDate || '',
       documentUrl: documentUrl || '',
       fileSizeBytes: fileSizeBytes || '',
       status: status || 'Active',
     };
 
-    if (!referenceNo || !title || !closingDate || !documentUrl) {
-      errorMessage = 'Reference No, Title, Closing Date, and Document URL are required.';
+    if (!referenceNo || !title || !documentUrl) {
+      errorMessage = 'Reference No, Title, and Document URL are required.';
     } else {
       const body = {
         referenceNo,
         title,
         description: description || null,
-        closingDate: new Date(closingDate).toISOString(),
+        documentType: documentType || 'NIT',
+        workCategory: workCategory || 'Civil',
+        locationTag: locationTag || 'HQ_SRINAGAR',
+        closingDate: closingDate ? new Date(closingDate).toISOString() : null,
         documentUrl,
         fileSizeBytes: fileSizeBytes ? parseInt(fileSizeBytes, 10) : 0,
         status,
@@ -155,8 +170,42 @@ if (Astro.request.method === 'POST') {
           </div>
 
           <div class="form-group flex flex-col gap-1.5">
-            <label for="closingDate" class="text-xs font-bold text-slate-700">Closing Date (Bid Submission Deadline) <span class="text-red-500">*</span></label>
-            <input type="date" name="closingDate" id="closingDate" value={tenderData.closingDate} class="form-input text-xs" required />
+            <label for="documentType" class="text-xs font-bold text-slate-700">Document Type <span class="text-red-500">*</span></label>
+            <select name="documentType" id="documentType" class="form-select text-xs" required>
+              <option value="NIT" selected={tenderData.documentType === 'NIT'}>Notice Inviting Tender (NIT)</option>
+              <option value="NIO" selected={tenderData.documentType === 'NIO'}>Notice Inviting Offers (NIO)</option>
+              <option value="CORRIGENDUM" selected={tenderData.documentType === 'CORRIGENDUM'}>Tender Corrigendum / Addendum</option>
+              <option value="CONTRACT_AWARD" selected={tenderData.documentType === 'CONTRACT_AWARD'}>Award of Tender/Contract</option>
+              <option value="BANNED_FIRM" selected={tenderData.documentType === 'BANNED_FIRM'}>List of Banned Firms</option>
+            </select>
+          </div>
+
+          <div class="form-group flex flex-col gap-1.5">
+            <label for="workCategory" class="text-xs font-bold text-slate-700">Work Category <span class="text-red-500">*</span></label>
+            <select name="workCategory" id="workCategory" class="form-select text-xs" required>
+              <option value="Civil" selected={tenderData.workCategory === 'Civil'}>Civil Works</option>
+              <option value="Electro-Mechanical" selected={tenderData.workCategory === 'Electro-Mechanical'}>Electro-Mechanical</option>
+              <option value="Hydro" selected={tenderData.workCategory === 'Hydro'}>Hydro Projects</option>
+              <option value="Solar" selected={tenderData.workCategory === 'Solar'}>Solar Projects</option>
+              <option value="IT" selected={tenderData.workCategory === 'IT'}>IT & Telecom</option>
+              <option value="Services" selected={tenderData.workCategory === 'Services'}>General Services</option>
+            </select>
+          </div>
+
+          <div class="form-group flex flex-col gap-1.5">
+            <label for="locationTag" class="text-xs font-bold text-slate-700">Geographical Location <span class="text-red-500">*</span></label>
+            <select name="locationTag" id="locationTag" class="form-select text-xs" required>
+              <option value="HQ_SRINAGAR" selected={tenderData.locationTag === 'HQ_SRINAGAR'}>HQ Srinagar</option>
+              <option value="HQ_JAMMU" selected={tenderData.locationTag === 'HQ_JAMMU'}>HQ Jammu</option>
+              <option value="HEP_BAGLIHAR" selected={tenderData.locationTag === 'HEP_BAGLIHAR'}>HEP Baglihar</option>
+              <option value="HEP_LOWER_JHELUM" selected={tenderData.locationTag === 'HEP_LOWER_JHELUM'}>HEP Lower Jhelum</option>
+              <option value="HEP_SAWALKOTE" selected={tenderData.locationTag === 'HEP_SAWALKOTE'}>HEP Sawalkote</option>
+            </select>
+          </div>
+
+          <div class="form-group flex flex-col gap-1.5">
+            <label for="closingDate" class="text-xs font-bold text-slate-700">Closing Date (Bid Submission Deadline)</label>
+            <input type="date" name="closingDate" id="closingDate" value={tenderData.closingDate} class="form-input text-xs" />
           </div>
 
           <div class="form-group flex flex-col gap-1.5">

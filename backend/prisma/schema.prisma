@@ -49,8 +49,11 @@ model Tender {
   referenceNo    String    @unique
   title          String
   description    String?
+  documentType   String    @default("NIT") // NIT, NIO, CORRIGENDUM, CONTRACT_AWARD, BANNED_FIRM
+  workCategory   String    @default("Civil") // Civil, Electro-Mechanical, Hydro, Solar, Services, IT
+  locationTag    String    @default("HQ_SRINAGAR") // HQ_SRINAGAR, HQ_JAMMU, HEP_BAGLIHAR, etc.
   publishDate    DateTime  @default(now())
-  closingDate    DateTime
+  closingDate    DateTime?
   documentUrl    String    // S3 URL
   fileSizeBytes  Int
   status         String    @default("Active") // Active, Archived, Cancelled

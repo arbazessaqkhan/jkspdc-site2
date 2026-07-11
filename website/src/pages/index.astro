@@ -337,7 +337,7 @@ const corpStats = [
                     {t.fileSizeBytes ? `${(t.fileSizeBytes / 1024).toFixed(0)} KB` : 'N/A'}
                   </td>
                   <td class="px-6 py-4 text-slate-500 text-xs whitespace-nowrap">
-                    {new Date(t.closingDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    {t.closingDate ? new Date(t.closingDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
                   </td>
                   <td class="px-6 py-4">
                     <span class={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${

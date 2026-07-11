@@ -113,14 +113,19 @@ try {
                 <tr key={tender.id} class="hover:bg-slate-50/50 transition-colors">
                   <td class="p-4 text-center font-bold text-slate-400">{idx + 1}</td>
                   <td class="p-4 font-bold text-[#0B4F9C]">{tender.referenceNo}</td>
-                  <td class="p-4 font-medium text-slate-800">
-                    <div class="flex flex-col gap-0.5">
-                      <span>{tender.title}</span>
+                  <td class="p-4 font-medium text-slate-800 text-left">
+                    <div class="flex flex-col gap-1.5">
+                      <span class="font-bold text-sm leading-snug">{tender.title}</span>
                       {tender.description && <span class="text-[10px] text-slate-400 font-normal line-clamp-1">{tender.description}</span>}
+                      <div class="flex items-center gap-1.5 flex-wrap mt-1 select-none">
+                        <span class="px-1.5 py-0.5 rounded bg-blue-50 border border-blue-150 text-[#0B4F9C] text-[9px] font-bold uppercase">{tender.documentType || 'NIT'}</span>
+                        <span class="px-1.5 py-0.5 rounded bg-purple-50 border border-purple-150 text-purple-700 text-[9px] font-bold">{tender.workCategory || 'Civil'}</span>
+                        <span class="px-1.5 py-0.5 rounded bg-slate-50 border border-slate-200 text-slate-600 text-[9px] font-bold uppercase font-mono">{tender.locationTag?.replace('HQ_', 'HQ ')}</span>
+                      </div>
                     </div>
                   </td>
                   <td class="p-4 text-slate-600 font-medium">
-                    {new Date(tender.closingDate).toLocaleDateString('en-IN', { dateStyle: 'medium' })}
+                    {tender.closingDate ? new Date(tender.closingDate).toLocaleDateString('en-IN', { dateStyle: 'medium' }) : '—'}
                   </td>
                   <td class="p-4">
                     <span class={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${

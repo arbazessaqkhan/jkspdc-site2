@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Tender" ADD COLUMN     "documentType" TEXT NOT NULL DEFAULT 'NIT',
+ADD COLUMN     "locationTag" TEXT NOT NULL DEFAULT 'HQ_SRINAGAR',
+ADD COLUMN     "workCategory" TEXT NOT NULL DEFAULT 'Civil';

@@ -24,8 +24,8 @@ export class TendersService {
   }
 
   async create(data: any, user: any, ip: string, ua: string) {
-    const { referenceNo, title, description, closingDate, documentUrl, fileSizeBytes, status } = data;
-    if (!referenceNo || !title || !closingDate || !documentUrl) {
+    const { referenceNo, title, description, documentType, workCategory, locationTag, closingDate, documentUrl, fileSizeBytes, status } = data;
+    if (!referenceNo || !title || !documentUrl) {
       throw new Error('Missing required fields');
     }
 
@@ -34,7 +34,10 @@ export class TendersService {
         referenceNo,
         title,
         description: description || null,
-        closingDate: new Date(closingDate),
+        documentType: documentType || 'NIT',
+        workCategory: workCategory || 'Civil',
+        locationTag: locationTag || 'HQ_SRINAGAR',
+        closingDate: closingDate ? new Date(closingDate) : null,
         documentUrl,
         fileSizeBytes: fileSizeBytes ? parseInt(fileSizeBytes, 10) : 0,
         status: status || 'Active',
@@ -61,7 +64,10 @@ export class TendersService {
         referenceNo: data.referenceNo,
         title: data.title,
         description: data.description,
-        closingDate: data.closingDate ? new Date(data.closingDate) : undefined,
+        documentType: data.documentType,
+        workCategory: data.workCategory,
+        locationTag: data.locationTag,
+        closingDate: data.closingDate ? new Date(data.closingDate) : null,
         documentUrl: data.documentUrl,
         fileSizeBytes: data.fileSizeBytes !== undefined ? parseInt(data.fileSizeBytes, 10) : undefined,
         status: data.status,
