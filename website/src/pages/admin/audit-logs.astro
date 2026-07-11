@@ -35,26 +35,26 @@ try {
   <div class="flex flex-col gap-6">
     
     <!-- Page Header -->
-    <div class="bg-white rounded-lg border border-slate-200/85 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 select-none">
+    <div class="bg-white rounded-lg border border-slate-200 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
         <h2 class="text-xl font-bold text-[#0B4F9C]">Security Audit Logs</h2>
-        <p class="text-xs text-slate-550 mt-0.5">Review chronological registry of admin CRUD actions and security events under GIGW 3.0 auditing guidelines.</p>
+        <p class="text-xs text-slate-500 mt-0.5">Review chronological registry of admin CRUD actions and security events under GIGW 3.0 auditing guidelines.</p>
       </div>
     </div>
 
     <!-- Alerts -->
     {errorMessage && (
       <div class="p-3 bg-red-50 border border-red-200 text-xs font-semibold text-red-700 rounded flex items-center gap-2" role="alert">
-        <span>⚠️</span> {errorMessage}
+        <Icon name="info" size={14} class="text-red-600 shrink-0" /> {errorMessage}
       </div>
     )}
 
     <!-- Logs Table -->
-    <div class="bg-white rounded-lg border border-slate-200/85 shadow-sm overflow-hidden">
+    <div class="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
       <div class="table-wrapper overflow-x-auto">
         <table class="table-data min-w-full text-left border-collapse">
           <thead>
-            <tr class="bg-slate-55 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider select-none">
+            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
               <th scope="col" class="p-4 w-12 text-center">#</th>
               <th scope="col" class="p-4">Timestamp</th>
               <th scope="col" class="p-4">Administrator ID</th>
@@ -64,7 +64,7 @@ try {
               <th scope="col" class="p-4">Details</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-150 text-[11px] font-medium text-slate-700">
+          <tbody class="divide-y divide-slate-200 text-[11px] font-medium text-slate-700">
             {logs.length === 0 ? (
               <tr>
                 <td colspan="7" class="text-center text-slate-500 py-10 font-semibold italic">
@@ -87,13 +87,13 @@ try {
                       log.action.includes('CREATE') ? 'bg-green-50 text-green-700 border-green-200' :
                       log.action.includes('UPDATE') ? 'bg-blue-50 text-blue-700 border-blue-200' :
                       log.action.includes('DELETE') ? 'bg-red-50 text-red-700 border-red-200' :
-                      'bg-slate-100 text-slate-650 border-slate-200'
+                      'bg-slate-100 text-slate-600 border-slate-200'
                     }`}>
                       {log.action}
                     </span>
                   </td>
-                  <td class="p-4 font-mono text-[10px] text-slate-550">{log.ipAddress}</td>
-                  <td class="p-4 text-slate-500 max-w-xs truncate" title={log.userAgent}>
+                  <td class="p-4 font-mono text-[10px] text-slate-500">{log.ipAddress}</td>
+                  <td class="p-4 text-slate-400 max-w-xs truncate" title={log.userAgent}>
                     {log.userAgent}
                   </td>
                   <td class="p-4 font-mono text-[10px] text-slate-500 max-w-sm truncate" title={JSON.stringify(log.details)}>

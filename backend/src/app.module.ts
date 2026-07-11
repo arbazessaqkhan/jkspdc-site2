@@ -15,6 +15,7 @@ import { TendersModule } from './tenders/tenders.module';
 import { CareersModule } from './careers/careers.module';
 import { PressReleasesModule } from './press-releases/press-releases.module';
 import { UsersModule } from './users/users.module';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { UsersModule } from './users/users.module';
     CareersModule,
     PressReleasesModule,
     UsersModule,
+    UploadModule,
   ],
   controllers: [
     ContactController,

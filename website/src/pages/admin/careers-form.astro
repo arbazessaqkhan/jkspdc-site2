@@ -131,12 +131,12 @@ if (Astro.request.method === 'POST') {
     <!-- Error notice -->
     {errorMessage && (
       <div class="p-3 bg-red-50 border border-red-200 text-xs font-semibold text-red-700 rounded flex items-center gap-2" role="alert">
-        <span>⚠️</span> {errorMessage}
+        <Icon name="info" size={14} class="text-red-600 shrink-0" /> {errorMessage}
       </div>
     )}
 
     <!-- Form -->
-    <form method="POST" class="bg-white rounded-lg border border-slate-200/85 shadow-sm p-6 lg:p-8 flex flex-col gap-6">
+    <form method="POST" class="bg-white rounded-lg border border-slate-200 shadow-sm p-6 lg:p-8 flex flex-col gap-6">
       <input type="hidden" name="id" value={careerData.id} />
 
       <!-- Section: Specifications -->
@@ -167,14 +167,35 @@ if (Astro.request.method === 'POST') {
             </select>
           </div>
 
-          <div class="form-group flex flex-col gap-1.5">
-            <label for="documentUrl" class="text-xs font-bold text-slate-700">Attachment Document (Guidelines / Syllabus PDF) <span class="text-red-500">*</span></label>
-            <input type="text" name="documentUrl" id="documentUrl" value={careerData.documentUrl} class="form-input text-xs" required placeholder="e.g. /careers/ae_civil_syllabus_2026.pdf" />
-          </div>
-
-          <div class="form-group flex flex-col gap-1.5">
-            <label for="fileSizeBytes" class="text-xs font-bold text-slate-700">File Size (in Bytes)</label>
-            <input type="number" name="fileSizeBytes" id="fileSizeBytes" value={careerData.fileSizeBytes} class="form-input text-xs" placeholder="e.g. 1024500" />
+          <div class="form-group flex flex-col gap-1.5 col-span-1 md:col-span-2">
+            <label class="text-xs font-bold text-slate-700">Attachment Document (Guidelines / Syllabus PDF) <span class="text-red-500">*</span></label>
+            <div id="upload-container" class="border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-lg p-6 bg-slate-50 flex flex-col items-center justify-center gap-2 hover:bg-blue-50/20 transition-all cursor-pointer relative">
+              <input type="file" id="file-uploader" class="absolute inset-0 opacity-0 cursor-pointer" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" />
+              <Icon name="upload" size={24} class="text-slate-400" />
+              <span class="text-xs text-slate-600 font-semibold" id="upload-status-text">Click to choose or drag vacancy document file here</span>
+              <span class="text-[10px] text-slate-400">PDF, JPG, PNG, DOCX, XLSX (Max 10MB)</span>
+            </div>
+            
+            <!-- Attached file details -->
+            <div id="attached-file-info" class={`p-3 bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 rounded flex items-center justify-between gap-2 mt-2 ${careerData.documentUrl ? '' : 'hidden'}`}>
+              <div class="flex items-center gap-2 min-w-0">
+                <Icon name="info" size={16} class="text-emerald-600 shrink-0" />
+                <span class="font-semibold truncate" id="attached-filename">
+                  {careerData.documentUrl ? careerData.documentUrl.substring(careerData.documentUrl.lastIndexOf('/') + 1) : 'No file attached'}
+                </span>
+                <span class="text-emerald-600 shrink-0" id="attached-filesize">
+                  {careerData.fileSizeBytes ? `(${Math.round(parseInt(careerData.fileSizeBytes, 10) / 1024)} KB)` : ''}
+                </span>
+              </div>
+              {careerData.documentUrl && (
+                <a href={careerData.documentUrl} target="_blank" class="text-emerald-700 hover:text-emerald-900 underline font-bold shrink-0">
+                  View File
+                </a>
+              )}
+            </div>
+            
+            <input type="hidden" name="documentUrl" id="documentUrl" value={careerData.documentUrl} />
+            <input type="hidden" name="fileSizeBytes" id="fileSizeBytes" value={careerData.fileSizeBytes} />
           </div>
         </div>
       </div>
@@ -194,4 +215,75 @@ if (Astro.request.method === 'POST') {
       </div>
     </form>
   </div>
+
+  <script define:vars={{ sessionToken }}>
+    const fileUploader = document.getElementById('file-uploader');
+    const uploadStatusText = document.getElementById('upload-status-text');
+    const attachedFileInfo = document.getElementById('attached-file-info');
+    const attachedFilename = document.getElementById('attached-filename');
+    const attachedFilesize = document.getElementById('attached-filesize');
+    const documentUrlInput = document.getElementById('documentUrl');
+    const fileSizeBytesInput = document.getElementById('fileSizeBytes');
+    const uploadContainer = document.getElementById('upload-container');
+
+    fileUploader?.addEventListener('change', async (event) => {
+      const file = event.target?.files?.[0];
+      if (!file) return;
+
+      uploadStatusText.textContent = `Uploading ${file.name}...`;
+      uploadContainer.classList.add('opacity-60', 'pointer-events-none');
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const response = await fetch('http://localhost:3000/api/upload', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${sessionToken}`,
+          },
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || 'Upload failed');
+        }
+
+        const result = await response.json();
+        
+        // Update inputs
+        documentUrlInput.value = result.url;
+        if (fileSizeBytesInput) {
+          fileSizeBytesInput.value = result.sizeBytes;
+        }
+
+        // Update UI
+        uploadStatusText.textContent = 'Change attached file';
+        attachedFileInfo.classList.remove('hidden');
+        attachedFilename.textContent = result.filename;
+        
+        // Display human-readable size
+        const sizeKB = Math.round(result.sizeBytes / 1024);
+        attachedFilesize.textContent = `(${sizeKB} KB)`;
+        
+        // If there is an anchor, update its href
+        let viewLink = attachedFileInfo.querySelector('a');
+        if (!viewLink) {
+          viewLink = document.createElement('a');
+          viewLink.target = '_blank';
+          viewLink.className = 'text-emerald-700 hover:text-emerald-900 underline font-bold shrink-0';
+          viewLink.textContent = 'View File';
+          attachedFileInfo.appendChild(viewLink);
+        }
+        viewLink.href = result.url;
+
+      } catch (error) {
+        alert(`Upload error: ${error.message}`);
+        uploadStatusText.textContent = 'Click to choose or drag vacancy document file here';
+      } finally {
+        uploadContainer.classList.remove('opacity-60', 'pointer-events-none');
+      }
+    });
+  </script>
 </AdminLayout>

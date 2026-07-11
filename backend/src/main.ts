@@ -2,6 +2,9 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
+import * as express from 'express';
+import * as path from 'path';
+import * as fs from 'fs';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -9,6 +12,13 @@ async function bootstrap() {
 
   // Set global prefix for API endpoints
   app.setGlobalPrefix('api');
+
+  // Serve static files from uploads directory
+  const uploadsDir = path.join(process.cwd(), 'uploads');
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+  app.use('/uploads', express.static(uploadsDir));
 
   // GIGW/OWASP-compliant global validation pipe
   app.useGlobalPipes(
