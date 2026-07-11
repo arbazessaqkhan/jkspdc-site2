@@ -1,5 +1,21 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
+
+let tenders = [];
+let errorMessage = '';
+
+try {
+  const res = await fetch('http://localhost:3000/api/tenders');
+  if (res.ok) {
+    tenders = await res.json();
+    // Sort by publishDate descending (newest first)
+    tenders.sort((a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+  } else {
+    errorMessage = 'Failed to load tenders registry.';
+  }
+} catch (e) {
+  errorMessage = 'Failed to connect to the backend server.';
+}
 ---
 
 <Layout 
@@ -31,63 +47,53 @@ import Layout from '../../../layouts/Layout.astro';
       <!-- Main Content -->
       <article class="lg:col-span-2 space-y-6">
         
+        {errorMessage && (
+          <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 text-xs font-semibold">
+            {errorMessage}
+          </div>
+        )}
+
         <!-- Table Listing of Tenders -->
         <div class="table-wrapper">
           <table class="table-data" aria-label="Registry of Active Tenders">
             <thead>
               <tr>
-                <th scope="col" class="w-1/6">NIT Ref No.</th>
+                <th scope="col" class="w-1/4">NIT Ref No.</th>
                 <th scope="col" class="w-2/5">Description of Work</th>
-                <th scope="col" class="w-1/6">Est. Bid Value</th>
+                <th scope="col" class="w-1/6">File Size</th>
                 <th scope="col" class="w-1/6">Closing Date</th>
                 <th scope="col" class="w-1/6">Tender Documents</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td class="font-semibold text-slate-900">NIT/121/JKSPDCL/2026</td>
-                <td>DPR, Engineering, and Construction of 15MW Grid-Connected Solar PV Plant in Jammu.</td>
-                <td class="font-medium text-slate-800">Rs. 75.0 Crores</td>
-                <td class="font-semibold text-orange-600">15-Aug-2026</td>
-                <td>
-                  <a href="#" class="inline-flex items-center gap-1 text-blue-700 hover:underline font-semibold" aria-label="Download Tender Document NIT 121 PDF 2.4 Megabytes">
-                    📄 SBD_NIT121.pdf <span class="text-[10px] text-slate-400 font-normal">(2.4 MB)</span>
-                  </a>
-                </td>
-              </tr>
-              <tr>
-                <td class="font-semibold text-slate-900">NIT/122/JKSPDCL/2026</td>
-                <td>Supply, Installation, and Commissioning of new Telemetry & SCADA automation systems for Baglihar HEP Stage-II (450MW).</td>
-                <td class="font-medium text-slate-800">Rs. 12.5 Crores</td>
-                <td class="font-semibold text-orange-600">22-Aug-2026</td>
-                <td>
-                  <a href="#" class="inline-flex items-center gap-1 text-blue-700 hover:underline font-semibold" aria-label="Download Tender Document NIT 122 PDF 1.8 Megabytes">
-                    📄 SCADA_NIT122.pdf <span class="text-[10px] text-slate-400 font-normal">(1.8 MB)</span>
-                  </a>
-                </td>
-              </tr>
-              <tr>
-                <td class="font-semibold text-slate-900">NIT/123/JKSPDCL/2026</td>
-                <td>Detailed appraisal and DPR consultancy services for the proposed 390MW Kirthai-I Hydroelectric Project.</td>
-                <td class="font-medium text-slate-800">Rs. 3.2 Crores</td>
-                <td class="font-semibold text-orange-600">30-Aug-2026</td>
-                <td>
-                  <a href="#" class="inline-flex items-center gap-1 text-blue-700 hover:underline font-semibold" aria-label="Download Tender Document NIT 123 PDF 3.1 Megabytes">
-                    📄 DPR_Kirthai123.pdf <span class="text-[10px] text-slate-400 font-normal">(3.1 MB)</span>
-                  </a>
-                </td>
-              </tr>
-              <tr>
-                <td class="font-semibold text-slate-900">NIT/124/JKSPDCL/2026</td>
-                <td>Renovation, modernization, and restoration works of the historic 4MW Mohra Hydroelectric Plant.</td>
-                <td class="font-medium text-slate-800">Rs. 45.0 Crores</td>
-                <td class="font-semibold text-orange-600">10-Sep-2026</td>
-                <td>
-                  <a href="#" class="inline-flex items-center gap-1 text-blue-700 hover:underline font-semibold" aria-label="Download Tender Document NIT 124 PDF 4.5 Megabytes">
-                    📄 Rehab_Mohra124.pdf <span class="text-[10px] text-slate-400 font-normal">(4.5 MB)</span>
-                  </a>
-                </td>
-              </tr>
+              {tenders.length === 0 && !errorMessage ? (
+                <tr>
+                  <td colspan="5" class="text-center text-slate-500 py-10 text-xs font-semibold">
+                    No active tenders found.
+                  </td>
+                </tr>
+              ) : (
+                tenders.map((t) => (
+                  <tr class="hover:bg-slate-50/80 transition-colors">
+                    <td class="font-semibold text-slate-900 font-mono text-xs">{t.referenceNo}</td>
+                    <td class="px-4 py-3.5 text-left">
+                      <div class="font-bold text-slate-800 text-sm leading-snug">{t.title}</div>
+                      {t.description && <div class="text-[10px] text-slate-500 mt-1 font-medium leading-relaxed">{t.description}</div>}
+                    </td>
+                    <td class="font-medium text-slate-700 text-xs whitespace-nowrap">
+                      {t.fileSizeBytes ? `${(t.fileSizeBytes / 1024).toFixed(0)} KB` : 'N/A'}
+                    </td>
+                    <td class="font-semibold text-orange-600 text-xs whitespace-nowrap">
+                      {new Date(t.closingDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    </td>
+                    <td class="whitespace-nowrap">
+                      <a href={t.documentUrl} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-[#0B4F9C] hover:underline font-bold text-xs" aria-label={`Download Tender Document for ${t.referenceNo}`}>
+                        📄 Download PDF
+                      </a>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

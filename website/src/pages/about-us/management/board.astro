@@ -1,5 +1,20 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
+
+let directors = [];
+let errorMessage = '';
+
+try {
+  const res = await fetch('http://localhost:3000/api/directors');
+  if (res.ok) {
+    directors = await res.json();
+    directors.sort((a, b) => a.sNo - b.sNo);
+  } else {
+    errorMessage = 'Failed to load board of directors details.';
+  }
+} catch (e) {
+  errorMessage = 'Failed to connect to the backend server.';
+}
 ---
 
 <Layout 
@@ -40,31 +55,30 @@ import Layout from '../../../layouts/Layout.astro';
         </div>
 
         <!-- Directors Grid -->
-        <!-- Directors Grid -->
+        {errorMessage && (
+          <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 text-xs font-semibold">
+            {errorMessage}
+          </div>
+        )}
+        
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="card-static flex flex-col justify-between">
-            <div>
-              <span class="text-[10px] text-[#0B4F9C] font-bold uppercase tracking-wider">Chairman</span>
-              <h3 class="font-extrabold text-[#0B4F9C] text-base mt-1">Shri Atal Dulloo (IAS)</h3>
-              <p class="text-xs text-gray-500 mt-1">Chief Secretary, Union Territory of J&K</p>
+          {directors.length === 0 && !errorMessage ? (
+            <div class="col-span-2 text-center py-10 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 text-sm font-medium">
+              No Board of Directors listed at the moment.
             </div>
-          </div>
-
-          <div class="card-static flex flex-col justify-between">
-            <div>
-              <span class="text-[10px] text-[#0B4F9C] font-bold uppercase tracking-wider">Managing Director</span>
-              <h3 class="font-extrabold text-[#0B4F9C] text-base mt-1">Shri Rahul Yadav (IAS)</h3>
-              <p class="text-xs text-gray-500 mt-1">Managing Director, JKSPDC</p>
-            </div>
-          </div>
-
-          <div class="card-static flex flex-col justify-between md:col-span-2">
-            <div>
-              <span class="text-[10px] text-[#0B4F9C] font-bold uppercase tracking-wider">Administrative Director</span>
-              <h3 class="font-extrabold text-[#0B4F9C] text-base mt-1">Shri Ashwani Kumar (IAS)</h3>
-              <p class="text-xs text-gray-500 mt-1">Financial Commissioner (Additional Chief Secretary), Power Development Department, UT of J&K</p>
-            </div>
-          </div>
+          ) : (
+            directors.map((dir) => (
+              <div class="group bg-white rounded-xl border border-slate-200 p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-all duration-200">
+                <div>
+                  <span class="text-[10px] text-[#0B4F9C] font-bold uppercase tracking-wider bg-[#EAF4FF] px-2 py-0.5 rounded border border-[#BDD7EE]/50 inline-block mb-2">
+                    {dir.role}
+                  </span>
+                  <h3 class="font-extrabold text-[#0B4F9C] text-base mt-1 group-hover:text-[#084A8F] transition-colors">{dir.name}</h3>
+                  <p class="text-xs text-slate-650 mt-1.5 leading-relaxed font-medium">{dir.position}</p>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </article>
 

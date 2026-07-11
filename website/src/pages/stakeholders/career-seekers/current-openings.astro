@@ -1,0 +1,118 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+
+let careers = [];
+let errorMessage = '';
+
+try {
+  const res = await fetch('http://localhost:3000/api/careers');
+  if (res.ok) {
+    careers = await res.json();
+    // Sort by publishDate descending
+    careers.sort((a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+  } else {
+    errorMessage = 'Failed to load recruitment listings.';
+  }
+} catch (e) {
+  errorMessage = 'Failed to connect to the backend server.';
+}
+---
+
+<Layout 
+  title="Current Openings - Careers" 
+  description="Career opportunities, recruitment advertisements, and vacancy updates from JKSPDC."
+>
+  <div class="space-y-6">
+    <!-- Breadcrumbs -->
+    <nav class="text-xs text-gray-500" aria-label="Breadcrumbs">
+      <ol class="flex gap-2">
+        <li><a href="/" class="hover:underline">Home</a></li>
+        <li>/</li>
+        <li><span class="text-gray-400">Stakeholders</span></li>
+        <li>/</li>
+        <li><span class="text-gray-400">Careers</span></li>
+        <li>/</li>
+        <li><span class="font-semibold text-[#0B4F9C]">Current Openings</span></li>
+      </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="border-b border-gray-200 pb-4">
+      <h2 class="text-3xl font-extrabold text-[#0B4F9C]">Current Openings</h2>
+      <p class="text-sm text-gray-600 mt-1">Join JKSPDC and contribute to the clean energy transition in Jammu &amp; Kashmir.</p>
+    </header>
+
+    <!-- Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Main Content -->
+      <article class="lg:col-span-2 space-y-6">
+        
+        {errorMessage && (
+          <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 text-xs font-semibold">
+            {errorMessage}
+          </div>
+        )}
+
+        <!-- Table Listing of Careers -->
+        <div class="table-wrapper">
+          <table class="table-data" aria-label="Recruitment Announcements List">
+            <thead>
+              <tr>
+                <th scope="col" class="w-1/4">Advt No.</th>
+                <th scope="col" class="w-2/5">Job Designation / Info</th>
+                <th scope="col" class="w-1/6">Status</th>
+                <th scope="col" class="w-1/6">Closing Date</th>
+                <th scope="col" class="w-1/6">Details / Forms</th>
+              </tr>
+            </thead>
+            <tbody>
+              {careers.length === 0 && !errorMessage ? (
+                <tr>
+                  <td colspan="5" class="text-center text-slate-500 py-10 text-xs font-semibold">
+                    No active career vacancies found.
+                  </td>
+                </tr>
+              ) : (
+                careers.map((c) => (
+                  <tr class="hover:bg-slate-50/80 transition-colors">
+                    <td class="font-semibold text-slate-900 font-mono text-xs">{c.advertisementNo}</td>
+                    <td class="px-4 py-3.5 text-left">
+                      <div class="font-bold text-slate-800 text-sm leading-snug">{c.title}</div>
+                      {c.description && <div class="text-[10px] text-slate-500 mt-1 font-medium leading-relaxed">{c.description}</div>}
+                    </td>
+                    <td>
+                      <span class={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border ${
+                        c.status === 'Active' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-slate-50 border-slate-200 text-slate-500'
+                      }`}>
+                        {c.status}
+                      </span>
+                    </td>
+                    <td class="font-semibold text-orange-650 text-xs whitespace-nowrap text-left">
+                      {new Date(c.closingDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    </td>
+                    <td class="whitespace-nowrap">
+                      <a href={c.documentUrl} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-[#0B4F9C] hover:underline font-bold text-xs" aria-label={`Download document for ${c.advertisementNo}`}>
+                        📄 View PDF <span class="text-[10px] text-slate-400 font-normal">({c.fileSizeBytes ? `${(c.fileSizeBytes / 1024).toFixed(0)} KB` : 'PDF'})</span>
+                      </a>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <!-- Sidebar -->
+      <aside class="space-y-4">
+        <div class="card-static">
+          <h3 class="font-bold text-gray-900 mb-2 border-b border-gray-100 pb-2">Careers Utilities</h3>
+          <ul class="flex flex-col gap-2 text-xs font-semibold text-[#0B4F9C]">
+            <li><a href="/media/downloads" class="hover:underline block py-1">&rarr; Downloads Booklet</a></li>
+            <li><a href="/about-us/explore/overview" class="hover:underline block py-1">&rarr; Organization Chart</a></li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+</Layout>

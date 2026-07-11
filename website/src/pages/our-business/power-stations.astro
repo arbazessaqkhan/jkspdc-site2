@@ -1,5 +1,19 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+
+let projects = [];
+let errorMessage = '';
+
+try {
+  const res = await fetch('http://localhost:3000/api/projects?status=Operational');
+  if (res.ok) {
+    projects = await res.json();
+  } else {
+    errorMessage = 'Failed to load operating power stations.';
+  }
+} catch (e) {
+  errorMessage = 'Failed to connect to the backend server.';
+}
 ---
 
 <Layout 
@@ -28,6 +42,13 @@ import Layout from '../../layouts/Layout.astro';
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <!-- Stations List -->
       <article class="lg:col-span-2 space-y-6">
+        
+        {errorMessage && (
+          <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 text-xs font-semibold">
+            {errorMessage}
+          </div>
+        )}
+
         <div class="table-wrapper">
           <table class="table-data" aria-label="Operating Power Stations List">
             <thead>
@@ -39,24 +60,22 @@ import Layout from '../../layouts/Layout.astro';
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td class="font-semibold text-gray-900">Baghlihar Hydroelectric Project</td>
-                <td>Run-of-River (Storage)</td>
-                <td>[Capacity Pending Approval]</td>
-                <td>Ramban / Chenab Basin</td>
-              </tr>
-              <tr>
-                <td class="font-semibold text-gray-900">Lower Jhelum HEP</td>
-                <td>Run-of-River</td>
-                <td>[Capacity Pending Approval]</td>
-                <td>Baramulla / Jhelum Basin</td>
-              </tr>
-              <tr>
-                <td class="font-semibold text-gray-900">Upper Sindh Hydel Project II</td>
-                <td>Run-of-River</td>
-                <td>[Capacity Pending Approval]</td>
-                <td>Ganderbal / Sindh Basin</td>
-              </tr>
+              {projects.length === 0 && !errorMessage ? (
+                <tr>
+                  <td colspan="4" class="text-center text-slate-500 py-10 text-xs font-semibold">
+                    No operating power stations found.
+                  </td>
+                </tr>
+              ) : (
+                projects.map((p) => (
+                  <tr class="hover:bg-slate-50/80 transition-colors">
+                    <td class="font-semibold text-gray-900 text-left">{p.name}</td>
+                    <td class="text-left">{p.type}</td>
+                    <td class="font-semibold text-slate-800 text-left">{p.capacityMw} MW</td>
+                    <td class="text-left">{p.location} {p.basin ? `/ ${p.basin}` : ''}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

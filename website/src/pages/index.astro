@@ -2,6 +2,58 @@
 import Layout from '../layouts/Layout.astro';
 import Icon from '../components/Icon.astro';
 
+let directors = [];
+let tenders = [];
+let projects = [];
+
+try {
+  // Fetch directors
+  const dirRes = await fetch('http://localhost:3000/api/directors');
+  if (dirRes.ok) {
+    directors = await dirRes.json();
+    directors.sort((a, b) => a.sNo - b.sNo);
+    // Limit to top 4 for the homepage layout
+    directors = directors.slice(0, 4);
+  }
+
+  // Fetch tenders
+  const tenderRes = await fetch('http://localhost:3000/api/tenders');
+  if (tenderRes.ok) {
+    tenders = await tenderRes.json();
+    tenders.sort((a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+    tenders = tenders.slice(0, 5);
+  }
+
+  // Fetch projects
+  const projRes = await fetch('http://localhost:3000/api/projects');
+  if (projRes.ok) {
+    projects = await projRes.json();
+  }
+} catch (e) {
+  console.error('Failed to sync index.astro from backend:', e);
+}
+
+const photoMap = {
+  "Shri Manoj Sinha": "/dignitaries/manoj_sinha.png",
+  "Shri Omar Abdullah": "/dignitaries/omar_abdullah.png",
+  "Shri Ashwani Kumar (IAS)": "/dignitaries/ashwani_kumar.png",
+  "Shri Ashwani Kumar": "/dignitaries/ashwani_kumar.png",
+  "Shri Rahul Yadav (IAS)": "/dignitaries/rahul_yadav.jpg",
+  "Shri Rahul Yadav": "/dignitaries/rahul_yadav.jpg",
+  "Sh. Satish Chandra, IAS": "/dignitaries/manoj_sinha.png", // fallback or default
+  "Sh. Vikrant Gupta": "/dignitaries/ashwani_kumar.png",
+  "Smt. Anjali Dev": "/logo.png"
+};
+
+const routeMap = {
+  "Shri Manoj Sinha": "/dignitaries/manoj-sinha",
+  "Shri Omar Abdullah": "/dignitaries/omar-abdullah",
+  "Shri Ashwani Kumar (IAS)": "/dignitaries/ashwani-kumar",
+  "Shri Ashwani Kumar": "/dignitaries/ashwani-kumar",
+  "Shri Rahul Yadav (IAS)": "/dignitaries/rahul-yadav",
+  "Shri Rahul Yadav": "/dignitaries/rahul-yadav"
+};
+
 const heroSlides = [
   { id: 0, badge: "Powering Jammu & Kashmir since 1995", title: "Baglihar Hydroelectric Project", desc: "A 900 MW run-of-the-river hydroelectric plant on the Chenab River — one of India's most strategic power assets.", stat: "900", statUnit: "MW", statLabel: "Installed Capacity", statPct: 80, img: "/slider1.jpg", ctaText: "Explore Project", ctaHref: "/our-business/power-stations" },
   { id: 1, badge: "Green Energy Initiative", title: "Uri Hydroelectric Power Station", desc: "The largest hydro project in J&K with 480 MW capacity, contributing massively to the northern grid.", stat: "480", statUnit: "MW", statLabel: "Installed Capacity", statPct: 55, img: "/slider2.jpg", ctaText: "View Details", ctaHref: "/our-business/power-stations" },
@@ -20,35 +72,6 @@ const quickLinks = [
   { icon: "newspaper", label: "Media Centre", desc: "Press & announcements", href: "/media/press-releases" },
   { icon: "download", label: "Downloads", desc: "Documents & forms", href: "/stakeholders/vendors/tender-bids" },
   { icon: "eye", label: "Vigilance", desc: "Integrity & compliance", href: "/about-us/explore/ethics-code" },
-];
-
-const projects = [
-  { name: "Baglihar Stage I & II", river: "Chenab", capacity: 900, district: "Ramban", status: "Operational", type: "Hydro", year: 2008 },
-  { name: "Uri Stage I", river: "Jhelum", capacity: 480, district: "Baramulla", status: "Operational", type: "Hydro", year: 1997 },
-  { name: "Uri Stage II", river: "Jhelum", capacity: 240, district: "Baramulla", status: "Operational", type: "Hydro", year: 2014 },
-  { name: "Salal Stage I & II", river: "Chenab", capacity: 345, district: "Reasi", status: "Operational", type: "Hydro", year: 1987 },
-  { name: "Dulhasti", river: "Chenab", capacity: 390, district: "Kishtwar", status: "Operational", type: "Hydro", year: 2007 },
-  { name: "Lower Jhelum", river: "Jhelum", capacity: 105, district: "Baramulla", status: "Operational", type: "Hydro", year: 2015 },
-  { name: "Chutak", river: "Suru", capacity: 44, district: "Kargil", status: "Operational", type: "Hydro", year: 2012 },
-  { name: "Nimmo Bazgo", river: "Indus", capacity: 45, district: "Leh", status: "Operational", type: "Hydro", year: 2013 },
-  { name: "Pakal Dul", river: "Marusudar", capacity: 1000, district: "Kishtwar", status: "Under Construction", type: "Hydro", year: 2026 },
-  { name: "Kiru", river: "Chenab", capacity: 624, district: "Kishtwar", status: "Under Construction", type: "Hydro", year: 2025 },
-  { name: "Kwar", river: "Chenab", capacity: 540, district: "Kishtwar", status: "Under Construction", type: "Hydro", year: 2026 },
-  { name: "Ratle", river: "Chenab", capacity: 850, district: "Kishtwar", status: "Under Construction", type: "Hydro", year: 2026 },
-  { name: "Sawalkot", river: "Chenab", capacity: 1856, district: "Ramban", status: "Upcoming", type: "Hydro", year: 2030 },
-  { name: "Bursar", river: "Marusudar", capacity: 800, district: "Kishtwar", status: "Upcoming", type: "Hydro", year: 2031 },
-  { name: "Kirthai II", river: "Chenab", capacity: 930, district: "Kishtwar", status: "Upcoming", type: "Hydro", year: 2029 },
-  { name: "Ladakh Solar Park I", river: "—", capacity: 100, district: "Leh", status: "Under Construction", type: "Solar", year: 2025 },
-  { name: "Jammu Solar Cluster", river: "—", capacity: 200, district: "Jammu", status: "Upcoming", type: "Solar", year: 2026 },
-];
-
-const tenders = [
-  { nit: "NIT-521/2025", title: "Civil Works — Baglihar Stage II Refurbishment", dept: "Civil", value: "Rs. 42.5 Cr", closing: "28 Jun 2025", status: "Open" },
-  { nit: "NIT-518/2025", title: "Supply of Transformers for Ratle HEP", dept: "Electrical", value: "Rs. 87.3 Cr", closing: "15 Jul 2025", status: "Open" },
-  { nit: "NIT-515/2025", title: "Security Services for Srinagar HQ (3 Years)", dept: "Admin", value: "Rs. 6.1 Cr", closing: "05 Jul 2025", status: "Open" },
-  { nit: "NIT-509/2025", title: "Pakal Dul HEP — E&M Equipment Supply", dept: "Electrical", value: "Rs. 230 Cr", closing: "20 Aug 2025", status: "Open" },
-  { nit: "NIT-506/2025", title: "IT Infrastructure Upgrade — Datacenter", dept: "IT", value: "Rs. 12.8 Cr", closing: "01 Jul 2025", status: "Closing Soon" },
-  { nit: "NIT-501/2025", title: "EPC for Jammu Solar Cluster — Phase I", dept: "Renewable", value: "Rs. 165 Cr", closing: "30 Sep 2025", status: "Open" },
 ];
 
 const corpStats = [
@@ -131,26 +154,36 @@ const corpStats = [
         <div class="px-8 md:px-12 py-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
 
           <!-- Dignitary Card Pattern (shared styles via inline classes) -->
-          {[
-            { img: "/dignitaries/manoj_sinha.png", name: "Shri Manoj Sinha", role: "Lieutenant Governor", org: "UT of Jammu and Kashmir", href: "/dignitaries/manoj-sinha" },
-            { img: "/dignitaries/omar_abdullah.png", name: "Shri Omar Abdullah", role: "Hon'ble Chief Minister", org: "Power Development Dept, UT of J&K", href: "/dignitaries/omar-abdullah" },
-            { img: "/dignitaries/ashwani_kumar.png", name: "Shri Ashwani Kumar (IAS)", role: "Financial Commissioner (ACS)", org: "Power Development Dept, UT of J&K", href: "/dignitaries/ashwani-kumar" },
-            { img: "/dignitaries/rahul_yadav.jpg", name: "Shri Rahul Yadav (IAS)", role: "Managing Director", org: "JKSPDC", href: "/dignitaries/rahul-yadav" },
-          ].map(d => (
-            <div class="group bg-white rounded-xl border border-slate-100 shadow-sm p-6 flex flex-col items-center text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-              <div class="w-28 h-28 rounded-full overflow-hidden bg-slate-100 border-[3px] border-[#0B4F9C]/20 shadow-md flex-shrink-0">
-                <img src={d.img} alt={d.name} width="112" height="112" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" />
-              </div>
-              <div class="mt-4 flex-1 flex flex-col items-center">
-                <h3 class="font-bold text-slate-900 text-sm leading-snug group-hover:text-[#0B4F9C] transition-colors">{d.name}</h3>
-                <p class="text-[10px] text-[#0B4F9C] font-extrabold uppercase tracking-wide mt-2">{d.role}</p>
-                <p class="text-[10px] text-slate-400 font-medium mt-1 leading-snug">{d.org}</p>
-              </div>
-              <a href={d.href} class="mt-5 w-full inline-flex items-center justify-center py-2 border border-slate-200 hover:border-[#0B4F9C] text-[11px] font-bold text-slate-600 hover:text-white hover:bg-[#0B4F9C] rounded-lg transition-all duration-150">
-                Profile Details
-              </a>
+          {directors.length === 0 ? (
+            <div class="col-span-4 text-center py-10 bg-white/5 border border-white/10 rounded-xl text-slate-350 text-sm font-semibold">
+              No administrative board members listed.
             </div>
-          ))}
+          ) : (
+            directors.map(d => {
+              const profileHref = routeMap[d.name] || "/about-us/management/board";
+              return (
+                <div class="group bg-white rounded-xl border border-slate-100 shadow-sm p-6 flex flex-col items-center text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                  <div class="w-28 h-28 rounded-full overflow-hidden bg-slate-100 border-[3px] border-[#0B4F9C]/20 shadow-md flex items-center justify-center flex-shrink-0">
+                    {photoMap[d.name] ? (
+                      <img src={photoMap[d.name]} alt={d.name} width="112" height="112" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" />
+                    ) : (
+                      <div class="w-full h-full bg-gradient-to-br from-[#EAF4FF] to-[#BAE6FD] text-[#0B4F9C] flex items-center justify-center font-black text-2xl uppercase select-none">
+                        {d.name.replace(/^(Shri|Smt|Dr|Mr|Mrs|Sh\.|Smt\.)\s+/i, '').substring(0, 2)}
+                      </div>
+                    )}
+                  </div>
+                  <div class="mt-4 flex-1 flex flex-col items-center">
+                    <h3 class="font-bold text-slate-900 text-sm leading-snug group-hover:text-[#0B4F9C] transition-colors">{d.name}</h3>
+                    <p class="text-[10px] text-[#0B4F9C] font-extrabold uppercase tracking-wide mt-2">{d.role}</p>
+                    <p class="text-[10px] text-slate-450 font-semibold mt-1 leading-snug">{d.position}</p>
+                  </div>
+                  <a href={profileHref} class="mt-5 w-full inline-flex items-center justify-center py-2 border border-slate-200 hover:border-[#0B4F9C] text-[11px] font-bold text-slate-600 hover:text-white hover:bg-[#0B4F9C] rounded-lg transition-all duration-150">
+                    Profile Details
+                  </a>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
     </section>
@@ -232,12 +265,12 @@ const corpStats = [
               <div class="flex items-start justify-between mb-4">
                 <div class="flex-1 min-w-0 pr-3">
                   <div class="font-bold text-slate-900 text-sm leading-snug">{p.name}</div>
-                  <div class="text-xs text-slate-400 mt-1">{p.district} — {p.river} River</div>
+                  <div class="text-xs text-slate-400 mt-1">{p.location || '—'} — {p.basin || '—'} Basin</div>
                 </div>
                 <span class={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full whitespace-nowrap flex-shrink-0 ${p.status === 'Operational' ? 'bg-emerald-100 text-emerald-700' : p.status === 'Under Construction' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600'}`}>{p.status}</span>
               </div>
               <div class="flex items-end gap-1.5 mb-4">
-                <span class="text-3xl font-extrabold text-[#0B4F9C] leading-none tabular-nums">{p.capacity}</span>
+                <span class="text-3xl font-extrabold text-[#0B4F9C] leading-none tabular-nums">{p.capacityMw || 0}</span>
                 <span class="text-sm text-[#0B4F9C] font-semibold mb-0.5">MW</span>
               </div>
               <div class="flex items-center justify-between text-xs text-slate-500">
@@ -245,8 +278,8 @@ const corpStats = [
                   <Icon name={p.type === 'Solar' ? 'sun' : 'droplets'} size={12} strokeWidth={2} />
                   {p.type}
                 </span>
-                <span class="text-slate-400">Est. {p.year}</span>
-                <a href="/our-business/power-stations" class="text-[#0B4F9C] hover:underline font-semibold">Details &rarr;</a>
+                <span class="text-slate-400">Est. {p.yearOfCommissioning || '—'}</span>
+                <a href={p.status === 'Operational' ? '/our-business/power-stations' : p.status === 'Under Construction' ? '/our-business/construction' : '/our-business/under-development'} class="text-[#0B4F9C] hover:underline font-semibold">Details &rarr;</a>
               </div>
             </div>
           ))}
@@ -277,27 +310,50 @@ const corpStats = [
         <table class="w-full text-sm">
           <thead class="bg-[#D6EAF8] text-[#1A5276] text-[11px] uppercase tracking-wider border-b border-[#BDD7EE]">
             <tr>
-              <th class="px-6 py-3.5 text-left font-semibold">NIT No.</th>
+              <th class="px-6 py-3.5 text-left font-semibold">NIT Ref No.</th>
               <th class="px-6 py-3.5 text-left font-semibold">Description</th>
-              <th class="px-6 py-3.5 text-left font-semibold hidden md:table-cell">Dept.</th>
-              <th class="px-6 py-3.5 text-left font-semibold hidden lg:table-cell">Est. Value</th>
+              <th class="px-6 py-3.5 text-left font-semibold hidden md:table-cell">File Size</th>
               <th class="px-6 py-3.5 text-left font-semibold">Closing</th>
               <th class="px-6 py-3.5 text-left font-semibold">Status</th>
               <th class="px-6 py-3.5"></th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
-            {tenders.map((t) => (
-              <tr class="hover:bg-[#EAF4FF]/50 transition-colors">
-                <td class="px-6 py-4 font-mono font-semibold text-[#0B4F9C] text-xs whitespace-nowrap">{t.nit}</td>
-                <td class="px-6 py-4 text-slate-800 font-medium max-w-xs text-sm">{t.title}</td>
-                <td class="px-6 py-4 text-slate-500 text-xs hidden md:table-cell">{t.dept}</td>
-                <td class="px-6 py-4 text-slate-700 font-semibold text-xs hidden lg:table-cell">{t.value}</td>
-                <td class="px-6 py-4 text-slate-500 text-xs whitespace-nowrap">{t.closing}</td>
-                <td class="px-6 py-4"><span class={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${t.status === 'Open' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>{t.status}</span></td>
-                <td class="px-6 py-4"><a href="/stakeholders/vendors/tender-bids" class="text-[#0B4F9C] hover:underline font-semibold text-xs whitespace-nowrap">Bid Docs &rarr;</a></td>
+            {tenders.length === 0 ? (
+              <tr>
+                <td colspan="6" class="text-center text-slate-500 py-10 text-xs font-semibold">
+                  No active tenders found.
+                </td>
               </tr>
-            ))}
+            ) : (
+              tenders.map((t) => (
+                <tr class="hover:bg-[#EAF4FF]/50 transition-colors">
+                  <td class="px-6 py-4 font-mono font-semibold text-[#0B4F9C] text-xs whitespace-nowrap">{t.referenceNo}</td>
+                  <td class="px-6 py-4 text-slate-850 font-medium max-w-xs text-sm text-left">
+                    <div class="font-bold text-slate-800">{t.title}</div>
+                    {t.description && <div class="text-[10px] text-slate-500 mt-0.5 leading-snug">{t.description}</div>}
+                  </td>
+                  <td class="px-6 py-4 text-slate-500 text-xs hidden md:table-cell whitespace-nowrap">
+                    {t.fileSizeBytes ? `${(t.fileSizeBytes / 1024).toFixed(0)} KB` : 'N/A'}
+                  </td>
+                  <td class="px-6 py-4 text-slate-500 text-xs whitespace-nowrap">
+                    {new Date(t.closingDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${
+                      t.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'
+                    }`}>
+                      {t.status}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <a href={t.documentUrl} target="_blank" rel="noopener noreferrer" class="text-[#0B4F9C] hover:underline font-semibold text-xs whitespace-nowrap">
+                      Download &rarr;
+                    </a>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
