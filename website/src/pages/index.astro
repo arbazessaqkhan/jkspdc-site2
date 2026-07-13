@@ -12,8 +12,6 @@ try {
   if (dirRes.ok) {
     directors = await dirRes.json();
     directors.sort((a, b) => a.sNo - b.sNo);
-    // Limit to top 4 for the homepage layout
-    directors = directors.slice(0, 4);
   }
 
   // Fetch tenders
@@ -151,11 +149,16 @@ const corpStats = [
 
       <div class="bg-gradient-to-br from-[#083B73] to-[#0A2E5C] rounded-2xl border border-white/10 shadow-xl text-white overflow-hidden">
         <!-- Cards Grid -->
-        <div class="px-8 md:px-12 py-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div class={`px-8 md:px-12 py-10 grid gap-5 ${
+          directors.length === 1 ? 'grid-cols-1 max-w-sm mx-auto' :
+          directors.length === 2 ? 'grid-cols-1 sm:grid-cols-2' :
+          directors.length === 3 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' :
+          'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
+        }`}>
 
           <!-- Dignitary Card Pattern (shared styles via inline classes) -->
           {directors.length === 0 ? (
-            <div class="col-span-4 text-center py-10 bg-white/5 border border-white/10 rounded-xl text-slate-350 text-sm font-semibold">
+            <div class="col-span-full text-center py-10 bg-white/5 border border-white/10 rounded-xl text-slate-350 text-sm font-semibold">
               No administrative board members listed.
             </div>
           ) : (
