@@ -1,24 +1,31 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Req } from '@nestjs/common';
 import { TendersService } from './tenders.service';
 import { AuthGuard } from '../auth/auth.guard';
+import { CreateTenderDto, UpdateTenderDto } from './tenders.dto';
+import { Tender } from '@prisma/client';
+import { Request } from 'express';
+
+interface AuthenticatedRequest extends Request {
+  user: { userId: string };
+}
 
 @Controller('tenders')
 export class TendersController {
   constructor(private readonly tendersService: TendersService) {}
 
   @Get()
-  async findAll() {
+  async findAll(): Promise<Tender[]> {
     return this.tendersService.findAll();
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string): Promise<Tender> {
     return this.tendersService.findOne(id);
   }
 
   @Post()
   @UseGuards(AuthGuard)
-  async create(@Body() data: any, @Req() req: any) {
+  async create(@Body() data: CreateTenderDto, @Req() req: AuthenticatedRequest): Promise<Tender> {
     const user = req.user;
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
     const ua = req.headers['user-agent'] || 'unknown';
@@ -27,7 +34,7 @@ export class TendersController {
 
   @Put(':id')
   @UseGuards(AuthGuard)
-  async update(@Param('id') id: string, @Body() data: any, @Req() req: any) {
+  async update(@Param('id') id: string, @Body() data: UpdateTenderDto, @Req() req: AuthenticatedRequest): Promise<Tender> {
     const user = req.user;
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
     const ua = req.headers['user-agent'] || 'unknown';
@@ -36,7 +43,7 @@ export class TendersController {
 
   @Delete(':id')
   @UseGuards(AuthGuard)
-  async remove(@Param('id') id: string, @Req() req: any) {
+  async remove(@Param('id') id: string, @Req() req: AuthenticatedRequest): Promise<{ success: boolean }> {
     const user = req.user;
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
     const ua = req.headers['user-agent'] || 'unknown';

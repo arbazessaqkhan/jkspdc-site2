@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
+import { CreateTenderDto, UpdateTenderDto } from './tenders.dto';
+import { Tender } from '@prisma/client';
 
 @Injectable()
 export class TendersService {
@@ -9,13 +11,13 @@ export class TendersService {
     private readonly auditLogsService: AuditLogsService,
   ) {}
 
-  async findAll() {
+  async findAll(): Promise<Tender[]> {
     return this.prisma.tender.findMany({
       orderBy: { publishDate: 'desc' },
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<Tender> {
     const tender = await this.prisma.tender.findUnique({ where: { id } });
     if (!tender) {
       throw new NotFoundException(`Tender with ID ${id} not found`);
@@ -23,8 +25,8 @@ export class TendersService {
     return tender;
   }
 
-  async create(data: any, user: any, ip: string, ua: string) {
-    const { referenceNo, title, description, documentType, workCategory, locationTag, closingDate, bidOpeningDate, documentUrl, fileSizeBytes, status, parentTenderId } = data;
+  async create(data: CreateTenderDto, user: { userId: string }, ip: string, ua: string): Promise<Tender> {
+    const { referenceNo, title, description, documentType, workCategory, locationTag, closingDate, bidOpeningDate, documentUrl, fileSizeBytes, status, corrigendums } = data;
     if (!referenceNo || !title || !documentUrl) {
       throw new Error('Missing required fields');
     }
@@ -40,9 +42,9 @@ export class TendersService {
         closingDate: closingDate ? new Date(closingDate) : null,
         bidOpeningDate: bidOpeningDate ? new Date(bidOpeningDate) : null,
         documentUrl,
-        fileSizeBytes: fileSizeBytes ? parseInt(fileSizeBytes, 10) : 0,
+        fileSizeBytes: fileSizeBytes ? parseInt(fileSizeBytes.toString(), 10) : 0,
         status: status || 'Active',
-        parentTenderId: parentTenderId || null,
+        corrigendums: corrigendums ? JSON.parse(JSON.stringify(corrigendums)) : [],
       },
     });
 
@@ -57,7 +59,7 @@ export class TendersService {
     return tender;
   }
 
-  async update(id: string, data: any, user: any, ip: string, ua: string) {
+  async update(id: string, data: UpdateTenderDto, user: { userId: string }, ip: string, ua: string): Promise<Tender> {
     await this.findOne(id);
     
     const tender = await this.prisma.tender.update({
@@ -72,9 +74,9 @@ export class TendersService {
         closingDate: data.closingDate ? new Date(data.closingDate) : null,
         bidOpeningDate: data.bidOpeningDate ? new Date(data.bidOpeningDate) : null,
         documentUrl: data.documentUrl,
-        fileSizeBytes: data.fileSizeBytes !== undefined ? parseInt(data.fileSizeBytes, 10) : undefined,
+        fileSizeBytes: data.fileSizeBytes !== undefined ? parseInt(data.fileSizeBytes.toString(), 10) : undefined,
         status: data.status,
-        parentTenderId: data.parentTenderId || null,
+        corrigendums: data.corrigendums ? JSON.parse(JSON.stringify(data.corrigendums)) : undefined,
       },
     });
 
@@ -89,7 +91,7 @@ export class TendersService {
     return tender;
   }
 
-  async remove(id: string, user: any, ip: string, ua: string) {
+  async remove(id: string, user: { userId: string }, ip: string, ua: string): Promise<{ success: boolean }> {
     const tender = await this.findOne(id);
     await this.prisma.tender.delete({ where: { id } });
 

@@ -16,13 +16,8 @@ try {
     if (res.ok) {
       tender = await res.json();
       
-      // Fetch list to filter corrigendums
-      const allRes = await fetch('http://localhost:3000/api/tenders');
-      if (allRes.ok) {
-        const list = await allRes.json();
-        corrigendums = list.filter(t => t.documentType === 'CORRIGENDUM' && t.parentTenderId === id);
-        corrigendums.sort((a, b) => new Date(a.publishDate).getTime() - new Date(b.publishDate).getTime());
-      }
+      corrigendums = tender.corrigendums && Array.isArray(tender.corrigendums) ? [...tender.corrigendums] : [];
+      corrigendums.sort((a, b) => new Date(a.publishDate).getTime() - new Date(b.publishDate).getTime());
     } else {
       errorMessage = 'Tender details not found.';
     }
@@ -185,14 +180,26 @@ const formatSize = (bytes: number) => {
           ) : (
             <div class="space-y-3">
               {corrigendums.map((corr, idx) => (
-                <div class="bg-amber-50/40 border border-amber-200/70 rounded-xl p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm hover:shadow-md transition-all">
+                <div 
+                  id={`corrigendum-${corr.id}`}
+                  class="bg-amber-50/40 border border-amber-200/70 rounded-xl p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm hover:shadow-md transition-all duration-300 scroll-mt-24 corrigendum-card"
+                >
                   <div class="space-y-1">
                     <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[9px] font-bold uppercase font-mono border border-amber-200">
                       Corrigendum-{idx + 1}
                     </span>
                     <h4 class="font-bold text-slate-800 text-xs mt-1 leading-snug">{corr.title}</h4>
-                    {corr.description && <p class="text-[11px] text-slate-500 leading-relaxed font-medium mt-1">{corr.description}</p>}
-                    <p class="text-[10px] text-slate-400 font-semibold font-mono mt-1">Uploaded: {formatDate(corr.publishDate)}</p>
+                    {corr.extendedClosingDate && (
+                      <p class="text-[11px] text-slate-650 font-semibold mt-1">
+                        Extended Closing Date: <span class="text-red-650 font-bold">{formatDate(corr.extendedClosingDate)}</span>
+                      </p>
+                    )}
+                    {corr.extendedBidOpeningDate && (
+                      <p class="text-[11px] text-slate-650 font-semibold mt-0.5">
+                        Extended Bid Opening Date: <span class="text-red-650 font-bold">{formatDate(corr.extendedBidOpeningDate)}</span>
+                      </p>
+                    )}
+                    <p class="text-[10px] text-slate-450 font-semibold font-mono mt-1">Uploaded: {formatDate(corr.publishDate)}</p>
                   </div>
                   <div class="flex-shrink-0">
                     <a 
@@ -214,4 +221,30 @@ const formatSize = (bytes: number) => {
       </article>
     )}
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const hash = window.location.hash;
+      if (hash && hash.startsWith('#corrigendum-')) {
+        const targetId = hash.substring(1);
+        const element = document.getElementById(targetId);
+        if (element) {
+          setTimeout(() => {
+            // Scroll into view
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Highlight effect
+            element.classList.remove('bg-amber-50/40', 'border-amber-200/70');
+            element.classList.add('bg-yellow-50', 'border-yellow-400', 'ring-2', 'ring-yellow-300');
+            
+            // Reset highlight style after 3 seconds
+            setTimeout(() => {
+              element.classList.remove('bg-yellow-50', 'border-yellow-400', 'ring-2', 'ring-yellow-300');
+              element.classList.add('bg-amber-50/40', 'border-amber-200/70');
+            }, 3000);
+          }, 300);
+        }
+      }
+    });
+  </script>
 </Layout>

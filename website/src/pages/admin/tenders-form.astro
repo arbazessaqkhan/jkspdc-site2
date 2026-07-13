@@ -26,20 +26,8 @@ let tenderData = {
   documentUrl: '',
   fileSizeBytes: '',
   status: 'Active',
-  parentTenderId: '',
+  corrigendums: [] as any[],
 };
-
-// Fetch existing NIT/NIO tenders for parent dropdown
-let parentTenders = [];
-try {
-  const pRes = await fetch('http://localhost:3000/api/tenders');
-  if (pRes.ok) {
-    const list = await pRes.json();
-    parentTenders = list.filter(t => (t.documentType === 'NIT' || t.documentType === 'NIO') && t.id !== editId);
-  }
-} catch (e) {
-  console.error('Error fetching parent tenders:', e);
-}
 
 // Fetch data if editing
 if (editId) {
@@ -60,7 +48,7 @@ if (editId) {
         documentUrl: data.documentUrl || '',
         fileSizeBytes: data.fileSizeBytes !== null ? data.fileSizeBytes.toString() : '',
         status: data.status || 'Active',
-        parentTenderId: data.parentTenderId || '',
+        corrigendums: data.corrigendums || [],
       };
     } else {
       errorMessage = 'Could not load tender details.';
@@ -87,7 +75,13 @@ if (Astro.request.method === 'POST') {
     const documentUrl = formData.get('documentUrl')?.toString();
     const fileSizeBytes = formData.get('fileSizeBytes')?.toString();
     const status = formData.get('status')?.toString();
-    const parentTenderId = formData.get('parentTenderId')?.toString();
+    const corrigendumsRaw = formData.get('corrigendums')?.toString() || '[]';
+    let corrigendums = [];
+    try {
+      corrigendums = JSON.parse(corrigendumsRaw);
+    } catch (e) {
+      console.error('Failed to parse corrigendums:', e);
+    }
 
     // Preserve values
     tenderData = {
@@ -103,7 +97,7 @@ if (Astro.request.method === 'POST') {
       documentUrl: documentUrl || '',
       fileSizeBytes: fileSizeBytes || '',
       status: status || 'Active',
-      parentTenderId: parentTenderId || '',
+      corrigendums,
     };
 
     if (!referenceNo || !title || !documentUrl) {
@@ -121,7 +115,7 @@ if (Astro.request.method === 'POST') {
         documentUrl,
         fileSizeBytes: fileSizeBytes ? parseInt(fileSizeBytes, 10) : 0,
         status,
-        parentTenderId: parentTenderId || null,
+        corrigendums,
       };
 
       const url = id 
@@ -196,7 +190,6 @@ if (Astro.request.method === 'POST') {
             <select name="documentType" id="documentType" class="form-select text-xs" required>
               <option value="NIT" selected={tenderData.documentType === 'NIT'}>Notice Inviting Tender (NIT)</option>
               <option value="NIO" selected={tenderData.documentType === 'NIO'}>Notice Inviting Offers (NIO)</option>
-              <option value="CORRIGENDUM" selected={tenderData.documentType === 'CORRIGENDUM'}>Tender Corrigendum / Addendum</option>
               <option value="CONTRACT_AWARD" selected={tenderData.documentType === 'CONTRACT_AWARD'}>Award of Tender/Contract</option>
               <option value="BANNED_FIRM" selected={tenderData.documentType === 'BANNED_FIRM'}>List of Banned Firms</option>
             </select>
@@ -233,18 +226,6 @@ if (Astro.request.method === 'POST') {
           <div class="form-group flex flex-col gap-1.5">
             <label for="bidOpeningDate" class="text-xs font-bold text-slate-700">Bid Opening Date</label>
             <input type="date" name="bidOpeningDate" id="bidOpeningDate" value={tenderData.bidOpeningDate} class="form-input text-xs" />
-          </div>
-
-          <div class="form-group flex flex-col gap-1.5 hidden" id="parent-tender-group">
-            <label for="parentTenderId" class="text-xs font-bold text-slate-700">Parent Tender <span class="text-red-500">*</span></label>
-            <select name="parentTenderId" id="parentTenderId" class="form-select text-xs">
-              <option value="">-- Select Parent Tender --</option>
-              {parentTenders.map((t) => (
-                <option value={t.id} selected={tenderData.parentTenderId === t.id}>
-                  [{t.referenceNo}] {t.title}
-                </option>
-              ))}
-            </select>
           </div>
 
           <div class="form-group flex flex-col gap-1.5">
@@ -289,6 +270,63 @@ if (Astro.request.method === 'POST') {
         </div>
       </div>
 
+      <input type="hidden" name="corrigendums" id="corrigendums-input" value={JSON.stringify(tenderData.corrigendums)} />
+
+      <!-- Section: Corrigendums -->
+      <div class="border-t border-slate-200 pt-6 mt-2">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-2 mb-4">
+          <h3 class="text-xs font-bold text-[#0B4F9C] uppercase tracking-wider">Corrigendums &amp; Amendments</h3>
+          <button type="button" id="btn-show-add-corr" class="px-2.5 py-1.5 border border-[#0B4F9C] text-[#0B4F9C] hover:bg-[#0B4F9C] hover:text-white rounded text-[11px] font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+            + Add Corrigendum / Amendment
+          </button>
+        </div>
+        
+        <!-- List of existing corrigendums -->
+        <div id="corrigendums-list" class="space-y-3 mb-6">
+          <!-- Dynamically populated by JS -->
+        </div>
+
+        <!-- Add corrigendum inline form (hidden by default) -->
+        <div id="corr-add-form" class="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-4 hidden">
+          <div class="flex items-center justify-between border-b border-slate-200 pb-1.5 mb-2">
+            <h4 class="text-xs font-bold text-slate-700">Add New Corrigendum</h4>
+            <button type="button" id="btn-cancel-add-corr" class="text-[10px] font-bold text-slate-400 hover:text-red-500 cursor-pointer">
+              Cancel
+            </button>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-group flex flex-col gap-1.5 md:col-span-2">
+              <label for="corr-title" class="text-xs font-bold text-slate-650">Corrigendum Title / Details</label>
+              <input type="text" id="corr-title" class="form-input text-xs" placeholder="e.g. Corrigendum-I: Extension of time for submission" />
+            </div>
+
+            <div class="form-group flex flex-col gap-1.5">
+              <label for="corr-extendedClosing" class="text-xs font-bold text-slate-650">Extended Closing Date (Optional)</label>
+              <input type="date" id="corr-extendedClosing" class="form-input text-xs" />
+            </div>
+
+            <div class="form-group flex flex-col gap-1.5">
+              <label for="corr-extendedOpening" class="text-xs font-bold text-slate-650">Extended Bid Opening Date (Optional)</label>
+              <input type="date" id="corr-extendedOpening" class="form-input text-xs" />
+            </div>
+
+            <div class="form-group flex flex-col gap-1.5 md:col-span-2">
+              <label class="text-xs font-bold text-slate-650">Attach Corrigendum File</label>
+              <div id="corr-upload-container" class="border border-dashed border-slate-300 hover:border-blue-400 rounded-lg p-4 bg-white flex flex-col items-center justify-center gap-1.5 hover:bg-blue-50/10 transition-all cursor-pointer relative">
+                <input type="file" id="corr-file-uploader" class="absolute inset-0 opacity-0 cursor-pointer" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" />
+                <Icon name="upload" size={16} class="text-slate-400" />
+                <span class="text-xs text-slate-500 font-semibold" id="corr-upload-status-text">Click to choose corrigendum file</span>
+              </div>
+              <input type="hidden" id="corr-file-url" />
+              <input type="hidden" id="corr-file-size" />
+            </div>
+          </div>
+          <button type="button" id="btn-add-corr" class="btn-primary text-xs py-1.5 px-3 self-start cursor-pointer mt-2">
+            Confirm Add
+          </button>
+        </div>
+      </div>
+
       <!-- Section: Descriptions -->
       <div class="flex flex-col gap-1.5">
         <label for="description" class="text-xs font-bold text-slate-700">Detailed Description / Salient Highlights</label>
@@ -314,30 +352,139 @@ if (Astro.request.method === 'POST') {
     const documentUrlInput = document.getElementById('documentUrl');
     const fileSizeBytesInput = document.getElementById('fileSizeBytes');
     const uploadContainer = document.getElementById('upload-container');
+    const submitBtn = document.querySelector('button[type="submit"]');
+    let isUploading = false;
 
-    const docTypeSelect = document.getElementById('documentType');
-    const parentTenderGroup = document.getElementById('parent-tender-group');
-    const parentTenderSelect = document.getElementById('parentTenderId');
-
-    function toggleParentTender() {
-      if (docTypeSelect?.value === 'CORRIGENDUM') {
-        parentTenderGroup?.classList.remove('hidden');
-        parentTenderSelect?.setAttribute('required', 'true');
-      } else {
-        parentTenderGroup?.classList.add('hidden');
-        parentTenderSelect?.removeAttribute('required');
+    // Client-side upload error banner
+    let uploadErrorBanner = null;
+    function showUploadError(msg) {
+      if (!uploadErrorBanner) {
+        uploadErrorBanner = document.createElement('div');
+        uploadErrorBanner.className = 'p-3 bg-red-50 border border-red-200 text-xs font-semibold text-red-700 rounded flex items-center gap-2 mt-2';
+        uploadContainer.parentNode.insertBefore(uploadErrorBanner, uploadContainer.nextSibling);
       }
+      uploadErrorBanner.textContent = msg;
+      uploadErrorBanner.style.display = 'flex';
+    }
+    function clearUploadError() {
+      if (uploadErrorBanner) uploadErrorBanner.style.display = 'none';
     }
 
-    docTypeSelect?.addEventListener('change', toggleParentTender);
-    toggleParentTender(); // run initially
+    // Prevent form submission when file not yet uploaded
+    document.querySelector('form').addEventListener('submit', (e) => {
+      if (isUploading) {
+        e.preventDefault();
+        alert('Please wait — file upload is still in progress.');
+        return;
+      }
+      if (!documentUrlInput.value) {
+        e.preventDefault();
+        showUploadError('⚠ Please attach a Tender Document before publishing.');
+        uploadContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
 
-    fileUploader?.addEventListener('change', async (event) => {
+    // Corrigendums JS management
+    const corrigendumsInput = document.getElementById('corrigendums-input');
+    let corrigendums = [];
+    try {
+      corrigendums = JSON.parse(corrigendumsInput.value || '[]');
+    } catch (e) {
+      corrigendums = [];
+    }
+
+    const corrigendumsList = document.getElementById('corrigendums-list');
+    const corrTitle = document.getElementById('corr-title');
+    const corrExtendedClosing = document.getElementById('corr-extendedClosing');
+    const corrExtendedOpening = document.getElementById('corr-extendedOpening');
+    const corrFileUrl = document.getElementById('corr-file-url');
+    const corrFileSize = document.getElementById('corr-file-size');
+    const corrFileUploader = document.getElementById('corr-file-uploader');
+    const corrUploadStatusText = document.getElementById('corr-upload-status-text');
+    const corrUploadContainer = document.getElementById('corr-upload-container');
+    const btnAddCorr = document.getElementById('btn-add-corr');
+
+    // Toggle button elements
+    const corrAddForm = document.getElementById('corr-add-form');
+    const btnShowAddCorr = document.getElementById('btn-show-add-corr');
+    const btnCancelAddCorr = document.getElementById('btn-cancel-add-corr');
+
+    btnShowAddCorr?.addEventListener('click', () => {
+      corrAddForm?.classList.remove('hidden');
+      btnShowAddCorr?.classList.add('hidden');
+    });
+
+    btnCancelAddCorr?.addEventListener('click', () => {
+      resetCorrForm();
+      corrAddForm?.classList.add('hidden');
+      btnShowAddCorr?.classList.remove('hidden');
+    });
+
+    function resetCorrForm() {
+      if (corrTitle) corrTitle.value = '';
+      if (corrFileUrl) corrFileUrl.value = '';
+      if (corrFileSize) corrFileSize.value = '';
+      if (corrExtendedClosing) corrExtendedClosing.value = '';
+      if (corrExtendedOpening) corrExtendedOpening.value = '';
+      if (corrFileUploader) corrFileUploader.value = '';
+      if (corrUploadStatusText) corrUploadStatusText.textContent = 'Click to choose corrigendum file';
+      if (corrUploadContainer) corrUploadContainer.classList.remove('border-emerald-300', 'bg-emerald-50/20');
+    }
+
+    function renderCorrigendums() {
+      if (!corrigendumsList) return;
+      corrigendumsList.innerHTML = '';
+      if (corrigendums.length === 0) {
+        corrigendumsList.innerHTML = '<div class="text-slate-450 italic text-xs font-semibold py-2">No corrigendums added yet.</div>';
+        return;
+      }
+
+      corrigendums.forEach((corr, index) => {
+        const item = document.createElement('div');
+        item.className = 'flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs gap-4';
+        
+        const info = document.createElement('div');
+        info.className = 'flex-1 min-w-0';
+        
+        let datesText = '';
+        if (corr.extendedClosingDate) datesText += ` | Extended Closing: ${corr.extendedClosingDate}`;
+        if (corr.extendedBidOpeningDate) datesText += ` | Extended Opening: ${corr.extendedBidOpeningDate}`;
+
+        const filename = corr.documentUrl.substring(corr.documentUrl.lastIndexOf('/') + 1);
+
+        info.innerHTML = `
+          <div class="font-bold text-slate-800 truncate">${corr.title}</div>
+          <div class="text-slate-500 font-medium mt-0.5">
+            File: <a href="${corr.documentUrl}" target="_blank" class="text-[#0B4F9C] hover:underline font-bold">${filename}</a> (${Math.round(corr.fileSizeBytes / 1024)} KB)${datesText}
+          </div>
+        `;
+        
+        const actions = document.createElement('div');
+        const btnDelete = document.createElement('button');
+        btnDelete.type = 'button';
+        btnDelete.className = 'px-2 py-1 bg-red-50 hover:bg-red-100 text-red-650 rounded text-[10px] font-bold border border-red-200 transition-colors cursor-pointer';
+        btnDelete.textContent = 'Remove';
+        btnDelete.addEventListener('click', () => {
+          corrigendums.splice(index, 1);
+          if (corrigendumsInput) corrigendumsInput.value = JSON.stringify(corrigendums);
+          renderCorrigendums();
+        });
+        
+        actions.appendChild(btnDelete);
+        item.appendChild(info);
+        item.appendChild(actions);
+        corrigendumsList.appendChild(item);
+      });
+    }
+
+    renderCorrigendums();
+
+    corrFileUploader?.addEventListener('change', async (event) => {
       const file = event.target?.files?.[0];
       if (!file) return;
 
-      uploadStatusText.textContent = `Uploading ${file.name}...`;
-      uploadContainer.classList.add('opacity-60', 'pointer-events-none');
+      if (corrUploadStatusText) corrUploadStatusText.textContent = `Uploading ${file.name}...`;
+      if (corrUploadContainer) corrUploadContainer.classList.add('opacity-60', 'pointer-events-none');
 
       const formData = new FormData();
       formData.append('file', file);
@@ -357,38 +504,114 @@ if (Astro.request.method === 'POST') {
         }
 
         const result = await response.json();
-        
-        // Update inputs
-        documentUrlInput.value = result.url;
-        if (fileSizeBytesInput) {
-          fileSizeBytesInput.value = result.sizeBytes;
-        }
-
-        // Update UI
-        uploadStatusText.textContent = 'Change attached file';
-        attachedFileInfo.classList.remove('hidden');
-        attachedFilename.textContent = result.filename;
-        
-        // Display human-readable size
-        const sizeKB = Math.round(result.sizeBytes / 1024);
-        attachedFilesize.textContent = `(${sizeKB} KB)`;
-        
-        // If there is an anchor, update its href
-        let viewLink = attachedFileInfo.querySelector('a');
-        if (!viewLink) {
-          viewLink = document.createElement('a');
-          viewLink.target = '_blank';
-          viewLink.className = 'text-emerald-700 hover:text-emerald-900 underline font-bold shrink-0';
-          viewLink.textContent = 'View File';
-          attachedFileInfo.appendChild(viewLink);
-        }
-        viewLink.href = result.url;
-
+        if (corrFileUrl) corrFileUrl.value = result.url;
+        if (corrFileSize) corrFileSize.value = result.sizeBytes;
+        if (corrUploadStatusText) corrUploadStatusText.textContent = `Attached: ${result.filename} (${Math.round(result.sizeBytes / 1024)} KB)`;
+        if (corrUploadContainer) corrUploadContainer.classList.add('border-emerald-300', 'bg-emerald-50/20');
       } catch (error) {
         alert(`Upload error: ${error.message}`);
-        uploadStatusText.textContent = 'Click to choose or drag document file here';
+        if (corrUploadStatusText) corrUploadStatusText.textContent = 'Click to choose corrigendum file';
       } finally {
-        uploadContainer.classList.remove('opacity-60', 'pointer-events-none');
+        if (corrUploadContainer) corrUploadContainer.classList.remove('opacity-60', 'pointer-events-none');
+      }
+    });
+
+    btnAddCorr?.addEventListener('click', () => {
+      const title = corrTitle ? corrTitle.value.trim() : '';
+      const url = corrFileUrl ? corrFileUrl.value : '';
+      const size = corrFileSize ? parseInt(corrFileSize.value, 10) : 0;
+
+      if (!title) {
+        alert('Please enter corrigendum details.');
+        return;
+      }
+      if (!url) {
+        alert('Please attach a document for the corrigendum.');
+        return;
+      }
+
+      const newCorr = {
+        id: Math.random().toString(36).substring(2, 15),
+        title,
+        publishDate: new Date().toISOString(),
+        documentUrl: url,
+        fileSizeBytes: size || 0,
+        extendedClosingDate: corrExtendedClosing ? (corrExtendedClosing.value || null) : null,
+        extendedBidOpeningDate: corrExtendedOpening ? (corrExtendedOpening.value || null) : null
+      };
+
+      corrigendums.push(newCorr);
+      if (corrigendumsInput) corrigendumsInput.value = JSON.stringify(corrigendums);
+      
+      resetCorrForm();
+      corrAddForm?.classList.add('hidden');
+      btnShowAddCorr?.classList.remove('hidden');
+
+      renderCorrigendums();
+    });
+
+    fileUploader?.addEventListener('change', async (event) => {
+      const file = event.target?.files?.[0];
+      if (!file) return;
+
+      clearUploadError();
+      isUploading = true;
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Uploading…'; }
+      if (uploadStatusText) uploadStatusText.textContent = `Uploading ${file.name}…`;
+      if (uploadContainer) uploadContainer.classList.add('opacity-60', 'pointer-events-none');
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const response = await fetch('http://localhost:3000/api/upload', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${sessionToken}`,
+          },
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || `Upload failed (HTTP ${response.status})`);
+        }
+
+        const result = await response.json();
+        
+        // Update inputs
+        if (documentUrlInput) documentUrlInput.value = result.url;
+        if (fileSizeBytesInput) fileSizeBytesInput.value = result.sizeBytes;
+
+        // Update UI
+        if (uploadStatusText) uploadStatusText.textContent = 'Change attached file';
+        if (attachedFileInfo) {
+          attachedFileInfo.classList.remove('hidden');
+          if (attachedFilename) attachedFilename.textContent = result.filename;
+          const sizeKB = Math.round(result.sizeBytes / 1024);
+          if (attachedFilesize) attachedFilesize.textContent = `(${sizeKB} KB)`;
+          let viewLink = attachedFileInfo.querySelector('a');
+          if (!viewLink) {
+            viewLink = document.createElement('a');
+            viewLink.target = '_blank';
+            viewLink.className = 'text-emerald-700 hover:text-emerald-900 underline font-bold shrink-0';
+            viewLink.textContent = 'View File';
+            attachedFileInfo.appendChild(viewLink);
+          }
+          viewLink.href = result.url;
+        }
+
+      } catch (error) {
+        showUploadError(`Upload failed: ${error.message}. Please try again.`);
+        if (uploadStatusText) uploadStatusText.textContent = 'Click to choose or drag document file here';
+        if (documentUrlInput) documentUrlInput.value = '';
+      } finally {
+        isUploading = false;
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = document.getElementById('id')?.value ? 'Update Tender' : 'Publish Tender';
+        }
+        if (uploadContainer) uploadContainer.classList.remove('opacity-60', 'pointer-events-none');
       }
     });
   </script>
