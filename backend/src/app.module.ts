@@ -17,6 +17,7 @@ import { CareersModule } from './careers/careers.module';
 import { PressReleasesModule } from './press-releases/press-releases.module';
 import { UsersModule } from './users/users.module';
 import { UploadModule } from './upload/upload.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { UploadModule } from './upload/upload.module';
     PressReleasesModule,
     UsersModule,
     UploadModule,
+    NotificationsModule,
   ],
   controllers: [
     ContactController,

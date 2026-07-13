@@ -116,3 +116,13 @@ model Director {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Notification {
+  id          String   @id @default(uuid())
+  title       String
+  fileName    String
+  documentUrl String
+  publishDate DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

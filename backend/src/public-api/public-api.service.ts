@@ -30,4 +30,10 @@ export class PublicApiService {
       orderBy: { publishDate: 'desc' },
     });
   }
+
+  async getNotifications() {
+    return this.prisma.notification.findMany({
+      orderBy: { publishDate: 'desc' },
+    });
+  }
 }

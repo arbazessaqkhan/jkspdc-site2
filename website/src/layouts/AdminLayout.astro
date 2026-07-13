@@ -139,6 +139,10 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
             <Icon name="briefcase" size={14} /> Careers &amp; Vacancies
           </a>
 
+          <a href="/admin/notifications" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'notifications' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+            <Icon name="bell" size={14} /> Notifications
+          </a>
+
           <a href="/admin/press-releases" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'press' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
             <Icon name="newspaper" size={14} /> Press Releases &amp; News
           </a>

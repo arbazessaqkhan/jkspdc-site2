@@ -24,4 +24,9 @@ export class PublicApiController {
   async getNews() {
     return this.publicApiService.getPressReleases();
   }
+
+  @Get('notifications')
+  async getNotifications() {
+    return this.publicApiService.getNotifications();
+  }
 }
