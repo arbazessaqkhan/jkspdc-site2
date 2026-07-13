@@ -1,0 +1,217 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import Icon from '../../../components/Icon.astro';
+
+const id = Astro.url.searchParams.get('id')?.toString();
+let tender: any = null;
+let corrigendums: any[] = [];
+let errorMessage = '';
+
+try {
+  if (!id) {
+    errorMessage = 'Tender ID is required.';
+  } else {
+    // Fetch tender
+    const res = await fetch(`http://localhost:3000/api/tenders/${id}`);
+    if (res.ok) {
+      tender = await res.json();
+      
+      // Fetch list to filter corrigendums
+      const allRes = await fetch('http://localhost:3000/api/tenders');
+      if (allRes.ok) {
+        const list = await allRes.json();
+        corrigendums = list.filter(t => t.documentType === 'CORRIGENDUM' && t.parentTenderId === id);
+        corrigendums.sort((a, b) => new Date(a.publishDate).getTime() - new Date(b.publishDate).getTime());
+      }
+    } else {
+      errorMessage = 'Tender details not found.';
+    }
+  }
+} catch (e) {
+  console.error('Error fetching tender details:', e);
+  errorMessage = 'Failed to connect to the backend server.';
+}
+
+const formatDate = (dateStr: string) => {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
+  return `${day}-${month}-${year}`;
+};
+
+const formatSize = (bytes: number) => {
+  if (!bytes) return 'N/A';
+  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+};
+---
+
+<Layout 
+  title={tender ? `Tender - ${tender.referenceNo}` : "Tender Details"} 
+  description="Detailed view of Notice Inviting Tender (NIT), bid details, work specifications, and associated corrigendums."
+>
+  <div class="space-y-6 max-w-5xl mx-auto">
+    <!-- Breadcrumbs -->
+    <nav class="text-xs text-gray-500" aria-label="Breadcrumbs">
+      <ol class="flex gap-2">
+        <li><a href="/" class="hover:underline">Home</a></li>
+        <li>/</li>
+        <li><span class="text-gray-400">Stakeholders</span></li>
+        <li>/</li>
+        <li><a href="/stakeholders/vendors/tender-bids" class="hover:underline text-gray-500">Tenders</a></li>
+        <li>/</li>
+        <li><span class="font-semibold text-[#0B4F9C]">Details</span></li>
+      </ol>
+    </nav>
+
+    <!-- Error State -->
+    {errorMessage && (
+      <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 text-xs font-semibold">
+        {errorMessage}
+      </div>
+    )}
+
+    {tender && (
+      <article class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 md:p-8 space-y-8 text-left">
+        
+        <!-- Header -->
+        <header class="space-y-2 pb-4 border-b border-slate-100">
+          <h2 class="text-2xl font-black text-slate-800 leading-snug">NIT No.:{tender.referenceNo}</h2>
+          <p class="text-sm text-slate-650 font-medium leading-relaxed">{tender.title}</p>
+        </header>
+
+        <!-- Bid Submission and Opening Details (Styled exactly like img2) -->
+        <section class="space-y-2">
+          <div class="overflow-x-auto border border-slate-200 rounded-lg shadow-sm">
+            <table class="w-full border-collapse text-xs text-left" aria-label="Bid Submission and Opening Details Table">
+              <tbody>
+                <!-- Row 1: Headers -->
+                <tr class="bg-slate-50 border-b border-slate-200 font-bold text-slate-700">
+                  <td class="p-3 border-r border-slate-200 w-1/2">Bid Submission Start Date</td>
+                  <td class="p-3">Bid Submission End Date</td>
+                </tr>
+                <!-- Row 2: Values -->
+                <tr class="border-b border-slate-200 text-slate-700 font-semibold bg-white">
+                  <td class="p-3 border-r border-slate-200">{formatDate(tender.publishDate)}</td>
+                  <td class="p-3">{formatDate(tender.closingDate)}</td>
+                </tr>
+                <!-- Row 3: Headers -->
+                <tr class="bg-slate-50 border-b border-slate-200 font-bold text-slate-700">
+                  <td class="p-3 border-r border-slate-200">Bid Opening Date</td>
+                  <td class="p-3">Download Document</td>
+                </tr>
+                <!-- Row 4: Values -->
+                <tr class="bg-white text-slate-700 font-semibold">
+                  <td class="p-3 border-r border-slate-200">{formatDate(tender.bidOpeningDate)}</td>
+                  <td class="p-3">
+                    <div class="space-y-1">
+                      <a 
+                        href={tender.documentUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        class="text-[#0B4F9C] hover:underline font-extrabold flex items-center gap-1"
+                      >
+                        Download PDF
+                      </a>
+                      <p class="text-[10px] text-red-650 font-bold">
+                        (Download | {formatSize(tender.fileSizeBytes)} | PDF | Open with Adobe Reader or browser)
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="text-[10px] text-slate-450 italic pl-1">
+            Bid Submission and Opening Details Table. It contains Bid Submission Start Date, Bid Submission End Date, Bid Opening Date, Download Document
+          </p>
+        </section>
+
+        <!-- Work Specification Table (Styled exactly like img2) -->
+        <section class="space-y-2">
+          <h3 class="font-extrabold text-slate-800 text-sm">Work Specification</h3>
+          <div class="overflow-x-auto border border-slate-200 rounded-lg shadow-sm">
+            <table class="w-full border-collapse text-xs text-left" aria-label="Work Specification Details Table">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 font-bold text-slate-700">
+                  <th scope="col" class="p-3 border-r border-slate-200 w-1/4">Works No.</th>
+                  <th scope="col" class="p-3 border-r border-slate-200 w-2/5">Title</th>
+                  <th scope="col" class="p-3 border-r border-slate-200 w-1/6">Bid Opening Date</th>
+                  <th scope="col" class="p-3 w-1/6">End Date</th>
+                </tr>
+              </thead>
+              <tbody class="text-slate-650 font-semibold bg-white">
+                <tr class="border-b border-slate-200">
+                  <td class="p-3 border-r border-slate-200 font-mono text-[11px]">{tender.referenceNo}</td>
+                  <td class="p-3 border-r border-slate-200 leading-normal font-medium">{tender.title}</td>
+                  <td class="p-3 border-r border-slate-200">{formatDate(tender.bidOpeningDate)}</td>
+                  <td class="p-3">{formatDate(tender.closingDate)}</td>
+                </tr>
+                <tr>
+                  <td colspan="4" class="p-3 bg-slate-50/30 text-slate-450 font-medium italic text-[11px]">
+                    No documents available
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="text-[10px] text-slate-450 italic pl-1">
+            Work Specification Details Table. It contains Works Number, Title, Bid Opening Dat, End Date
+          </p>
+        </section>
+
+        <!-- Detailed Description (Styled exactly like img2) -->
+        <section class="space-y-3">
+          <h3 class="text-2xl font-extrabold text-slate-800">Description:</h3>
+          <div class="space-y-4">
+            <p class="text-xs text-slate-500 font-bold font-mono">
+              {tender.referenceNo} date:-{formatDate(tender.publishDate)}
+            </p>
+            <div class="text-slate-700 text-xs font-medium leading-relaxed whitespace-pre-line bg-slate-50/50 border border-slate-100 rounded-xl p-4 md:p-6 shadow-inner">
+              {tender.description || 'No detailed work scope provided.'}
+            </div>
+          </div>
+        </section>
+
+        <!-- Corrigendums Section (Styled exactly like img2) -->
+        <section class="space-y-3 pt-4 border-t border-slate-100">
+          <h3 class="font-extrabold text-slate-800 text-sm">Corrigendums &amp; Amendments</h3>
+          {corrigendums.length === 0 ? (
+            <div class="bg-[#EAF4FF] border border-[#BDD7EE] text-slate-700 rounded-lg p-4 text-xs font-semibold flex items-center gap-2">
+              <span class="text-blue-600 font-bold">ℹ</span>
+              <span>No corrigendums available for this tender.</span>
+            </div>
+          ) : (
+            <div class="space-y-3">
+              {corrigendums.map((corr, idx) => (
+                <div class="bg-amber-50/40 border border-amber-200/70 rounded-xl p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm hover:shadow-md transition-all">
+                  <div class="space-y-1">
+                    <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[9px] font-bold uppercase font-mono border border-amber-200">
+                      Corrigendum-{idx + 1}
+                    </span>
+                    <h4 class="font-bold text-slate-800 text-xs mt-1 leading-snug">{corr.title}</h4>
+                    {corr.description && <p class="text-[11px] text-slate-500 leading-relaxed font-medium mt-1">{corr.description}</p>}
+                    <p class="text-[10px] text-slate-400 font-semibold font-mono mt-1">Uploaded: {formatDate(corr.publishDate)}</p>
+                  </div>
+                  <div class="flex-shrink-0">
+                    <a 
+                      href={corr.documentUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      class="inline-flex items-center gap-1.5 px-4 py-2 border border-amber-500 hover:bg-amber-500 hover:text-white text-amber-700 rounded text-xs font-bold transition-all"
+                    >
+                      <Icon name="download" size={12} />
+                      <span>Download ({formatSize(corr.fileSizeBytes)})</span>
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+      </article>
+    )}
+  </div>
+</Layout>

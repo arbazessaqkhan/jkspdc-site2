@@ -54,11 +54,13 @@ model Tender {
   locationTag    String    @default("HQ_SRINAGAR") // HQ_SRINAGAR, HQ_JAMMU, HEP_BAGLIHAR, etc.
   publishDate    DateTime  @default(now())
   closingDate    DateTime?
+  bidOpeningDate DateTime?
   documentUrl    String    // S3 URL
   fileSizeBytes  Int
   status         String    @default("Active") // Active, Archived, Cancelled
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+  parentTenderId String?
 }
 
 model Career {

@@ -22,10 +22,24 @@ let tenderData = {
   workCategory: 'Civil',
   locationTag: 'HQ_SRINAGAR',
   closingDate: '',
+  bidOpeningDate: '',
   documentUrl: '',
   fileSizeBytes: '',
   status: 'Active',
+  parentTenderId: '',
 };
+
+// Fetch existing NIT/NIO tenders for parent dropdown
+let parentTenders = [];
+try {
+  const pRes = await fetch('http://localhost:3000/api/tenders');
+  if (pRes.ok) {
+    const list = await pRes.json();
+    parentTenders = list.filter(t => (t.documentType === 'NIT' || t.documentType === 'NIO') && t.id !== editId);
+  }
+} catch (e) {
+  console.error('Error fetching parent tenders:', e);
+}
 
 // Fetch data if editing
 if (editId) {
@@ -42,9 +56,11 @@ if (editId) {
         workCategory: data.workCategory || 'Civil',
         locationTag: data.locationTag || 'HQ_SRINAGAR',
         closingDate: data.closingDate ? data.closingDate.substring(0, 10) : '',
+        bidOpeningDate: data.bidOpeningDate ? data.bidOpeningDate.substring(0, 10) : '',
         documentUrl: data.documentUrl || '',
         fileSizeBytes: data.fileSizeBytes !== null ? data.fileSizeBytes.toString() : '',
         status: data.status || 'Active',
+        parentTenderId: data.parentTenderId || '',
       };
     } else {
       errorMessage = 'Could not load tender details.';
@@ -67,9 +83,11 @@ if (Astro.request.method === 'POST') {
     const workCategory = formData.get('workCategory')?.toString();
     const locationTag = formData.get('locationTag')?.toString();
     const closingDate = formData.get('closingDate')?.toString();
+    const bidOpeningDate = formData.get('bidOpeningDate')?.toString();
     const documentUrl = formData.get('documentUrl')?.toString();
     const fileSizeBytes = formData.get('fileSizeBytes')?.toString();
     const status = formData.get('status')?.toString();
+    const parentTenderId = formData.get('parentTenderId')?.toString();
 
     // Preserve values
     tenderData = {
@@ -81,9 +99,11 @@ if (Astro.request.method === 'POST') {
       workCategory: workCategory || 'Civil',
       locationTag: locationTag || 'HQ_SRINAGAR',
       closingDate: closingDate || '',
+      bidOpeningDate: bidOpeningDate || '',
       documentUrl: documentUrl || '',
       fileSizeBytes: fileSizeBytes || '',
       status: status || 'Active',
+      parentTenderId: parentTenderId || '',
     };
 
     if (!referenceNo || !title || !documentUrl) {
@@ -97,9 +117,11 @@ if (Astro.request.method === 'POST') {
         workCategory: workCategory || 'Civil',
         locationTag: locationTag || 'HQ_SRINAGAR',
         closingDate: closingDate ? new Date(closingDate).toISOString() : null,
+        bidOpeningDate: bidOpeningDate ? new Date(bidOpeningDate).toISOString() : null,
         documentUrl,
         fileSizeBytes: fileSizeBytes ? parseInt(fileSizeBytes, 10) : 0,
         status,
+        parentTenderId: parentTenderId || null,
       };
 
       const url = id 
@@ -209,6 +231,23 @@ if (Astro.request.method === 'POST') {
           </div>
 
           <div class="form-group flex flex-col gap-1.5">
+            <label for="bidOpeningDate" class="text-xs font-bold text-slate-700">Bid Opening Date</label>
+            <input type="date" name="bidOpeningDate" id="bidOpeningDate" value={tenderData.bidOpeningDate} class="form-input text-xs" />
+          </div>
+
+          <div class="form-group flex flex-col gap-1.5 hidden" id="parent-tender-group">
+            <label for="parentTenderId" class="text-xs font-bold text-slate-700">Parent Tender <span class="text-red-500">*</span></label>
+            <select name="parentTenderId" id="parentTenderId" class="form-select text-xs">
+              <option value="">-- Select Parent Tender --</option>
+              {parentTenders.map((t) => (
+                <option value={t.id} selected={tenderData.parentTenderId === t.id}>
+                  [{t.referenceNo}] {t.title}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div class="form-group flex flex-col gap-1.5">
             <label for="status" class="text-xs font-bold text-slate-700">Tender Status</label>
             <select name="status" id="status" class="form-select text-xs">
               <option value="Active" selected={tenderData.status === 'Active'}>Active (Open for Bidding)</option>
@@ -275,6 +314,23 @@ if (Astro.request.method === 'POST') {
     const documentUrlInput = document.getElementById('documentUrl');
     const fileSizeBytesInput = document.getElementById('fileSizeBytes');
     const uploadContainer = document.getElementById('upload-container');
+
+    const docTypeSelect = document.getElementById('documentType');
+    const parentTenderGroup = document.getElementById('parent-tender-group');
+    const parentTenderSelect = document.getElementById('parentTenderId');
+
+    function toggleParentTender() {
+      if (docTypeSelect?.value === 'CORRIGENDUM') {
+        parentTenderGroup?.classList.remove('hidden');
+        parentTenderSelect?.setAttribute('required', 'true');
+      } else {
+        parentTenderGroup?.classList.add('hidden');
+        parentTenderSelect?.removeAttribute('required');
+      }
+    }
+
+    docTypeSelect?.addEventListener('change', toggleParentTender);
+    toggleParentTender(); // run initially
 
     fileUploader?.addEventListener('change', async (event) => {
       const file = event.target?.files?.[0];

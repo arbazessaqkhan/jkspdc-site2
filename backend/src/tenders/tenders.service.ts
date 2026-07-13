@@ -24,7 +24,7 @@ export class TendersService {
   }
 
   async create(data: any, user: any, ip: string, ua: string) {
-    const { referenceNo, title, description, documentType, workCategory, locationTag, closingDate, documentUrl, fileSizeBytes, status } = data;
+    const { referenceNo, title, description, documentType, workCategory, locationTag, closingDate, bidOpeningDate, documentUrl, fileSizeBytes, status, parentTenderId } = data;
     if (!referenceNo || !title || !documentUrl) {
       throw new Error('Missing required fields');
     }
@@ -38,9 +38,11 @@ export class TendersService {
         workCategory: workCategory || 'Civil',
         locationTag: locationTag || 'HQ_SRINAGAR',
         closingDate: closingDate ? new Date(closingDate) : null,
+        bidOpeningDate: bidOpeningDate ? new Date(bidOpeningDate) : null,
         documentUrl,
         fileSizeBytes: fileSizeBytes ? parseInt(fileSizeBytes, 10) : 0,
         status: status || 'Active',
+        parentTenderId: parentTenderId || null,
       },
     });
 
@@ -68,9 +70,11 @@ export class TendersService {
         workCategory: data.workCategory,
         locationTag: data.locationTag,
         closingDate: data.closingDate ? new Date(data.closingDate) : null,
+        bidOpeningDate: data.bidOpeningDate ? new Date(data.bidOpeningDate) : null,
         documentUrl: data.documentUrl,
         fileSizeBytes: data.fileSizeBytes !== undefined ? parseInt(data.fileSizeBytes, 10) : undefined,
         status: data.status,
+        parentTenderId: data.parentTenderId || null,
       },
     });
 
