@@ -5,20 +5,21 @@ import Icon from '../components/Icon.astro';
 let directors = [];
 let tenders = [];
 let projects = [];
+let notifications: any[] = [];
 
 try {
   // Fetch directors
   const dirRes = await fetch('http://localhost:3000/api/directors');
   if (dirRes.ok) {
     directors = await dirRes.json();
-    directors.sort((a, b) => a.sNo - b.sNo);
+    directors.sort((a: any, b: any) => a.sNo - b.sNo);
   }
 
   // Fetch tenders
   const tenderRes = await fetch('http://localhost:3000/api/tenders');
   if (tenderRes.ok) {
     tenders = await tenderRes.json();
-    tenders.sort((a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+    tenders.sort((a: any, b: any) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
     tenders = tenders.slice(0, 5);
   }
 
@@ -26,6 +27,14 @@ try {
   const projRes = await fetch('http://localhost:3000/api/projects');
   if (projRes.ok) {
     projects = await projRes.json();
+  }
+
+  // Fetch notifications
+  const notifRes = await fetch('http://localhost:3000/api/public/notifications');
+  if (notifRes.ok) {
+    notifications = await notifRes.json();
+    notifications.sort((a: any, b: any) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+    notifications = notifications.slice(0, 5);
   }
 } catch (e) {
   console.error('Failed to sync index.astro from backend:', e);
@@ -351,6 +360,58 @@ const corpStats = [
                   </td>
                   <td class="px-6 py-4">
                     <a href={t.documentUrl} target="_blank" rel="noopener noreferrer" class="text-[#0B4F9C] hover:underline font-semibold text-xs whitespace-nowrap">
+                      Download &rarr;
+                    </a>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- ANNOUNCEMENTS & NOTIFICATIONS                                 -->
+    <!-- ============================================================ -->
+    <section id="notifications" aria-labelledby="notifications-heading" class="bg-white rounded-2xl border border-[#BDD7EE] shadow-sm overflow-hidden">
+      <div class="px-8 md:px-12 pt-10 pb-8">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-5">
+          <div>
+            <div class="text-[11px] uppercase tracking-[0.14em] text-[#0B4F9C] font-extrabold mb-2">Announcements</div>
+            <h2 id="notifications-heading" class="text-2xl md:text-3xl font-extrabold text-[#1A5276]">Latest Notifications &amp; Circulars</h2>
+            <p class="text-sm text-slate-500 mt-2.5 leading-relaxed">Official notifications, board meeting intimations, and public circulars from JKSPDCL.</p>
+          </div>
+          <a href="/stakeholders/investors/announcement" class="inline-flex items-center gap-2 bg-[#0B4F9C] hover:bg-[#084A8F] text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap shadow-sm flex-shrink-0">View All Announcements &rarr;</a>
+        </div>
+      </div>
+      <div class="overflow-x-auto border-t border-slate-100">
+        <table class="w-full text-sm">
+          <thead class="bg-[#FADBD8] text-[#78281F] text-[11px] uppercase tracking-wider border-b border-[#F5B7B1]">
+            <tr>
+              <th class="px-6 py-3.5 text-left font-semibold">Title</th>
+              <th class="px-6 py-3.5 text-left font-semibold">File Name</th>
+              <th class="px-6 py-3.5 text-left font-semibold">Date</th>
+              <th class="px-6 py-3.5"></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            {notifications.length === 0 ? (
+              <tr>
+                <td colspan="4" class="text-center text-slate-500 py-10 text-xs font-semibold">
+                  No announcements found.
+                </td>
+              </tr>
+            ) : (
+              notifications.map((n: any) => (
+                <tr class="hover:bg-[#FDEDEC]/50 transition-colors">
+                  <td class="px-6 py-4 text-slate-850 font-bold max-w-md text-sm text-left">{n.title}</td>
+                  <td class="px-6 py-4 text-[#0B4F9C] font-semibold text-xs whitespace-nowrap font-mono">{n.fileName}</td>
+                  <td class="px-6 py-4 text-slate-500 text-xs whitespace-nowrap">
+                    {new Date(n.publishDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  </td>
+                  <td class="px-6 py-4">
+                    <a href={n.documentUrl} target="_blank" rel="noopener noreferrer" class="text-[#0B4F9C] hover:underline font-semibold text-xs whitespace-nowrap">
                       Download &rarr;
                     </a>
                   </td>

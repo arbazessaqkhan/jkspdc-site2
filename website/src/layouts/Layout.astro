@@ -12,6 +12,62 @@ interface Props {
 const { title, description, canonicalUrl, isHome = false } = Astro.props;
 const canonical = canonicalUrl || Astro.url.href;
 const currentYear = new Date().getFullYear();
+
+// Dynamically fetch ticker items from the public APIs
+let tickerItems: any[] = [];
+try {
+  const [tendersRes, notifsRes] = await Promise.all([
+    fetch('http://localhost:3000/api/public/tenders').catch(() => null),
+    fetch('http://localhost:3000/api/public/notifications').catch(() => null),
+  ]);
+
+  let tenders: any[] = [];
+  if (tendersRes && tendersRes.ok) {
+    tenders = await tendersRes.json();
+  }
+
+  let notifs: any[] = [];
+  if (notifsRes && notifsRes.ok) {
+    notifs = await notifsRes.json();
+  }
+
+  // Populate active tenders (limit to top 4)
+  tenders.filter((t: any) => t.status === 'Active').slice(0, 4).forEach((t: any) => {
+    tickerItems.push({
+      type: 'TENDER',
+      text: `${t.title} (NIT Ref: ${t.referenceNo})`,
+      colorClass: 'text-cyan-300 bg-cyan-500/10 border-cyan-400/20',
+    });
+
+    // Populate corrigendums (limit to top 2 per tender)
+    const corrs = t.corrigendums && Array.isArray(t.corrigendums) ? t.corrigendums : [];
+    corrs.slice(0, 2).forEach((c: any) => {
+      tickerItems.push({
+        type: 'CORRIGENDUM',
+        text: `${c.title} (Ref: ${t.referenceNo})`,
+        colorClass: 'text-orange-400 bg-orange-500/10 border-orange-400/20',
+      });
+    });
+  });
+
+  // Populate notifications (limit to top 4)
+  notifs.slice(0, 4).forEach((n: any) => {
+    tickerItems.push({
+      type: 'NOTIFICATION',
+      text: `${n.title} (File: ${n.fileName})`,
+      colorClass: 'text-yellow-400 bg-yellow-500/10 border-yellow-400/20',
+    });
+  });
+} catch (e) {
+  console.error('Error fetching dynamic ticker items:', e);
+}
+
+// Fallback items if database or backend is offline
+if (tickerItems.length === 0) {
+  tickerItems = [
+    { type: 'LIVE', text: 'Jammu & Kashmir State Power Development Corporation Limited official portal online.', colorClass: 'text-yellow-400 bg-yellow-500/10 border-yellow-400/20' }
+  ];
+}
 ---
 
 
@@ -299,17 +355,12 @@ const currentYear = new Date().getFullYear();
             <div class="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[#08305C] to-transparent z-10 pointer-events-none"></div>
 
             <div class="animate-ticker" style="gap: 3.5rem; padding: 0.5rem 0; font-size: 0.8rem; font-weight: 500;">
-              <span style="padding-right:3rem;">› <strong class="text-yellow-400 font-extrabold uppercase tracking-wider text-[10px] mr-1 bg-yellow-500/10 px-1.5 py-0.5 rounded border border-yellow-400/20">NEW:</strong> <span class="text-slate-100">Recruitment 2025 — <span class="font-bold text-yellow-300">250 Junior Engineer</span> posts announced. Apply by <span class="underline decoration-yellow-400 font-medium">30 Jun 2025</span></span></span>
-              <span style="padding-right:3rem;">› <strong class="text-cyan-300 font-extrabold uppercase tracking-wider text-[10px] mr-1 bg-cyan-500/10 px-1.5 py-0.5 rounded border border-cyan-400/20">TENDER:</strong> <span class="text-slate-100">NIT-521 for <span class="font-bold text-cyan-200">Baglihar Refurbishment</span> closing <span class="underline decoration-cyan-300 font-medium">28 Jun 2025</span></span></span>
-              <span style="padding-right:3rem;">› <strong class="text-emerald-400 font-extrabold uppercase tracking-wider text-[10px] mr-1 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-400/20">PRESS:</strong> <span class="text-slate-100">JKSPDC signs MoU for <span class="font-bold text-emerald-300">3,000 MW hydro expansion</span> with NHPC</span></span>
-              <span style="padding-right:3rem;">› <strong class="text-orange-400 font-extrabold uppercase tracking-wider text-[10px] mr-1 bg-orange-500/10 px-1.5 py-0.5 rounded border border-orange-400/20">CORRIGENDUM:</strong> <span class="text-slate-100">COR/2025/56 issued for <span class="font-bold text-orange-300">Pakal Dul E&amp;M</span> works</span></span>
-              <span style="padding-right:3rem;">› <strong class="text-sky-300 font-extrabold uppercase tracking-wider text-[10px] mr-1 bg-sky-500/10 px-1.5 py-0.5 rounded border border-sky-400/20">INVESTOR:</strong> <span class="text-slate-100"><span class="font-bold text-sky-200">32nd AGM</span> scheduled for <span class="underline decoration-sky-300 font-medium">25 Jun 2025</span></span></span>
-              
-              <span style="padding-right:3rem;">› <strong class="text-yellow-400 font-extrabold uppercase tracking-wider text-[10px] mr-1 bg-yellow-500/10 px-1.5 py-0.5 rounded border border-yellow-400/20">NEW:</strong> <span class="text-slate-100">Recruitment 2025 — <span class="font-bold text-yellow-300">250 Junior Engineer</span> posts announced. Apply by <span class="underline decoration-yellow-400 font-medium">30 Jun 2025</span></span></span>
-              <span style="padding-right:3rem;">› <strong class="text-cyan-300 font-extrabold uppercase tracking-wider text-[10px] mr-1 bg-cyan-500/10 px-1.5 py-0.5 rounded border border-cyan-400/20">TENDER:</strong> <span class="text-slate-100">NIT-521 for <span class="font-bold text-cyan-200">Baglihar Refurbishment</span> closing <span class="underline decoration-cyan-300 font-medium">28 Jun 2025</span></span></span>
-              <span style="padding-right:3rem;">› <strong class="text-emerald-400 font-extrabold uppercase tracking-wider text-[10px] mr-1 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-400/20">PRESS:</strong> <span class="text-slate-100">JKSPDC signs MoU for <span class="font-bold text-emerald-300">3,000 MW hydro expansion</span> with NHPC</span></span>
-              <span style="padding-right:3rem;">› <strong class="text-orange-400 font-extrabold uppercase tracking-wider text-[10px] mr-1 bg-orange-500/10 px-1.5 py-0.5 rounded border border-orange-400/20">CORRIGENDUM:</strong> <span class="text-slate-100">COR/2025/56 issued for <span class="font-bold text-orange-300">Pakal Dul E&amp;M</span> works</span></span>
-              <span style="padding-right:3rem;">› <strong class="text-sky-300 font-extrabold uppercase tracking-wider text-[10px] mr-1 bg-sky-500/10 px-1.5 py-0.5 rounded border border-sky-400/20">INVESTOR:</strong> <span class="text-slate-100"><span class="font-bold text-sky-200">32nd AGM</span> scheduled for <span class="underline decoration-sky-300 font-medium">25 Jun 2025</span></span></span>
+              {[...tickerItems, ...tickerItems].map((item: any) => (
+                <span style="padding-right:3rem;">
+                  › <strong class={`font-extrabold uppercase tracking-wider text-[10px] mr-1 px-1.5 py-0.5 rounded border ${item.colorClass}`}>{item.type}:</strong> 
+                  <span class="text-slate-100">{item.text}</span>
+                </span>
+              ))}
             </div>
           </div>
         </div>
