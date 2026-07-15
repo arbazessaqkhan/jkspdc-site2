@@ -47,6 +47,7 @@ const photoMap = {
   "Shri Ashwani Kumar": "/dignitaries/ashwani_kumar.png",
   "Shri Rahul Yadav (IAS)": "/dignitaries/rahul_yadav.jpg",
   "Shri Rahul Yadav": "/dignitaries/rahul_yadav.jpg",
+  "Rahul Yadav": "/dignitaries/rahul_yadav.jpg",
   "Sh. Satish Chandra, IAS": "/dignitaries/manoj_sinha.png", // fallback or default
   "Sh. Vikrant Gupta": "/dignitaries/ashwani_kumar.png",
   "Smt. Anjali Dev": "/logo.png"
@@ -87,6 +88,88 @@ const corpStats = [
   { label: "Revenue 2023-24", value: "Rs. 1,136 Cr" },
   { label: "JV Investment", value: "Rs. 2,357 Cr" },
 ];
+
+const fallbackNotifications = [
+  {
+    title: "Cancellation notice of NIT no. 03 of 2026 dated 20.05.2026 and 05 of 2026 dated 16.06.2026",
+    publishDate: "2026-07-01",
+    documentUrl: "/stakeholders/investors/announcement"
+  },
+  {
+    title: "NOTICE FOR PUBLIC HEARING - Proposed 20MW Solar Power Installation in Samba district",
+    publishDate: "2026-06-29",
+    documentUrl: "/stakeholders/investors/announcement"
+  },
+  {
+    title: "Corrigendum-II: Extension of Bid Submission Date for Design, Engineering & Commissioning of Pahalgam HEP",
+    publishDate: "2026-06-25",
+    documentUrl: "/stakeholders/investors/announcement"
+  },
+  {
+    title: "Appointment of Senior Consultants for Environmental Impact Assessment of upcoming Hydro Projects",
+    publishDate: "2026-06-20",
+    documentUrl: "/stakeholders/investors/announcement"
+  },
+  {
+    title: "Public Notice: Schedule of Board of Directors Meeting on Corporate Capital Restructuring",
+    publishDate: "2026-06-15",
+    documentUrl: "/stakeholders/investors/announcement"
+  }
+];
+
+const fallbackTenders = [
+  {
+    referenceNo: "TEST-NIT-100",
+    title: "eNIT No 03 GD BHEP I 2026 27",
+    description: "Power House Chanderkote Ramban JandK",
+    publishDate: "2026-07-13",
+    closingDate: "2026-08-13",
+    documentUrl: "/stakeholders/vendors/tender-bids",
+    status: "Active",
+    isNew: true
+  },
+  {
+    referenceNo: "NIT/JKSPDCL/LJHP-202",
+    title: "Annual Maintenance Contract of Electro-Mechanical Assets of Lower Jhelum Hydel Project",
+    description: "LJHP Power House Gantamulla Baramulla",
+    publishDate: "2026-07-12",
+    closingDate: "2026-08-10",
+    documentUrl: "/stakeholders/vendors/tender-bids",
+    status: "Active",
+    isNew: true
+  },
+  {
+    referenceNo: "JKSPDCL/SLD-05",
+    title: "Supply, Installation and Commissioning of Grid-Connected Rooftop Solar Power Plants",
+    description: "Various corporate locations in Jammu and Srinagar",
+    publishDate: "2026-07-08",
+    closingDate: "2026-08-05",
+    documentUrl: "/stakeholders/vendors/tender-bids",
+    status: "Active"
+  },
+  {
+    referenceNo: "NIT/CIVIL/BHEP-45",
+    title: "Restoration of River Banks and Slope Stabilization near Baglihar Intake Structure",
+    description: "Baglihar Dam Site Ramban",
+    publishDate: "2026-07-05",
+    closingDate: "2026-07-28",
+    documentUrl: "/stakeholders/vendors/tender-bids",
+    status: "Active"
+  }
+];
+
+const formatLongDate = (dateStr: string) => {
+  if (!dateStr) return '—';
+  try {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  } catch (e) {
+    return dateStr;
+  }
+};
+
+const displayNotifications = notifications.length > 0 ? notifications : fallbackNotifications;
+const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
 ---
 
 <Layout title="Home | JKSPDC Official Portal" description="Official enterprise portal of Jammu and Kashmir State Power Development Corporation Ltd. Powering the future of J&K through clean, sustainable, and reliable energy generation." isHome={true}>
@@ -105,11 +188,11 @@ const corpStats = [
             <div class="w-full max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
               <div class="max-w-2xl text-white">
                 <div class="inline-flex items-center bg-[#D8681B] text-white text-[11px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-6">{slide.badge}</div>
-                <h2 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.1] tracking-tight text-balance">{slide.title}</h2>
+                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold leading-[1.1] tracking-tight text-balance" style="text-shadow: 0 2px 8px rgba(0,0,0,0.45);">{slide.title}</h2>
                 <p class="mt-5 text-base sm:text-lg text-white/80 max-w-xl leading-relaxed">{slide.desc}</p>
                 <div class="mt-8 flex flex-wrap items-center gap-3">
                   <a href={slide.ctaHref} class="inline-flex items-center gap-2 bg-[#D8681B] hover:bg-[#C65D18] text-white font-semibold px-7 h-12 rounded-md transition-colors text-sm shadow-lg">{slide.ctaText} &rarr;</a>
-                  <button class="inline-flex items-center gap-2 border border-white/40 bg-white/8 backdrop-blur-sm text-white hover:bg-white/18 px-6 h-12 rounded-md transition-colors text-sm font-medium">&#9654; Corporate Video</button>
+                  <button class="inline-flex items-center gap-2 border-2 border-white/80 bg-black/30 backdrop-blur-sm text-white hover:bg-white/20 px-6 h-12 rounded-md transition-colors text-sm font-medium">&#9654; Corporate Video</button>
                 </div>
               </div>
             </div>
@@ -146,56 +229,175 @@ const corpStats = [
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 space-y-14">
 
     <!-- ============================================================ -->
-    <!-- HONORABLE DIGNITARIES                                        -->
+    <!-- DIGNITARIES & MARQUEE SCROLLS SPLIT SCREEN SECTION           -->
     <!-- ============================================================ -->
-    <section aria-labelledby="dignitaries-heading" class="space-y-6">
-      <!-- Section Header (Outside of the box) -->
-      <div class="text-center">
-        <span class="inline-block text-[11px] uppercase tracking-[0.14em] text-[#0B4F9C] font-extrabold bg-[#EAF4FF] px-4 py-1.5 rounded-full border border-[#BDD7EE]/50 mb-3">Leadership &amp; Governance</span>
-        <h2 id="dignitaries-heading" class="text-2xl md:text-3xl font-extrabold text-[#1B2A41]">Honorable Dignitaries</h2>
-        <div class="w-12 h-0.5 bg-[#D8681B] mx-auto mt-3.5 rounded-full"></div>
+    <section class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
+      
+      <!-- Left Column: Honorable Dignitaries (60% width = 3 cols out of 5) -->
+      <div class="lg:col-span-3 flex flex-col space-y-6">
+        <!-- Section Header -->
+        <div class="text-left">
+          <span class="inline-block text-[11px] uppercase tracking-[0.14em] text-[#1B3A6B] font-bold bg-transparent px-4 py-1.5 rounded-full border border-[#1B3A6B] mb-3">Leadership &amp; Governance</span>
+          <h2 id="dignitaries-heading" class="text-2xl md:text-3xl font-extrabold text-[#1B2A41]">Honorable Dignitaries</h2>
+          <div class="w-12 h-0.5 bg-[#D8681B] mt-3.5 rounded-full"></div>
+        </div>
+
+        <div class="bg-gradient-to-br from-[#F0F7FF] to-[#E5F1FF] border border-[#BDD7EE]/50 rounded-2xl p-3 shadow-sm">
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 w-full">
+            {directors.length === 0 ? (
+              <div class="col-span-full text-center py-6 bg-white border border-slate-200 rounded-2xl text-slate-400 text-xs font-semibold">
+                No administrative board members listed.
+              </div>
+            ) : (
+              directors.map(d => {
+                const profileHref = routeMap[d.name] || "/about-us/management/board";
+                return (
+                  <div class="group bg-white rounded-xl border border-slate-200/60 shadow-sm px-3 py-5 flex flex-col items-center justify-between text-center hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+                    <div class="w-20 h-20 rounded-full overflow-hidden bg-slate-100 border-[2.5px] border-[#0B4F9C]/20 shadow flex items-center justify-center flex-shrink-0">
+                      {photoMap[d.name] ? (
+                        <img src={photoMap[d.name]} alt={d.name} width="80" height="80" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" />
+                      ) : (
+                        <svg class="w-full h-full object-cover" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <rect width="100" height="100" fill="url(#grad)" />
+                          <circle cx="50" cy="35" r="18" fill="#FFFFFF" fill-opacity="0.85"/>
+                          <path d="M50 58C32 58 20 70 20 85H80C80 70 68 58 50 58Z" fill="#FFFFFF" fill-opacity="0.85"/>
+                          <circle cx="50" cy="85" r="6" fill="#D8681B" />
+                          <defs>
+                            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                              <stop offset="0%" stop-color="#1B3A6B" />
+                              <stop offset="100%" stop-color="#0B4F9C" />
+                            </linearGradient>
+                          </defs>
+                        </svg>
+                      )}
+                    </div>
+                    <div class="mt-3 flex-1 flex flex-col items-center justify-center">
+                      <h3 class="font-extrabold text-slate-800 text-xs leading-snug group-hover:text-[#0B4F9C] transition-colors">{d.name}</h3>
+                      <p class="text-[9px] text-slate-500 font-semibold uppercase tracking-wide mt-1.5">{d.role}</p>
+                      <p class="text-[9px] text-slate-400 font-medium mt-0.5 leading-snug">{d.position}</p>
+                    </div>
+                    <a href={profileHref} class="mt-4 w-full inline-flex items-center justify-center py-1 border border-slate-200 hover:border-[#0B4F9C] text-[9px] font-bold text-slate-550 hover:text-white hover:bg-[#0B4F9C] rounded transition-all duration-150">
+                      Profile Details
+                    </a>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
       </div>
 
-      <div class="bg-gradient-to-br from-[#083B73] to-[#0A2E5C] rounded-2xl border border-white/10 shadow-xl text-white overflow-hidden">
-        <!-- Cards Grid -->
-        <div class={`px-8 md:px-12 py-10 grid gap-5 ${
-          directors.length === 1 ? 'grid-cols-1 max-w-sm mx-auto' :
-          directors.length === 2 ? 'grid-cols-1 sm:grid-cols-2' :
-          directors.length === 3 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' :
-          'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
-        }`}>
+      <!-- Right Column: Dual Scroll Components side-by-side (40% width = 2 cols out of 5) -->
+      <div class="lg:col-span-2 flex flex-col space-y-6">
+        <!-- Section Header (Outside of the box) -->
+        <div class="text-left">
+          <span class="inline-block text-[11px] uppercase tracking-[0.14em] text-[#1B3A6B] font-bold bg-transparent px-4 py-1.5 rounded-full border border-[#1B3A6B] mb-3">Updates &amp; Notices</span>
+          <h2 id="scrolls-heading" class="text-2xl md:text-3xl font-extrabold text-[#1B2A41]">Latest Updates &amp; Tenders</h2>
+          <div class="w-12 h-0.5 bg-[#D8681B] mt-3.5 rounded-full"></div>
+        </div>
 
-          <!-- Dignitary Card Pattern (shared styles via inline classes) -->
-          {directors.length === 0 ? (
-            <div class="col-span-full text-center py-10 bg-white/5 border border-white/10 rounded-xl text-slate-350 text-sm font-semibold">
-              No administrative board members listed.
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
+          
+          <!-- Latest Tenders Scroll -->
+          <div class="flex flex-col bg-white border border-[#BDD7EE] rounded-2xl shadow-sm overflow-hidden h-[240px] justify-between">
+            <div class="bg-[#F8F9FA] border-b border-[#BDD7EE]/60 px-4 py-2.5 flex items-center justify-between flex-shrink-0">
+              <div class="flex items-center gap-1.5">
+                <span class="text-base text-[#0B4F9C]">💼</span>
+                <h3 class="font-extrabold text-[#0B4F9C] text-xs uppercase tracking-wider">Latest Tenders</h3>
+              </div>
+              <a href="/stakeholders/vendors/tender-bids" class="text-[10px] font-bold text-[#0B4F9C] hover:underline flex items-center gap-0.5">
+                View All &rarr;
+              </a>
             </div>
-          ) : (
-            directors.map(d => {
-              const profileHref = routeMap[d.name] || "/about-us/management/board";
-              return (
-                <div class="group bg-white rounded-xl border border-slate-100 shadow-sm p-6 flex flex-col items-center text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                  <div class="w-28 h-28 rounded-full overflow-hidden bg-slate-100 border-[3px] border-[#0B4F9C]/20 shadow-md flex items-center justify-center flex-shrink-0">
-                    {photoMap[d.name] ? (
-                      <img src={photoMap[d.name]} alt={d.name} width="112" height="112" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" />
-                    ) : (
-                      <div class="w-full h-full bg-gradient-to-br from-[#EAF4FF] to-[#BAE6FD] text-[#0B4F9C] flex items-center justify-center font-black text-2xl uppercase select-none">
-                        {d.name.replace(/^(Shri|Smt|Dr|Mr|Mrs|Sh\.|Smt\.)\s+/i, '').substring(0, 2)}
+            
+            <div class="relative flex-1 overflow-hidden p-2.5 bg-slate-50/60">
+              <div class="scroll-track animate-marquee-vertical flex flex-col gap-2" style={`--marquee-duration: ${displayTenders.length * 7}s`}>
+                {displayTenders.map((tender: any) => {
+                  const isNew = tender.isNew || (new Date().getTime() - new Date(tender.publishDate).getTime()) < 7 * 24 * 60 * 60 * 1000;
+                  return (
+                    <a href={tender.documentUrl} class="block p-2.5 bg-white border border-slate-200 hover:border-[#0B4F9C]/30 rounded-xl shadow-sm hover:shadow transition-all duration-200 text-left">
+                      <div class="flex items-center gap-1.5 text-[9px] text-slate-450 font-bold mb-1">
+                        <span>📅</span>
+                        <span>{formatLongDate(tender.publishDate)}</span>
                       </div>
-                    )}
-                  </div>
-                  <div class="mt-4 flex-1 flex flex-col items-center">
-                    <h3 class="font-bold text-slate-900 text-sm leading-snug group-hover:text-[#0B4F9C] transition-colors">{d.name}</h3>
-                    <p class="text-[10px] text-[#0B4F9C] font-extrabold uppercase tracking-wide mt-2">{d.role}</p>
-                    <p class="text-[10px] text-slate-450 font-semibold mt-1 leading-snug">{d.position}</p>
-                  </div>
-                  <a href={profileHref} class="mt-5 w-full inline-flex items-center justify-center py-2 border border-slate-200 hover:border-[#0B4F9C] text-[11px] font-bold text-slate-600 hover:text-white hover:bg-[#0B4F9C] rounded-lg transition-all duration-150">
-                    Profile Details
+                      <h4 class="font-bold text-slate-900 text-[11px] leading-snug">
+                        {tender.title}
+                        {isNew && (
+                          <span class="inline-block bg-[#D8681B] text-white text-[7px] font-extrabold uppercase px-1 py-0.5 rounded ml-1.5 tracking-wider">
+                            New!
+                          </span>
+                        )}
+                      </h4>
+                      {tender.description && (
+                        <p class="text-[9px] text-slate-500 mt-1 leading-normal">{tender.description}</p>
+                      )}
+                    </a>
+                  );
+                })}
+                {/* Duplicate for seamless scrolling marquee */}
+                {displayTenders.map((tender: any) => {
+                  const isNew = tender.isNew || (new Date().getTime() - new Date(tender.publishDate).getTime()) < 7 * 24 * 60 * 60 * 1000;
+                  return (
+                    <a href={tender.documentUrl} class="block p-2.5 bg-white border border-slate-200 hover:border-[#0B4F9C]/30 rounded-xl shadow-sm hover:shadow transition-all duration-200 text-left">
+                      <div class="flex items-center gap-1.5 text-[9px] text-slate-450 font-bold mb-1">
+                        <span>📅</span>
+                        <span>{formatLongDate(tender.publishDate)}</span>
+                      </div>
+                      <h4 class="font-bold text-slate-900 text-[11px] leading-snug">
+                        {tender.title}
+                        {isNew && (
+                          <span class="inline-block bg-[#D8681B] text-white text-[7px] font-extrabold uppercase px-1 py-0.5 rounded ml-1.5 tracking-wider">
+                            New!
+                          </span>
+                        )}
+                      </h4>
+                      {tender.description && (
+                        <p class="text-[9px] text-slate-500 mt-1 leading-normal">{tender.description}</p>
+                      )}
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <!-- Latest Notifications Scroll -->
+          <div class="flex flex-col bg-white border border-[#BDD7EE] rounded-2xl shadow-sm overflow-hidden h-[240px] justify-between">
+            <div class="bg-[#F8F9FA] border-b border-[#BDD7EE]/60 px-4 py-2.5 flex items-center justify-between flex-shrink-0">
+              <div class="flex items-center gap-1.5">
+                <span class="text-base text-[#0B4F9C]">📢</span>
+                <h3 class="font-extrabold text-[#0B4F9C] text-xs uppercase tracking-wider">Latest Notifications</h3>
+              </div>
+              <a href="/stakeholders/investors/announcement" class="text-[10px] font-bold text-[#0B4F9C] hover:underline flex items-center gap-0.5">
+                View All &rarr;
+              </a>
+            </div>
+            
+            <div class="relative flex-1 overflow-hidden p-2.5 bg-slate-50/60">
+              <div class="scroll-track animate-marquee-vertical flex flex-col gap-2" style={`--marquee-duration: ${displayNotifications.length * 6}s`}>
+                {displayNotifications.map((notif: any) => (
+                  <a href={notif.documentUrl} class="block p-2.5 bg-white border border-slate-200 hover:border-[#0B4F9C]/30 rounded-xl shadow-sm hover:shadow transition-all duration-200 text-left">
+                    <h4 class="font-medium text-slate-800 text-[11px] leading-relaxed mb-1.5">{notif.title}</h4>
+                    <div class="flex items-center gap-1.5 text-[9px] text-slate-450 font-bold">
+                      <span>📅</span>
+                      <span>{formatLongDate(notif.publishDate)}</span>
+                    </div>
                   </a>
-                </div>
-              );
-            })
-          )}
+                ))}
+                {/* Duplicate for seamless scrolling marquee */}
+                {displayNotifications.map((notif: any) => (
+                  <a href={notif.documentUrl} class="block p-2.5 bg-white border border-slate-200 hover:border-[#0B4F9C]/30 rounded-xl shadow-sm hover:shadow transition-all duration-200 text-left">
+                    <h4 class="font-medium text-slate-800 text-[11px] leading-relaxed mb-1.5">{notif.title}</h4>
+                    <div class="flex items-center gap-1.5 text-[9px] text-slate-450 font-bold">
+                      <span>📅</span>
+                      <span>{formatLongDate(notif.publishDate)}</span>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>
@@ -205,7 +407,7 @@ const corpStats = [
     <!-- ============================================================ -->
     <section aria-labelledby="quick-access-heading" class="bg-white rounded-2xl border border-[#BDD7EE] shadow-sm overflow-hidden">
       <div class="px-8 md:px-12 pt-10 pb-3">
-        <div class="text-[11px] uppercase tracking-[0.14em] text-[#0B4F9C] font-extrabold mb-2">Quick Access</div>
+        <div class="text-[11px] uppercase tracking-[0.14em] text-[#1B3A6B] font-bold mb-2">Quick Access</div>
         <h2 id="quick-access-heading" class="text-2xl md:text-3xl font-extrabold text-[#1A5276]">Navigate the corporation</h2>
         <p class="text-sm text-slate-500 mt-2.5 max-w-2xl leading-relaxed">One-click access to the most-used services and information across the corporation.</p>
       </div>
@@ -213,8 +415,8 @@ const corpStats = [
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {quickLinks.map((link) => (
             <a href={link.href} class="group relative bg-white border border-slate-200 rounded-xl p-5 hover:border-[#0B4F9C]/40 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col gap-3">
-              <div class="w-11 h-11 rounded-xl bg-[#EAF4FF] text-[#0B4F9C] flex items-center justify-center flex-shrink-0">
-                <Icon name={link.icon} size={20} strokeWidth={1.75} />
+              <div class="w-12 h-12 rounded-xl bg-[#EAF4FF] text-[#0B4F9C] flex items-center justify-center flex-shrink-0">
+                <Icon name={link.icon} size={22} strokeWidth={1.75} />
               </div>
               <div>
                 <div class="font-semibold text-slate-800 text-sm leading-snug">{link.label}</div>
@@ -235,7 +437,7 @@ const corpStats = [
       <div class="px-8 md:px-12 pt-10 pb-0">
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-5">
           <div>
-            <div class="text-[11px] uppercase tracking-[0.14em] text-[#0B4F9C] font-extrabold mb-2">Project Portfolio</div>
+            <div class="text-[11px] uppercase tracking-[0.14em] text-[#1B3A6B] font-bold mb-2">Project Portfolio</div>
             <h2 id="projects-heading" class="text-2xl md:text-3xl font-extrabold text-[#1A5276]">Interactive Project Explorer</h2>
             <p class="text-sm text-slate-500 mt-2.5 max-w-xl leading-relaxed">Discover operational hydroelectric plants, ongoing constructions and upcoming renewable projects across J&K.</p>
           </div>
@@ -277,7 +479,9 @@ const corpStats = [
               <div class="flex items-start justify-between mb-4">
                 <div class="flex-1 min-w-0 pr-3">
                   <div class="font-bold text-slate-900 text-sm leading-snug">{p.name}</div>
-                  <div class="text-xs text-slate-400 mt-1">{p.location || '—'} — {p.basin || '—'} Basin</div>
+                  {(p.location || p.basin) && (
+                    <div class="text-xs text-slate-400 mt-1">{p.location}{p.location && p.basin ? ' — ' : ''}{p.basin ? `${p.basin} Basin` : ''}</div>
+                  )}
                 </div>
                 <span class={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full whitespace-nowrap flex-shrink-0 ${p.status === 'Operational' ? 'bg-emerald-100 text-emerald-700' : p.status === 'Under Construction' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600'}`}>{p.status}</span>
               </div>
@@ -300,128 +504,11 @@ const corpStats = [
 
       <!-- View All -->
       <div class="px-8 md:px-12 pt-8 pb-10 text-center">
-        <a href="/our-business/power-stations" class="inline-flex items-center gap-2 border border-slate-300 hover:border-[#0B4F9C] text-slate-600 hover:text-[#0B4F9C] px-7 py-2.5 rounded-lg text-sm font-semibold bg-white transition-colors shadow-sm">View All Projects &rarr;</a>
+        <a href="/our-business/power-stations" class="inline-flex items-center gap-2 bg-[#1B3A6B] hover:bg-[#0B4F9C] text-white px-8 py-3 rounded-lg text-sm font-semibold transition-colors shadow-md">View All Projects &rarr;</a>
       </div>
     </section>
 
-    <!-- ============================================================ -->
-    <!-- ACTIVE TENDERS                                                -->
-    <!-- ============================================================ -->
-    <section id="tenders" aria-labelledby="tenders-heading" class="bg-white rounded-2xl border border-[#BDD7EE] shadow-sm overflow-hidden">
-      <div class="px-8 md:px-12 pt-10 pb-8">
-        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-5">
-          <div>
-            <div class="text-[11px] uppercase tracking-[0.14em] text-[#0B4F9C] font-extrabold mb-2">Procurement</div>
-            <h2 id="tenders-heading" class="text-2xl md:text-3xl font-extrabold text-[#1A5276]">Active Tenders &amp; Bids</h2>
-            <p class="text-sm text-slate-500 mt-2.5 leading-relaxed">All currently open tenders from JKSPDCL. Download bid documents and submit online.</p>
-          </div>
-          <a href="/stakeholders/vendors/tender-bids" class="inline-flex items-center gap-2 bg-[#0B4F9C] hover:bg-[#084A8F] text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap shadow-sm flex-shrink-0">View All Tenders &rarr;</a>
-        </div>
-      </div>
-      <div class="overflow-x-auto border-t border-slate-100">
-        <table class="w-full text-sm">
-          <thead class="bg-[#D6EAF8] text-[#1A5276] text-[11px] uppercase tracking-wider border-b border-[#BDD7EE]">
-            <tr>
-              <th class="px-6 py-3.5 text-left font-semibold">NIT Ref No.</th>
-              <th class="px-6 py-3.5 text-left font-semibold">Description</th>
-              <th class="px-6 py-3.5 text-left font-semibold hidden md:table-cell">File Size</th>
-              <th class="px-6 py-3.5 text-left font-semibold">Closing</th>
-              <th class="px-6 py-3.5 text-left font-semibold">Status</th>
-              <th class="px-6 py-3.5"></th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-100">
-            {tenders.length === 0 ? (
-              <tr>
-                <td colspan="6" class="text-center text-slate-500 py-10 text-xs font-semibold">
-                  No active tenders found.
-                </td>
-              </tr>
-            ) : (
-              tenders.map((t) => (
-                <tr class="hover:bg-[#EAF4FF]/50 transition-colors">
-                  <td class="px-6 py-4 font-mono font-semibold text-[#0B4F9C] text-xs whitespace-nowrap">{t.referenceNo}</td>
-                  <td class="px-6 py-4 text-slate-850 font-medium max-w-xs text-sm text-left">
-                    <div class="font-bold text-slate-800">{t.title}</div>
-                    {t.description && <div class="text-[10px] text-slate-500 mt-0.5 leading-snug">{t.description}</div>}
-                  </td>
-                  <td class="px-6 py-4 text-slate-500 text-xs hidden md:table-cell whitespace-nowrap">
-                    {t.fileSizeBytes ? `${(t.fileSizeBytes / 1024).toFixed(0)} KB` : 'N/A'}
-                  </td>
-                  <td class="px-6 py-4 text-slate-500 text-xs whitespace-nowrap">
-                    {t.closingDate ? new Date(t.closingDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
-                  </td>
-                  <td class="px-6 py-4">
-                    <span class={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${
-                      t.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'
-                    }`}>
-                      {t.status}
-                    </span>
-                  </td>
-                  <td class="px-6 py-4">
-                    <a href={t.documentUrl} target="_blank" rel="noopener noreferrer" class="text-[#0B4F9C] hover:underline font-semibold text-xs whitespace-nowrap">
-                      Download &rarr;
-                    </a>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-    </section>
 
-    <!-- ============================================================ -->
-    <!-- ANNOUNCEMENTS & NOTIFICATIONS                                 -->
-    <!-- ============================================================ -->
-    <section id="notifications" aria-labelledby="notifications-heading" class="bg-white rounded-2xl border border-[#BDD7EE] shadow-sm overflow-hidden">
-      <div class="px-8 md:px-12 pt-10 pb-8">
-        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-5">
-          <div>
-            <div class="text-[11px] uppercase tracking-[0.14em] text-[#0B4F9C] font-extrabold mb-2">Announcements</div>
-            <h2 id="notifications-heading" class="text-2xl md:text-3xl font-extrabold text-[#1A5276]">Latest Notifications &amp; Circulars</h2>
-            <p class="text-sm text-slate-500 mt-2.5 leading-relaxed">Official notifications, board meeting intimations, and public circulars from JKSPDCL.</p>
-          </div>
-          <a href="/stakeholders/investors/announcement" class="inline-flex items-center gap-2 bg-[#0B4F9C] hover:bg-[#084A8F] text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap shadow-sm flex-shrink-0">View All Announcements &rarr;</a>
-        </div>
-      </div>
-      <div class="overflow-x-auto border-t border-slate-100">
-        <table class="w-full text-sm">
-          <thead class="bg-[#FADBD8] text-[#78281F] text-[11px] uppercase tracking-wider border-b border-[#F5B7B1]">
-            <tr>
-              <th class="px-6 py-3.5 text-left font-semibold">Title</th>
-              <th class="px-6 py-3.5 text-left font-semibold">File Name</th>
-              <th class="px-6 py-3.5 text-left font-semibold">Date</th>
-              <th class="px-6 py-3.5"></th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-100">
-            {notifications.length === 0 ? (
-              <tr>
-                <td colspan="4" class="text-center text-slate-500 py-10 text-xs font-semibold">
-                  No announcements found.
-                </td>
-              </tr>
-            ) : (
-              notifications.map((n: any) => (
-                <tr class="hover:bg-[#FDEDEC]/50 transition-colors">
-                  <td class="px-6 py-4 text-slate-850 font-bold max-w-md text-sm text-left">{n.title}</td>
-                  <td class="px-6 py-4 text-[#0B4F9C] font-semibold text-xs whitespace-nowrap font-mono">{n.fileName}</td>
-                  <td class="px-6 py-4 text-slate-500 text-xs whitespace-nowrap">
-                    {new Date(n.publishDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
-                  </td>
-                  <td class="px-6 py-4">
-                    <a href={n.documentUrl} target="_blank" rel="noopener noreferrer" class="text-[#0B4F9C] hover:underline font-semibold text-xs whitespace-nowrap">
-                      Download &rarr;
-                    </a>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-    </section>
 
     <!-- ============================================================ -->
     <!-- ABOUT JKSPDC                                                  -->
@@ -431,13 +518,13 @@ const corpStats = [
 
         <!-- Left: Text Column -->
         <div class="flex flex-col">
-          <div class="text-[11px] uppercase tracking-[0.14em] text-[#FFE0C2] font-extrabold mb-4">About JKSPDC</div>
+          <div class="text-[11px] uppercase tracking-[0.14em] text-[#FFE0C2] font-bold mb-4">About JKSPDC</div>
           <h2 id="about-heading" class="text-2xl md:text-3xl lg:text-4xl font-extrabold leading-tight mb-6">Powering J&amp;K Since 1995</h2>
           <div class="space-y-4 mb-8">
-            <p class="text-white/80 text-sm leading-relaxed">
+            <p class="text-white/80 text-[15px] leading-[1.65]">
               Jammu and Kashmir State Power Development Corporation Limited (JKSPDCL) is a wholly owned Public Sector Undertaking (PSU) of the Government of Jammu &amp; Kashmir, incorporated in 1995 under the Companies Act.
             </p>
-            <p class="text-white/80 text-sm leading-relaxed">
+            <p class="text-white/80 text-[15px] leading-[1.65]">
               With an authorised share capital of Rs.&nbsp;5,000 crores, JKSPDC has investments of Rs.&nbsp;2,357.61 crores in joint ventures with NHPC — including CVPPPL and RHPCL — harnessing the vast hydroelectric potential of the region.
             </p>
           </div>
@@ -453,7 +540,7 @@ const corpStats = [
           </div>
 
           <div>
-            <a href="/about-us/explore/overview" class="inline-flex items-center gap-2 bg-white hover:bg-[#EAF4FF] text-[#0B4F9C] font-semibold px-7 py-3 rounded-lg text-sm transition-colors border border-white/20 shadow-sm">
+            <a href="/about-us/explore/overview" class="inline-flex items-center gap-2 bg-transparent hover:bg-white/15 text-white font-semibold px-7 py-3 rounded-lg text-sm transition-colors border-2 border-white/80 shadow-sm">
               Learn More About Us &rarr;
             </a>
           </div>
@@ -483,63 +570,67 @@ const corpStats = [
     </section>
 
     <!-- ============================================================ -->
-    <!-- CONTACT SECTION                                               -->
+    <!-- QUICK LINKS LOGO MARQUEE SECTION                             -->
     <!-- ============================================================ -->
-    <section id="contact" aria-labelledby="contact-heading" class="bg-[#EAF4FF] rounded-2xl border border-[#BDD7EE] shadow-sm overflow-hidden">
-      <div class="px-8 md:px-12 pt-10 pb-4 text-center">
-        <div class="text-[11px] uppercase tracking-[0.14em] text-[#0B4F9C] font-extrabold mb-2">Get In Touch</div>
-        <h2 id="contact-heading" class="text-2xl md:text-3xl font-extrabold text-[#1A5276]">Contact JKSPDCL</h2>
-        <p class="text-sm text-slate-500 mt-2.5 max-w-lg mx-auto leading-relaxed">Reach out to our offices in Srinagar or Jammu for enquiries, tenders, and official correspondence.</p>
+    <section id="quick-links-marquee" aria-labelledby="marquee-heading" class="bg-white rounded-2xl border border-[#BDD7EE]/80 shadow-sm overflow-hidden py-8 px-6">
+      <div class="text-center mb-6">
+        <span class="inline-block text-[11px] uppercase tracking-[0.14em] text-[#1B3A6B] font-bold bg-transparent px-4 py-1.5 rounded-full border border-[#1B3A6B] mb-3">External Portals</span>
+        <h2 id="marquee-heading" class="text-xl md:text-2xl font-extrabold text-[#1B2A41]">Important Quick Links</h2>
+        <div class="w-12 h-0.5 bg-[#D8681B] mt-2.5 mx-auto rounded-full"></div>
       </div>
 
-      <div class="px-8 md:px-12 pt-8 pb-10 grid md:grid-cols-3 gap-5">
-
-        <!-- Srinagar Office -->
-        <div class="bg-white rounded-xl p-6 border border-[#BDD7EE] shadow-sm flex flex-col">
-          <div class="w-11 h-11 rounded-xl bg-[#EAF4FF] text-[#0B4F9C] flex items-center justify-center flex-shrink-0 mb-5">
-            <Icon name="map-pin" size={20} strokeWidth={1.75} />
-          </div>
-          <h3 class="font-bold text-[#1A5276] text-base mb-3">Srinagar Office</h3>
-          <p class="text-sm text-slate-600 leading-relaxed mb-4">Exhibition Grounds, Jahangir Chowk,<br />Srinagar, J&K — 190009</p>
-          <div class="flex flex-col gap-2 mt-auto">
-            <a href="tel:+911942451665" class="text-sm text-[#0B4F9C] hover:underline inline-flex items-center gap-2">
-              <Icon name="phone" size={13} strokeWidth={2} /> +91 194 2451665
+      <!-- Scrolling Marquee Row -->
+      <div class="relative w-full overflow-hidden bg-slate-50/50 border border-slate-100 rounded-xl py-4 px-4">
+        <div class="marquee-track flex">
+          <!-- Slide List (duplicated for infinite loop) -->
+          <div class="marquee-content flex items-center gap-6 pr-6 flex-shrink-0">
+            <a href="https://cea.nic.in/" target="_blank" rel="noopener noreferrer" title="Central Electricity Authority" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+              <img src="/logos/cea.webp" alt="Central Electricity Authority" title="Central Electricity Authority" class="max-w-full max-h-full object-contain" />
             </a>
-            <a href="mailto:md-jkspdcl@jk.gov.in" class="text-sm text-[#0B4F9C] hover:underline inline-flex items-center gap-2 break-all">
-              <Icon name="mail" size={13} strokeWidth={2} /> md-jkspdcl@jk.gov.in
+            <a href="https://moef.gov.in/" target="_blank" rel="noopener noreferrer" title="Ministry of Environment, Forest and Climate Change" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+              <img src="/logos/moef.png" alt="Ministry of Environment, Forest and Climate Change" title="Ministry of Environment, Forest and Climate Change" class="max-w-full max-h-full object-contain" />
+            </a>
+            <a href="https://www.india.gov.in/" target="_blank" rel="noopener noreferrer" title="National Portal of India" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+              <img src="/logos/india.svg" alt="National Portal of India" title="National Portal of India" class="max-w-full max-h-full object-contain" />
+            </a>
+            <a href="https://mnre.gov.in/" target="_blank" rel="noopener noreferrer" title="Ministry of New and Renewable Energy" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+              <img src="/logos/mnre.svg" alt="Ministry of New and Renewable Energy" title="Ministry of New and Renewable Energy" class="max-w-full max-h-full object-contain" />
+            </a>
+            <a href="https://pdd.jk.gov.in/" target="_blank" rel="noopener noreferrer" title="Power Development Department J&K" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+              <img src="/logos/pdd.svg" alt="Power Development Department J&K" title="Power Development Department J&K" class="max-w-full max-h-full object-contain p-0.5" />
+            </a>
+            <a href="https://cwc.gov.in/" target="_blank" rel="noopener noreferrer" title="Central Water Commission" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+              <img src="/logos/cwc.png" alt="Central Water Commission" title="Central Water Commission" class="max-w-full max-h-full object-contain" />
+            </a>
+            <a href="https://jercjkl.jk.gov.in/AboutUs.html" target="_blank" rel="noopener noreferrer" title="J&K Joint Electricity Regulatory Commission" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+              <img src="/logos/jerc.png" alt="J&K Joint Electricity Regulatory Commission" title="J&K Joint Electricity Regulatory Commission" class="max-w-full max-h-full object-contain" />
+            </a>
+          </div>
+          <!-- Duplicate for infinite looping -->
+          <div class="marquee-content flex items-center gap-6 pr-6 flex-shrink-0" aria-hidden="true">
+            <a href="https://cea.nic.in/" target="_blank" rel="noopener noreferrer" title="Central Electricity Authority" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+              <img src="/logos/cea.webp" alt="Central Electricity Authority" title="Central Electricity Authority" class="max-w-full max-h-full object-contain" />
+            </a>
+            <a href="https://moef.gov.in/" target="_blank" rel="noopener noreferrer" title="Ministry of Environment, Forest and Climate Change" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+              <img src="/logos/moef.png" alt="Ministry of Environment, Forest and Climate Change" title="Ministry of Environment, Forest and Climate Change" class="max-w-full max-h-full object-contain" />
+            </a>
+            <a href="https://www.india.gov.in/" target="_blank" rel="noopener noreferrer" title="National Portal of India" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+              <img src="/logos/india.svg" alt="National Portal of India" title="National Portal of India" class="max-w-full max-h-full object-contain" />
+            </a>
+            <a href="https://mnre.gov.in/" target="_blank" rel="noopener noreferrer" title="Ministry of New and Renewable Energy" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+              <img src="/logos/mnre.svg" alt="Ministry of New and Renewable Energy" title="Ministry of New and Renewable Energy" class="max-w-full max-h-full object-contain" />
+            </a>
+            <a href="https://pdd.jk.gov.in/" target="_blank" rel="noopener noreferrer" title="Power Development Department J&K" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+              <img src="/logos/pdd.svg" alt="Power Development Department J&K" title="Power Development Department J&K" class="max-w-full max-h-full object-contain p-0.5" />
+            </a>
+            <a href="https://cwc.gov.in/" target="_blank" rel="noopener noreferrer" title="Central Water Commission" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+              <img src="/logos/cwc.png" alt="Central Water Commission" title="Central Water Commission" class="max-w-full max-h-full object-contain" />
+            </a>
+            <a href="https://jercjkl.jk.gov.in/AboutUs.html" target="_blank" rel="noopener noreferrer" title="J&K Joint Electricity Regulatory Commission" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+              <img src="/logos/jerc.png" alt="J&K Joint Electricity Regulatory Commission" title="J&K Joint Electricity Regulatory Commission" class="max-w-full max-h-full object-contain" />
             </a>
           </div>
         </div>
-
-        <!-- Jammu Office -->
-        <div class="bg-white rounded-xl p-6 border border-[#BDD7EE] shadow-sm flex flex-col">
-          <div class="w-11 h-11 rounded-xl bg-[#EAF4FF] text-[#0B4F9C] flex items-center justify-center flex-shrink-0 mb-5">
-            <Icon name="building" size={20} strokeWidth={1.75} />
-          </div>
-          <h3 class="font-bold text-[#1A5276] text-base mb-3">Jammu Office</h3>
-          <p class="text-sm text-slate-600 leading-relaxed mb-4">Ashok Nagar, Satwari,<br />Jammu, J&K — 180004</p>
-          <div class="flex flex-col gap-2 mt-auto">
-            <a href="tel:+911912430548" class="text-sm text-[#0B4F9C] hover:underline inline-flex items-center gap-2">
-              <Icon name="phone" size={13} strokeWidth={2} /> +91 191 2430548 / 2439039
-            </a>
-            <a href="mailto:md-jkspdcl@jk.gov.in" class="text-sm text-[#0B4F9C] hover:underline inline-flex items-center gap-2 break-all">
-              <Icon name="mail" size={13} strokeWidth={2} /> md-jkspdcl@jk.gov.in
-            </a>
-          </div>
-        </div>
-
-        <!-- Online Grievance -->
-        <div class="bg-gradient-to-br from-[#073A80] to-[#0B4F9C] rounded-xl p-6 text-white shadow-md border border-white/10 flex flex-col">
-          <div class="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0 mb-5">
-            <Icon name="mail" size={20} strokeWidth={1.75} />
-          </div>
-          <h3 class="font-bold text-base mb-3">Online Grievance</h3>
-          <p class="text-sm text-white/75 leading-relaxed flex-1">Submit complaints, RTI applications or general enquiries through our online portal.</p>
-          <a href="/contact-us" class="mt-5 inline-flex items-center gap-2 bg-white hover:bg-[#EAF4FF] text-[#0B4F9C] text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors border border-white/20 self-start">
-            Submit Enquiry &rarr;
-          </a>
-        </div>
-
       </div>
     </section>
 
@@ -595,3 +686,47 @@ const corpStats = [
   if (searchEl) searchEl.oninput = filterProjects;
 })();
 </script>
+
+<style>
+  @keyframes marquee-vertical {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(-50%);
+    }
+  }
+
+  .scroll-track {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    animation: marquee-vertical var(--marquee-duration, 25s) linear infinite;
+  }
+
+  .scroll-track:hover {
+    animation-play-state: paused;
+  }
+
+  @keyframes marquee-horizontal {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    gap: 0;
+    animation: marquee-horizontal 25s linear infinite;
+  }
+
+  .marquee-track:hover {
+    animation-play-state: paused;
+  }
+
+</style>
+

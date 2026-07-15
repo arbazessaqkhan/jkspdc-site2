@@ -36,24 +36,20 @@ const formatDate = (dateStr: string) => {
   description="Official announcements, notifications, circulars, and board meeting intimations of JKSPDC."
 >
   <div class="space-y-6">
-    <!-- Breadcrumbs -->
-    <nav class="text-xs text-gray-500" aria-label="Breadcrumbs">
-      <ol class="flex gap-2">
-        <li><a href="/" class="hover:underline">Home</a></li>
-        <li>/</li>
-        <li><span class="text-gray-400">Stakeholders</span></li>
-        <li>/</li>
-        <li><span class="text-gray-400">Investors</span></li>
-        <li>/</li>
-        <li><span class="font-semibold text-[#0B4F9C]">Announcement</span></li>
-      </ol>
-    </nav>
-
-    <!-- Page Header -->
-    <header class="border-b border-gray-200 pb-4">
-      <h2 class="text-3xl font-extrabold text-[#0B4F9C]">Investor Announcements</h2>
-      <p class="text-sm text-gray-650 mt-1">Official circulars, board meeting intimations, and notifications.</p>
-    </header>
+    <!-- Branded Page Header Band -->
+    <div class="-mx-4 sm:-mx-6 lg:-mx-8 -mt-8 mb-2 px-4 sm:px-6 lg:px-8 py-6 bg-gradient-to-r from-[#1B3A6B] to-[#0B4F9C]">
+      <nav class="text-xs text-white/70 mb-2" aria-label="Breadcrumbs">
+        <ol class="flex gap-2">
+          <li><a href="/" class="hover:text-white">Home</a></li>
+          <li class="text-white/50">/</li>
+          <li><span class="text-white/70">Investors Corner</span></li>
+          <li class="text-white/50">/</li>
+          <li><span class="font-semibold text-white">Announcement</span></li>
+        </ol>
+      </nav>
+      <h2 class="text-2xl font-extrabold text-white">Investor Announcements</h2>
+      <p class="text-sm text-white/75 mt-1">Official circulars, board meeting intimations, and notifications.</p>
+    </div>
 
     {errorMessage && (
       <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 text-xs font-semibold">

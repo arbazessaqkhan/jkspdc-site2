@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <!-- Outer Ring -->
+  <circle cx="100" cy="100" r="90" fill="none" stroke="#003566" stroke-width="5" />
+  
+  <!-- Inner Circle Blue Fill -->
+  <circle cx="100" cy="100" r="65" fill="#0B4F9C" />
+  
+  <!-- Outer Border Text Path -->
+  <path id="outerTextPath" d="M 100,20 A 80,80 0 1,1 99.9,20" fill="none" />
+  
+  <text font-family="Arial, sans-serif" font-size="9" font-weight="900" fill="#0B4F9C" letter-spacing="1">
+    <textPath href="#outerTextPath" startOffset="25%" text-anchor="middle">
+      POWER DEVELOPMENT DEPARTMENT
+    </textPath>
+    <textPath href="#outerTextPath" startOffset="75%" text-anchor="middle">
+      JAMMU &amp; KASHMIR
+    </textPath>
+  </text>
+
+  <!-- Gold Lightning Bolt in Center -->
+  <polygon points="105,42 125,85 110,85 118,135 85,92 100,92" fill="#FFD700" stroke="#003566" stroke-width="2" stroke-linejoin="round" />
+  
+  <!-- PDD Text in Center -->
+  <text x="100" y="152" font-family="Arial, sans-serif" font-size="14" font-weight="900" fill="#0B4F9C" text-anchor="middle" letter-spacing="2">PDD</text>
+</svg>

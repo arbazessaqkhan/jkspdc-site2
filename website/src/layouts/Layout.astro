@@ -121,7 +121,7 @@ if (tickerItems.length === 0) {
       .animate-ticker {
         display: flex;
         white-space: nowrap;
-        animation: ticker-scroll 26s linear infinite;
+        animation: ticker-scroll 35s linear infinite;
         will-change: transform;
       }
       .animate-ticker:hover {
@@ -255,19 +255,19 @@ if (tickerItems.length === 0) {
     <a href="#main-content" class="skip-link">Skip to Main Content</a>
 
     <header class="bg-[#EAF4FF] border-b-2 border-[#0B4F9C] shadow-sm">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between">
         <!-- Left Logo -->
         <a href="/" class="flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C] rounded p-1 lg:-ml-[22px]" aria-label="JKSPDCL Home">
-          <img src="/logo.png" alt="JKSPDCL Logo" class="h-14 w-auto object-contain" />
+          <img src="/logo.png" alt="JKSPDCL Logo" class="h-12 w-auto object-contain" />
         </a>
 
         <!-- Centered Organization Name -->
         <div class="flex-1 text-center px-4">
-          <h1 class="text-lg md:text-2xl font-bold text-[#0B4F9C] leading-tight">
+          <h1 class="text-base md:text-xl font-bold text-[#0B4F9C] leading-tight">
             Jammu &amp; Kashmir State Power Development Corporation Limited
           </h1>
-          <p class="text-sm md:text-base font-bold text-[#0B4F9C] mt-0.5">(JKSPDCL)</p>
-          <p class="text-sm md:text-base font-bold text-[#0B4F9C] mt-1" lang="hi">
+          <p class="text-xs md:text-sm font-bold text-[#0B4F9C] mt-0.5">(JKSPDCL)</p>
+          <p class="text-xs text-[#0B4F9C] font-semibold mt-0.5" lang="hi">
             जम्मू और कश्मीर राज्य विद्युत विकास निगम लिमिटेड (जेकेएसपीडीसीएल)
           </p>
         </div>
@@ -278,18 +278,18 @@ if (tickerItems.length === 0) {
           <div class="flex items-center gap-2.5 text-xs text-slate-700 select-none">
             <!-- Font Sizing -->
             <div class="flex items-center gap-1" aria-label="Font Size Controls" role="group">
-              <button class="flex items-center gap-1 px-1.5 py-0.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-[10px] font-bold text-slate-700 transition-colors cursor-pointer" onclick="adjustFontSize('dec')" aria-label="Decrease Font Size" title="Decrease Font Size">
-                <Icon name="minus" size={8} strokeWidth={2.5} /> A
+              <button class="flex items-center gap-1 px-2 py-0.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-xs font-bold text-slate-700 transition-colors cursor-pointer" onclick="adjustFontSize('dec')" aria-label="Decrease Font Size" title="Decrease Font Size">
+                <Icon name="minus" size={9} strokeWidth={2.5} /> A
               </button>
-              <button class="flex items-center px-2 py-0.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-[10px] font-bold text-slate-700 transition-colors cursor-pointer" onclick="adjustFontSize('reset')" aria-label="Reset Font Size" title="Reset Font Size">A</button>
-              <button class="flex items-center gap-1 px-1.5 py-0.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-[10px] font-bold text-slate-700 transition-colors cursor-pointer" onclick="adjustFontSize('inc')" aria-label="Increase Font Size" title="Increase Font Size">
-                <Icon name="plus" size={8} strokeWidth={2.5} /> A
+              <button class="flex items-center px-2.5 py-0.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-xs font-bold text-slate-700 transition-colors cursor-pointer" onclick="adjustFontSize('reset')" aria-label="Reset Font Size" title="Reset Font Size">A</button>
+              <button class="flex items-center gap-1 px-2 py-0.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-xs font-bold text-slate-700 transition-colors cursor-pointer" onclick="adjustFontSize('inc')" aria-label="Increase Font Size" title="Increase Font Size">
+                <Icon name="plus" size={9} strokeWidth={2.5} /> A
               </button>
             </div>
             <span class="text-slate-300">|</span>
             <!-- Contrast Switcher -->
-            <button class="flex items-center gap-1.5 px-2 py-0.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-[9px] font-bold text-slate-700 transition-colors cursor-pointer" onclick="toggleHighContrast()" aria-label="Toggle High Contrast Mode">
-              <Icon name="contrast" size={10} strokeWidth={2.5} /> Contrast
+            <button class="flex items-center gap-1.5 px-2.5 py-0.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-xs font-bold text-slate-700 transition-colors cursor-pointer" onclick="toggleHighContrast()" aria-label="Toggle High Contrast Mode">
+              <Icon name="contrast" size={11} strokeWidth={2.5} /> Contrast
             </button>
             <span class="text-slate-300">|</span>
             <!-- Custom Language Selector Dropdown -->
@@ -297,45 +297,45 @@ if (tickerItems.length === 0) {
               <button
                 id="lang-dropdown-btn"
                 type="button"
-                class="flex items-center gap-1 px-2.5 py-0.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-[9px] font-bold text-slate-700 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
+                class="flex items-center gap-1 px-2.5 py-0.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-xs font-bold text-slate-700 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
                 aria-expanded="false"
                 aria-haspopup="true"
               >
-                <Icon name="globe" size={10} strokeWidth={2.5} />
+                <Icon name="globe" size={11} strokeWidth={2.5} />
                 <span id="current-lang-label">English</span>
-                <svg class="w-2 h-2 ml-0.5 transition-transform duration-200" id="lang-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-3 h-3 ml-0.5 transition-transform duration-200" id="lang-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
                 </svg>
               </button>
               
               <div
                 id="lang-dropdown-menu"
-                class="absolute right-0 mt-1 w-32 bg-white text-slate-800 rounded shadow-xl border border-slate-200/85 hidden z-[9999] py-1 text-left"
+                class="absolute right-0 mt-1 w-36 bg-white text-slate-800 rounded shadow-xl border border-slate-200/85 hidden z-[9999] py-1 text-left"
                 role="menu"
                 aria-orientation="vertical"
                 aria-labelledby="lang-dropdown-btn"
               >
-                <button class="w-full text-left px-3 py-1.5 text-[10px] hover:bg-slate-100 font-semibold transition-colors block cursor-pointer" role="menuitem" onclick="changeLanguage('en')">English</button>
-                <button class="w-full text-left px-3 py-1.5 text-[10px] hover:bg-slate-100 font-semibold transition-colors block cursor-pointer" role="menuitem" onclick="changeLanguage('hi')">हिन्दी (Hindi)</button>
-                <button class="w-full text-left px-3 py-1.5 text-[10px] hover:bg-slate-100 font-semibold transition-colors block cursor-pointer" role="menuitem" onclick="changeLanguage('ur')">اردو (Urdu)</button>
-                <button class="w-full text-left px-3 py-1.5 text-[10px] hover:bg-slate-100 font-semibold transition-colors block cursor-pointer" role="menuitem" onclick="changeLanguage('ks')">کٲشُر (Kashmiri)</button>
-                <button class="w-full text-left px-3 py-1.5 text-[10px] hover:bg-slate-100 font-semibold transition-colors block cursor-pointer" role="menuitem" onclick="changeLanguage('doi')">डोगरी (Dogri)</button>
+                <button class="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-100 font-semibold transition-colors block cursor-pointer" role="menuitem" onclick="changeLanguage('en')">English</button>
+                <button class="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-100 font-semibold transition-colors block cursor-pointer" role="menuitem" onclick="changeLanguage('hi')">हिन्दी (Hindi)</button>
+                <button class="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-100 font-semibold transition-colors block cursor-pointer" role="menuitem" onclick="changeLanguage('ur')">اردو (Urdu)</button>
+                <button class="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-100 font-semibold transition-colors block cursor-pointer" role="menuitem" onclick="changeLanguage('ks')">کٲشُر (Kashmiri)</button>
+                <button class="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-100 font-semibold transition-colors block cursor-pointer" role="menuitem" onclick="changeLanguage('doi')">डोगरी (Dogri)</button>
               </div>
             </div>
           </div>
 
           <!-- Search Form -->
-          <form action="/search" method="GET" class="flex items-center gap-1 w-full justify-end">
+          <form action="/search" method="GET" class="flex items-center w-full justify-end">
             <label for="header-search" class="sr-only">Search portal pages</label>
             <input 
               type="search" 
               name="q" 
               id="header-search" 
               placeholder="Search…" 
-              class="bg-white hover:bg-slate-50 focus-visible:bg-white text-xs text-slate-850 focus-visible:text-slate-900 px-3 py-2 rounded border border-slate-300 focus-visible:border-[#0B4F9C] focus-visible:outline-none transition-[background-color,border-color,color] duration-150 w-36 lg:w-44 placeholder-slate-400 shadow-sm" 
+              class="bg-white hover:bg-slate-50 focus-visible:bg-white text-xs text-slate-850 focus-visible:text-slate-900 px-3 py-2 rounded-l-md border border-slate-300 border-r-0 focus-visible:border-[#0B4F9C] focus-visible:outline-none transition-[background-color,border-color,color] duration-150 w-36 lg:w-44 placeholder-slate-400 shadow-sm" 
               required
             />
-            <button type="submit" class="p-2 bg-[#0B4F9C] hover:bg-[#084A8F] rounded text-xs text-white font-bold flex items-center justify-center border border-transparent transition-[background-color,border-color] duration-150 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C]/50 cursor-pointer" aria-label="Submit Search">
+            <button type="submit" class="p-2 bg-[#1a5276] hover:bg-[#084A8F] rounded-r-md text-xs text-white font-bold flex items-center justify-center border border-transparent transition-[background-color,border-color] duration-150 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C]/50 cursor-pointer" aria-label="Submit Search">
               <Icon name="search" size={14} strokeWidth={2.5} />
             </button>
           </form>
@@ -345,9 +345,9 @@ if (tickerItems.length === 0) {
       <!-- Live News Ticker Bar (Placed between organization heading and navigation menu bar) -->
       <div class="bg-[#08305C] text-white relative overflow-hidden border-t border-b border-[#0B4F9C]/30" aria-live="polite" aria-label="Live announcements">
         <div class="flex items-stretch" style="max-width:100%;">
-          <div class="shrink-0 bg-[#C62828] text-white text-xs font-bold px-4 flex items-center gap-2 uppercase tracking-wide z-20" style="white-space:nowrap;">
-            <span class="w-2 h-2 rounded-full bg-white animate-slow-pulse" style="display:inline-block;flex-shrink:0;"></span>
-            Live
+          <div class="shrink-0 bg-[#1B3A6B] text-white text-xs font-bold px-4 flex items-center gap-2 uppercase tracking-wide z-20" style="white-space:nowrap;">
+            <span class="w-2 h-2 rounded-full bg-slate-300" style="display:inline-block;flex-shrink:0;"></span>
+            Updates
           </div>
           <div style="overflow:hidden; flex:1; position:relative;">
             <!-- Fade-out overlays at both entry and exit edges -->
@@ -356,7 +356,7 @@ if (tickerItems.length === 0) {
 
             <div class="animate-ticker" style="gap: 3.5rem; padding: 0.5rem 0; font-size: 0.8rem; font-weight: 500;">
               {[...tickerItems, ...tickerItems].map((item: any) => (
-                <span style="padding-right:3rem;">
+                <span style="padding-right:4rem;">
                   › <strong class={`font-extrabold uppercase tracking-wider text-[10px] mr-1 px-1.5 py-0.5 rounded border ${item.colorClass}`}>{item.type}:</strong> 
                   <span class="text-slate-100">{item.text}</span>
                 </span>
@@ -472,10 +472,11 @@ if (tickerItems.length === 0) {
               <a href="/media/downloads" class="block px-3.5 py-3.5 text-white hover:bg-[#084A8F] transition-colors border-b-2 border-transparent hover:border-white/60">Downloads</a>
             </li>
 
-            <!-- Employees Corner -->
-            <li class="relative group">
-              <button class="flex items-center gap-1.5 px-3.5 py-3.5 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent group-hover:border-white/60 text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
-                Employees Corner
+            <!-- Employees Corner - separated visually as internal portal -->
+            <li class="relative group ml-auto">
+              <button class="flex items-center gap-1.5 px-3 py-3.5 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent group-hover:border-white/60 text-white/75 hover:text-white text-xs focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                Employees
                 <svg class="w-3 h-3 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
               </button>
               <div class="absolute right-0 mt-0 hidden group-hover:block group-focus-within:block bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[210px]">
@@ -515,18 +516,16 @@ if (tickerItems.length === 0) {
     </main>
 
     <!-- Footer Section (Professional Dark Slate) -->
-    <footer class="bg-[#083B73] text-slate-200 border-t-4 border-[#0B4F9C] pt-14 pb-8 text-sm">
+    <footer class="bg-[#083B73] text-slate-200 border-t-4 border-[#0B4F9C] pt-10 pb-6 text-sm">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <!-- Footer Core Columns -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 border-b border-slate-700 pb-10 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 border-b border-slate-700 pb-8 mb-6 items-start">
 
           <!-- Column 1: About Corporate -->
           <div class="flex flex-col gap-4">
             <div class="flex items-center gap-3">
-              <div class="bg-white p-1.5 rounded-xl h-14 w-28 flex items-center justify-center shadow-lg border border-slate-300 shrink-0">
-                <img src="/logo.png" alt="JKSPDCL logo" class="h-full w-full object-contain" />
-              </div>
+              <img src="/logo.png" alt="JKSPDCL logo" class="h-14 w-auto object-contain" />
             </div>
             <p class="text-xs text-slate-300 leading-relaxed">
               JKSPDCL is a wholly owned PSU of the Government of J&K, mandated with harnessing power potential across the region since 1995.
@@ -613,12 +612,27 @@ if (tickerItems.length === 0) {
                 md-jkspdcl@jk.gov.in
               </a>
             </div>
+            <!-- Social/Connect Row to balance column height -->
+            <div class="mt-4 pt-3 border-t border-slate-700">
+              <p class="font-semibold text-slate-300 text-[11px] mb-2">Follow &amp; Connect</p>
+              <div class="flex items-center gap-3">
+                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter" class="w-7 h-7 rounded-full bg-white/10 hover:bg-[#1DA1F2]/30 flex items-center justify-center transition-colors">
+                  <svg class="w-3.5 h-3.5 fill-current text-slate-300" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.63 5.905-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                </a>
+                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook" class="w-7 h-7 rounded-full bg-white/10 hover:bg-[#1877F2]/30 flex items-center justify-center transition-colors">
+                  <svg class="w-3.5 h-3.5 fill-current text-slate-300" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                </a>
+                <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube" class="w-7 h-7 rounded-full bg-white/10 hover:bg-[#FF0000]/30 flex items-center justify-center transition-colors">
+                  <svg class="w-3.5 h-3.5 fill-current text-slate-300" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                </a>
+              </div>
+            </div>
           </div>
 
         </div>
 
         <!-- Copyright and Compliance Info -->
-        <div class="flex flex-col md:flex-row justify-between items-center gap-3 text-[11px] text-slate-400 border-t border-slate-700 pt-6">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-3 text-[11px] text-slate-400 border-t border-slate-700 pt-4">
           <p>&copy; {currentYear} Jammu &amp; Kashmir State Power Development Corporation Limited. All rights reserved.</p>
           <div class="flex items-center gap-3 flex-wrap justify-center md:justify-end">
             <span>Design and Developed by <span class="text-slate-300 font-semibold">JKSPDCL</span></span>
@@ -691,6 +705,24 @@ if (tickerItems.length === 0) {
           li.addEventListener('focusin', function() {
             adjustDropdownPosition(li);
           });
+        });
+      })();
+    </script>
+
+    <!-- Active Nav Indicator (GIGW 3.0 Requirement) -->
+    <script is:inline>
+      (function() {
+        var path = window.location.pathname;
+        var navLinks = document.querySelectorAll('nav a[href]');
+        navLinks.forEach(function(link) {
+          var href = link.getAttribute('href');
+          if (!href || href === '#') return;
+          var isActive = (href === '/' && path === '/') || (href !== '/' && path.startsWith(href));
+          if (isActive) {
+            link.style.borderBottomColor = '#D8681B';
+            link.style.borderBottomWidth = '3px';
+            link.style.borderBottomStyle = 'solid';
+          }
         });
       })();
     </script>
