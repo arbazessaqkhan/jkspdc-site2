@@ -392,53 +392,67 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
     </section>
 
     <!-- ============================================================ -->
-    <!-- ABOUT JKSPDC (FULL WIDTH)                                     -->
+    <!-- ABOUT JKSPDC (FULL WIDTH) - BLUE CAROUSEL STYLE                -->
     <!-- ============================================================ -->
-    <section aria-labelledby="about-heading" class="text-left mt-8">
-      <div class="text-left mb-4">
+    <section id="about" aria-labelledby="about-heading" class="text-left mt-8">
+      <!-- Section Header (Outside Card) -->
+      <div class="text-left mb-4 flex-shrink-0">
         <span class="inline-block text-[10px] uppercase tracking-[0.12em] text-[#1B3A6B] font-bold bg-transparent px-3 py-1 rounded-full border border-[#1B3A6B] mb-2.5">About Us</span>
         <h2 id="about-heading" class="text-xl md:text-2xl font-extrabold text-[#1B2A41]">About JKSPDC</h2>
         <div class="w-10 h-0.5 bg-[#D8681B] mt-2.5 rounded-full"></div>
       </div>
 
-      <div class="bg-white border border-[#BDD7EE] rounded-2xl p-6 shadow-sm">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
-          
-          <!-- Text Column -->
-          <div class="lg:col-span-2 space-y-4">
-            <p class="text-slate-600 text-sm md:text-[14.5px] leading-[1.65]">
-              Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL) is a wholly owned Public Sector Undertaking (PSU) of the Government of Jammu &amp; Kashmir, incorporated in 1995.
-            </p>
-            <p class="text-slate-600 text-sm md:text-[14.5px] leading-[1.65]">
-              The Corporation is entrusted with the execution, operation, and maintenance of hydroelectric power projects across the Union Territory, harnessing its vast water resources to ensure clean energy transition and sustainable corporate growth.
-            </p>
-            
-            <!-- Key Stats Grid -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5">
-              <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 text-left">
-                <div class="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider">Hydro Capacity</div>
-                <div class="text-base font-black text-[#0B4F9C] mt-0.5">1,211.96 MW</div>
-              </div>
-              <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 text-left">
-                <div class="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider">Active Stations</div>
-                <div class="text-base font-black text-[#0B4F9C] mt-0.5">21 Plants</div>
-              </div>
-              <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 text-left">
-                <div class="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider">Under Execution</div>
-                <div class="text-base font-black text-[#0B4F9C] mt-0.5">8 Projects</div>
-              </div>
-              <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 text-left">
-                <div class="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider">Clean Energy</div>
-                <div class="text-base font-black text-[#0B4F9C] mt-0.5">100% Green</div>
-              </div>
+      <!-- Blue Card Container -->
+      <div class="bg-gradient-to-br from-[#073A80] to-[#0B4F9C] text-white rounded-2xl shadow-xl border border-white/10 overflow-hidden">
+        <div class="px-8 md:px-12 py-12 lg:py-14 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+
+          <!-- Left: Text Column -->
+          <div class="flex flex-col">
+            <h3 class="text-2xl md:text-3xl lg:text-4xl font-extrabold leading-tight mb-6">Powering J&amp;K Since 1995</h3>
+            <div class="space-y-4 mb-8">
+              <p class="text-white/80 text-[15px] leading-[1.65]">
+                Jammu and Kashmir State Power Development Corporation Limited (JKSPDCL) is a wholly owned Public Sector Undertaking (PSU) of the Government of Jammu &amp; Kashmir, incorporated in 1995 under the Companies Act.
+              </p>
+              <p class="text-white/80 text-[15px] leading-[1.65]">
+                With an authorised share capital of Rs.&nbsp;5,000 crores, JKSPDC has investments of Rs.&nbsp;2,357.61 crores in joint ventures with NHPC — including CVPPPL and RHPCL — harnessing the vast hydroelectric potential of the region.
+              </p>
+            </div>
+
+            <!-- Stat Cards Grid -->
+            <div class="grid grid-cols-2 gap-4 mb-9">
+              {corpStats.map(stat => (
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/15 transition-colors">
+                  <div class="text-white/55 text-[10px] uppercase tracking-[0.12em] font-semibold mb-2">{stat.label}</div>
+                  <div class="text-[#FFE0C2] text-xl font-extrabold leading-snug">{stat.value}</div>
+                </div>
+              ))}
+            </div>
+
+            <div>
+              <a href="/about-us/explore/overview" class="inline-flex items-center gap-2 bg-transparent hover:bg-white/15 text-white font-semibold px-7 py-3 rounded-lg text-sm transition-colors border-2 border-white/80 shadow-sm">
+                Learn More About Us &rarr;
+              </a>
             </div>
           </div>
 
-          <!-- Buttons Column -->
-          <div class="lg:col-span-1 flex flex-col justify-center items-center lg:items-end border-t lg:border-t-0 lg:border-l border-slate-100 pt-5 lg:pt-0 lg:pl-6 h-full min-h-[120px]">
-            <a href="/about-us/explore/overview" class="w-full sm:w-auto inline-flex items-center justify-center bg-[#0B4F9C] hover:bg-[#084A8F] text-white font-bold py-2.5 px-6 rounded-lg text-xs transition-colors cursor-pointer shadow-xs hover:shadow text-center">
-              Learn More About Us &rarr;
-            </a>
+          <!-- Right: Image Mosaic -->
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Top row: two images at equal height -->
+            <div class="rounded-xl overflow-hidden shadow-xl aspect-[4/3]">
+              <img src="/slider2.jpg" alt="JKSPDC hydroelectric project" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+            </div>
+            <div class="rounded-xl overflow-hidden shadow-xl aspect-[4/3]">
+              <img src="/slider3.jpg" alt="JKSPDC dam construction" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+            </div>
+            <!-- Bottom row: one image + one stat card -->
+            <div class="rounded-xl overflow-hidden shadow-xl aspect-[4/3]">
+              <img src="/slider1.jpg" alt="JKSPDC power station" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+            </div>
+            <div class="bg-white/15 backdrop-blur-sm rounded-xl border-2 border-white/25 aspect-[4/3] flex flex-col items-center justify-center text-center p-5 hover:bg-white/20 transition-colors">
+              <div class="text-5xl font-extrabold text-white leading-none">30+</div>
+              <div class="text-sm font-bold text-[#FFE0C2] mt-2.5">Years of Excellence</div>
+              <div class="text-xs text-white/60 mt-2 leading-relaxed max-w-[120px]">Harnessing J&K hydro potential since 1995</div>
+            </div>
           </div>
 
         </div>
@@ -624,64 +638,7 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
 
 
 
-    <!-- ============================================================ -->
-    <!-- ABOUT JKSPDC                                                  -->
-    <!-- ============================================================ -->
-    <section id="about" aria-labelledby="about-heading" class="bg-gradient-to-br from-[#073A80] to-[#0B4F9C] text-white rounded-2xl shadow-xl border border-white/10 overflow-hidden">
-      <div class="px-8 md:px-12 py-12 lg:py-14 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
 
-        <!-- Left: Text Column -->
-        <div class="flex flex-col">
-          <div class="text-[11px] uppercase tracking-[0.14em] text-[#FFE0C2] font-bold mb-4">About JKSPDC</div>
-          <h2 id="about-heading" class="text-2xl md:text-3xl lg:text-4xl font-extrabold leading-tight mb-6">Powering J&amp;K Since 1995</h2>
-          <div class="space-y-4 mb-8">
-            <p class="text-white/80 text-[15px] leading-[1.65]">
-              Jammu and Kashmir State Power Development Corporation Limited (JKSPDCL) is a wholly owned Public Sector Undertaking (PSU) of the Government of Jammu &amp; Kashmir, incorporated in 1995 under the Companies Act.
-            </p>
-            <p class="text-white/80 text-[15px] leading-[1.65]">
-              With an authorised share capital of Rs.&nbsp;5,000 crores, JKSPDC has investments of Rs.&nbsp;2,357.61 crores in joint ventures with NHPC — including CVPPPL and RHPCL — harnessing the vast hydroelectric potential of the region.
-            </p>
-          </div>
-
-          <!-- Stat Cards Grid -->
-          <div class="grid grid-cols-2 gap-4 mb-9">
-            {corpStats.map(stat => (
-              <div class="bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/15 transition-colors">
-                <div class="text-white/55 text-[10px] uppercase tracking-[0.12em] font-semibold mb-2">{stat.label}</div>
-                <div class="text-[#FFE0C2] text-xl font-extrabold leading-snug">{stat.value}</div>
-              </div>
-            ))}
-          </div>
-
-          <div>
-            <a href="/about-us/explore/overview" class="inline-flex items-center gap-2 bg-transparent hover:bg-white/15 text-white font-semibold px-7 py-3 rounded-lg text-sm transition-colors border-2 border-white/80 shadow-sm">
-              Learn More About Us &rarr;
-            </a>
-          </div>
-        </div>
-
-        <!-- Right: Image Mosaic -->
-        <div class="grid grid-cols-2 gap-4">
-          <!-- Top row: two images at equal height -->
-          <div class="rounded-xl overflow-hidden shadow-xl aspect-[4/3]">
-            <img src="/slider2.jpg" alt="JKSPDC hydroelectric project" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
-          </div>
-          <div class="rounded-xl overflow-hidden shadow-xl aspect-[4/3]">
-            <img src="/slider3.jpg" alt="JKSPDC dam construction" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
-          </div>
-          <!-- Bottom row: one image + one stat card -->
-          <div class="rounded-xl overflow-hidden shadow-xl aspect-[4/3]">
-            <img src="/slider1.jpg" alt="JKSPDC power station" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
-          </div>
-          <div class="bg-white/15 backdrop-blur-sm rounded-xl border-2 border-white/25 aspect-[4/3] flex flex-col items-center justify-center text-center p-5 hover:bg-white/20 transition-colors">
-            <div class="text-5xl font-extrabold text-white leading-none">30+</div>
-            <div class="text-sm font-bold text-[#FFE0C2] mt-2.5">Years of Excellence</div>
-            <div class="text-xs text-white/60 mt-2 leading-relaxed max-w-[120px]">Harnessing J&K hydro potential since 1995</div>
-          </div>
-        </div>
-
-      </div>
-    </section>
 
     <!-- ============================================================ -->
     <!-- QUICK LINKS LOGO MARQUEE SECTION                             -->
