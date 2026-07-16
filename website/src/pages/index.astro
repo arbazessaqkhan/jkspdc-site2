@@ -256,7 +256,7 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
 
         <!-- Dignitaries Card Container (stretches to match right column height) -->
         <div class="bg-[#F0F7FF] border border-[#BDD7EE]/50 rounded-2xl p-5 shadow-sm flex-grow flex flex-col justify-center">
-          <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full flex-grow">
+          <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full my-auto">
             {directors.length === 0 ? (
               <div class="col-span-full text-center py-10 bg-white border border-slate-200 rounded-2xl text-slate-400 text-xs font-semibold">
                 No administrative board members listed.
@@ -304,7 +304,7 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
       </div>
 
       <!-- RIGHT COLUMN: LATEST UPDATES (1/3 width = 4 cols) -->
-      <div class="lg:col-span-4 flex flex-col">
+      <div class="lg:col-span-4 flex flex-col justify-between">
         <!-- Section Header -->
         <div class="text-left mb-4 flex-shrink-0">
           <span class="inline-block text-[10px] uppercase tracking-[0.12em] text-[#1B3A6B] font-bold bg-transparent px-3 py-1 rounded-full border border-[#1B3A6B] mb-2.5">Updates &amp; Notices</span>
@@ -312,95 +312,94 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
           <div class="w-10 h-0.5 bg-[#D8681B] mt-2.5 rounded-full"></div>
         </div>
 
-        <!-- Updates Container Card (stretches to match left column height) -->
-        <div class="bg-white border border-[#BDD7EE] rounded-2xl p-5 shadow-sm flex-grow flex flex-col justify-between">
-          <div class="flex flex-col gap-4 flex-grow min-h-0">
-            
-            <!-- Tenders Box (flex-1) -->
-            <div class="flex flex-col flex-grow flex-1 min-h-0">
-              <div class="flex items-center justify-between mb-1.5 flex-shrink-0">
-                <span class="text-[10px] font-extrabold text-[#0B4F9C] uppercase tracking-wider">💼 Tenders &amp; Bids</span>
-              </div>
-              <div class="bg-slate-50/50 border border-slate-200/60 rounded-xl overflow-hidden flex flex-col justify-between flex-grow min-h-[140px] lg:min-h-0 lg:h-0">
-                <div class="relative flex-grow overflow-hidden px-3 py-2">
-                  <div class="absolute left-0 right-0 top-0 h-4 bg-gradient-to-b from-[#f8fafc] to-transparent z-10 pointer-events-none"></div>
-                  <div class="absolute left-0 right-0 bottom-0 h-4 bg-gradient-to-t from-[#f8fafc] to-transparent z-10 pointer-events-none"></div>
+        <div class="flex flex-col gap-4 flex-grow justify-between">
+          
+          <!-- Tenders Block -->
+          <div class="flex flex-col flex-1 min-h-0">
+            <div class="flex items-center justify-between mb-2 flex-shrink-0">
+              <span class="text-[11px] font-extrabold text-[#0B4F9C] uppercase tracking-wider">💼 Tenders &amp; Bids</span>
+            </div>
+            <!-- Tenders Card Container -->
+            <div class="bg-white border border-[#BDD7EE]/60 rounded-xl overflow-hidden flex flex-col justify-between flex-grow h-[175px] shadow-sm">
+              <div class="relative flex-grow overflow-hidden px-3 py-2">
+                <div class="absolute left-0 right-0 top-0 h-4 bg-gradient-to-b from-[#ffffff] to-transparent z-10 pointer-events-none"></div>
+                <div class="absolute left-0 right-0 bottom-0 h-4 bg-gradient-to-t from-[#ffffff] to-transparent z-10 pointer-events-none"></div>
 
-                  <div class="scroll-track animate-marquee-vertical flex flex-col gap-2" style={`--marquee-duration: ${displayTenders.length * 8}s`}>
-                    {displayTenders.map((tender: any) => (
-                      <a href={tender.documentUrl} class="block p-2.5 bg-white border border-slate-200 hover:border-[#0B4F9C]/30 rounded-lg shadow-xs text-left transition-all duration-150">
-                        <div class="text-[9px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
-                          <span>📅</span>
-                          <span>{formatRefDate(tender.publishDate)}</span>
-                        </div>
-                        <h4 class="font-bold text-slate-800 text-[11px] leading-snug line-clamp-2">
-                          {tender.title}
-                        </h4>
-                      </a>
-                    ))}
-                    {/* Duplicate for marquee */}
-                    {displayTenders.map((tender: any) => (
-                      <a href={tender.documentUrl} class="block p-2.5 bg-white border border-slate-200 hover:border-[#0B4F9C]/30 rounded-lg shadow-xs text-left transition-all duration-150">
-                        <div class="text-[9px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
-                          <span>📅</span>
-                          <span>{formatRefDate(tender.publishDate)}</span>
-                        </div>
-                        <h4 class="font-bold text-slate-800 text-[11px] leading-snug line-clamp-2">
-                          {tender.title}
-                        </h4>
-                      </a>
-                    ))}
-                  </div>
+                <div class="scroll-track animate-marquee-vertical flex flex-col gap-2" style={`--marquee-duration: ${displayTenders.length * 8}s`}>
+                  {displayTenders.map((tender: any) => (
+                    <a href={tender.documentUrl} class="block p-2.5 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/30 rounded-lg shadow-xs text-left transition-all duration-150">
+                      <div class="text-[9px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
+                        <span>📅</span>
+                        <span>{formatRefDate(tender.publishDate)}</span>
+                      </div>
+                      <h4 class="font-bold text-slate-800 text-[11px] leading-snug line-clamp-2">
+                        {tender.title}
+                      </h4>
+                    </a>
+                  ))}
+                  {/* Duplicate for marquee */}
+                  {displayTenders.map((tender: any) => (
+                    <a href={tender.documentUrl} tabindex="-1" aria-hidden="true" class="block p-2.5 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/30 rounded-lg shadow-xs text-left transition-all duration-150">
+                      <div class="text-[9px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
+                        <span>📅</span>
+                        <span>{formatRefDate(tender.publishDate)}</span>
+                      </div>
+                      <h4 class="font-bold text-slate-800 text-[11px] leading-snug line-clamp-2">
+                        {tender.title}
+                      </h4>
+                    </a>
+                  ))}
                 </div>
-                <div class="bg-slate-100/70 border-t border-slate-200/50 py-1.5 text-center text-[10px] font-bold flex-shrink-0">
-                  <a href="/stakeholders/vendors/tender-bids" class="text-[#0B4F9C] hover:underline">View All Tenders &rarr;</a>
-                </div>
+              </div>
+              <div class="bg-slate-100/70 border-t border-slate-200/50 py-1.5 text-center text-[10px] font-bold flex-shrink-0">
+                <a href="/stakeholders/vendors/tender-bids" class="text-[#0B4F9C] hover:underline">View All Tenders &rarr;</a>
               </div>
             </div>
-
-            <!-- Notices Box (flex-1) -->
-            <div class="flex flex-col flex-grow flex-1 min-h-0">
-              <div class="flex items-center justify-between mb-1.5 flex-shrink-0">
-                <span class="text-[10px] font-extrabold text-[#0B4F9C] uppercase tracking-wider">📢 Notifications &amp; Circulars</span>
-              </div>
-              <div class="bg-slate-50/50 border border-slate-200/60 rounded-xl overflow-hidden flex flex-col justify-between flex-grow min-h-[140px] lg:min-h-0 lg:h-0">
-                <div class="relative flex-grow overflow-hidden px-3 py-2">
-                  <div class="absolute left-0 right-0 top-0 h-4 bg-gradient-to-b from-[#f8fafc] to-transparent z-10 pointer-events-none"></div>
-                  <div class="absolute left-0 right-0 bottom-0 h-4 bg-gradient-to-t from-[#f8fafc] to-transparent z-10 pointer-events-none"></div>
-
-                  <div class="scroll-track animate-marquee-vertical flex flex-col gap-2" style={`--marquee-duration: ${displayNotifications.length * 7}s`}>
-                    {displayNotifications.map((notif: any) => (
-                      <a href={notif.documentUrl} class="block p-2.5 bg-white border border-slate-200 hover:border-[#0B4F9C]/30 rounded-lg shadow-xs text-left transition-all duration-150">
-                        <div class="text-[9px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
-                          <span>📅</span>
-                          <span>{formatRefDate(notif.publishDate)}</span>
-                        </div>
-                        <h4 class="font-bold text-slate-800 text-[11px] leading-snug line-clamp-2">
-                          {notif.title}
-                        </h4>
-                      </a>
-                    ))}
-                    {/* Duplicate for marquee */}
-                    {displayNotifications.map((notif: any) => (
-                      <a href={notif.documentUrl} class="block p-2.5 bg-white border border-slate-200 hover:border-[#0B4F9C]/30 rounded-lg shadow-xs text-left transition-all duration-150">
-                        <div class="text-[9px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
-                          <span>📅</span>
-                          <span>{formatRefDate(notif.publishDate)}</span>
-                        </div>
-                        <h4 class="font-bold text-slate-800 text-[11px] leading-snug line-clamp-2">
-                          {notif.title}
-                        </h4>
-                      </a>
-                    ))}
-                  </div>
-                </div>
-                <div class="bg-slate-100/70 border-t border-slate-200/50 py-1.5 text-center text-[10px] font-bold flex-shrink-0">
-                  <a href="/stakeholders/investors/announcement" class="text-[#0B4F9C] hover:underline">View All Notifications &rarr;</a>
-                </div>
-              </div>
-            </div>
-
           </div>
+
+          <!-- Notices Block -->
+          <div class="flex flex-col flex-grow flex-1 min-h-0">
+            <div class="flex items-center justify-between mb-2 flex-shrink-0">
+              <span class="text-[11px] font-extrabold text-[#0B4F9C] uppercase tracking-wider">📢 Notifications &amp; Circulars</span>
+            </div>
+            <!-- Notices Card Container -->
+            <div class="bg-white border border-[#BDD7EE]/60 rounded-xl overflow-hidden flex flex-col justify-between flex-grow h-[175px] shadow-sm">
+              <div class="relative flex-grow overflow-hidden px-3 py-2">
+                <div class="absolute left-0 right-0 top-0 h-4 bg-gradient-to-b from-[#ffffff] to-transparent z-10 pointer-events-none"></div>
+                <div class="absolute left-0 right-0 bottom-0 h-4 bg-gradient-to-t from-[#ffffff] to-transparent z-10 pointer-events-none"></div>
+
+                <div class="scroll-track animate-marquee-vertical flex flex-col gap-2" style={`--marquee-duration: ${displayNotifications.length * 7}s`}>
+                  {displayNotifications.map((notif: any) => (
+                    <a href={notif.documentUrl} class="block p-2.5 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/30 rounded-lg shadow-xs text-left transition-all duration-150">
+                      <div class="text-[9px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
+                        <span>📅</span>
+                        <span>{formatRefDate(notif.publishDate)}</span>
+                      </div>
+                      <h4 class="font-bold text-slate-800 text-[11px] leading-snug line-clamp-2">
+                        {notif.title}
+                      </h4>
+                    </a>
+                  ))}
+                  {/* Duplicate for marquee */}
+                  {displayNotifications.map((notif: any) => (
+                    <a href={notif.documentUrl} tabindex="-1" aria-hidden="true" class="block p-2.5 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/30 rounded-lg shadow-xs text-left transition-all duration-150">
+                      <div class="text-[9px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
+                        <span>📅</span>
+                        <span>{formatRefDate(notif.publishDate)}</span>
+                      </div>
+                      <h4 class="font-bold text-slate-800 text-[11px] leading-snug line-clamp-2">
+                        {notif.title}
+                      </h4>
+                    </a>
+                  ))}
+                </div>
+              </div>
+              <div class="bg-slate-100/70 border-t border-slate-200/50 py-1.5 text-center text-[10px] font-bold flex-shrink-0">
+                <a href="/stakeholders/investors/announcement" class="text-[#0B4F9C] hover:underline">View All Notifications &rarr;</a>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
