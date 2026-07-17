@@ -317,6 +317,16 @@ function getImageUrl(url: string) {
         bindItemClicks();
       });
     });
+
+    // Read and activate initial partition filter from URL search query parameter
+    const params = new URLSearchParams(window.location.search);
+    const initialPartition = params.get('partition');
+    if (initialPartition) {
+      const matchBtn = Array.from(filterBtns).find(btn => btn.getAttribute('data-partition') === initialPartition);
+      if (matchBtn) {
+        (matchBtn as HTMLElement).click();
+      }
+    }
   });
 </script>
 

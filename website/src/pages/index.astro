@@ -61,7 +61,6 @@ try {
   const galleryRes = await fetch('http://127.0.0.1:3000/api/gallery');
   if (galleryRes.ok) {
     gallery = await galleryRes.json();
-    gallery = gallery.slice(0, 6);
   }
 } catch (e) {
   console.error('Failed to sync index.astro from backend:', e);
@@ -74,6 +73,21 @@ function getImageUrl(url: string) {
   }
   return url;
 }
+
+// Group by partition to build albums list
+const albumsMap: Record<string, { name: string; coverUrl: string; count: number }> = {};
+gallery.forEach((item: any) => {
+  const pName = item.partition?.trim() || 'General';
+  if (!albumsMap[pName]) {
+    albumsMap[pName] = {
+      name: pName,
+      coverUrl: getImageUrl(item.imageUrl),
+      count: 0
+    };
+  }
+  albumsMap[pName].count += 1;
+});
+const albums = Object.values(albumsMap);
 
 const photoMap = {
   "Shri Manoj Sinha": "/dignitaries/manoj_sinha.png",
@@ -581,65 +595,58 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
     <section class="space-y-6 mt-8">
       <div class="text-left mb-4">
         <span class="inline-block text-[10px] uppercase tracking-[0.12em] text-[#1B3A6B] font-bold bg-transparent px-3 py-1 rounded-full border border-[#1B3A6B] mb-2.5">Media Center</span>
-        <h2 class="text-xl md:text-2xl font-extrabold text-[#1B2A41]">Photo Gallery</h2>
+        <h2 class="text-xl md:text-2xl font-extrabold text-[#1B2A41]">Photo Gallery Albums</h2>
         <div class="w-10 h-0.5 bg-[#D8681B] mt-2.5 rounded-full"></div>
       </div>
 
       <div class="bg-white border border-[#BDD7EE] rounded-2xl shadow-sm p-6">
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {gallery.map((item, idx) => (
-            <div 
-              class="relative group rounded-xl overflow-hidden shadow-xs border border-slate-200/60 cursor-pointer gallery-thumb aspect-[4/3] transition-all duration-300 hover:shadow-md hover:border-slate-300" 
-              data-index={idx}
-              data-src={getImageUrl(item.imageUrl)}
-              data-title={item.title}
-              data-partition={item.partition || 'General'}
+          {albums.map((album) => (
+            <a 
+              href={`/media/gallery?partition=${encodeURIComponent(album.name)}`}
+              class="group relative block rounded-xl overflow-hidden shadow-xs border border-slate-200/60 aspect-[4/3] transition-all duration-300 hover:shadow-lg hover:border-[#0B4F9C]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C]/50" 
+              aria-label={`View ${album.name} album with ${album.count} photos`}
             >
               <div class="w-full h-full overflow-hidden bg-slate-50">
                 <img 
-                  src={getImageUrl(item.imageUrl)} 
-                  alt={item.title} 
+                  src={album.coverUrl} 
+                  alt={`${album.name} Album Cover`} 
                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                  loading="lazy"
                 />
               </div>
               
               <!-- Subtle bottom gradient visible initially for modern UI -->
-              <div class="absolute inset-0 bg-gradient-to-t from-slate-900/65 via-transparent to-transparent opacity-80 group-hover:opacity-0 transition-opacity duration-300 flex items-end p-3">
-                <p class="text-white text-[11px] font-semibold truncate w-full">{item.title}</p>
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-transparent to-transparent opacity-85 group-hover:opacity-0 transition-opacity duration-300 flex flex-col justify-end p-4">
+                <h3 class="text-white text-sm font-extrabold tracking-wide">{album.name}</h3>
+                <p class="text-white/80 text-[10px] uppercase font-bold tracking-wider mt-1">{album.count} {album.count === 1 ? 'Photo' : 'Photos'}</p>
               </div>
 
               <!-- Premium overlay visible on hover -->
-              <div class="absolute inset-0 bg-gradient-to-t from-slate-900/95 via-slate-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-                {item.partition && (
-                  <span class="inline-block self-start text-[9px] font-extrabold uppercase bg-teal-500 text-white px-2 py-0.5 rounded mb-2 tracking-wider shadow-sm">
-                    {item.partition}
-                  </span>
-                )}
-                <p class="text-white text-xs font-bold leading-snug line-clamp-2">{item.title}</p>
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-5">
+                <span class="inline-block self-start text-[9px] font-extrabold uppercase bg-teal-500 text-white px-2.5 py-0.5 rounded-full mb-3 tracking-wider shadow-sm">
+                  {album.count} {album.count === 1 ? 'Item' : 'Items'}
+                </span>
+                <h3 class="text-white text-base font-extrabold leading-snug">{album.name}</h3>
+                <div class="flex items-center gap-1 text-white text-xs font-bold mt-2 hover:underline">
+                  Explore Album <span class="group-hover:translate-x-1 transition-transform duration-200">&rarr;</span>
+                </div>
               </div>
               
-              <!-- Glassmorphism Zoom Badge -->
-              <div class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-90 group-hover:scale-100 text-sm">
-                🔍
+              <!-- Folder / Album Icon Badge -->
+              <div class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center text-white opacity-90 group-hover:scale-110 transition-transform duration-300 text-sm">
+                📁
               </div>
-            </div>
+            </a>
           ))}
         </div>
 
         <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
-          <span class="text-slate-400 font-medium">Click on any photograph to zoom and preview</span>
-          <a href="/media/gallery" class="font-bold text-[#0B4F9C] hover:underline flex items-center gap-1">View All Gallery Albums &rarr;</a>
+          <span class="text-slate-400 font-medium">Click on any album card to view its photos</span>
+          <a href="/media/gallery" class="font-bold text-[#0B4F9C] hover:underline flex items-center gap-1">View All Albums &rarr;</a>
         </div>
       </div>
     </section>
-
-    <!-- Lightbox Overlay for Gallery -->
-    <div id="gallery-lightbox" class="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-sm hidden items-center justify-center" role="dialog" aria-modal="true" aria-label="Image viewer">
-      <button id="lightbox-close" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white text-2xl flex items-center justify-center transition-colors z-10" aria-label="Close">&times;</button>
-      <button id="lightbox-prev" class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white text-xl flex items-center justify-center transition-colors z-10" aria-label="Previous">&#8249;</button>
-      <button id="lightbox-next" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white text-xl flex items-center justify-center transition-colors z-10" aria-label="Next">&#8250;</button>
-      <img id="lightbox-img" src="" alt="" class="max-w-[90vw] max-h-[85vh] object-contain rounded-xl shadow-2xl" />
-      <div id="lightbox-caption" class="absolute bottom-6 left-1/2 -translate-x-1/2 text-white text-sm font-semibold bg-black/50 px-4 py-2 rounded-lg backdrop-blur-sm max-w-lg text-center"></div>
     </div>
 
     <!-- ============================================================ -->
@@ -790,72 +797,6 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
     };
   });
   if (searchEl) searchEl.oninput = filterProjects;
-
-  /* ── PHOTO GALLERY LIGHTBOX ─────────────────────────────────── */
-  var thumbs = document.querySelectorAll('.gallery-thumb');
-  var lightbox = document.getElementById('gallery-lightbox');
-  var lightboxImg = document.getElementById('lightbox-img');
-  var lightboxCaption = document.getElementById('lightbox-caption');
-  var lightboxClose = document.getElementById('lightbox-close');
-  var lightboxPrev = document.getElementById('lightbox-prev');
-  var lightboxNext = document.getElementById('lightbox-next');
-  
-  var currentGalleryIndex = 0;
-  var galleryImages = Array.from(thumbs).map(function(t) {
-    return {
-      src: t.getAttribute('data-src') || '',
-      title: t.getAttribute('data-title') || '',
-      partition: t.getAttribute('data-partition') || ''
-    };
-  });
-
-  function openLightbox(index) {
-    if (!lightbox || galleryImages.length === 0) return;
-    currentGalleryIndex = index;
-    var imgData = galleryImages[currentGalleryIndex];
-    if (lightboxImg) lightboxImg.src = imgData.src;
-    if (lightboxCaption) {
-      lightboxCaption.innerHTML = 
-        '<span class="inline-block px-2 py-0.5 text-[9px] uppercase font-extrabold bg-teal-500 text-white rounded mb-1.5">' + imgData.partition + '</span>' +
-        '<p class="text-white text-xs font-bold">' + imgData.title + '</p>';
-    }
-    lightbox.classList.remove('hidden');
-    lightbox.classList.add('flex');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeLightbox() {
-    if (!lightbox) return;
-    lightbox.classList.remove('flex');
-    lightbox.classList.add('hidden');
-    document.body.style.overflow = '';
-  }
-
-  thumbs.forEach(function(t, index) {
-    t.onclick = function() {
-      openLightbox(index);
-    };
-  });
-
-  if (lightboxClose) lightboxClose.onclick = closeLightbox;
-  if (lightboxPrev) lightboxPrev.onclick = function() {
-    openLightbox((currentGalleryIndex - 1 + galleryImages.length) % galleryImages.length);
-  };
-  if (lightboxNext) lightboxNext.onclick = function() {
-    openLightbox((currentGalleryIndex + 1) % galleryImages.length);
-  };
-  if (lightbox) {
-    lightbox.onclick = function(e) {
-      if (e.target === lightbox) closeLightbox();
-    };
-  }
-  document.addEventListener('keydown', function(e) {
-    if (lightbox && !lightbox.classList.contains('hidden')) {
-      if (e.key === 'Escape') closeLightbox();
-      if (e.key === 'ArrowLeft') lightboxPrev && lightboxPrev.click();
-      if (e.key === 'ArrowRight') lightboxNext && lightboxNext.click();
-    }
-  });
 })();
 </script>
 
