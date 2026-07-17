@@ -459,6 +459,87 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
       </div>
     </section>
 
+    <section id="projects" aria-labelledby="projects-heading" class="text-left mt-8">
+      <!-- Section Header (Outside Card) -->
+      <div class="text-left mb-4 flex-shrink-0">
+        <span class="inline-block text-[10px] uppercase tracking-[0.12em] text-[#1B3A6B] font-bold bg-transparent px-3 py-1 rounded-full border border-[#1B3A6B] mb-2.5">Project Portfolio</span>
+        <h2 id="projects-heading" class="text-xl md:text-2xl font-extrabold text-[#1B2A41]">Interactive Project Explorer</h2>
+        <div class="w-10 h-0.5 bg-[#D8681B] mt-2.5 rounded-full"></div>
+      </div>
+
+      <!-- Light Blue Card Container -->
+      <div class="bg-[#EAF4FF] rounded-2xl border border-[#BDD7EE] shadow-sm overflow-hidden">
+        <!-- Info Banner -->
+        <div class="px-8 md:px-12 pt-8 pb-0">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-5">
+            <p class="text-sm text-slate-600 max-w-xl leading-relaxed">Discover operational hydroelectric plants, ongoing constructions and upcoming renewable projects across J&K.</p>
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <div class="flex items-center gap-2 rounded-lg border border-[#BDD7EE] bg-white px-3.5 py-2 text-xs text-[#1A5276] font-semibold">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> 21 Operational
+              </div>
+              <div class="flex items-center gap-2 rounded-lg border border-[#BDD7EE] bg-white px-3.5 py-2 text-xs text-[#1A5276] font-semibold">
+                <span class="w-2 h-2 rounded-full bg-[#0B4F9C]"></span> 8 Under Construction
+              </div>
+            </div>
+          </div>
+        </div>
+
+      <!-- Filters + Search -->
+      <div class="px-8 md:px-12 pt-8">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div class="flex items-center gap-1 bg-white border border-slate-200 rounded-lg p-1 flex-wrap">
+            {['All', 'Operational', 'Under Construction', 'Upcoming', 'Solar'].map((tab) => (
+              <button data-tab={tab} class={`project-tab px-4 py-1.5 rounded-md text-xs font-semibold transition-all ${tab === 'All' ? 'bg-[#0B4F9C] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}>
+                {tab === 'All' ? 'All Projects' : tab}
+              </button>
+            ))}
+          </div>
+          <div class="relative sm:ml-auto">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 flex items-center">
+              <Icon name="search" size={13} strokeWidth={2} />
+            </span>
+            <input id="project-search" type="text" placeholder="Search projects…" class="w-full sm:w-56 pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C]/40 bg-white" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Project Cards Grid -->
+      <div class="px-8 md:px-12 pt-6 pb-3">
+        <div id="projects-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {projects.map((p) => (
+            <div class="project-card bg-white rounded-xl border border-slate-200 p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-250" data-status={p.status} data-type={p.type} data-name={p.name.toLowerCase()}>
+              <div class="flex items-start justify-between mb-4">
+                <div class="flex-1 min-w-0 pr-3">
+                  <div class="font-bold text-slate-900 text-sm leading-snug">{p.name}</div>
+                  {(p.location || p.basin) && (
+                    <div class="text-xs text-slate-400 mt-1">{p.location}{p.location && p.basin ? ' — ' : ''}{p.basin ? `${p.basin} Basin` : ''}</div>
+                  )}
+                </div>
+                <span class={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full whitespace-nowrap flex-shrink-0 ${p.status === 'Operational' ? 'bg-emerald-100 text-emerald-700' : p.status === 'Under Construction' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600'}`}>{p.status}</span>
+              </div>
+              <div class="flex items-end gap-1.5 mb-4">
+                <span class="text-3xl font-extrabold text-[#0B4F9C] leading-none tabular-nums">{p.capacityMw || 0}</span>
+                <span class="text-sm text-[#0B4F9C] font-semibold mb-0.5">MW</span>
+              </div>
+              <div class="flex items-center justify-between text-xs text-slate-500">
+                <span class={`font-medium flex items-center gap-1 ${p.type === 'Solar' ? 'text-orange-600' : 'text-blue-600'}`}>
+                  <Icon name={p.type === 'Solar' ? 'sun' : 'droplets'} size={12} strokeWidth={2} />
+                  {p.type}
+                </span>
+                <span class="text-slate-400">Est. {p.yearOfCommissioning || '—'}</span>
+                <a href={p.status === 'Operational' ? '/our-business/power-stations' : p.status === 'Under Construction' ? '/our-business/construction' : '/our-business/under-development'} class="text-[#0B4F9C] hover:underline font-semibold">Details &rarr;</a>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- View All -->
+      <div class="px-8 md:px-12 pt-8 pb-10 text-center">
+        <a href="/our-business/power-stations" class="inline-flex items-center gap-2 bg-[#1B3A6B] hover:bg-[#0B4F9C] text-white px-8 py-3 rounded-lg text-sm font-semibold transition-colors shadow-md">View All Projects &rarr;</a>
+      </div>
+    </section>
+
     <!-- ============================================================ -->
     <!-- PHOTO GALLERY SECTION (FULL WIDTH)                            -->
     <!-- ============================================================ -->
@@ -557,84 +638,7 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
       </div>
     </section>
 
-    <!-- ============================================================ -->
-    <!-- PROJECT EXPLORER                                              -->
-    <!-- ============================================================ -->
-    <section id="projects" aria-labelledby="projects-heading" class="bg-[#EAF4FF] rounded-2xl border border-[#BDD7EE] shadow-sm overflow-hidden">
-      <!-- Section Header -->
-      <div class="px-8 md:px-12 pt-10 pb-0">
-        <div class="flex flex-col md:flex-row md:items-end justify-between gap-5">
-          <div>
-            <div class="text-[11px] uppercase tracking-[0.14em] text-[#1B3A6B] font-bold mb-2">Project Portfolio</div>
-            <h2 id="projects-heading" class="text-2xl md:text-3xl font-extrabold text-[#1A5276]">Interactive Project Explorer</h2>
-            <p class="text-sm text-slate-500 mt-2.5 max-w-xl leading-relaxed">Discover operational hydroelectric plants, ongoing constructions and upcoming renewable projects across J&K.</p>
-          </div>
-          <div class="flex items-center gap-2 flex-shrink-0">
-            <div class="flex items-center gap-2 rounded-lg border border-[#BDD7EE] bg-white px-3.5 py-2 text-xs text-[#1A5276] font-semibold">
-              <span class="w-2 h-2 rounded-full bg-emerald-500"></span> 21 Operational
-            </div>
-            <div class="flex items-center gap-2 rounded-lg border border-[#BDD7EE] bg-white px-3.5 py-2 text-xs text-[#1A5276] font-semibold">
-              <span class="w-2 h-2 rounded-full bg-[#0B4F9C]"></span> 8 Under Construction
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Filters + Search -->
-      <div class="px-8 md:px-12 pt-8">
-        <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-          <div class="flex items-center gap-1 bg-white border border-slate-200 rounded-lg p-1 flex-wrap">
-            {['All', 'Operational', 'Under Construction', 'Upcoming', 'Solar'].map((tab) => (
-              <button data-tab={tab} class={`project-tab px-4 py-1.5 rounded-md text-xs font-semibold transition-all ${tab === 'All' ? 'bg-[#0B4F9C] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}>
-                {tab === 'All' ? 'All Projects' : tab}
-              </button>
-            ))}
-          </div>
-          <div class="relative sm:ml-auto">
-            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 flex items-center">
-              <Icon name="search" size={13} strokeWidth={2} />
-            </span>
-            <input id="project-search" type="text" placeholder="Search projects…" class="w-full sm:w-56 pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C]/40 bg-white" />
-          </div>
-        </div>
-      </div>
-
-      <!-- Project Cards Grid -->
-      <div class="px-8 md:px-12 pt-6 pb-3">
-        <div id="projects-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {projects.map((p) => (
-            <div class="project-card bg-white rounded-xl border border-slate-200 p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-250" data-status={p.status} data-type={p.type} data-name={p.name.toLowerCase()}>
-              <div class="flex items-start justify-between mb-4">
-                <div class="flex-1 min-w-0 pr-3">
-                  <div class="font-bold text-slate-900 text-sm leading-snug">{p.name}</div>
-                  {(p.location || p.basin) && (
-                    <div class="text-xs text-slate-400 mt-1">{p.location}{p.location && p.basin ? ' — ' : ''}{p.basin ? `${p.basin} Basin` : ''}</div>
-                  )}
-                </div>
-                <span class={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full whitespace-nowrap flex-shrink-0 ${p.status === 'Operational' ? 'bg-emerald-100 text-emerald-700' : p.status === 'Under Construction' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600'}`}>{p.status}</span>
-              </div>
-              <div class="flex items-end gap-1.5 mb-4">
-                <span class="text-3xl font-extrabold text-[#0B4F9C] leading-none tabular-nums">{p.capacityMw || 0}</span>
-                <span class="text-sm text-[#0B4F9C] font-semibold mb-0.5">MW</span>
-              </div>
-              <div class="flex items-center justify-between text-xs text-slate-500">
-                <span class={`font-medium flex items-center gap-1 ${p.type === 'Solar' ? 'text-orange-600' : 'text-blue-600'}`}>
-                  <Icon name={p.type === 'Solar' ? 'sun' : 'droplets'} size={12} strokeWidth={2} />
-                  {p.type}
-                </span>
-                <span class="text-slate-400">Est. {p.yearOfCommissioning || '—'}</span>
-                <a href={p.status === 'Operational' ? '/our-business/power-stations' : p.status === 'Under Construction' ? '/our-business/construction' : '/our-business/under-development'} class="text-[#0B4F9C] hover:underline font-semibold">Details &rarr;</a>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <!-- View All -->
-      <div class="px-8 md:px-12 pt-8 pb-10 text-center">
-        <a href="/our-business/power-stations" class="inline-flex items-center gap-2 bg-[#1B3A6B] hover:bg-[#0B4F9C] text-white px-8 py-3 rounded-lg text-sm font-semibold transition-colors shadow-md">View All Projects &rarr;</a>
-      </div>
-    </section>
 
 
 
