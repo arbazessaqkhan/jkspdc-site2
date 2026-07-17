@@ -451,18 +451,18 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
         <div class="w-10 h-0.5 bg-[#D8681B] mt-2.5 rounded-full"></div>
       </div>
 
-      <!-- Blue Card Container -->
-      <div class="bg-gradient-to-br from-[#073A80] to-[#0B4F9C] text-white rounded-2xl shadow-xl border border-white/10 overflow-hidden">
+      <!-- White Card Container -->
+      <div class="bg-white rounded-2xl shadow-sm border border-[#BDD7EE] overflow-hidden">
         <div class="px-8 md:px-12 py-12 lg:py-14 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
 
           <!-- Left: Text Column -->
           <div class="flex flex-col">
-            <h3 class="text-2xl md:text-3xl lg:text-4xl font-extrabold leading-tight mb-6">Powering J&amp;K Since 1995</h3>
+            <h3 class="text-2xl md:text-3xl lg:text-4xl font-extrabold leading-tight text-[#1B3A6B] mb-6">Powering J&amp;K Since 1995</h3>
             <div class="space-y-4 mb-8">
-              <p class="text-white/80 text-[15px] leading-[1.65]">
+              <p class="text-slate-600 text-[15px] leading-[1.65]">
                 Jammu and Kashmir State Power Development Corporation Limited (JKSPDCL) is a wholly owned Public Sector Undertaking (PSU) of the Government of Jammu &amp; Kashmir, incorporated in 1995 under the Companies Act.
               </p>
-              <p class="text-white/80 text-[15px] leading-[1.65]">
+              <p class="text-slate-600 text-[15px] leading-[1.65]">
                 With an authorised share capital of Rs.&nbsp;5,000 crores, JKSPDC has investments of Rs.&nbsp;2,357.61 crores in joint ventures with NHPC — including CVPPPL and RHPCL — harnessing the vast hydroelectric potential of the region.
               </p>
             </div>
@@ -470,15 +470,15 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
             <!-- Stat Cards Grid -->
             <div class="grid grid-cols-2 gap-4 mb-9">
               {corpStats.map(stat => (
-                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-5 border border-white/15 hover:bg-white/15 transition-colors">
-                  <div class="text-white/55 text-[10px] uppercase tracking-[0.12em] font-semibold mb-2">{stat.label}</div>
-                  <div class="text-[#FFE0C2] text-xl font-extrabold leading-snug">{stat.value}</div>
+                <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-5 hover:bg-[#F0F7FF] hover:border-[#BDD7EE]/50 transition-colors">
+                  <div class="text-slate-500 text-[10px] uppercase tracking-[0.12em] font-semibold mb-2">{stat.label}</div>
+                  <div class="text-[#0B4F9C] text-xl font-extrabold leading-snug">{stat.value}</div>
                 </div>
               ))}
             </div>
 
             <div>
-              <a href="/about-us/explore/overview" class="inline-flex items-center gap-2 bg-transparent hover:bg-white/15 text-white font-semibold px-7 py-3 rounded-lg text-sm transition-colors border-2 border-white/80 shadow-sm">
+              <a href="/about-us/explore/overview" class="inline-flex items-center gap-2 bg-[#1B3A6B] hover:bg-[#0B4F9C] text-white font-semibold px-7 py-3 rounded-lg text-sm transition-all shadow-md hover:shadow-lg">
                 Learn More About Us &rarr;
               </a>
             </div>
@@ -487,20 +487,20 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
           <!-- Right: Image Mosaic -->
           <div class="grid grid-cols-2 gap-4">
             <!-- Top row: two images at equal height -->
-            <div class="rounded-xl overflow-hidden shadow-xl aspect-[4/3]">
+            <div class="rounded-xl overflow-hidden shadow-md aspect-[4/3] border border-slate-100">
               <img src="/slider2.jpg" alt="JKSPDC hydroelectric project" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
             </div>
-            <div class="rounded-xl overflow-hidden shadow-xl aspect-[4/3]">
+            <div class="rounded-xl overflow-hidden shadow-md aspect-[4/3] border border-slate-100">
               <img src="/slider3.jpg" alt="JKSPDC dam construction" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
             </div>
             <!-- Bottom row: one image + one stat card -->
-            <div class="rounded-xl overflow-hidden shadow-xl aspect-[4/3]">
+            <div class="rounded-xl overflow-hidden shadow-md aspect-[4/3] border border-slate-100">
               <img src="/slider1.jpg" alt="JKSPDC power station" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
             </div>
-            <div class="bg-white/15 backdrop-blur-sm rounded-xl border-2 border-white/25 aspect-[4/3] flex flex-col items-center justify-center text-center p-5 hover:bg-white/20 transition-colors">
-              <div class="text-5xl font-extrabold text-white leading-none">30+</div>
-              <div class="text-sm font-bold text-[#FFE0C2] mt-2.5">Years of Excellence</div>
-              <div class="text-xs text-white/60 mt-2 leading-relaxed max-w-[120px]">Harnessing J&K hydro potential since 1995</div>
+            <div class="bg-[#F0F7FF] border border-[#BDD7EE]/60 rounded-xl aspect-[4/3] flex flex-col items-center justify-center text-center p-5 hover:bg-[#EAF4FF] transition-colors">
+              <div class="text-5xl font-extrabold text-[#0B4F9C] leading-none">30+</div>
+              <div class="text-sm font-bold text-slate-800 mt-2.5">Years of Excellence</div>
+              <div class="text-xs text-slate-500 mt-2 leading-relaxed max-w-[120px]">Harnessing J&K hydro potential since 1995</div>
             </div>
           </div>
 
@@ -516,17 +516,17 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
         <div class="w-10 h-0.5 bg-[#D8681B] mt-2.5 rounded-full"></div>
       </div>
 
-      <!-- Light Blue Card Container -->
-      <div class="bg-[#EAF4FF] rounded-2xl border border-[#BDD7EE] shadow-sm overflow-hidden">
+      <!-- White Card Container -->
+      <div class="bg-white rounded-2xl border border-[#BDD7EE] shadow-sm overflow-hidden">
         <!-- Info Banner -->
         <div class="px-8 md:px-12 pt-8 pb-0">
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-5">
-            <p class="text-sm text-slate-600 max-w-xl leading-relaxed">Discover operational hydroelectric plants, ongoing constructions and upcoming renewable projects across J&K.</p>
+            <p class="text-sm text-slate-500 max-w-xl leading-relaxed">Discover operational hydroelectric plants, ongoing constructions and upcoming renewable projects across J&K.</p>
             <div class="flex items-center gap-2 flex-shrink-0">
-              <div class="flex items-center gap-2 rounded-lg border border-[#BDD7EE] bg-white px-3.5 py-2 text-xs text-[#1A5276] font-semibold">
+              <div class="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs text-slate-700 font-semibold shadow-xs">
                 <span class="w-2 h-2 rounded-full bg-emerald-500"></span> 21 Operational
               </div>
-              <div class="flex items-center gap-2 rounded-lg border border-[#BDD7EE] bg-white px-3.5 py-2 text-xs text-[#1A5276] font-semibold">
+              <div class="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs text-slate-700 font-semibold shadow-xs">
                 <span class="w-2 h-2 rounded-full bg-[#0B4F9C]"></span> 8 Under Construction
               </div>
             </div>
@@ -534,9 +534,9 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
         </div>
 
       <!-- Filters + Search -->
-      <div class="px-8 md:px-12 pt-8">
+      <div class="px-8 md:px-12 pt-6">
         <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-          <div class="flex items-center gap-1 bg-white border border-slate-200 rounded-lg p-1 flex-wrap">
+          <div class="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg p-1 flex-wrap">
             {['All', 'Operational', 'Under Construction', 'Upcoming', 'Solar'].map((tab) => (
               <button data-tab={tab} class={`project-tab px-4 py-1.5 rounded-md text-xs font-semibold transition-all ${tab === 'All' ? 'bg-[#0B4F9C] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}>
                 {tab === 'All' ? 'All Projects' : tab}
