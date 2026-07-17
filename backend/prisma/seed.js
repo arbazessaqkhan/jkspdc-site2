@@ -136,6 +136,56 @@ async function main() {
     });
   }
   console.log('Power stations seeded.');
+
+  // 4. Create Gallery Items
+  const galleryItems = [
+    {
+      id: 'gallery-seed-1',
+      title: 'Signing of Implementation Agreement NHPC & JKSPDC',
+      imageUrl: '/gallery/signing_agreement.png',
+      partition: 'Official Events',
+    },
+    {
+      id: 'gallery-seed-2',
+      title: 'Retirement Ceremony of Executive Director Civil, JKSPDC',
+      imageUrl: '/gallery/retirement_ed_civil.png',
+      partition: 'Corporate',
+    },
+    {
+      id: 'gallery-seed-3',
+      title: 'Hydroelectric Project Site View',
+      imageUrl: '/gallery/projects_gallery.jpg',
+      partition: 'Projects',
+    },
+    {
+      id: 'gallery-seed-4',
+      title: 'Baglihar Hydroelectric Dam Construction',
+      imageUrl: '/slider1.jpg',
+      partition: 'Projects',
+    },
+    {
+      id: 'gallery-seed-5',
+      title: 'Corporate HQ and Administrative Building',
+      imageUrl: '/slider2.jpg',
+      partition: 'Corporate',
+    },
+    {
+      id: 'gallery-seed-6',
+      title: 'Official Executive Board Meeting',
+      imageUrl: '/slider3.jpg',
+      partition: 'Official Events',
+    },
+  ];
+
+  for (const item of galleryItems) {
+    await prisma.galleryItem.upsert({
+      where: { id: item.id },
+      create: item,
+      update: item,
+    });
+  }
+  console.log('Gallery items seeded.');
+
   console.log('Seeding completed successfully!');
 }
 

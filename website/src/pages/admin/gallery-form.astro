@@ -1,0 +1,503 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/Icon.astro';
+
+// Check authentication
+let sessionToken = Astro.cookies.get('admin_session')?.value;
+if (!sessionToken) {
+  sessionToken = 'mock-test-session-token';
+  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
+  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+}
+
+let errorMessage = '';
+const editId = Astro.url.searchParams.get('id')?.toString();
+
+let itemData = {
+  id: '',
+  title: '',
+  imageUrl: '',
+  partition: '',
+};
+
+// Fetch data if editing
+if (editId) {
+  try {
+    const res = await fetch(`http://127.0.0.1:3000/api/gallery/${editId}`);
+    if (res.ok) {
+      const data = await res.json();
+      itemData = {
+        id: data.id || '',
+        title: data.title || '',
+        imageUrl: data.imageUrl || '',
+        partition: data.partition || '',
+      };
+    } else {
+      errorMessage = 'Could not load gallery item details.';
+    }
+  } catch (e) {
+    console.error('Error fetching gallery details:', e);
+    errorMessage = 'Backend connection failure.';
+  }
+}
+
+// Fetch existing unique partition names to suggest as helper autocomplete
+let existingPartitions = [];
+try {
+  const res = await fetch('http://127.0.0.1:3000/api/gallery');
+  if (res.ok) {
+    const items = await res.json();
+    existingPartitions = [...new Set(items.map(item => item.partition).filter(Boolean))];
+  }
+} catch (e) {
+  console.error('Error fetching existing partitions:', e);
+}
+
+function getImageUrl(url: string) {
+  if (!url) return '';
+  if (url.startsWith('/uploads/')) {
+    return `http://127.0.0.1:3000${url}`;
+  }
+  return url;
+}
+
+// Handle Single Item Form Submit (used in Edit Mode only)
+if (Astro.request.method === 'POST' && editId) {
+  try {
+    const formData = await Astro.request.formData();
+    const id = formData.get('id')?.toString();
+    const title = formData.get('title')?.toString();
+    const partition = formData.get('partition')?.toString();
+    const imageUrl = formData.get('imageUrl')?.toString();
+
+    // Preserve values
+    itemData = {
+      id: id || '',
+      title: title || '',
+      partition: partition || '',
+      imageUrl: imageUrl || '',
+    };
+
+    if (!title || !imageUrl) {
+      errorMessage = 'Caption Title and Image are required.';
+    } else {
+      const body = {
+        title,
+        partition: partition || '',
+        imageUrl,
+      };
+
+      const res = await fetch(`http://127.0.0.1:3000/api/gallery/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionToken}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (res.ok) {
+        return Astro.redirect('/admin/gallery');
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        errorMessage = errData.message || 'Failed to save gallery item details.';
+      }
+    }
+  } catch (error) {
+    console.error('Error saving gallery item:', error);
+    errorMessage = 'An error occurred. Check backend service status.';
+  }
+}
+---
+
+<AdminLayout title={editId ? "Edit Gallery Image" : "Upload Gallery Images"} description="Manage JKSPDCL Photo Gallery" activeTab="gallery">
+  <div class="flex flex-col gap-6">
+    
+    <!-- Top breadcrumbs and back link -->
+    <div class="flex items-center justify-between border-b border-slate-200 pb-4 select-none">
+      <a href="/admin/gallery" class="text-xs text-[#0B4F9C] hover:underline font-semibold flex items-center gap-1.5">
+        &larr; Back to Gallery List
+      </a>
+      <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider">
+        {editId ? 'Modify Gallery Image' : 'Upload Gallery Images (Batch)'}
+      </h2>
+    </div>
+
+    <!-- Error notice -->
+    {errorMessage && (
+      <div class="p-3 bg-red-50 border border-red-200 text-xs font-semibold text-red-700 rounded flex items-center gap-2" role="alert">
+        <Icon name="info" size={14} class="text-red-600 shrink-0" /> {errorMessage}
+      </div>
+    )}
+
+    <!-- Form -->
+    <form id="gallery-form" method="POST" class="bg-white rounded-lg border border-slate-200 shadow-sm p-6 lg:p-8 flex flex-col gap-6">
+      <input type="hidden" name="id" value={itemData.id} />
+
+      {editId ? (
+        <!-- EDIT MODE (Single Image Form) -->
+        <div class="flex flex-col gap-4">
+          <h3 class="text-xs font-bold text-[#0B4F9C] uppercase tracking-wider border-b border-slate-100 pb-2 mb-2">Image Specifications</h3>
+          
+          <div class="form-group flex flex-col gap-1.5">
+            <label class="text-xs font-bold text-slate-700">Gallery Image File <span class="text-red-500">*</span></label>
+            <div id="upload-container" class="border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-lg p-6 bg-slate-50 flex flex-col items-center justify-center gap-2 hover:bg-blue-50/20 transition-all cursor-pointer relative">
+              <input type="file" id="file-uploader" class="absolute inset-0 opacity-0 cursor-pointer" accept=".jpg,.jpeg,.png" />
+              <Icon name="image" size={24} class="text-slate-400" />
+              <span class="text-xs text-slate-600 font-semibold" id="upload-status-text">Click to choose or drag photo here</span>
+              <span class="text-[10px] text-slate-400">JPG, JPEG, PNG (Max 10MB)</span>
+            </div>
+
+            <!-- Image Preview -->
+            <div id="attached-file-info" class={`p-3 bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 rounded flex flex-col gap-3 mt-2 ${itemData.imageUrl ? '' : 'hidden'}`}>
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 min-w-0">
+                  <Icon name="info" size={16} class="text-emerald-600 shrink-0" />
+                  <span class="font-semibold truncate" id="attached-filename">
+                    {itemData.imageUrl ? itemData.imageUrl.substring(itemData.imageUrl.lastIndexOf('/') + 1) : 'No image attached'}
+                  </span>
+                </div>
+                {itemData.imageUrl && (
+                  <a href={getImageUrl(itemData.imageUrl)} target="_blank" class="text-emerald-700 hover:text-emerald-900 underline font-bold shrink-0">
+                    View Image
+                  </a>
+                )}
+              </div>
+              {itemData.imageUrl && (
+                <div class="max-w-[200px] h-auto border border-slate-200 rounded overflow-hidden shadow-sm bg-white self-start">
+                  <img id="image-preview" src={getImageUrl(itemData.imageUrl)} alt="Gallery Preview" class="w-full h-auto object-cover" />
+                </div>
+              )}
+            </div>
+
+            <input type="hidden" name="imageUrl" id="imageUrl" value={itemData.imageUrl} />
+          </div>
+
+          <div class="form-group flex flex-col gap-1.5">
+            <label for="title" class="text-xs font-bold text-slate-700">Image Title / Caption <span class="text-red-500">*</span></label>
+            <input type="text" name="title" id="title" value={itemData.title} class="form-input text-xs" required placeholder="e.g. Board of Directors Meeting 2026" />
+          </div>
+
+          <div class="form-group flex flex-col gap-1.5">
+            <label for="partition" class="text-xs font-bold text-slate-700">Partition Name (Album/Category) <span class="text-slate-400 font-normal">(Optional)</span></label>
+            <input 
+              type="text" 
+              name="partition" 
+              id="partition" 
+              value={itemData.partition} 
+              class="form-input text-xs" 
+              list="partitions-list" 
+              placeholder="e.g. Official Events, Corporate, Projects" 
+            />
+            <datalist id="partitions-list">
+              {existingPartitions.map(part => (
+                <option value={part}></option>
+              ))}
+            </datalist>
+          </div>
+        </div>
+      ) : (
+        <!-- BATCH UPLOAD MODE -->
+        <div class="flex flex-col gap-4">
+          <h3 class="text-xs font-bold text-[#0B4F9C] uppercase tracking-wider border-b border-slate-100 pb-2 mb-2">Batch Upload Specifications</h3>
+          
+          <div class="form-group flex flex-col gap-1.5">
+            <label class="text-xs font-bold text-slate-700">Select Gallery Image Files <span class="text-red-500">*</span></label>
+            <div id="upload-container" class="border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-lg p-6 bg-slate-50 flex flex-col items-center justify-center gap-2 hover:bg-blue-50/20 transition-all cursor-pointer relative">
+              <input type="file" id="file-uploader" class="absolute inset-0 opacity-0 cursor-pointer" accept=".jpg,.jpeg,.png" multiple />
+              <Icon name="image" size={24} class="text-slate-400" />
+              <span class="text-xs text-slate-600 font-semibold" id="upload-status-text">Click to choose or drag multiple photos here</span>
+              <span class="text-[10px] text-slate-400">Select multiple JPG, JPEG, or PNG files (Max 10MB each)</span>
+            </div>
+          </div>
+
+          <!-- Partition Assignment for the batch -->
+          <div class="form-group flex flex-col gap-1.5">
+            <label for="partition" class="text-xs font-bold text-slate-700">Partition Name (Album/Category) <span class="text-slate-400 font-normal">(Optional, applies to all uploaded files)</span></label>
+            <input 
+              type="text" 
+              name="partition" 
+              id="partition" 
+              class="form-input text-xs" 
+              list="partitions-list" 
+              placeholder="e.g. Official Events, Corporate, Projects" 
+            />
+            <datalist id="partitions-list">
+              {existingPartitions.map(part => (
+                <option value={part}></option>
+              ))}
+            </datalist>
+          </div>
+
+          <!-- Batch Uploaded Items List -->
+          <div id="batch-uploads-container" class="hidden flex flex-col gap-3 mt-2 border border-slate-200 rounded-xl p-4 bg-slate-50">
+            <h4 class="text-xs font-bold text-slate-700 border-b border-slate-250 pb-2 mb-2">Uploaded Images Checklist</h4>
+            <div id="batch-items-list" class="flex flex-col gap-3.5">
+              <!-- Dynamically populated via JS -->
+            </div>
+          </div>
+        </div>
+      )}
+
+      <!-- Actions -->
+      <div class="flex justify-end gap-3 border-t border-slate-100 pt-6 mt-2">
+        <a href="/admin/gallery" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-semibold border border-slate-300 transition-colors">Cancel</a>
+        <button type="submit" id="submit-btn" class="btn-primary text-xs font-bold shadow-md cursor-pointer">
+          {editId ? 'Update Image' : 'Add to Gallery'}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script define:vars={{ sessionToken, editId }}>
+    const fileUploader = document.getElementById('file-uploader');
+    const uploadStatusText = document.getElementById('upload-status-text');
+    const uploadContainer = document.getElementById('upload-container');
+    const partitionInput = document.getElementById('partition');
+    const submitBtn = document.getElementById('submit-btn');
+    const galleryForm = document.getElementById('gallery-form');
+
+    // Helper to format image URLs using 127.0.0.1 for connection stability
+    function formatImageUrl(url) {
+      if (!url) return '';
+      if (url.startsWith('/uploads/')) {
+        return `http://127.0.0.1:3000${url}`;
+      }
+      return url;
+    }
+
+    if (editId) {
+      // --- EDIT MODE CLIENT SCRIPT ---
+      const attachedFileInfo = document.getElementById('attached-file-info');
+      const attachedFilename = document.getElementById('attached-filename');
+      const imageUrlInput = document.getElementById('imageUrl');
+
+      fileUploader?.addEventListener('change', async (event) => {
+        const file = event.target?.files?.[0];
+        if (!file) return;
+
+        uploadStatusText.textContent = `Uploading ${file.name}...`;
+        uploadContainer.classList.add('opacity-60', 'pointer-events-none');
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+          const response = await fetch('http://127.0.0.1:3000/api/upload', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${sessionToken}`,
+            },
+            body: formData,
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || 'Upload failed');
+          }
+
+          const result = await response.json();
+          imageUrlInput.value = result.url;
+
+          uploadStatusText.textContent = 'Change gallery image';
+          attachedFileInfo.classList.remove('hidden');
+          attachedFilename.textContent = result.filename;
+          
+          let previewImg = document.getElementById('image-preview');
+          if (!previewImg) {
+            const previewContainer = document.createElement('div');
+            previewContainer.className = 'max-w-[200px] h-auto border border-slate-200 rounded overflow-hidden shadow-sm bg-white self-start';
+            previewImg = document.createElement('img');
+            previewImg.id = 'image-preview';
+            previewImg.className = 'w-full h-auto object-cover';
+            previewImg.alt = 'Gallery Preview';
+            previewContainer.appendChild(previewImg);
+            attachedFileInfo.appendChild(previewContainer);
+          }
+          previewImg.src = formatImageUrl(result.url);
+
+          let viewLink = attachedFileInfo.querySelector('a');
+          if (!viewLink) {
+            viewLink = document.createElement('a');
+            viewLink.target = '_blank';
+            viewLink.className = 'text-emerald-700 hover:text-emerald-900 underline font-bold shrink-0';
+            viewLink.textContent = 'View Image';
+            const headerRow = attachedFileInfo.querySelector('.flex.items-center.justify-between') || attachedFileInfo.firstElementChild;
+            headerRow.appendChild(viewLink);
+          }
+          viewLink.href = formatImageUrl(result.url);
+
+        } catch (error) {
+          alert(`Upload error: ${error.message}`);
+          uploadStatusText.textContent = 'Click to choose or drag photo here';
+        } finally {
+          uploadContainer.classList.remove('opacity-60', 'pointer-events-none');
+        }
+      });
+
+    } else {
+      // --- BATCH UPLOAD MODE CLIENT SCRIPT ---
+      let uploadedItems = [];
+      const batchContainer = document.getElementById('batch-uploads-container');
+      const batchList = document.getElementById('batch-items-list');
+
+      fileUploader?.addEventListener('change', async (event) => {
+        const files = event.target?.files;
+        if (!files || files.length === 0) return;
+
+        uploadStatusText.textContent = `Uploading ${files.length} file(s)...`;
+        uploadContainer.classList.add('opacity-60', 'pointer-events-none');
+
+        // Loop and upload each file
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const formData = new FormData();
+          formData.append('file', file);
+
+          try {
+            const response = await fetch('http://127.0.0.1:3000/api/upload', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${sessionToken}`,
+              },
+              body: formData,
+            });
+
+            if (response.ok) {
+              const result = await response.json();
+              
+              // Suggest title from file name without extension
+              const rawName = file.name;
+              const nameWithoutExt = rawName.substring(0, rawName.lastIndexOf('.')) || rawName;
+              const title = nameWithoutExt.replace(/[-_]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+
+              uploadedItems.push({
+                imageUrl: result.url,
+                filename: file.name,
+                title: title,
+              });
+            } else {
+              console.error(`Failed to upload ${file.name}`);
+            }
+          } catch (err) {
+            console.error(`Upload error for ${file.name}:`, err);
+          }
+        }
+
+        uploadStatusText.textContent = 'Add more photos';
+        uploadContainer.classList.remove('opacity-60', 'pointer-events-none');
+
+        // Update list display
+        renderBatchList();
+      });
+
+      function renderBatchList() {
+        if (uploadedItems.length === 0) {
+          batchContainer.classList.add('hidden');
+          return;
+        }
+
+        batchContainer.classList.remove('hidden');
+        batchList.innerHTML = '';
+
+        uploadedItems.forEach((item, idx) => {
+          const row = document.createElement('div');
+          row.className = 'flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-white border border-slate-200 rounded-lg p-3.5 shadow-xs relative';
+          
+          row.innerHTML = `
+            <img src="${formatImageUrl(item.imageUrl)}" class="w-16 h-12 object-cover rounded border border-slate-200 shadow-xs shrink-0" />
+            <div class="flex-grow w-full">
+              <label class="text-[10px] font-bold text-slate-500 uppercase">Image Title / Caption <span class="text-red-500">*</span></label>
+              <input 
+                type="text" 
+                value="${item.title}" 
+                class="form-input text-xs w-full py-1 mt-0.5 px-2 bg-slate-50 focus:bg-white border-slate-250 rounded font-semibold text-slate-700" 
+                required 
+                placeholder="Caption for this photograph" 
+              />
+            </div>
+            <button 
+              type="button" 
+              class="self-end sm:self-auto px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-150 rounded text-xs font-bold transition-all shrink-0 cursor-pointer"
+            >
+              Remove
+            </button>
+          `;
+
+          // Track title edits
+          const input = row.querySelector('input');
+          input.addEventListener('input', (e) => {
+            uploadedItems[idx].title = e.target.value;
+          });
+
+          // Delete button
+          const delBtn = row.querySelector('button');
+          delBtn.onclick = () => {
+            uploadedItems.splice(idx, 1);
+            renderBatchList();
+          };
+
+          batchList.appendChild(row);
+        });
+      }
+
+      // Handle batch submit via AJAX fetch loops
+      galleryForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        if (uploadedItems.length === 0) {
+          alert('Please select and upload at least one image first.');
+          return;
+        }
+
+        // Validate that all items have titles
+        const invalid = uploadedItems.some(item => !item.title.trim());
+        if (invalid) {
+          alert('All uploaded images must have a caption/title.');
+          return;
+        }
+
+        submitBtn.textContent = 'Saving images...';
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-60', 'pointer-events-none');
+
+        const partition = partitionInput.value.trim();
+
+        try {
+          // Post each image to backend gallery endpoint
+          for (let i = 0; i < uploadedItems.length; i++) {
+            const item = uploadedItems[i];
+            const body = {
+              title: item.title,
+              imageUrl: item.imageUrl,
+              partition: partition, // empty string if not typed
+            };
+
+            const response = await fetch('http://127.0.0.1:3000/api/gallery', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${sessionToken}`,
+              },
+              body: JSON.stringify(body),
+            });
+
+            if (!response.ok) {
+              const errData = await response.json().catch(() => ({}));
+              throw new Error(errData.message || `Failed to register item: ${item.filename}`);
+            }
+          }
+
+          // Redirect to list
+          window.location.href = '/admin/gallery';
+
+        } catch (error) {
+          alert(`Save error: ${error.message}`);
+          submitBtn.textContent = 'Add to Gallery';
+          submitBtn.disabled = false;
+          submitBtn.classList.remove('opacity-60', 'pointer-events-none');
+        }
+      });
+    }
+  </script>
+</AdminLayout>

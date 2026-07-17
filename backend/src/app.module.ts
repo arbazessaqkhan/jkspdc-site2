@@ -18,6 +18,7 @@ import { PressReleasesModule } from './press-releases/press-releases.module';
 import { UsersModule } from './users/users.module';
 import { UploadModule } from './upload/upload.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { GalleryModule } from './gallery/gallery.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     UsersModule,
     UploadModule,
     NotificationsModule,
+    GalleryModule,
   ],
   controllers: [
     ContactController,

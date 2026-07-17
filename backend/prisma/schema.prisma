@@ -126,3 +126,12 @@ model Notification {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model GalleryItem {
+  id        String   @id @default(uuid())
+  title     String
+  imageUrl  String
+  partition String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
