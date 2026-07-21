@@ -1,5 +1,5 @@
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -7,18 +7,12 @@ generator client {
   provider = "prisma-client-js"
 }
 
-enum Role {
-  ADMIN
-  EDITOR
-  VIEWER
-}
-
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
   password  String   // Hashed password
   name      String
-  role      Role     @default(VIEWER)
+  role      String   @default("VIEWER")
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -61,7 +55,7 @@ model Tender {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   parentTenderId String?
-  corrigendums   Json?
+  corrigendums   String?
 }
 
 model Career {
@@ -94,7 +88,7 @@ model AuditLog {
   action    String   // e.g., "TENDER_CREATE", "USER_LOGIN_FAILED"
   ipAddress String
   userAgent String
-  details   Json?    // Optional JSON payload storing non-sensitive metadata of the action
+  details   String?  // Stored as string in SQLite
   createdAt DateTime @default(now())
 }
 

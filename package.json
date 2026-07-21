@@ -1,0 +1,13 @@
+{
+  "name": "jkspdc-root",
+  "version": "1.0.0",
+  "description": "JKSPDC Web Platform Root workspace runner",
+  "private": true,
+  "scripts": {
+    "dev": "node dev.js",
+    "install:all": "npm install --prefix website && npm install --prefix backend"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
