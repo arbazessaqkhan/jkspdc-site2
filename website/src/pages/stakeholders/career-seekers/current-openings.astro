@@ -16,6 +16,14 @@ try {
 } catch (e) {
   errorMessage = 'Failed to connect to the backend server.';
 }
+
+const getDocUrl = (url?: string) => {
+  if (!url) return '#';
+  if (url.startsWith('/uploads/')) {
+    return `http://localhost:3000${url}`;
+  }
+  return url;
+};
 ---
 
 <Layout 
@@ -89,7 +97,7 @@ try {
                       {new Date(c.closingDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                     </td>
                     <td class="whitespace-nowrap">
-                      <a href={c.documentUrl} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-[#0B4F9C] hover:underline font-bold text-xs" aria-label={`Download document for ${c.advertisementNo}`}>
+                      <a href={getDocUrl(c.documentUrl)} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-[#0B4F9C] hover:underline font-bold text-xs" aria-label={`Download document for ${c.advertisementNo}`}>
                         📄 View PDF <span class="text-[10px] text-slate-400 font-normal">({c.fileSizeBytes ? `${(c.fileSizeBytes / 1024).toFixed(0)} KB` : 'PDF'})</span>
                       </a>
                     </td>

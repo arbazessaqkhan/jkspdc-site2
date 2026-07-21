@@ -13,6 +13,14 @@ const { title, description, canonicalUrl, isHome = false } = Astro.props;
 const canonical = canonicalUrl || Astro.url.href;
 const currentYear = new Date().getFullYear();
 
+function getDocUrl(url?: string) {
+  if (!url) return undefined;
+  if (url.startsWith('/uploads/')) {
+    return `http://localhost:3000${url}`;
+  }
+  return url;
+}
+
 // Dynamically fetch ticker items from the public APIs
 let tickerItems: any[] = [];
 try {
@@ -33,29 +41,35 @@ try {
 
   // Populate active tenders (limit to top 4)
   tenders.filter((t: any) => t.status === 'Active').slice(0, 4).forEach((t: any) => {
+    const tenderDocUrl = getDocUrl(t.documentUrl) || `/stakeholders/vendors/tender-details?id=${t.id}`;
     tickerItems.push({
       type: 'TENDER',
       text: `${t.title} (NIT Ref: ${t.referenceNo})`,
       colorClass: 'text-cyan-300 bg-cyan-500/10 border-cyan-400/20',
+      url: tenderDocUrl,
     });
 
     // Populate corrigendums (limit to top 2 per tender)
     const corrs = t.corrigendums && Array.isArray(t.corrigendums) ? t.corrigendums : [];
     corrs.slice(0, 2).forEach((c: any) => {
+      const corrDocUrl = getDocUrl(c.documentUrl) || tenderDocUrl;
       tickerItems.push({
         type: 'CORRIGENDUM',
         text: `${c.title} (Ref: ${t.referenceNo})`,
         colorClass: 'text-orange-400 bg-orange-500/10 border-orange-400/20',
+        url: corrDocUrl,
       });
     });
   });
 
   // Populate notifications (limit to top 4)
   notifs.slice(0, 4).forEach((n: any) => {
+    const notifDocUrl = getDocUrl(n.documentUrl) || `/stakeholders/investors/announcement`;
     tickerItems.push({
       type: 'NOTIFICATION',
       text: `${n.title} (File: ${n.fileName})`,
       colorClass: 'text-yellow-400 bg-yellow-500/10 border-yellow-400/20',
+      url: notifDocUrl,
     });
   });
 } catch (e) {
@@ -358,13 +372,16 @@ if (tickerItems.length === 0) {
               {[...tickerItems, ...tickerItems].map((item: any) => (
                 <span style="padding-right:4rem;">
                   › <strong class={`font-extrabold uppercase tracking-wider text-[10px] mr-1 px-1.5 py-0.5 rounded border ${item.colorClass}`}>{item.type}:</strong> 
-                  <span class="text-slate-100">{item.text}</span>
+                  {item.url ? (
+                    <a href={item.url} target="_blank" rel="noopener noreferrer" class="text-slate-100 hover:underline hover:text-white transition-colors">
+                      {item.text}
+                    </a>
+                  ) : (
+                    <span class="text-slate-100">{item.text}</span>
+                  )}
                 </span>
               ))}
             </div>
-          </div>
-        </div>
-      </div>
           </div>
         </div>
       </div>

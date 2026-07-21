@@ -73,6 +73,14 @@ try {
   console.error('Error fetching/processing public tenders:', e);
   errorMessage = 'Failed to connect to the backend server.';
 }
+
+const getDocUrl = (url?: string) => {
+  if (!url) return '#';
+  if (url.startsWith('/uploads/')) {
+    return `http://localhost:3000${url}`;
+  }
+  return url;
+};
 ---
 
 <Layout 
@@ -274,8 +282,8 @@ try {
                 <h4 class="font-bold text-slate-800 text-xs leading-snug">{item.title}</h4>
                 <p class="text-[10px] text-slate-450 font-semibold mt-1 font-mono">{item.referenceNo}</p>
               </div>
-              <a href={item.documentUrl} target="_blank" rel="noopener noreferrer" class="mt-4 text-[#0B4F9C] hover:underline font-bold text-xs inline-flex items-center gap-1">
-                <span>📄 Download Notice</span>
+              <a href={getDocUrl(item.documentUrl)} target="_blank" rel="noopener noreferrer" class="mt-4 text-[#0B4F9C] hover:underline font-bold text-xs inline-flex items-center gap-1">
+                <span>📄 View Notice</span>
                 <span class="text-[10px] text-slate-400">({item.fileSizeBytes ? `${(item.fileSizeBytes / 1024).toFixed(0)} KB` : 'PDF'})</span>
               </a>
             </div>

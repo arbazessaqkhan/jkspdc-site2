@@ -18,7 +18,17 @@ async function bootstrap() {
   if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
   }
-  app.use('/uploads', express.static(uploadsDir));
+  app.use(
+    '/uploads',
+    express.static(uploadsDir, {
+      setHeaders: (res, filePath) => {
+        if (filePath.toLowerCase().endsWith('.pdf')) {
+          res.setHeader('Content-Disposition', 'inline');
+          res.setHeader('Content-Type', 'application/pdf');
+        }
+      },
+    }),
+  );
 
   // GIGW/OWASP-compliant global validation pipe
   app.useGlobalPipes(

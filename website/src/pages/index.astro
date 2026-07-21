@@ -227,6 +227,14 @@ const formatRefDate = (dateStr: string) => {
   }
 };
 
+const getDocUrl = (url?: string) => {
+  if (!url) return undefined;
+  if (url.startsWith('/uploads/')) {
+    return `http://localhost:3000${url}`;
+  }
+  return url;
+};
+
 const displayNotifications = notifications.length > 0 ? notifications : fallbackNotifications;
 const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
 ---
@@ -361,29 +369,35 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
                 <div class="absolute left-0 right-0 bottom-0 h-4 bg-gradient-to-t from-[#ffffff] to-transparent z-10 pointer-events-none"></div>
 
                 <div class="scroll-track animate-marquee-vertical flex flex-col gap-2" style={`--marquee-duration: ${displayTenders.length * 8}s`}>
-                  {displayTenders.map((tender: any) => (
-                    <a href={tender.documentUrl} class="block p-2.5 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/30 rounded-lg shadow-xs text-left transition-all duration-150">
-                      <div class="text-[9px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
-                        <span>📅</span>
-                        <span>{formatRefDate(tender.publishDate)}</span>
-                      </div>
-                      <h4 class="font-bold text-slate-800 text-[11px] leading-snug line-clamp-2">
-                        {tender.title}
-                      </h4>
-                    </a>
-                  ))}
+                  {displayTenders.map((tender: any) => {
+                    const docUrl = getDocUrl(tender.documentUrl) || `/stakeholders/vendors/tender-details?id=${tender.id}`;
+                    return (
+                      <a href={docUrl} target="_blank" rel="noopener noreferrer" class="block p-2.5 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/30 rounded-lg shadow-xs text-left transition-all duration-150">
+                        <div class="text-[9px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
+                          <span>📅</span>
+                          <span>{formatRefDate(tender.publishDate)}</span>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-[11px] leading-snug line-clamp-2">
+                          {tender.title}
+                        </h4>
+                      </a>
+                    );
+                  })}
                   {/* Duplicate for marquee */}
-                  {displayTenders.map((tender: any) => (
-                    <a href={tender.documentUrl} tabindex="-1" aria-hidden="true" class="block p-2.5 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/30 rounded-lg shadow-xs text-left transition-all duration-150">
-                      <div class="text-[9px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
-                        <span>📅</span>
-                        <span>{formatRefDate(tender.publishDate)}</span>
-                      </div>
-                      <h4 class="font-bold text-slate-800 text-[11px] leading-snug line-clamp-2">
-                        {tender.title}
-                      </h4>
-                    </a>
-                  ))}
+                  {displayTenders.map((tender: any) => {
+                    const docUrl = getDocUrl(tender.documentUrl) || `/stakeholders/vendors/tender-details?id=${tender.id}`;
+                    return (
+                      <a href={docUrl} target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true" class="block p-2.5 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/30 rounded-lg shadow-xs text-left transition-all duration-150">
+                        <div class="text-[9px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
+                          <span>📅</span>
+                          <span>{formatRefDate(tender.publishDate)}</span>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-[11px] leading-snug line-clamp-2">
+                          {tender.title}
+                        </h4>
+                      </a>
+                    );
+                  })}
                 </div>
               </div>
               <div class="bg-slate-100/70 border-t border-slate-200/50 py-1.5 text-center text-[10px] font-bold flex-shrink-0">
@@ -404,29 +418,35 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
                 <div class="absolute left-0 right-0 bottom-0 h-4 bg-gradient-to-t from-[#ffffff] to-transparent z-10 pointer-events-none"></div>
 
                 <div class="scroll-track animate-marquee-vertical flex flex-col gap-2" style={`--marquee-duration: ${displayNotifications.length * 7}s`}>
-                  {displayNotifications.map((notif: any) => (
-                    <a href={notif.documentUrl} class="block p-2.5 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/30 rounded-lg shadow-xs text-left transition-all duration-150">
-                      <div class="text-[9px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
-                        <span>📅</span>
-                        <span>{formatRefDate(notif.publishDate)}</span>
-                      </div>
-                      <h4 class="font-bold text-slate-800 text-[11px] leading-snug line-clamp-2">
-                        {notif.title}
-                      </h4>
-                    </a>
-                  ))}
+                  {displayNotifications.map((notif: any) => {
+                    const docUrl = getDocUrl(notif.documentUrl) || `/stakeholders/investors/announcement`;
+                    return (
+                      <a href={docUrl} target="_blank" rel="noopener noreferrer" class="block p-2.5 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/30 rounded-lg shadow-xs text-left transition-all duration-150">
+                        <div class="text-[9px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
+                          <span>📅</span>
+                          <span>{formatRefDate(notif.publishDate)}</span>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-[11px] leading-snug line-clamp-2">
+                          {notif.title}
+                        </h4>
+                      </a>
+                    );
+                  })}
                   {/* Duplicate for marquee */}
-                  {displayNotifications.map((notif: any) => (
-                    <a href={notif.documentUrl} tabindex="-1" aria-hidden="true" class="block p-2.5 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/30 rounded-lg shadow-xs text-left transition-all duration-150">
-                      <div class="text-[9px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
-                        <span>📅</span>
-                        <span>{formatRefDate(notif.publishDate)}</span>
-                      </div>
-                      <h4 class="font-bold text-slate-800 text-[11px] leading-snug line-clamp-2">
-                        {notif.title}
-                      </h4>
-                    </a>
-                  ))}
+                  {displayNotifications.map((notif: any) => {
+                    const docUrl = getDocUrl(notif.documentUrl) || `/stakeholders/investors/announcement`;
+                    return (
+                      <a href={docUrl} target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true" class="block p-2.5 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/30 rounded-lg shadow-xs text-left transition-all duration-150">
+                        <div class="text-[9px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
+                          <span>📅</span>
+                          <span>{formatRefDate(notif.publishDate)}</span>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-[11px] leading-snug line-clamp-2">
+                          {notif.title}
+                        </h4>
+                      </a>
+                    );
+                  })}
                 </div>
               </div>
               <div class="bg-slate-100/70 border-t border-slate-200/50 py-1.5 text-center text-[10px] font-bold flex-shrink-0">

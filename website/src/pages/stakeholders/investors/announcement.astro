@@ -21,13 +21,12 @@ try {
 const yearsSet = new Set(notifications.map(n => new Date(n.publishDate).getFullYear()));
 const years = Array.from(yearsSet).sort((a, b) => b - a);
 
-const formatDate = (dateStr: string) => {
-  if (!dateStr) return '—';
-  const d = new Date(dateStr);
-  const day = String(d.getDate()).padStart(2, '0');
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const year = d.getFullYear();
-  return `${day}-${month}-${year}`;
+const getDocUrl = (url?: string) => {
+  if (!url) return '#';
+  if (url.startsWith('/uploads/')) {
+    return `http://localhost:3000${url}`;
+  }
+  return url;
 };
 ---
 
@@ -101,13 +100,13 @@ const formatDate = (dateStr: string) => {
                 
                 <div class="shrink-0 flex items-center justify-end sm:justify-center">
                   <a 
-                    href={notif.documentUrl} 
+                    href={getDocUrl(notif.documentUrl)} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 border border-[#0B4F9C] hover:bg-[#0B4F9C] hover:text-white text-[#0B4F9C] rounded text-xs font-bold transition-all"
                   >
-                    <Icon name="download" size={12} />
-                    <span>Download</span>
+                    <Icon name="file-text" size={12} />
+                    <span>View PDF</span>
                   </a>
                 </div>
               </div>

@@ -27,6 +27,14 @@ try {
   errorMessage = 'Failed to connect to the backend server.';
 }
 
+const getDocUrl = (url?: string) => {
+  if (!url) return '#';
+  if (url.startsWith('/uploads/')) {
+    return `http://localhost:3000${url}`;
+  }
+  return url;
+};
+
 const formatDate = (dateStr: string) => {
   if (!dateStr) return '—';
   const d = new Date(dateStr);
@@ -100,15 +108,15 @@ const formatSize = (bytes: number) => {
                   <td class="p-3">
                     <div class="space-y-1">
                       <a 
-                        href={tender.documentUrl} 
+                        href={getDocUrl(tender.documentUrl)} 
                         target="_blank" 
                         rel="noopener noreferrer" 
                         class="text-[#0B4F9C] hover:underline font-extrabold flex items-center gap-1"
                       >
-                        Download PDF
+                        View / Open PDF
                       </a>
                       <p class="text-[10px] text-red-650 font-bold">
-                        (Download | {formatSize(tender.fileSizeBytes)} | PDF | Open with Adobe Reader or browser)
+                        (PDF | {formatSize(tender.fileSizeBytes)} | Opens in new tab)
                       </p>
                     </div>
                   </td>
@@ -201,13 +209,13 @@ const formatSize = (bytes: number) => {
                   </div>
                   <div class="flex-shrink-0">
                     <a 
-                      href={corr.documentUrl} 
+                      href={getDocUrl(corr.documentUrl)} 
                       target="_blank" 
                       rel="noopener noreferrer" 
                       class="inline-flex items-center gap-1.5 px-4 py-2 border border-amber-500 hover:bg-amber-500 hover:text-white text-amber-700 rounded text-xs font-bold transition-all"
                     >
-                      <Icon name="download" size={12} />
-                      <span>Download ({formatSize(corr.fileSizeBytes)})</span>
+                      <Icon name="file-text" size={12} />
+                      <span>View PDF ({formatSize(corr.fileSizeBytes)})</span>
                     </a>
                   </div>
                 </div>
