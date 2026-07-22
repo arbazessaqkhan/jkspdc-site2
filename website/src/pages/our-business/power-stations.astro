@@ -43,14 +43,7 @@ const sectorGroups = sectors.map(secName => {
       'BHADERWAH', 'CHEP III', 'CHEP II', 'CHEP I', 'BHEP I', 'BHEP II',
       'SEWA III'
     ];
-    basinProjects.sort((a, b) => {
-      const idxA = projectOrder.indexOf(a.name.toUpperCase());
-      const idxB = projectOrder.indexOf(b.name.toUpperCase());
-      if (idxA === -1 && idxB === -1) return a.name.localeCompare(b.name);
-      if (idxA === -1) return 1;
-      if (idxB === -1) return -1;
-      return idxA - idxB;
-    });
+    basinProjects.sort((a, b) => (b.capacityMw || 0) - (a.capacityMw || 0));
 
     const totalCapacity = basinProjects.reduce((sum, p) => sum + p.capacityMw, 0);
 

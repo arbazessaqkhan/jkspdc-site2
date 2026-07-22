@@ -73,7 +73,7 @@ const photoUrl = getProjectPhotoUrl(project);
           </header>
 
           <!-- Top Card: Image and Technical Specifications combined -->
-          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 md:p-6 project-top-card max-w-[800px] mx-auto">
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 md:p-6 project-top-card">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center project-top-grid">
               
               <!-- Left Side: Image container -->
@@ -97,35 +97,35 @@ const photoUrl = getProjectPhotoUrl(project);
                   ⚙️ Technical Specifications
                 </h3>
                 
-                <dl class="grid grid-cols-2 gap-x-4 gap-y-3 mt-3 text-xs">
+                <dl class="grid grid-cols-2 gap-x-6 gap-y-4 mt-4">
                   <div>
-                    <dt class="text-slate-400 font-semibold uppercase tracking-wider text-[9px]">Installed Capacity</dt>
-                    <dd class="text-sm font-extrabold text-slate-800 mt-0.5">{project.capacityMw} MW</dd>
+                    <dt class="text-slate-500 font-semibold uppercase tracking-wider text-[11px]">Installed Capacity</dt>
+                    <dd class="text-lg font-extrabold text-[#0B4F9C] mt-0.5">{project.capacityMw} MW</dd>
                   </div>
 
                   <div>
-                    <dt class="text-slate-400 font-semibold uppercase tracking-wider text-[9px]">Configuration</dt>
-                    <dd class="text-xs font-bold text-slate-800 mt-0.5">{project.configuration || '—'}</dd>
+                    <dt class="text-slate-500 font-semibold uppercase tracking-wider text-[11px]">Configuration</dt>
+                    <dd class="text-sm font-bold text-slate-800 mt-0.5">{project.configuration || '—'}</dd>
                   </div>
 
                   <div>
-                    <dt class="text-slate-400 font-semibold uppercase tracking-wider text-[9px]">Design Energy</dt>
-                    <dd class="text-xs font-bold text-slate-800 mt-0.5">{project.designEnergy ? `${project.designEnergy} MU` : '—'}</dd>
+                    <dt class="text-slate-500 font-semibold uppercase tracking-wider text-[11px]">Design Energy</dt>
+                    <dd class="text-sm font-bold text-slate-800 mt-0.5">{project.designEnergy ? `${project.designEnergy} MU` : '—'}</dd>
                   </div>
 
                   <div>
-                    <dt class="text-slate-400 font-semibold uppercase tracking-wider text-[9px]">Year of Commissioning</dt>
-                    <dd class="text-xs font-bold text-slate-800 mt-0.5">{project.yearOfCommissioning || '—'}</dd>
+                    <dt class="text-slate-500 font-semibold uppercase tracking-wider text-[11px]">Year of Commissioning</dt>
+                    <dd class="text-sm font-bold text-slate-800 mt-0.5">{project.yearOfCommissioning || '—'}</dd>
                   </div>
 
                   <div>
-                    <dt class="text-slate-400 font-semibold uppercase tracking-wider text-[9px]">River Basin</dt>
-                    <dd class="text-xs font-bold text-slate-800 mt-0.5">{project.basin || '—'}</dd>
+                    <dt class="text-slate-500 font-semibold uppercase tracking-wider text-[11px]">River Basin</dt>
+                    <dd class="text-sm font-bold text-slate-800 mt-0.5">{project.basin || '—'}</dd>
                   </div>
 
                   <div>
-                    <dt class="text-slate-400 font-semibold uppercase tracking-wider text-[9px]">District Location</dt>
-                    <dd class="text-xs font-bold text-slate-800 mt-0.5">{project.location || '—'}</dd>
+                    <dt class="text-slate-500 font-semibold uppercase tracking-wider text-[11px]">District Location</dt>
+                    <dd class="text-sm font-bold text-slate-800 mt-0.5">{project.location || '—'}</dd>
                   </div>
                 </dl>
               </div>

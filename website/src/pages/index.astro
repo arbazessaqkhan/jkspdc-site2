@@ -47,6 +47,7 @@ try {
   const projRes = await fetch('http://127.0.0.1:3000/api/projects');
   if (projRes.ok) {
     projects = await projRes.json();
+    projects.sort((a, b) => (b.capacityMw || 0) - (a.capacityMw || 0));
   }
 
   // Fetch notifications
@@ -111,12 +112,61 @@ const routeMap = {
   "Shri Rahul Yadav": "/dignitaries/rahul-yadav"
 };
 
-const heroSlides = [
-  { id: 0, badge: "Powering Jammu & Kashmir since 1995", title: "Baglihar Hydroelectric Project", desc: "A 900 MW run-of-the-river hydroelectric plant on the Chenab River — one of India's most strategic power assets.", stat: "900", statUnit: "MW", statLabel: "Installed Capacity", statPct: 80, img: "/slider1.jpg", ctaText: "Explore Project", ctaHref: "/our-business/power-stations" },
-  { id: 1, badge: "Green Energy Initiative", title: "Uri Hydroelectric Power Station", desc: "The largest hydro project in J&K with 480 MW capacity, contributing massively to the northern grid.", stat: "480", statUnit: "MW", statLabel: "Installed Capacity", statPct: 55, img: "/slider2.jpg", ctaText: "View Details", ctaHref: "/our-business/power-stations" },
-  { id: 2, badge: "Under Construction", title: "Pakal Dul Hydroelectric Project", desc: "A 1,000 MW project on Marusudar River nearing completion — set to be the largest.", stat: "1000", statUnit: "MW", statLabel: "Planned Capacity", statPct: 70, img: "/slider3.jpg", ctaText: "Learn More", ctaHref: "/our-business/under-construction" },
-  { id: 3, badge: "Renewable Energy", title: "Solar Power Development", desc: "JKSPDC is expanding into solar with multiple projects across Ladakh and Jammu.", stat: "300", statUnit: "MW", statLabel: "Solar Target", statPct: 40, img: "/slider1.jpg", ctaText: "Solar Projects", ctaHref: "/sustainability/environment/preamble" },
+const fallbackOperationalProjects = [
+  { id: 'op-pahalgam', name: 'MHEP PAHALGAM', capacityMw: 4.5, designEnergy: 14.92, yearOfCommissioning: 2005, basin: 'Jhelum Basin', location: 'Anantnag', status: 'Operational', type: 'Hydro', configuration: '2x2.25MW' },
+  { id: 'op-karnah', name: 'KARNAH', capacityMw: 2, designEnergy: 11.36, yearOfCommissioning: 1991, basin: 'Jhelum Basin', location: 'Kupwara', status: 'Operational', type: 'Hydro', configuration: '2x1MW' },
+  { id: 'op-ganderbal', name: 'GANDERBAL', capacityMw: 15, designEnergy: 90.15, yearOfCommissioning: 1955, basin: 'Jhelum Basin', location: 'Ganderbal', status: 'Operational', type: 'Hydro', configuration: '2x3MW + 2x4.5MW' },
+  { id: 'op-ushp-i', name: 'USHP I', capacityMw: 22.6, designEnergy: 106.62, yearOfCommissioning: 1973, basin: 'Jhelum Basin', location: 'Sumbal', status: 'Operational', type: 'Hydro', configuration: '2x11.3MW' },
+  { id: 'op-ushp-ii', name: 'USHP II', capacityMw: 105, designEnergy: 447.37, yearOfCommissioning: 2000, basin: 'Jhelum Basin', location: 'Kangan', status: 'Operational', type: 'Hydro', configuration: '3x35MW' },
+  { id: 'op-ljhp', name: 'LJHP', capacityMw: 105, designEnergy: 68.04, yearOfCommissioning: 1977, basin: 'Jhelum Basin', location: 'Baramulla', status: 'Operational', type: 'Hydro', configuration: '3x35MW' },
+  { id: 'op-bhaderwah', name: 'BHADERWAH', capacityMw: 1.5, designEnergy: 8.32, yearOfCommissioning: 2005, basin: 'Chenab Basin', location: 'Doda', status: 'Operational', type: 'Hydro', configuration: '3x0.5MW' },
+  { id: 'op-chep-iii', name: 'CHEP III', capacityMw: 7.5, designEnergy: 36.71, yearOfCommissioning: 2001, basin: 'Chenab Basin', location: 'Udhampur', status: 'Operational', type: 'Hydro', configuration: '3x2.5MW' },
+  { id: 'op-chep-ii', name: 'CHEP II', capacityMw: 2, designEnergy: 12, yearOfCommissioning: 1996, basin: 'Chenab Basin', location: 'Udhampur', status: 'Operational', type: 'Hydro', configuration: '2x1MW' },
+  { id: 'op-chep-i', name: 'CHEP I', capacityMw: 23.3, designEnergy: 110.02, yearOfCommissioning: 1971, basin: 'Chenab Basin', location: 'Udhampur', status: 'Operational', type: 'Hydro', configuration: '5x4.66MW' },
+  { id: 'op-bhep-i', name: 'BHEP I', capacityMw: 450, designEnergy: 2536.07, yearOfCommissioning: 2008, basin: 'Chenab Basin', location: 'Ramban', status: 'Operational', type: 'Hydro', configuration: '3x150MW' },
+  { id: 'op-bhep-ii', name: 'BHEP II', capacityMw: 450, designEnergy: 1302, yearOfCommissioning: 2015, basin: 'Chenab Basin', location: 'Ramban', status: 'Operational', type: 'Hydro', configuration: '3x150MW' },
+  { id: 'op-sewa-iii', name: 'SEWA III', capacityMw: 9, designEnergy: 33.06, yearOfCommissioning: 2002, basin: 'Ravi Basin', location: 'Kathua', status: 'Operational', type: 'Hydro', configuration: '3x3MW' }
 ];
+
+function getCleanDesc(htmlStr) {
+  if (!htmlStr) return "Hydel power station operated by JKSPDC under state/central sector.";
+  const clean = htmlStr.replace(/<\/?[^>]+(>|$)/g, "").replace(/\s+/g, " ").trim();
+  if (clean.length > 220) {
+    return clean.substring(0, 220) + "...";
+  }
+  return clean;
+}
+
+const operationalProjects = projects.filter((p) => p.status === 'Operational');
+const displaySlides = operationalProjects.length > 0 ? operationalProjects : fallbackOperationalProjects;
+displaySlides.sort((a, b) => (b.capacityMw || 0) - (a.capacityMw || 0));
+
+const heroSlides = displaySlides.map((p, index) => {
+  const slug = p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  let img = '/slider1.jpg';
+  
+  if (slug.includes('ganderbal') || slug.includes('ushp-i') || slug.includes('sewa-iii')) {
+    img = `/projects/${slug}.png`;
+  } else {
+    img = `/projects/${slug}.jpg`;
+  }
+
+  return {
+    id: index,
+    badge: p.basin ? `${p.basin} Basin` : 'River Basin',
+    title: p.name,
+    desc: getCleanDesc(p.description),
+    capacityMw: p.capacityMw,
+    configuration: p.configuration || '—',
+    designEnergy: p.designEnergy,
+    yearOfCommissioning: p.yearOfCommissioning,
+    basin: p.basin || '—',
+    location: p.location || '—',
+    img: img,
+    ctaText: 'Explore Details',
+    ctaHref: `/our-business/power-station-details?id=${p.id}`
+  };
+});
 
 const quickLinks = [
   { icon: "building", label: "About JKSPDC", desc: "Corporate profile & leadership", href: "/about-us/explore/overview" },
@@ -246,21 +296,71 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
     <div id="hero-slides" class="absolute inset-0">
       {heroSlides.map((slide, i) => (
         <div id={`slide-${slide.id}`} class={`absolute inset-0 transition-opacity duration-700 ${i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
-          <img src={slide.img} alt={slide.title} class="w-full h-full object-cover opacity-45" />
-          <div class="absolute inset-0 bg-gradient-to-r from-black/65 via-black/35 to-transparent"></div>
-          <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+          <!-- Background layers (displaying contained image over a matching blurred background to prevent cropping/zoom) -->
+          <div class="absolute inset-0 bg-slate-950">
+            <img src={slide.img} alt="" class="w-full h-full object-cover blur-md scale-105 opacity-25" />
+          </div>
+          <img src={slide.img} alt={slide.title} class="absolute inset-0 w-full h-full object-contain opacity-70" />
+          <div class="absolute inset-0 bg-gradient-to-r from-black/65 via-black/35 to-transparent z-10"></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent z-10"></div>
 
           <!-- Slide Content -->
           <div class="absolute inset-0 z-20 flex items-center">
             <div class="w-full max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
-              <div class="max-w-2xl text-white">
-                <div class="inline-flex items-center bg-[#D8681B] text-white text-[11px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-6">{slide.badge}</div>
-                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold leading-[1.1] tracking-tight text-balance" style="text-shadow: 0 2px 8px rgba(0,0,0,0.45);">{slide.title}</h2>
-                <p class="mt-5 text-base sm:text-lg text-white/80 max-w-xl leading-relaxed">{slide.desc}</p>
-                <div class="mt-8 flex flex-wrap items-center gap-3">
-                  <a href={slide.ctaHref} class="inline-flex items-center gap-2 bg-[#D8681B] hover:bg-[#C65D18] text-white font-semibold px-7 h-12 rounded-md transition-colors text-sm shadow-lg">{slide.ctaText} &rarr;</a>
-                  <button class="inline-flex items-center gap-2 border-2 border-white/80 bg-black/30 backdrop-blur-sm text-white hover:bg-white/20 px-6 h-12 rounded-md transition-colors text-sm font-medium">&#9654; Corporate Video</button>
+              <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
+                <!-- Left: Title, Desc, Buttons -->
+                <div class="lg:col-span-3 text-white">
+                  <div class="inline-flex items-center bg-[#D8681B] text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-6">
+                    {slide.badge}
+                  </div>
+                  <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-[1.15] tracking-tight" style="text-shadow: 0 2px 8px rgba(0,0,0,0.45);">
+                    {slide.title}
+                  </h2>
+                  <p class="mt-5 text-sm sm:text-base text-white/90 max-w-xl leading-relaxed">
+                    {slide.desc}
+                  </p>
+                  <div class="mt-8 flex flex-wrap items-center gap-3">
+                    <a href={slide.ctaHref} class="inline-flex items-center gap-2 bg-[#D8681B] hover:bg-[#C65D18] text-white font-semibold px-7 h-12 rounded transition-colors text-sm shadow-lg">
+                      Explore Details &rarr;
+                    </a>
+                  </div>
                 </div>
+
+                <!-- Right: Technical Specifications -->
+                <div class="lg:col-span-2 hidden md:block">
+                  <div class="bg-black/30 backdrop-blur-md border border-white/20 rounded-2xl p-5 text-white max-w-sm ml-auto shadow-xl">
+                    <h3 class="font-extrabold text-[10px] uppercase tracking-wider text-[#D8681B] border-b border-white/10 pb-2 mb-3">
+                      ⚙️ Technical Specifications
+                    </h3>
+                    <dl class="grid grid-cols-2 gap-x-4 gap-y-2.5 text-[11px]">
+                      <div>
+                        <dt class="text-white/60 font-medium uppercase tracking-wider text-[9px]">Installed Capacity</dt>
+                        <dd class="text-sm font-extrabold text-white mt-0.5">{slide.capacityMw} MW</dd>
+                      </div>
+                      <div>
+                        <dt class="text-white/60 font-medium uppercase tracking-wider text-[9px]">Configuration</dt>
+                        <dd class="text-[11px] font-bold text-white mt-0.5">{slide.configuration}</dd>
+                      </div>
+                      <div>
+                        <dt class="text-white/60 font-medium uppercase tracking-wider text-[9px]">Design Energy</dt>
+                        <dd class="text-[11px] font-bold text-white mt-0.5">{slide.designEnergy ? `${slide.designEnergy} MU` : '—'}</dd>
+                      </div>
+                      <div>
+                        <dt class="text-white/60 font-medium uppercase tracking-wider text-[9px]">Commissioning</dt>
+                        <dd class="text-[11px] font-bold text-white mt-0.5">{slide.yearOfCommissioning || '—'}</dd>
+                      </div>
+                      <div>
+                        <dt class="text-white/60 font-medium uppercase tracking-wider text-[9px]">River Basin</dt>
+                        <dd class="text-[11px] font-bold text-white mt-0.5">{slide.basin}</dd>
+                      </div>
+                      <div>
+                        <dt class="text-white/60 font-medium uppercase tracking-wider text-[9px]">District Location</dt>
+                        <dd class="text-[11px] font-bold text-white mt-0.5">{slide.location}</dd>
+                      </div>
+                    </dl>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
@@ -564,7 +664,7 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
       <div class="px-8 md:px-12 pt-6">
         <div class="flex flex-col sm:flex-row sm:items-center gap-4">
           <div class="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg p-1 flex-wrap">
-            {['All', 'Operational', 'Under Construction', 'Upcoming', 'Solar'].map((tab) => (
+            {['All', 'Operational', 'Under Construction', 'Upcoming'].map((tab) => (
               <button data-tab={tab} class={`project-tab px-4 py-1.5 rounded-md text-xs font-semibold transition-all ${tab === 'All' ? 'bg-[#0B4F9C] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}>
                 {tab === 'All' ? 'All Projects' : tab}
               </button>
@@ -782,9 +882,9 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
 <script is:inline>
 (function () {
   /* ── HERO SLIDER ─────────────────────────────────────────── */
-  var cur = 0, total = 4;
-  var slideEls = [], dots = document.querySelectorAll('[data-dot]');
-  for (var i = 0; i < total; i++) slideEls.push(document.getElementById('slide-' + i));
+  var slideEls = document.querySelectorAll('[id^="slide-"]');
+  var total = slideEls.length;
+  var cur = 0, dots = document.querySelectorAll('[data-dot]');
 
   function goTo(n) {
     if (slideEls[cur]) { slideEls[cur].classList.replace('opacity-100','opacity-0'); slideEls[cur].classList.replace('z-10','z-0'); }
@@ -808,7 +908,7 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
   function filterProjects() {
     var q = searchEl ? searchEl.value.toLowerCase() : '';
     cards.forEach(function(c) {
-      var tabOk = activeTab === 'All' || c.dataset.status === activeTab || (activeTab === 'Solar' && c.dataset.type === 'Solar');
+      var tabOk = activeTab === 'All' || c.dataset.status === activeTab;
       c.style.display = (tabOk && (!q || c.dataset.name.includes(q))) ? '' : 'none';
     });
   }
