@@ -26,7 +26,7 @@ try {
 const getProjectPhotoUrl = (proj: any) => {
   if (!proj) return null;
   const slug = proj.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-  if (slug.includes('ganderbal') || slug.includes('ushp-i')) {
+  if (slug.includes('ganderbal') || slug.includes('ushp-i') || slug.includes('sewa-iii')) {
     return `/projects/${slug}.png`;
   }
   return `/projects/${slug}.jpg`;
@@ -72,19 +72,66 @@ const photoUrl = getProjectPhotoUrl(project);
             <h2 class="text-3xl font-extrabold text-[#0B4F9C]">{project.name}</h2>
           </header>
 
-          {photoUrl && (
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-2 max-w-[515px] mx-auto mb-6 project-image-card">
-              <img 
-                src={photoUrl} 
-                alt={`${project.name} Power House Facility`} 
-                class="w-full h-auto object-contain rounded-xl"
-                onerror="this.closest('.project-image-card').style.display='none';"
-              />
-              <div class="p-3 text-center text-xs text-slate-500 font-semibold italic bg-slate-50 border-t border-slate-100 rounded-b-xl">
-                Figure: {project.name} Hydroelectric Power Station Facility
+          <!-- Top Card: Image and Technical Specifications combined -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 md:p-6 project-top-card max-w-[800px] mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center project-top-grid">
+              
+              <!-- Left Side: Image container -->
+              {photoUrl && (
+                <div class="project-image-card flex flex-col justify-center items-center">
+                  <img 
+                    src={photoUrl} 
+                    alt={`${project.name} Power House Facility`} 
+                    class="w-full h-auto max-h-[322px] object-contain rounded-xl shadow-sm border border-slate-100 bg-slate-50"
+                    onerror="handleImageError(this);"
+                  />
+                  <div class="mt-2 text-center text-[10px] text-slate-500 font-semibold italic">
+                    Figure: {project.name} Hydroelectric Power House Facility
+                  </div>
+                </div>
+              )}
+
+              <!-- Right Side: Technical Specifications -->
+              <div class="project-specs-card">
+                <h3 class="font-extrabold text-gray-900 border-b border-gray-100 pb-2 flex items-center gap-1.5 text-xs uppercase tracking-wider text-[#0B4F9C]">
+                  ⚙️ Technical Specifications
+                </h3>
+                
+                <dl class="grid grid-cols-2 gap-x-4 gap-y-3 mt-3 text-xs">
+                  <div>
+                    <dt class="text-slate-400 font-semibold uppercase tracking-wider text-[9px]">Installed Capacity</dt>
+                    <dd class="text-sm font-extrabold text-slate-800 mt-0.5">{project.capacityMw} MW</dd>
+                  </div>
+
+                  <div>
+                    <dt class="text-slate-400 font-semibold uppercase tracking-wider text-[9px]">Configuration</dt>
+                    <dd class="text-xs font-bold text-slate-800 mt-0.5">{project.configuration || '—'}</dd>
+                  </div>
+
+                  <div>
+                    <dt class="text-slate-400 font-semibold uppercase tracking-wider text-[9px]">Design Energy</dt>
+                    <dd class="text-xs font-bold text-slate-800 mt-0.5">{project.designEnergy ? `${project.designEnergy} MU` : '—'}</dd>
+                  </div>
+
+                  <div>
+                    <dt class="text-slate-400 font-semibold uppercase tracking-wider text-[9px]">Year of Commissioning</dt>
+                    <dd class="text-xs font-bold text-slate-800 mt-0.5">{project.yearOfCommissioning || '—'}</dd>
+                  </div>
+
+                  <div>
+                    <dt class="text-slate-400 font-semibold uppercase tracking-wider text-[9px]">River Basin</dt>
+                    <dd class="text-xs font-bold text-slate-800 mt-0.5">{project.basin || '—'}</dd>
+                  </div>
+
+                  <div>
+                    <dt class="text-slate-400 font-semibold uppercase tracking-wider text-[9px]">District Location</dt>
+                    <dd class="text-xs font-bold text-slate-800 mt-0.5">{project.location || '—'}</dd>
+                  </div>
+                </dl>
               </div>
+
             </div>
-          )}
+          </div>
 
           <!-- About Project -->
           <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 lg:p-8 space-y-4">
@@ -111,47 +158,9 @@ const photoUrl = getProjectPhotoUrl(project);
           </div>
         </article>
 
-        <!-- Sidebar Specifications -->
+        <!-- Sidebar Navigation -->
         <aside class="space-y-6">
-          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-            <h3 class="font-bold text-gray-900 border-b border-gray-100 pb-2 flex items-center gap-1.5">
-              ⚙️ Technical Specifications
-            </h3>
-            
-            <dl class="space-y-4 text-xs">
-              <div>
-                <dt class="text-slate-400 font-semibold uppercase tracking-wider">Installed Capacity</dt>
-                <dd class="text-base font-extrabold text-slate-800 mt-0.5">{project.capacityMw} MW</dd>
-              </div>
-
-              <div>
-                <dt class="text-slate-400 font-semibold uppercase tracking-wider">Configuration</dt>
-                <dd class="text-sm font-bold text-slate-800 mt-0.5">{project.configuration || '—'}</dd>
-              </div>
-
-              <div>
-                <dt class="text-slate-400 font-semibold uppercase tracking-wider">Design Energy</dt>
-                <dd class="text-sm font-bold text-slate-800 mt-0.5">{project.designEnergy ? `${project.designEnergy} MU` : '—'}</dd>
-              </div>
-
-              <div>
-                <dt class="text-slate-400 font-semibold uppercase tracking-wider">Year of Commissioning</dt>
-                <dd class="text-sm font-bold text-slate-800 mt-0.5">{project.yearOfCommissioning || '—'}</dd>
-              </div>
-
-              <div>
-                <dt class="text-slate-400 font-semibold uppercase tracking-wider">River Basin</dt>
-                <dd class="text-sm font-bold text-slate-800 mt-0.5">{project.basin || '—'}</dd>
-              </div>
-
-              <div>
-                <dt class="text-slate-400 font-semibold uppercase tracking-wider">District Location</dt>
-                <dd class="text-sm font-bold text-slate-800 mt-0.5">{project.location || '—'}</dd>
-              </div>
-            </dl>
-          </div>
-
-          <div class="card-static">
+          <div class="card-static bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
             <h3 class="font-bold text-gray-900 mb-2 border-b border-gray-100 pb-2">Business Sectors</h3>
             <ul class="flex flex-col gap-2 text-xs font-semibold text-[#0B4F9C]">
               <li><a href="/our-business/power-stations" class="hover:underline block py-1">&rarr; Operating Power Stations</a></li>
@@ -165,6 +174,20 @@ const photoUrl = getProjectPhotoUrl(project);
     )}
   </div>
 </Layout>
+
+<script is:inline>
+  function handleImageError(img) {
+    const card = img.closest('.project-image-card');
+    if (card) {
+      card.style.display = 'none';
+      const grid = card.closest('.project-top-grid');
+      if (grid) {
+        grid.classList.remove('md:grid-cols-2');
+        grid.classList.add('md:grid-cols-1');
+      }
+    }
+  }
+</script>
 
 <style is:global>
   .salient-features-content p {
