@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 
-let projects = [];
+let projects: any[] = [];
 let errorMessage = '';
 
 try {
@@ -14,6 +14,64 @@ try {
 } catch (e) {
   errorMessage = 'Failed to connect to the backend server.';
 }
+
+// Group projects dynamically by sector and then by basin
+const sectors = ['State', 'Central'];
+const sectorGroups = sectors.map(secName => {
+  const sectorProjects = projects.filter(p => (p.sector || 'State').toLowerCase() === secName.toLowerCase());
+  
+  // Find unique basins in this sector
+  const uniqueBasins = [...new Set(sectorProjects.map(p => p.basin || 'Unspecified Basin'))];
+  
+  // Sort basins: Jhelum Basin first, then Chenab, then Ravi, then others
+  const basinOrder = ['jhelum', 'chenab', 'ravi'];
+  uniqueBasins.sort((a, b) => {
+    const idxA = basinOrder.findIndex(o => a.toLowerCase().includes(o));
+    const idxB = basinOrder.findIndex(o => b.toLowerCase().includes(o));
+    if (idxA === -1 && idxB === -1) return a.localeCompare(b);
+    if (idxA === -1) return 1;
+    if (idxB === -1) return -1;
+    return idxA - idxB;
+  });
+
+  const basinsData = uniqueBasins.map(basinName => {
+    const basinProjects = sectorProjects.filter(p => (p.basin || 'Unspecified Basin') === basinName);
+    
+    // Sort projects within the basin to match the image sequence
+    const projectOrder = [
+      'MHEP PAHALGAM', 'KARNAH', 'GANDERBAL', 'USHP I', 'USHP II', 'LJHP',
+      'BHADERWAH', 'CHEP III', 'CHEP II', 'CHEP I', 'BHEP I', 'BHEP II',
+      'SEWA III'
+    ];
+    basinProjects.sort((a, b) => {
+      const idxA = projectOrder.indexOf(a.name.toUpperCase());
+      const idxB = projectOrder.indexOf(b.name.toUpperCase());
+      if (idxA === -1 && idxB === -1) return a.name.localeCompare(b.name);
+      if (idxA === -1) return 1;
+      if (idxB === -1) return -1;
+      return idxA - idxB;
+    });
+
+    const totalCapacity = basinProjects.reduce((sum, p) => sum + p.capacityMw, 0);
+
+    return {
+      name: basinName,
+      projects: basinProjects,
+      totalCapacity: Number(totalCapacity.toFixed(1))
+    };
+  });
+
+  const totalCapacity = sectorProjects.reduce((sum, p) => sum + p.capacityMw, 0);
+
+  return {
+    name: secName,
+    basins: basinsData,
+    totalCapacity: Number(totalCapacity.toFixed(1))
+  };
+});
+
+const stateGroup = sectorGroups.find(g => g.name === 'State') || { name: 'State', basins: [], totalCapacity: 0 };
+const centralGroup = sectorGroups.find(g => g.name === 'Central') || { name: 'Central', basins: [], totalCapacity: 0 };
 ---
 
 <Layout 
@@ -35,13 +93,13 @@ try {
     <!-- Page Header -->
     <header class="border-b border-gray-200 pb-4">
       <h2 class="text-3xl font-extrabold text-[#0B4F9C]">Operating Power Stations</h2>
-      <p class="text-sm text-gray-600 mt-1">Registry of active hydroelectric and thermal power plants managed by the corporation.</p>
+      <p class="text-sm text-gray-600 mt-1">Registry of active hydroelectric power plants managed by the corporation.</p>
     </header>
 
     <!-- Content -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <!-- Stations List -->
-      <article class="lg:col-span-2 space-y-6">
+      <article class="lg:col-span-2 space-y-8">
         
         {errorMessage && (
           <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 text-xs font-semibold">
@@ -49,44 +107,112 @@ try {
           </div>
         )}
 
-        <div class="table-wrapper">
-          <table class="table-data" aria-label="Operating Power Stations List">
-            <thead>
-              <tr>
-                <th scope="col">Station Name</th>
-                <th scope="col">Type</th>
-                <th scope="col">Installed Capacity (MW)</th>
-                <th scope="col">Location / River Basin</th>
-              </tr>
-            </thead>
-            <tbody>
-              {projects.length === 0 && !errorMessage ? (
-                <tr>
-                  <td colspan="4" class="text-center text-slate-500 py-10 text-xs font-semibold">
-                    No operating power stations found.
-                  </td>
-                </tr>
-              ) : (
-                projects.map((p) => (
-                  <tr class="hover:bg-slate-50/80 transition-colors">
-                    <td class="font-semibold text-gray-900 text-left">{p.name}</td>
-                    <td class="text-left">{p.type}</td>
-                    <td class="font-semibold text-slate-800 text-left">{p.capacityMw} MW</td>
-                    <td class="text-left">{p.location} {p.basin ? `/ ${p.basin}` : ''}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+        <!-- STATE SECTOR -->
+        <div class="space-y-6">
+          <div class="border-b border-[#0B4F9C]/20 pb-2 flex items-center justify-between">
+            <h3 class="text-lg font-bold text-[#0B4F9C] uppercase tracking-wider">State Sector</h3>
+            <span class="bg-[#0B4F9C] text-white text-xs font-bold px-3 py-1 rounded-full shadow-xs">
+              Total: {stateGroup.totalCapacity} MW
+            </span>
+          </div>
+
+          {stateGroup.basins.length === 0 ? (
+            <div class="bg-slate-50 border border-slate-200 text-slate-500 rounded-xl p-6 text-center text-xs font-semibold italic">
+              No state sector projects are currently operational.
+            </div>
+          ) : (
+            stateGroup.basins.map((basin) => (
+              <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs p-4 space-y-3">
+                <h4 class="text-xs font-extrabold text-slate-700 bg-slate-100 px-3 py-2 rounded uppercase tracking-wider flex justify-between">
+                  <span>{basin.name}</span>
+                  <span class="text-[#0B4F9C]">{basin.totalCapacity} MW</span>
+                </h4>
+                <div class="table-wrapper">
+                  <table class="table-data min-w-full">
+                    <thead>
+                      <tr>
+                        <th scope="col" class="text-left">Name of Power House</th>
+                        <th scope="col" class="text-left">Configuration</th>
+                        <th scope="col" class="text-left">Installed Capacity</th>
+                        <th scope="col" class="text-left">Design Energy (MU)</th>
+                        <th scope="col" class="text-left">Year of Commissioning</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {basin.projects.map((p) => (
+                        <tr class="hover:bg-slate-50/80 transition-colors">
+                          <td class="font-bold text-left text-xs">
+                            <a href={`/our-business/power-station-details?id=${p.id}`} class="text-[#0B4F9C] hover:underline">
+                              {p.name}
+                            </a>
+                          </td>
+                          <td class="text-left text-xs">{p.configuration || '—'}</td>
+                          <td class="font-semibold text-slate-700 text-left text-xs">{p.capacityMw} MW</td>
+                          <td class="text-left text-xs">{p.designEnergy || '—'}</td>
+                          <td class="text-left text-xs">{p.yearOfCommissioning || '—'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ))
+          )}
         </div>
 
-        <div class="bg-gray-50 border border-gray-200 text-gray-700 rounded-lg p-6 text-center text-sm shadow-sm">
-          <p class="font-semibold text-gray-800 mb-1">Detailed Technical Parameters Pending Official Approval</p>
-          <p class="text-xs text-gray-500">Official generation records, annual yield statistics, and turbine specifications are currently undergoing official review.</p>
-          <div class="mt-3 inline-block bg-neutral-200 text-neutral-800 px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider">
-            [Content Pending Approval]
+        <!-- CENTRAL SECTOR -->
+        <div class="space-y-6 pt-4">
+          <div class="border-b border-slate-300 pb-2 flex items-center justify-between">
+            <h3 class="text-lg font-bold text-slate-600 uppercase tracking-wider">Central Sector</h3>
+            <span class="bg-slate-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-xs">
+              Total: {centralGroup.totalCapacity} MW
+            </span>
           </div>
+
+          {centralGroup.basins.length === 0 ? (
+            <div class="bg-slate-50 border border-slate-200 text-slate-500 rounded-xl p-6 text-center text-xs font-semibold italic">
+              No central sector projects are currently operational.
+            </div>
+          ) : (
+            centralGroup.basins.map((basin) => (
+              <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs p-4 space-y-3">
+                <h4 class="text-xs font-extrabold text-slate-700 bg-slate-100 px-3 py-2 rounded uppercase tracking-wider flex justify-between">
+                  <span>{basin.name}</span>
+                  <span class="text-[#0B4F9C]">{basin.totalCapacity} MW</span>
+                </h4>
+                <div class="table-wrapper">
+                  <table class="table-data min-w-full">
+                    <thead>
+                      <tr>
+                        <th scope="col" class="text-left">Name of Power House</th>
+                        <th scope="col" class="text-left">Configuration</th>
+                        <th scope="col" class="text-left">Installed Capacity</th>
+                        <th scope="col" class="text-left">Design Energy (MU)</th>
+                        <th scope="col" class="text-left">Year of Commissioning</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {basin.projects.map((p) => (
+                        <tr class="hover:bg-slate-50/80 transition-colors">
+                          <td class="font-bold text-left text-xs">
+                            <a href={`/our-business/power-station-details?id=${p.id}`} class="text-[#0B4F9C] hover:underline">
+                              {p.name}
+                            </a>
+                          </td>
+                          <td class="text-left text-xs">{p.configuration || '—'}</td>
+                          <td class="font-semibold text-slate-700 text-left text-xs">{p.capacityMw} MW</td>
+                          <td class="text-left text-xs">{p.designEnergy || '—'}</td>
+                          <td class="text-left text-xs">{p.yearOfCommissioning || '—'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ))
+          )}
         </div>
+
       </article>
 
       <!-- Sidebar -->

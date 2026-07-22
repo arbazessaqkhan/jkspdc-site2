@@ -106,26 +106,6 @@ async function main() {
       salientFeatures: '<p>Located near Gantamulla in Baramulla district. Uses water from Jhelum river.</p>',
       description: 'An older but vital source of energy in the Jhelum basin.',
     },
-    {
-      id: 'station-seed-3',
-      name: 'Sawalkote Hydroelectric Project',
-      type: 'Run-of-River',
-      capacityMw: 1856.0,
-      status: 'Under Construction',
-      location: 'Ramban',
-      commissionedDate: new Date('2028-12-31'),
-      description: 'A major upcoming run-of-the-river project on the Chenab River.',
-    },
-    {
-      id: 'station-seed-4',
-      name: 'Kirthai-II Hydroelectric Project',
-      type: 'Run-of-River',
-      capacityMw: 990.0,
-      status: 'Under Construction',
-      location: 'Kishtwar',
-      commissionedDate: new Date('2030-06-30'),
-      description: 'A run-of-river project planned on the Chenab river.',
-    },
   ];
 
   for (const st of stations) {

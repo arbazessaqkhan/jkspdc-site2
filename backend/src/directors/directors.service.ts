@@ -22,7 +22,7 @@ export class DirectorsService {
   }
 
   async create(data: any) {
-    const { name, position, role, sNo } = data;
+    const { name, position, role, sNo, description } = data;
     if (!name || !position || !role || sNo === undefined) {
       throw new Error('Missing required fields');
     }
@@ -33,6 +33,7 @@ export class DirectorsService {
         position,
         role,
         sNo: parseInt(sNo, 10),
+        description: description || null,
       },
     });
   }
@@ -47,6 +48,7 @@ export class DirectorsService {
         position: data.position,
         role: data.role,
         sNo: data.sNo !== undefined ? parseInt(data.sNo, 10) : undefined,
+        description: data.description !== undefined ? data.description : undefined,
       },
     });
   }

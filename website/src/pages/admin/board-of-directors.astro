@@ -25,6 +25,7 @@ if (Astro.request.method === 'POST') {
       const position = formData.get('position')?.toString();
       const role = formData.get('role')?.toString();
       const sNo = formData.get('sNo')?.toString();
+      const description = formData.get('description')?.toString();
 
       if (!name || !position || !role || !sNo) {
         errorMessage = 'Name, Position, Role, and S No. are required.';
@@ -34,6 +35,7 @@ if (Astro.request.method === 'POST') {
           position,
           role,
           sNo: parseInt(sNo, 10),
+          description: description || null,
         };
 
         let res;
@@ -202,6 +204,7 @@ try {
                         data-position={dir.position}
                         data-role={dir.role}
                         data-sno={dir.sNo}
+                        data-description={dir.description || ''}
                         aria-label={`Edit ${dir.name}`}
                       >
                         Edit
@@ -250,24 +253,24 @@ try {
         </div>
 
         <div class="form-group">
-          <label for="form-position" class="form-label">Position <span class="text-red-500">*</span></label>
+          <label for="form-position" class="form-label">Designation <span class="text-red-500">*</span></label>
           <input type="text" name="position" id="form-position" class="form-input text-xs" required placeholder="e.g. Chairman / Managing Director" />
         </div>
 
         <div class="form-group">
-          <label for="form-role" class="form-label">Director Role <span class="text-red-500">*</span></label>
-          <select name="role" id="form-role" class="form-select text-xs" required>
-            <option value="Executive Director">Executive Director</option>
-            <option value="Non-Executive Director">Non-Executive Director</option>
-            <option value="Nominee Director">Nominee Director</option>
-            <option value="Independent Director">Independent Director</option>
-          </select>
+          <label for="form-role" class="form-label">Classification <span class="text-red-500">*</span></label>
+          <input type="text" name="role" id="form-role" class="form-input text-xs" required placeholder="e.g. Executive Director / Nominee Director" />
         </div>
 
         <div class="form-group">
           <label for="form-sno" class="form-label">Serial Number (S No.) <span class="text-red-500">*</span></label>
           <input type="number" name="sNo" id="form-sno" class="form-input text-xs" required placeholder="e.g. 1" min="1" />
           <p class="text-[10px] text-slate-400 mt-1">Controls the sort ordering sequence of directors on the public website.</p>
+        </div>
+
+        <div class="form-group">
+          <label for="form-description" class="form-label">Description <span class="text-slate-400 font-normal">(Optional)</span></label>
+          <textarea name="description" id="form-description" class="form-input text-xs h-20 py-2 resize-none" placeholder="e.g. Brief profile, bio, or administrative background details of the board member..."></textarea>
         </div>
 
         <div class="flex justify-end gap-2 border-t border-slate-100 pt-4 mt-2">
@@ -317,15 +320,17 @@ try {
     var formPosition = document.getElementById('form-position');
     var formRole = document.getElementById('form-role');
     var formSno = document.getElementById('form-sno');
+    var formDescription = document.getElementById('form-description');
     var modalTitle = document.getElementById('modal-title');
 
-    function showModal(action, id = '', name = '', position = '', role = 'Executive Director', sno = '1') {
+    function showModal(action, id = '', name = '', position = '', role = 'Executive Director', sno = '1', description = '') {
       formAction.value = action;
       formId.value = id;
       formName.value = name;
       formPosition.value = position;
       formRole.value = role;
       formSno.value = sno;
+      formDescription.value = description;
       modalTitle.textContent = action === 'create' ? 'Add New Board Member' : 'Edit Board Member Details';
       
       dialog.showModal();
@@ -370,7 +375,8 @@ try {
         var position = btn.getAttribute('data-position') || '';
         var role = btn.getAttribute('data-role') || 'Executive Director';
         var sno = btn.getAttribute('data-sno') || '1';
-        showModal('update', id, name, position, role, sno);
+        var description = btn.getAttribute('data-description') || '';
+        showModal('update', id, name, position, role, sno, description);
       });
     });
   </script>

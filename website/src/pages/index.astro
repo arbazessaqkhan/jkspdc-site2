@@ -285,179 +285,194 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
     <!-- DIGNITARIES SECTION (FULL WIDTH)                              -->
     <!-- ==========================================================    <!-- ============================================================ -->
     <!-- DIGNITARIES & UPDATES SIDE-BY-SIDE SECTION                     -->
+    <!-- ========================================================    <!-- ============================================================ -->
+    <!-- WELCOME, TENDERS & NOTIFICATIONS (3-COLUMN LAYOUT)            -->
     <!-- ============================================================ -->
-    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-10 gap-6 items-stretch">
       
-      <!-- LEFT COLUMN: HONORABLE DIGNITARIES (2/3 width = 8 cols) -->
-      <div class="lg:col-span-8 flex flex-col">
+      <!-- LEFT COLUMN: WELCOME TO JKSPDC (40% width = 4 cols) -->
+      <div class="md:col-span-2 lg:col-span-4 flex flex-col">
         <!-- Section Header -->
         <div class="text-left mb-4 flex-shrink-0">
-          <span class="inline-block text-[10px] uppercase tracking-[0.12em] text-[#1B3A6B] font-bold bg-transparent px-3 py-1 rounded-full border border-[#1B3A6B] mb-2.5">Leadership &amp; Governance</span>
-          <h2 id="dignitaries-heading" class="text-xl md:text-2xl font-extrabold text-[#1B2A41]">Honorable Dignitaries</h2>
+          <span class="inline-block text-[10px] uppercase tracking-[0.12em] text-[#1B3A6B] font-bold bg-transparent px-3 py-1 rounded-full border border-[#1B3A6B] mb-2.5">Corporate Overview</span>
+          <h2 class="text-lg xl:text-xl font-extrabold text-[#1B2A41]">
+            Welcome to <span class="text-[#0B4F9C]">JKSPDCL</span>
+          </h2>
           <div class="w-10 h-0.5 bg-[#D8681B] mt-2.5 rounded-full"></div>
         </div>
 
-        <!-- Dignitaries Card Container (stretches to match right column height) -->
-        <div class="bg-[#F0F7FF] border border-[#BDD7EE]/50 rounded-2xl p-5 shadow-sm flex-grow flex flex-col justify-center">
-          <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full my-auto">
-            {directors.length === 0 ? (
-              <div class="col-span-full text-center py-10 bg-white border border-slate-200 rounded-2xl text-slate-400 text-xs font-semibold">
-                No administrative board members listed.
-              </div>
-            ) : (
-              directors.map((d: any) => {
-                const profileHref = routeMap[d.name] || "/about-us/management/board";
+        <!-- Welcome Card Container -->
+        <div class="bg-white border border-[#BDD7EE]/60 rounded-2xl p-6 flex flex-col justify-between flex-grow h-[320px] shadow-sm">
+          <p class="text-slate-600 text-xs lg:text-[13px] leading-relaxed text-left">
+            Electricity is an essential source of commercial energy. It is vital for sustained economic growth. An increase in demand for power implies growth of the economy leading to modernization, industrialization and improvement in basic amenities culminating into a better quality of life of people.
+          </p>
+          <a href="/about-us/explore/overview" class="inline-flex items-center gap-2 bg-[#0C58B6] hover:bg-[#084A8F] text-white font-semibold px-5 py-2.5 rounded-lg text-xs transition-colors shadow-sm self-start mt-4">
+            Read More &raquo;
+          </a>
+        </div>
+      </div>
+
+      <!-- MIDDLE COLUMN: TENDERS & BIDS (30% width = 3 cols) -->
+      <div class="md:col-span-1 lg:col-span-3 flex flex-col">
+        <!-- Section Header -->
+        <div class="text-left mb-4 flex-shrink-0">
+          <span class="inline-block text-[10px] uppercase tracking-[0.12em] text-[#1B3A6B] font-bold bg-transparent px-3 py-1 rounded-full border border-[#1B3A6B] mb-2.5">Procurement</span>
+          <h2 id="tenders-heading" class="text-lg xl:text-xl font-extrabold text-[#1B2A41]">Tenders</h2>
+          <div class="w-10 h-0.5 bg-[#D8681B] mt-2.5 rounded-full"></div>
+        </div>
+
+        <!-- Tenders Card Container -->
+        <div class="bg-white border border-[#BDD7EE]/60 rounded-2xl overflow-hidden flex flex-col justify-between flex-grow h-[320px] shadow-sm">
+          <div class="relative flex-grow overflow-hidden px-4 py-3">
+            <div class="absolute left-0 right-0 top-0 h-4 bg-gradient-to-b from-[#ffffff] to-transparent z-10 pointer-events-none"></div>
+            <div class="absolute left-0 right-0 bottom-0 h-4 bg-gradient-to-t from-[#ffffff] to-transparent z-10 pointer-events-none"></div>
+
+            <div class="scroll-track animate-marquee-vertical flex flex-col gap-2.5" style={`--marquee-duration: ${displayTenders.length * 8}s`}>
+              {displayTenders.map((tender: any) => {
+                const docUrl = getDocUrl(tender.documentUrl) || `/stakeholders/vendors/tender-details?id=${tender.id}`;
                 return (
-                  <div class="group bg-white rounded-xl border border-slate-200/60 shadow-sm px-2.5 py-4 flex flex-col items-center justify-between text-center hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 h-full w-full">
-                    <!-- Photo (w-20 h-20 lg:w-24 lg:h-24) -->
-                    <div class="w-20 h-20 lg:w-24 lg:h-24 rounded-full overflow-hidden bg-slate-100 border-[2.5px] border-[#0B4F9C]/15 shadow-sm flex items-center justify-center flex-shrink-0 group-hover:border-[#0B4F9C]/30 transition-all duration-300">
-                      {photoMap[d.name] ? (
-                        <img src={photoMap[d.name]} alt={d.name} width="96" height="96" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" />
-                      ) : (
-                        <svg class="w-full h-full object-cover" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <rect width="100" height="100" fill="url(#grad)" />
-                          <circle cx="50" cy="35" r="18" fill="#FFFFFF" fill-opacity="0.85"/>
-                          <path d="M50 58C32 58 20 70 20 85H80C80 70 68 58 50 58Z" fill="#FFFFFF" fill-opacity="0.85"/>
-                          <circle cx="50" cy="85" r="6" fill="#D8681B" />
-                          <defs>
-                            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                              <stop offset="0%" stop-color="#1B3A6B" />
-                              <stop offset="100%" stop-color="#0B4F9C" />
-                            </linearGradient>
-                          </defs>
-                        </svg>
-                      )}
+                  <a href={docUrl} target="_blank" rel="noopener noreferrer" class="block p-3 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/35 rounded-lg shadow-xs text-left transition-all duration-150">
+                    <div class="text-[10px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
+                      <span>📅</span>
+                      <span>{formatRefDate(tender.publishDate)}</span>
                     </div>
-                    <!-- Content -->
-                    <div class="mt-3 flex-grow flex flex-col items-center justify-center">
-                      <h3 class="font-extrabold text-slate-800 text-xs lg:text-[13px] leading-snug group-hover:text-[#0B4F9C] transition-colors">{d.name}</h3>
-                      <p class="text-[8.5px] text-[#D8681B] font-extrabold uppercase tracking-wider mt-1.5">{d.role}</p>
-                      <p class="text-[9px] text-slate-500 font-semibold mt-0.5 leading-normal">{d.position}</p>
-                    </div>
-                    <!-- Profile Button -->
-                    <a href={profileHref} class="mt-3.5 w-full inline-flex items-center justify-center py-1.5 border border-slate-200 hover:border-[#0B4F9C] text-[9.5px] font-bold text-slate-650 hover:text-white hover:bg-[#0B4F9C] rounded-lg transition-all duration-150 shadow-sm hover:shadow">
-                      Profile Details
-                    </a>
-                  </div>
+                    <h4 class="font-bold text-slate-800 text-xs leading-snug line-clamp-2">
+                      {tender.title}
+                    </h4>
+                  </a>
                 );
-              })
-            )}
+              })}
+              {/* Duplicate for marquee */}
+              {displayTenders.map((tender: any) => {
+                const docUrl = getDocUrl(tender.documentUrl) || `/stakeholders/vendors/tender-details?id=${tender.id}`;
+                return (
+                  <a href={docUrl} target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true" class="block p-3 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/35 rounded-lg shadow-xs text-left transition-all duration-150">
+                    <div class="text-[10px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
+                      <span>📅</span>
+                      <span>{formatRefDate(tender.publishDate)}</span>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-xs leading-snug line-clamp-2">
+                      {tender.title}
+                    </h4>
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+          <div class="bg-slate-100/70 border-t border-slate-200/50 py-2.5 text-center text-xs font-bold flex-shrink-0">
+            <a href="/stakeholders/vendors/tender-bids" class="text-[#0B4F9C] hover:underline">View All Tenders &rarr;</a>
           </div>
         </div>
       </div>
 
-      <!-- RIGHT COLUMN: LATEST UPDATES (1/3 width = 4 cols) -->
-      <div class="lg:col-span-4 flex flex-col justify-between">
+      <!-- RIGHT COLUMN: NOTIFICATIONS (30% width = 3 cols) -->
+      <div class="md:col-span-1 lg:col-span-3 flex flex-col">
         <!-- Section Header -->
         <div class="text-left mb-4 flex-shrink-0">
           <span class="inline-block text-[10px] uppercase tracking-[0.12em] text-[#1B3A6B] font-bold bg-transparent px-3 py-1 rounded-full border border-[#1B3A6B] mb-2.5">Updates &amp; Notices</span>
-          <h2 id="scrolls-heading" class="text-xl md:text-2xl font-extrabold text-[#1B2A41]">Latest Updates</h2>
+          <h2 id="notices-heading" class="text-lg xl:text-xl font-extrabold text-[#1B2A41]">Notifications</h2>
           <div class="w-10 h-0.5 bg-[#D8681B] mt-2.5 rounded-full"></div>
         </div>
 
-        <div class="flex flex-col gap-4 flex-grow justify-between">
-          
-          <!-- Tenders Block -->
-          <div class="flex flex-col flex-1 min-h-0">
-            <div class="flex items-center justify-between mb-2 flex-shrink-0">
-              <span class="text-[11px] font-extrabold text-[#0B4F9C] uppercase tracking-wider">💼 Tenders &amp; Bids</span>
-            </div>
-            <!-- Tenders Card Container -->
-            <div class="bg-white border border-[#BDD7EE]/60 rounded-xl overflow-hidden flex flex-col justify-between flex-grow h-[175px] shadow-sm">
-              <div class="relative flex-grow overflow-hidden px-3 py-2">
-                <div class="absolute left-0 right-0 top-0 h-4 bg-gradient-to-b from-[#ffffff] to-transparent z-10 pointer-events-none"></div>
-                <div class="absolute left-0 right-0 bottom-0 h-4 bg-gradient-to-t from-[#ffffff] to-transparent z-10 pointer-events-none"></div>
+        <!-- Notices Card Container -->
+        <div class="bg-white border border-[#BDD7EE]/60 rounded-2xl overflow-hidden flex flex-col justify-between flex-grow h-[320px] shadow-sm">
+          <div class="relative flex-grow overflow-hidden px-4 py-3">
+            <div class="absolute left-0 right-0 top-0 h-4 bg-gradient-to-b from-[#ffffff] to-transparent z-10 pointer-events-none"></div>
+            <div class="absolute left-0 right-0 bottom-0 h-4 bg-gradient-to-t from-[#ffffff] to-transparent z-10 pointer-events-none"></div>
 
-                <div class="scroll-track animate-marquee-vertical flex flex-col gap-2" style={`--marquee-duration: ${displayTenders.length * 8}s`}>
-                  {displayTenders.map((tender: any) => {
-                    const docUrl = getDocUrl(tender.documentUrl) || `/stakeholders/vendors/tender-details?id=${tender.id}`;
-                    return (
-                      <a href={docUrl} target="_blank" rel="noopener noreferrer" class="block p-2.5 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/30 rounded-lg shadow-xs text-left transition-all duration-150">
-                        <div class="text-[9px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
-                          <span>📅</span>
-                          <span>{formatRefDate(tender.publishDate)}</span>
-                        </div>
-                        <h4 class="font-bold text-slate-800 text-[11px] leading-snug line-clamp-2">
-                          {tender.title}
-                        </h4>
-                      </a>
-                    );
-                  })}
-                  {/* Duplicate for marquee */}
-                  {displayTenders.map((tender: any) => {
-                    const docUrl = getDocUrl(tender.documentUrl) || `/stakeholders/vendors/tender-details?id=${tender.id}`;
-                    return (
-                      <a href={docUrl} target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true" class="block p-2.5 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/30 rounded-lg shadow-xs text-left transition-all duration-150">
-                        <div class="text-[9px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
-                          <span>📅</span>
-                          <span>{formatRefDate(tender.publishDate)}</span>
-                        </div>
-                        <h4 class="font-bold text-slate-800 text-[11px] leading-snug line-clamp-2">
-                          {tender.title}
-                        </h4>
-                      </a>
-                    );
-                  })}
-                </div>
-              </div>
-              <div class="bg-slate-100/70 border-t border-slate-200/50 py-1.5 text-center text-[10px] font-bold flex-shrink-0">
-                <a href="/stakeholders/vendors/tender-bids" class="text-[#0B4F9C] hover:underline">View All Tenders &rarr;</a>
-              </div>
+            <div class="scroll-track animate-marquee-vertical flex flex-col gap-2.5" style={`--marquee-duration: ${displayNotifications.length * 7}s`}>
+              {displayNotifications.map((notif: any) => {
+                const docUrl = getDocUrl(notif.documentUrl) || `/stakeholders/investors/announcement`;
+                return (
+                  <a href={docUrl} target="_blank" rel="noopener noreferrer" class="block p-3 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/35 rounded-lg shadow-xs text-left transition-all duration-150">
+                    <div class="text-[10px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
+                      <span>📅</span>
+                      <span>{formatRefDate(notif.publishDate)}</span>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-xs leading-snug line-clamp-2">
+                      {notif.title}
+                    </h4>
+                  </a>
+                );
+              })}
+              {/* Duplicate for marquee */}
+              {displayNotifications.map((notif: any) => {
+                const docUrl = getDocUrl(notif.documentUrl) || `/stakeholders/investors/announcement`;
+                return (
+                  <a href={docUrl} target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true" class="block p-3 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/35 rounded-lg shadow-xs text-left transition-all duration-150">
+                    <div class="text-[10px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
+                      <span>📅</span>
+                      <span>{formatRefDate(notif.publishDate)}</span>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-xs leading-snug line-clamp-2">
+                      {notif.title}
+                    </h4>
+                  </a>
+                );
+              })}
             </div>
           </div>
-
-          <!-- Notices Block -->
-          <div class="flex flex-col flex-grow flex-1 min-h-0">
-            <div class="flex items-center justify-between mb-2 flex-shrink-0">
-              <span class="text-[11px] font-extrabold text-[#0B4F9C] uppercase tracking-wider">📢 Notifications &amp; Circulars</span>
-            </div>
-            <!-- Notices Card Container -->
-            <div class="bg-white border border-[#BDD7EE]/60 rounded-xl overflow-hidden flex flex-col justify-between flex-grow h-[175px] shadow-sm">
-              <div class="relative flex-grow overflow-hidden px-3 py-2">
-                <div class="absolute left-0 right-0 top-0 h-4 bg-gradient-to-b from-[#ffffff] to-transparent z-10 pointer-events-none"></div>
-                <div class="absolute left-0 right-0 bottom-0 h-4 bg-gradient-to-t from-[#ffffff] to-transparent z-10 pointer-events-none"></div>
-
-                <div class="scroll-track animate-marquee-vertical flex flex-col gap-2" style={`--marquee-duration: ${displayNotifications.length * 7}s`}>
-                  {displayNotifications.map((notif: any) => {
-                    const docUrl = getDocUrl(notif.documentUrl) || `/stakeholders/investors/announcement`;
-                    return (
-                      <a href={docUrl} target="_blank" rel="noopener noreferrer" class="block p-2.5 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/30 rounded-lg shadow-xs text-left transition-all duration-150">
-                        <div class="text-[9px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
-                          <span>📅</span>
-                          <span>{formatRefDate(notif.publishDate)}</span>
-                        </div>
-                        <h4 class="font-bold text-slate-800 text-[11px] leading-snug line-clamp-2">
-                          {notif.title}
-                        </h4>
-                      </a>
-                    );
-                  })}
-                  {/* Duplicate for marquee */}
-                  {displayNotifications.map((notif: any) => {
-                    const docUrl = getDocUrl(notif.documentUrl) || `/stakeholders/investors/announcement`;
-                    return (
-                      <a href={docUrl} target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true" class="block p-2.5 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/30 rounded-lg shadow-xs text-left transition-all duration-150">
-                        <div class="text-[9px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
-                          <span>📅</span>
-                          <span>{formatRefDate(notif.publishDate)}</span>
-                        </div>
-                        <h4 class="font-bold text-slate-800 text-[11px] leading-snug line-clamp-2">
-                          {notif.title}
-                        </h4>
-                      </a>
-                    );
-                  })}
-                </div>
-              </div>
-              <div class="bg-slate-100/70 border-t border-slate-200/50 py-1.5 text-center text-[10px] font-bold flex-shrink-0">
-                <a href="/stakeholders/investors/announcement" class="text-[#0B4F9C] hover:underline">View All Notifications &rarr;</a>
-              </div>
-            </div>
+          <div class="bg-slate-100/70 border-t border-slate-200/50 py-2.5 text-center text-xs font-bold flex-shrink-0">
+            <a href="/stakeholders/investors/announcement" class="text-[#0B4F9C] hover:underline">View All Notifications &rarr;</a>
           </div>
-
         </div>
       </div>
+    </section>
 
+    <!-- ============================================================ -->
+    <!-- HONORABLE DIGNITARIES (BOD) (FULL WIDTH BELOW UPDATES)        -->
+    <!-- ============================================================ -->
+    <section class="flex flex-col mt-4">
+      <!-- Section Header -->
+      <div class="text-left mb-6 flex-shrink-0">
+        <span class="inline-block text-[10px] uppercase tracking-[0.12em] text-[#1B3A6B] font-bold bg-transparent px-3 py-1 rounded-full border border-[#1B3A6B] mb-2.5">Leadership &amp; Governance</span>
+        <h2 id="dignitaries-heading" class="text-lg xl:text-xl font-extrabold text-[#1B2A41]">Honorable Dignitaries</h2>
+        <div class="w-10 h-0.5 bg-[#D8681B] mt-2.5 rounded-full"></div>
+      </div>
+
+      <!-- Dignitaries Card Grid (Full Width, 4 cols) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+        {directors.length === 0 ? (
+          <div class="col-span-full text-center py-10 bg-[#F0F7FF] border border-[#BDD7EE]/50 rounded-2xl text-slate-400 text-xs font-semibold">
+            No administrative board members listed.
+          </div>
+        ) : (
+          directors.map((d: any) => {
+            const profileHref = routeMap[d.name] || "/about-us/management/board";
+            return (
+              <a href={profileHref} class="group bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col items-center justify-start hover:shadow-xl hover:-translate-y-1.5 hover:scale-[1.03] transition-all duration-300 h-full w-full">
+                <!-- Top Blue Header with image (Enlarged padding) -->
+                <div class="w-full bg-[#4a89dc] py-8 flex items-center justify-center flex-shrink-0">
+                  <!-- Photo container (Enlarged to w-28 h-28 = 112px) -->
+                  <div class="w-28 h-28 rounded-full overflow-hidden bg-slate-100 border-[4px] border-white shadow-md flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-500">
+                    {photoMap[d.name] ? (
+                      <img src={photoMap[d.name]} alt={d.name} width="112" height="112" class="w-full h-full object-cover object-top" />
+                    ) : (
+                      <svg class="w-full h-full object-cover" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="100" height="100" fill="url(#grad)" />
+                        <circle cx="50" cy="35" r="18" fill="#FFFFFF" fill-opacity="0.85"/>
+                        <path d="M50 58C32 58 20 70 20 85H80C80 70 68 58 50 58Z" fill="#FFFFFF" fill-opacity="0.85"/>
+                        <circle cx="50" cy="85" r="6" fill="#D8681B" />
+                        <defs>
+                          <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#1B3A6B" />
+                            <stop offset="100%" stop-color="#0B4F9C" />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                    )}
+                  </div>
+                </div>
+                <!-- Card Content (Enlarged padding & text sizes) -->
+                <div class="p-6 flex-grow flex flex-col items-center justify-center text-center gap-2">
+                  <h3 class="font-extrabold text-slate-800 text-[15px] md:text-[17px] leading-snug group-hover:text-[#0C58B6] transition-colors">{d.name}</h3>
+                  <p class="text-[13px] md:text-[14.5px] font-semibold text-[#0C58B6] leading-relaxed text-balance">{d.position}</p>
+                </div>
+              </a>
+            );
+          })
+        )}
+      </div>
     </section>
 
     <!-- ============================================================ -->
@@ -487,15 +502,7 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
               </p>
             </div>
 
-            <!-- Stat Cards Grid -->
-            <div class="grid grid-cols-2 gap-4 mb-9">
-              {corpStats.map(stat => (
-                <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-5 hover:bg-[#F0F7FF] hover:border-[#BDD7EE]/50 transition-colors">
-                  <div class="text-slate-500 text-[10px] uppercase tracking-[0.12em] font-semibold mb-2">{stat.label}</div>
-                  <div class="text-[#0B4F9C] text-xl font-extrabold leading-snug">{stat.value}</div>
-                </div>
-              ))}
-            </div>
+
 
             <div>
               <a href="/about-us/explore/overview" class="inline-flex items-center gap-2 bg-[#1B3A6B] hover:bg-[#0B4F9C] text-white font-semibold px-7 py-3 rounded-lg text-sm transition-all shadow-md hover:shadow-lg">
@@ -544,10 +551,10 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
             <p class="text-sm text-slate-500 max-w-xl leading-relaxed">Discover operational hydroelectric plants, ongoing constructions and upcoming renewable projects across J&K.</p>
             <div class="flex items-center gap-2 flex-shrink-0">
               <div class="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs text-slate-700 font-semibold shadow-xs">
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> 21 Operational
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> {projects.filter((p: any) => p.status === 'Operational').length} Operational
               </div>
               <div class="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs text-slate-700 font-semibold shadow-xs">
-                <span class="w-2 h-2 rounded-full bg-[#0B4F9C]"></span> 8 Under Construction
+                <span class="w-2 h-2 rounded-full bg-[#0B4F9C]"></span> {projects.filter((p: any) => p.status === 'Under Construction').length} Under Construction
               </div>
             </div>
           </div>
@@ -596,7 +603,7 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
                   {p.type}
                 </span>
                 <span class="text-slate-400">Est. {p.yearOfCommissioning || '—'}</span>
-                <a href={p.status === 'Operational' ? '/our-business/power-stations' : p.status === 'Under Construction' ? '/our-business/construction' : '/our-business/under-development'} class="text-[#0B4F9C] hover:underline font-semibold">Details &rarr;</a>
+                <a href={`/our-business/power-station-details?id=${p.id}`} class="text-[#0B4F9C] hover:underline font-semibold">Details &rarr;</a>
               </div>
             </div>
           ))}

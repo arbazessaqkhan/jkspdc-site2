@@ -69,7 +69,11 @@ try {
               ) : (
                 projects.map((p) => (
                   <tr class="hover:bg-slate-50/80 transition-colors">
-                    <td class="font-semibold text-gray-900 text-left">{p.name}</td>
+                    <td class="font-bold text-left text-xs">
+                      <a href={`/our-business/power-station-details?id=${p.id}`} class="text-[#0B4F9C] hover:underline">
+                        {p.name}
+                      </a>
+                    </td>
                     <td class="text-left">{p.type}</td>
                     <td class="font-semibold text-slate-800 text-left">{p.capacityMw} MW</td>
                     <td class="text-left">{p.location} {p.basin ? `/ ${p.basin}` : ''}</td>
