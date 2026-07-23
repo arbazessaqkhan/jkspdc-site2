@@ -1,5 +1,8 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
+import Icon from '../../../components/Icon.astro';
+
+const policyUrl = "/JKSPDC CSR Policy.pdf";
 ---
 
 <Layout 
@@ -28,12 +31,33 @@ import Layout from '../../../layouts/Layout.astro';
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <!-- Main Text -->
       <article class="lg:col-span-2 space-y-4">
-        <!-- Safety content placeholder -->
-        <div class="bg-gray-50 border border-gray-200 text-gray-700 rounded-lg p-6 text-center text-sm shadow-sm">
-          <p class="font-semibold text-gray-800 mb-1">Corporate CSR Policy Charter Pending Official Approval</p>
-          <p class="text-xs text-gray-500">The authorized CSR policy statement is currently undergoing review.</p>
-          <div class="mt-3 inline-block bg-neutral-200 text-neutral-800 px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider">
-            [Content Pending Approval]
+        <div class="bg-white border border-[#BDD7EE] hover:border-[#9BC2E6] rounded-xl p-5 shadow-sm transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="space-y-1.5 max-w-xl">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-[9px] uppercase tracking-wider font-extrabold text-[#0B4F9C] bg-[#0B4F9C]/5 px-2 py-0.5 rounded">
+                Sustainability
+              </span>
+              <span class="bg-emerald-100 text-emerald-700 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded">
+                Active
+              </span>
+            </div>
+            <h3 class="font-bold text-gray-900 text-base mt-1 flex items-center gap-1.5">
+              Corporate Social Responsibility (CSR) Policy
+            </h3>
+            <p class="text-xs text-slate-500 leading-relaxed mt-1">
+              Approved corporate policy statement detailing community development parameters, budget allocations, and regional project selection guidelines.
+            </p>
+          </div>
+          
+          <div class="shrink-0 flex items-center">
+            <a 
+              href={policyUrl} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="w-full md:w-auto inline-flex items-center justify-center gap-2 bg-[#0B4F9C] hover:bg-[#084A8F] text-white font-bold text-xs px-5 py-2.5 rounded transition-all duration-150 shadow-sm cursor-pointer"
+            >
+              <Icon name="search" size={13} strokeWidth={2.5} /> View Policy PDF
+            </a>
           </div>
         </div>
       </article>
