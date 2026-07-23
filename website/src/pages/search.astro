@@ -65,23 +65,41 @@ import Layout from '../layouts/Layout.astro';
 
     let searchIndex: IndexItem[] = [];
 
-    // Fetch sitemap index
+    // Fetch sitemap index and database projects
     async function loadIndex() {
       try {
         const response = await fetch('/search-index.json');
         if (response.ok) {
           searchIndex = await response.json();
-          
-          // Check query parameters immediately
-          const params = new URLSearchParams(window.location.search);
-          const query = params.get('q');
-          if (query) {
-            searchInput.value = query;
-            performSearch(query);
-          }
+        }
+        const projectsRes = await fetch('http://localhost:3000/api/projects');
+        if (projectsRes.ok) {
+          const projects = await projectsRes.json();
+          projects.forEach((p: any) => {
+            searchIndex.push({
+              title: p.name,
+              url: `/our-business/power-station-details?id=${p.id}`,
+              description: `About ${p.name} - Capacity: ${p.capacityMw} MW, Location: ${p.location || 'J&K'}, River Basin: ${p.basin || 'J&K'}. Status: ${p.status}.`
+            });
+          });
+        }
+        
+        // Check query parameters immediately
+        const params = new URLSearchParams(window.location.search);
+        const query = params.get('q');
+        if (query) {
+          searchInput.value = query;
+          performSearch(query);
         }
       } catch (err) {
         console.error('Failed to load search index:', err);
+        // Fallback query parameters check
+        const params = new URLSearchParams(window.location.search);
+        const query = params.get('q');
+        if (query) {
+          searchInput.value = query;
+          performSearch(query);
+        }
       }
     }
 

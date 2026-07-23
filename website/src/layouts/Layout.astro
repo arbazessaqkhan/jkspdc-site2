@@ -339,16 +339,21 @@ if (tickerItems.length === 0) {
           </div>
 
           <!-- Search Form -->
-          <form action="/search" method="GET" class="flex items-center w-full justify-end">
-            <label for="header-search" class="sr-only">Search portal pages</label>
-            <input 
-              type="search" 
-              name="q" 
-              id="header-search" 
-              placeholder="Search…" 
-              class="bg-white hover:bg-slate-50 focus-visible:bg-white text-xs text-slate-850 focus-visible:text-slate-900 px-3 py-2 rounded-l-md border border-slate-300 border-r-0 focus-visible:border-[#0B4F9C] focus-visible:outline-none transition-[background-color,border-color,color] duration-150 w-36 lg:w-44 placeholder-slate-400 shadow-sm" 
-              required
-            />
+          <form action="/search" method="GET" class="flex items-center w-full justify-end relative" id="header-search-form" autocomplete="off">
+            <div class="relative flex items-center">
+              <label for="header-search" class="sr-only">Search portal pages</label>
+              <input 
+                type="search" 
+                name="q" 
+                id="header-search" 
+                placeholder="Search…" 
+                class="bg-white hover:bg-slate-50 focus-visible:bg-white text-xs text-slate-850 focus-visible:text-slate-900 px-3 py-2 rounded-l-md border border-slate-300 border-r-0 focus-visible:border-[#0B4F9C] focus-visible:outline-none transition-[background-color,border-color,color] duration-150 w-36 lg:w-44 placeholder-slate-400 shadow-sm" 
+                required
+              />
+              <!-- Suggestions Dropdown Container -->
+              <div id="header-search-suggestions" class="absolute left-0 right-0 top-full mt-1 bg-white text-slate-850 border border-slate-200 rounded-md shadow-xl hidden z-[9999] max-h-60 overflow-y-auto text-left py-1 w-full lg:w-48">
+              </div>
+            </div>
             <button type="submit" class="p-2 bg-[#1a5276] hover:bg-[#084A8F] rounded-r-md text-xs text-white font-bold flex items-center justify-center border border-transparent transition-[background-color,border-color] duration-150 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C]/50 cursor-pointer" aria-label="Submit Search">
               <Icon name="search" size={14} strokeWidth={2.5} />
             </button>
@@ -443,6 +448,7 @@ if (tickerItems.length === 0) {
                   <li><a href="/stakeholders/vendors/tender-bids#amendments" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Amendments &amp; Clarifications</a></li>
                   <li><a href="/stakeholders/vendors/tender-bids#awards" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Awards &amp; Compliance</a></li>
                   <li><a href="/stakeholders/vendors/tender-bids#portals" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Access &amp; Portals</a></li>
+                  <li><a href="https://jktenders.gov.in/nicgep/app" target="_blank" rel="noopener" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">JK Tenders</a></li>
                 </ul>
               </div>
             </li>
@@ -745,6 +751,122 @@ if (tickerItems.length === 0) {
       })();
     </script>
 
+    <!-- Global Header Search Autocomplete and Direct Detail Redirection -->
+    <script is:inline>
+      (function() {
+        var searchForm = document.getElementById('header-search-form');
+        var searchInput = document.getElementById('header-search');
+        var suggestionsBox = document.getElementById('header-search-suggestions');
+        var searchIndex = [];
+
+        // Preload database and sitemap index
+        async function loadIndex() {
+          try {
+            var sitemapRes = await fetch('/search-index.json');
+            if (sitemapRes.ok) {
+              searchIndex = await sitemapRes.json();
+            }
+            var projectsRes = await fetch('http://localhost:3000/api/projects');
+            if (projectsRes.ok) {
+              var projects = await projectsRes.json();
+              projects.forEach(function(p) {
+                searchIndex.push({
+                  title: p.name,
+                  url: '/our-business/power-station-details?id=' + p.id,
+                  description: 'About ' + p.name + ' - Capacity: ' + p.capacityMw + ' MW, Location: ' + (p.location || 'J&K') + ', River Basin: ' + (p.basin || 'J&K') + '. Status: ' + p.status + '.'
+                });
+              });
+            }
+          } catch(err) {
+            console.error('Failed to load sitemap search index:', err);
+          }
+        }
+
+        // Render autocomplete
+        function handleInput() {
+          var query = searchInput.value.toLowerCase().trim();
+          if (!query) {
+            suggestionsBox.innerHTML = '';
+            suggestionsBox.classList.add('hidden');
+            return;
+          }
+
+          var matches = searchIndex.filter(function(item) {
+            return item.title.toLowerCase().indexOf(query) !== -1 ||
+                   item.description.toLowerCase().indexOf(query) !== -1;
+          }).slice(0, 8);
+
+          if (matches.length > 0) {
+            suggestionsBox.innerHTML = matches.map(function(item) {
+              var titleRegex = new RegExp('(' + query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + ')', 'gi');
+              var highlightedTitle = item.title.replace(titleRegex, '<mark style="background-color: #fef08a; color: #1e293b; font-weight: 700; padding: 0px 2px; border-radius: 2px;">$1</mark>');
+              return '<button type="button" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 transition-colors block cursor-pointer border-b border-slate-50 last:border-0" data-url="' + item.url + '" style="font-size: 11px; outline: none; border-bottom: 1px solid #f1f5f9; display: block; background: transparent; border-left: 0; border-right: 0; border-top: 0; font-family: inherit; margin: 0; padding: 6px 12px; width: 100%;">' +
+                     '<span style="color: #0B4F9C; font-weight: 700; display: block;">' + highlightedTitle + '</span>' +
+                     '<span style="font-size: 9px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; margin-top: 2px;">' + item.description + '</span>' +
+                     '</button>';
+            }).join('');
+            suggestionsBox.classList.remove('hidden');
+          } else {
+            suggestionsBox.innerHTML = '';
+            suggestionsBox.classList.add('hidden');
+          }
+        }
+
+        // Initialize events
+        if (searchInput && searchForm && suggestionsBox) {
+          searchInput.addEventListener('focus', function() {
+            if (searchIndex.length === 0) {
+              loadIndex();
+            }
+          });
+          searchInput.addEventListener('input', handleInput);
+
+          suggestionsBox.addEventListener('click', function(e) {
+            var btn = e.target.closest('button');
+            if (btn && btn.dataset.url) {
+              window.location.href = btn.dataset.url;
+            }
+          });
+
+          document.addEventListener('click', function(e) {
+            if (!e.target.closest('#header-search-form')) {
+              suggestionsBox.classList.add('hidden');
+            }
+          });
+
+          searchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            var query = searchInput.value.trim();
+            if (!query) return;
+
+            var lowerQuery = query.toLowerCase();
+            var bestMatch = null;
+            
+            for (var i = 0; i < searchIndex.length; i++) {
+              if (searchIndex[i].title.toLowerCase() === lowerQuery) {
+                bestMatch = searchIndex[i];
+                break;
+              }
+            }
+            
+            if (!bestMatch) {
+              for (var i = 0; i < searchIndex.length; i++) {
+                if (searchIndex[i].title.toLowerCase().indexOf(lowerQuery) !== -1) {
+                  bestMatch = searchIndex[i];
+                  break;
+                }
+              }
+            }
+
+            if (bestMatch) {
+              window.location.href = bestMatch.url;
+            } else {
+              window.location.href = '/search?q=' + encodeURIComponent(query);
+            }
+          });
+        }
+      })();
+    </script>
   </body>
 </html>
 

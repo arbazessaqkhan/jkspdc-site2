@@ -28,38 +28,12 @@ import Layout from '../../../layouts/Layout.astro';
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <!-- Org Chart Render -->
       <article class="lg:col-span-2 space-y-6">
-        
-        <!-- Interactive visual hierarchy tree (semantic layout) -->
-        <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm flex flex-col items-center gap-6">
-          <div class="bg-[#0B4F9C] text-white font-bold px-6 py-3 rounded text-center text-sm shadow-sm" aria-label="Level 1: Governance Board">
-            <p>Board of Directors</p>
-            <p class="text-xs text-gray-300 font-normal">[Membership Details Pending Approval]</p>
-          </div>
-          
-          <div class="w-1 h-8 bg-gray-300" aria-hidden="true"></div>
-          
-          <div class="bg-[#002244] text-white font-bold px-6 py-3 rounded text-center text-sm shadow-sm" aria-label="Level 2: Executive Management">
-            <p>Managing Director</p>
-            <p class="text-xs text-gray-300 font-normal">[Appointment Details Pending Approval]</p>
-          </div>
-
-          <div class="w-1 h-8 bg-gray-300" aria-hidden="true"></div>
-
-          <!-- Child rows split -->
-          <div class="flex flex-col md:flex-row gap-6 w-full justify-around items-stretch">
-            <div class="bg-gray-50 border border-gray-300 rounded p-4 flex-1 text-center text-xs" aria-label="Level 3: Technical Wing">
-              <p class="font-bold text-[#0B4F9C] mb-1">Technical Wing</p>
-              <p class="text-gray-600">[Details Pending Approval]</p>
-            </div>
-            <div class="bg-gray-50 border border-gray-300 rounded p-4 flex-1 text-center text-xs" aria-label="Level 3: Finance Wing">
-              <p class="font-bold text-[#0B4F9C] mb-1">Finance & Corporate Affairs Wing</p>
-              <p class="text-gray-600">[Details Pending Approval]</p>
-            </div>
-            <div class="bg-gray-50 border border-gray-300 rounded p-4 flex-1 text-center text-xs" aria-label="Level 3: HR & Admin Wing">
-              <p class="font-bold text-[#0B4F9C] mb-1">Human Resources & Administration</p>
-              <p class="text-gray-600">[Details Pending Approval]</p>
-            </div>
-          </div>
+        <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm flex flex-col items-center">
+          <img 
+            src="/about-us/organisational-structure.png" 
+            alt="JKSPDC Corporate Structure Chart" 
+            class="max-w-full h-auto object-contain border border-gray-100 rounded-md"
+          />
         </div>
       </article>
 

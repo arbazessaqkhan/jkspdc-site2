@@ -26,7 +26,7 @@ try {
 const getProjectPhotoUrl = (proj: any) => {
   if (!proj) return null;
   const slug = proj.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-  if (slug.includes('ganderbal') || slug.includes('ushp-i') || slug.includes('sewa-iii')) {
+  if (slug === 'ganderbal' || slug === 'ushp-i' || slug === 'sewa-iii') {
     return `/projects/${slug}.png`;
   }
   return `/projects/${slug}.jpg`;
@@ -99,33 +99,33 @@ const photoUrl = getProjectPhotoUrl(project);
                 
                 <dl class="grid grid-cols-2 gap-x-6 gap-y-4 mt-4">
                   <div>
-                    <dt class="text-slate-500 font-semibold uppercase tracking-wider text-[11px]">Installed Capacity</dt>
-                    <dd class="text-lg font-extrabold text-[#0B4F9C] mt-0.5">{project.capacityMw} MW</dd>
+                    <dt class="text-slate-500 font-semibold uppercase tracking-wider text-xs">Installed Capacity</dt>
+                    <dd class="text-xl font-extrabold text-[#0B4F9C] mt-0.5">{project.capacityMw} MW</dd>
                   </div>
 
                   <div>
-                    <dt class="text-slate-500 font-semibold uppercase tracking-wider text-[11px]">Configuration</dt>
-                    <dd class="text-sm font-bold text-slate-800 mt-0.5">{project.configuration || '—'}</dd>
+                    <dt class="text-slate-500 font-semibold uppercase tracking-wider text-xs">Configuration</dt>
+                    <dd class="text-base font-bold text-slate-800 mt-0.5">{project.configuration || '—'}</dd>
                   </div>
 
                   <div>
-                    <dt class="text-slate-500 font-semibold uppercase tracking-wider text-[11px]">Design Energy</dt>
-                    <dd class="text-sm font-bold text-slate-800 mt-0.5">{project.designEnergy ? `${project.designEnergy} MU` : '—'}</dd>
+                    <dt class="text-slate-500 font-semibold uppercase tracking-wider text-xs">Design Energy</dt>
+                    <dd class="text-base font-bold text-slate-800 mt-0.5">{project.designEnergy ? `${project.designEnergy} MU` : '—'}</dd>
                   </div>
 
                   <div>
-                    <dt class="text-slate-500 font-semibold uppercase tracking-wider text-[11px]">Year of Commissioning</dt>
-                    <dd class="text-sm font-bold text-slate-800 mt-0.5">{project.yearOfCommissioning || '—'}</dd>
+                    <dt class="text-slate-500 font-semibold uppercase tracking-wider text-xs">Year of Commissioning</dt>
+                    <dd class="text-base font-bold text-slate-800 mt-0.5">{project.yearOfCommissioning || '—'}</dd>
                   </div>
 
                   <div>
-                    <dt class="text-slate-500 font-semibold uppercase tracking-wider text-[11px]">River Basin</dt>
-                    <dd class="text-sm font-bold text-slate-800 mt-0.5">{project.basin || '—'}</dd>
+                    <dt class="text-slate-500 font-semibold uppercase tracking-wider text-xs">River Basin</dt>
+                    <dd class="text-base font-bold text-slate-800 mt-0.5">{project.basin || '—'}</dd>
                   </div>
 
                   <div>
-                    <dt class="text-slate-500 font-semibold uppercase tracking-wider text-[11px]">District Location</dt>
-                    <dd class="text-sm font-bold text-slate-800 mt-0.5">{project.location || '—'}</dd>
+                    <dt class="text-slate-500 font-semibold uppercase tracking-wider text-xs">District Location</dt>
+                    <dd class="text-base font-bold text-slate-800 mt-0.5">{project.location || '—'}</dd>
                   </div>
                 </dl>
               </div>

@@ -145,7 +145,7 @@ const heroSlides = displaySlides.map((p, index) => {
   const slug = p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   let img = '/slider1.jpg';
   
-  if (slug.includes('ganderbal') || slug.includes('ushp-i') || slug.includes('sewa-iii')) {
+  if (slug === 'ganderbal' || slug === 'ushp-i' || slug === 'sewa-iii') {
     img = `/projects/${slug}.png`;
   } else {
     img = `/projects/${slug}.jpg`;
@@ -307,9 +307,9 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
           <!-- Slide Content -->
           <div class="absolute inset-0 z-20 flex items-center">
             <div class="w-full max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
-              <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
+              <div class="grid grid-cols-1 md:grid-cols-5 gap-8 items-center">
                 <!-- Left: Title, Desc, Buttons -->
-                <div class="lg:col-span-3 text-white">
+                <div class="md:col-span-3 text-white">
                   <div class="inline-flex items-center bg-[#D8681B] text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-6">
                     {slide.badge}
                   </div>
@@ -327,35 +327,35 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
                 </div>
 
                 <!-- Right: Technical Specifications -->
-                <div class="lg:col-span-2 hidden md:block">
-                  <div class="bg-black/30 backdrop-blur-md border border-white/20 rounded-2xl p-5 text-white max-w-sm ml-auto shadow-xl">
+                <div class="md:col-span-2 hidden md:block">
+                  <div class="bg-black/35 backdrop-blur-md border border-white/25 rounded-2xl p-5 text-white max-w-sm ml-auto shadow-xl">
                     <h3 class="font-extrabold text-[10px] uppercase tracking-wider text-[#D8681B] border-b border-white/10 pb-2 mb-3">
                       ⚙️ Technical Specifications
                     </h3>
                     <dl class="grid grid-cols-2 gap-x-4 gap-y-2.5 text-[11px]">
                       <div>
-                        <dt class="text-white/60 font-medium uppercase tracking-wider text-[9px]">Installed Capacity</dt>
-                        <dd class="text-sm font-extrabold text-white mt-0.5">{slide.capacityMw} MW</dd>
+                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-[11px]">Installed Capacity</dt>
+                        <dd class="text-base font-extrabold text-white mt-0.5">{slide.capacityMw} MW</dd>
                       </div>
                       <div>
-                        <dt class="text-white/60 font-medium uppercase tracking-wider text-[9px]">Configuration</dt>
-                        <dd class="text-[11px] font-bold text-white mt-0.5">{slide.configuration}</dd>
+                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-[11px]">Configuration</dt>
+                        <dd class="text-xs font-bold text-white mt-0.5">{slide.configuration}</dd>
                       </div>
                       <div>
-                        <dt class="text-white/60 font-medium uppercase tracking-wider text-[9px]">Design Energy</dt>
-                        <dd class="text-[11px] font-bold text-white mt-0.5">{slide.designEnergy ? `${slide.designEnergy} MU` : '—'}</dd>
+                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-[11px]">Design Energy</dt>
+                        <dd class="text-xs font-bold text-white mt-0.5">{slide.designEnergy ? `${slide.designEnergy} MU` : '—'}</dd>
                       </div>
                       <div>
-                        <dt class="text-white/60 font-medium uppercase tracking-wider text-[9px]">Commissioning</dt>
-                        <dd class="text-[11px] font-bold text-white mt-0.5">{slide.yearOfCommissioning || '—'}</dd>
+                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-[11px]">Commissioning</dt>
+                        <dd class="text-xs font-bold text-white mt-0.5">{slide.yearOfCommissioning || '—'}</dd>
                       </div>
                       <div>
-                        <dt class="text-white/60 font-medium uppercase tracking-wider text-[9px]">River Basin</dt>
-                        <dd class="text-[11px] font-bold text-white mt-0.5">{slide.basin}</dd>
+                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-[11px]">River Basin</dt>
+                        <dd class="text-xs font-bold text-white mt-0.5">{slide.basin}</dd>
                       </div>
                       <div>
-                        <dt class="text-white/60 font-medium uppercase tracking-wider text-[9px]">District Location</dt>
-                        <dd class="text-[11px] font-bold text-white mt-0.5">{slide.location}</dd>
+                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-[11px]">District Location</dt>
+                        <dd class="text-xs font-bold text-white mt-0.5">{slide.location}</dd>
                       </div>
                     </dl>
                   </div>
