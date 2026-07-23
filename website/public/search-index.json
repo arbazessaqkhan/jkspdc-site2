@@ -70,5 +70,6 @@
   { "title": "Downloads Booklet", "url": "/media/downloads", "description": "Official publication archives, corporate booklets, and policy declarations." },
 
   { "title": "Website Sitemap", "url": "/sitemap", "description": "A GIGW-compliant index of all published informational routes and portals." },
-  { "title": "Help & Support", "url": "/help", "description": "Information on how to search the portal, navigate categories, and open PDF downloads." }
+  { "title": "Help & Support", "url": "/help", "description": "Information on how to search the portal, navigate categories, and open PDF downloads." },
+  { "title": "Corporate Policies", "url": "/about-us/explore/policies", "description": "One-stop directory of all official corporate policies, vigilance frameworks, and compliance guidelines of JKSPDC." }
 ]

@@ -26,29 +26,53 @@ import Layout from '../../../layouts/Layout.astro';
 
     <!-- Content -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Main Text -->
-      <article class="lg:col-span-2 space-y-4">
-        <div class="bg-white border border-[#BDD7EE] rounded-xl p-6 shadow-sm">
-          <h3 class="text-lg font-bold text-[#0B4F9C] mb-4 pb-2 border-b border-slate-100">Tax Identification Summary</h3>
+      <!-- Main Content -->
+      <article class="lg:col-span-2 space-y-6">
+        
+        <!-- Registration Identifiers Dashboard Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-gradient-to-br from-[#0B4F9C]/5 to-[#0B4F9C]/10 border border-[#0B4F9C]/20 rounded-xl p-4 shadow-sm">
+            <span class="text-[10px] uppercase tracking-wider font-extrabold text-[#0B4F9C] block">CIN (Corporate Identity Number)</span>
+            <span class="text-xs font-mono font-bold text-slate-800 block mt-1">U40101JK1995SGC001418</span>
+          </div>
+          
+          <div class="bg-gradient-to-br from-[#0B4F9C]/5 to-[#0B4F9C]/10 border border-[#0B4F9C]/20 rounded-xl p-4 shadow-sm">
+            <span class="text-[10px] uppercase tracking-wider font-extrabold text-[#0B4F9C] block">PAN (Permanent Account Number)</span>
+            <span class="text-xs font-mono font-bold text-slate-800 block mt-1">AAACJ9770H</span>
+          </div>
+
+          <div class="bg-gradient-to-br from-[#D8681B]/5 to-[#D8681B]/10 border border-[#D8681B]/20 rounded-xl p-4 shadow-sm">
+            <span class="text-[10px] uppercase tracking-wider font-extrabold text-[#D8681B] block">Primary GSTIN</span>
+            <span class="text-xs font-mono font-bold text-[#D8681B] block mt-1">01AAACJ9770H2ZL</span>
+          </div>
+        </div>
+
+        <div class="bg-white border border-[#BDD7EE] rounded-xl p-6 shadow-sm space-y-4">
+          <h3 class="text-lg font-bold text-[#0B4F9C] pb-2 border-b border-slate-100 flex items-center gap-2">
+            📋 Registration Details of JKSPDCL
+          </h3>
           <div class="overflow-x-auto">
-            <table class="table-data">
+            <table class="table-data text-xs">
               <thead>
                 <tr>
-                  <th>State/UT</th>
-                  <th>GSTIN Number</th>
-                  <th>Registration Status</th>
+                  <th class="text-center font-bold">#</th>
+                  <th class="font-bold">Name of Projects/Units</th>
+                  <th class="font-bold">Address of Principal / Additional Place of Business</th>
+                  <th class="font-bold">State</th>
+                  <th class="text-center font-bold">State Code</th>
+                  <th class="font-bold">GSTIN</th>
+                  <th class="font-bold">Principal Place of Business for GST</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>Jammu & Kashmir (UT)</td>
-                  <td class="font-mono font-bold text-[#0B4F9C]">01AAACJ4890F1Z2</td>
-                  <td><span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full">Active</span></td>
-                </tr>
-                <tr>
-                  <td>Ladakh (UT)</td>
-                  <td class="font-mono font-bold text-[#0B4F9C]">37AAACJ4890F1Z4</td>
-                  <td><span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full">Active</span></td>
+                  <td class="text-center font-bold">1</td>
+                  <td class="font-semibold text-slate-800">Corporate Office, JKSPDC</td>
+                  <td class="text-slate-600">Ashok Nagar, Satwari, Jammu-180004. Ashok Nagar, Satwari, Jammu-180004.</td>
+                  <td class="text-slate-600">Jammu & Kashmir</td>
+                  <td class="text-center font-mono font-semibold text-slate-800">01</td>
+                  <td class="font-mono font-bold text-[#0B4F9C]">01AAACJ9770H2ZL</td>
+                  <td class="text-slate-600 font-semibold">Ashok Nagar, Satwari, Jammu-180004.</td>
                 </tr>
               </tbody>
             </table>
