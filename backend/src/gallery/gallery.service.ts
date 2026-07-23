@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
+import { deleteLocalFile } from '../upload/file-cleanup.helper';
 
 @Injectable()
 export class GalleryService {
@@ -49,7 +50,11 @@ export class GalleryService {
   }
 
   async update(id: string, data: any, user: any, ip: string, ua: string) {
-    await this.findOne(id);
+    const oldItem = await this.findOne(id);
+
+    if (data.imageUrl !== undefined && data.imageUrl !== oldItem.imageUrl) {
+      deleteLocalFile(oldItem.imageUrl);
+    }
     
     const item = await this.prisma.galleryItem.update({
       where: { id },
@@ -73,6 +78,8 @@ export class GalleryService {
 
   async remove(id: string, user: any, ip: string, ua: string) {
     const item = await this.findOne(id);
+    deleteLocalFile(item.imageUrl);
+    
     await this.prisma.galleryItem.delete({ where: { id } });
 
     await this.auditLogsService.log(

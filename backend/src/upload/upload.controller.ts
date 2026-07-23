@@ -1,4 +1,4 @@
-import { Controller, Post, UseGuards, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Param, UseGuards, UseInterceptors, UploadedFile, BadRequestException, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import * as path from 'path';
@@ -8,6 +8,43 @@ import { AuthGuard } from '../auth/auth.guard';
 @Controller('upload')
 @UseGuards(AuthGuard)
 export class UploadController {
+  @Get()
+  listFiles() {
+    const dirPath = path.join(process.cwd(), 'uploads');
+    if (!fs.existsSync(dirPath)) {
+      return [];
+    }
+    const files = fs.readdirSync(dirPath);
+    return files.map((file) => {
+      const filePath = path.join(dirPath, file);
+      const stat = fs.statSync(filePath);
+      return {
+        filename: file,
+        url: `/uploads/${file}`,
+        sizeBytes: stat.size,
+        createdAt: stat.birthtime,
+      };
+    }).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  @Delete(':filename')
+  deleteFile(@Param('filename') filename: string) {
+    // Prevent directory traversal attacks
+    const safeFilename = path.basename(filename);
+    const filePath = path.join(process.cwd(), 'uploads', safeFilename);
+    
+    if (!fs.existsSync(filePath)) {
+      throw new NotFoundException(`File ${safeFilename} not found`);
+    }
+
+    try {
+      fs.unlinkSync(filePath);
+      return { success: true, message: `File ${safeFilename} deleted successfully` };
+    } catch (err) {
+      throw new InternalServerErrorException(`Failed to delete file ${safeFilename}`);
+    }
+  }
+
   @Post()
   @UseInterceptors(
     FileInterceptor('file', {

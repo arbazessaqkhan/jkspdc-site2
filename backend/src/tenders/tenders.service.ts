@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { CreateTenderDto, UpdateTenderDto } from './tenders.dto';
 import { Tender } from '@prisma/client';
+import { deleteLocalFile } from '../upload/file-cleanup.helper';
 
 @Injectable()
 export class TendersService {
@@ -60,8 +61,31 @@ export class TendersService {
   }
 
   async update(id: string, data: UpdateTenderDto, user: { userId: string }, ip: string, ua: string): Promise<Tender> {
-    await this.findOne(id);
+    const oldTender = await this.findOne(id);
     
+    // Cleanup main document file if changed
+    if (data.documentUrl !== undefined && data.documentUrl !== oldTender.documentUrl) {
+      deleteLocalFile(oldTender.documentUrl);
+    }
+
+    // Cleanup deleted corrigenda files
+    if (data.corrigendums !== undefined) {
+      try {
+        const oldCorrigendums = oldTender.corrigendums ? JSON.parse(oldTender.corrigendums) : [];
+        const newCorrigendums = typeof data.corrigendums === 'string' ? JSON.parse(data.corrigendums) : data.corrigendums;
+        if (Array.isArray(oldCorrigendums) && Array.isArray(newCorrigendums)) {
+          const newUrls = new Set(newCorrigendums.map((c: any) => c.documentUrl).filter(Boolean));
+          oldCorrigendums.forEach((c: any) => {
+            if (c.documentUrl && !newUrls.has(c.documentUrl)) {
+              deleteLocalFile(c.documentUrl);
+            }
+          });
+        }
+      } catch (e) {
+        console.error('Error cleaning up corrigendums during update:', e);
+      }
+    }
+
     const tender = await this.prisma.tender.update({
       where: { id },
       data: {
@@ -93,6 +117,26 @@ export class TendersService {
 
   async remove(id: string, user: { userId: string }, ip: string, ua: string): Promise<{ success: boolean }> {
     const tender = await this.findOne(id);
+    
+    // Delete main file
+    deleteLocalFile(tender.documentUrl);
+
+    // Delete all associated corrigenda files
+    if (tender.corrigendums) {
+      try {
+        const corrigendums = JSON.parse(tender.corrigendums);
+        if (Array.isArray(corrigendums)) {
+          corrigendums.forEach((c: any) => {
+            if (c.documentUrl) {
+              deleteLocalFile(c.documentUrl);
+            }
+          });
+        }
+      } catch (e) {
+        console.error('Error parsing corrigendums for delete:', e);
+      }
+    }
+
     await this.prisma.tender.delete({ where: { id } });
 
     await this.auditLogsService.log(

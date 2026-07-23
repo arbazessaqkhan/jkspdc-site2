@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
+import { deleteLocalFile } from '../upload/file-cleanup.helper';
 
 @Injectable()
 export class NotificationsService {
@@ -50,7 +51,11 @@ export class NotificationsService {
   }
 
   async update(id: string, data: any, user: any, ip: string, ua: string) {
-    await this.findOne(id);
+    const oldNotification = await this.findOne(id);
+
+    if (data.documentUrl !== undefined && data.documentUrl !== oldNotification.documentUrl) {
+      deleteLocalFile(oldNotification.documentUrl);
+    }
     
     const notification = await this.prisma.notification.update({
       where: { id },
@@ -75,6 +80,8 @@ export class NotificationsService {
 
   async remove(id: string, user: any, ip: string, ua: string) {
     const notification = await this.findOne(id);
+    deleteLocalFile(notification.documentUrl);
+    
     await this.prisma.notification.delete({ where: { id } });
 
     await this.auditLogsService.log(

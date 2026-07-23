@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
+import { deleteLocalFile } from '../upload/file-cleanup.helper';
 
 @Injectable()
 export class ProjectsService {
@@ -51,7 +52,11 @@ export class ProjectsService {
 
   async update(id: string, data: any) {
     // Check if exists
-    await this.findOne(id);
+    const oldProject = await this.findOne(id);
+
+    if (data.documentUrl !== undefined && data.documentUrl !== oldProject.documentUrl) {
+      deleteLocalFile(oldProject.documentUrl);
+    }
 
     return this.prisma.powerStation.update({
       where: { id },
@@ -75,7 +80,9 @@ export class ProjectsService {
   }
 
   async remove(id: string) {
-    await this.findOne(id);
+    const project = await this.findOne(id);
+    deleteLocalFile(project.documentUrl);
+    
     return this.prisma.powerStation.delete({
       where: { id },
     });
