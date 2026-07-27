@@ -524,9 +524,11 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
           directors.map((d: any) => {
             const profileHref = routeMap[d.name] || "/about-us/management/board";
             return (
-              <a href={profileHref} class="group bg-white rounded-xl border border-[#BDD7EE] shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col items-center text-center h-full w-full">
+              <a href={profileHref} class="group bg-white rounded-xl border border-[#BDD7EE] shadow-sm hover:shadow-[0_0_0_2px_#00B4D8,0_0_22px_rgba(0,180,216,0.5)] hover:border-[#00B4D8] hover:-translate-y-1.5 transition-all duration-300 p-6 flex flex-col items-center text-center h-full w-full relative overflow-hidden">
+                <!-- Subtle background glow on hover -->
+                <div class="absolute inset-0 bg-gradient-to-b from-[#EAF4FF]/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                 <!-- Photo container (Enlarged to w-28 h-28 = 112px) -->
-                <div class="w-28 h-28 rounded-full overflow-hidden bg-white border-[4px] border-[#BDD7EE]/50 shadow-sm flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-500">
+                <div class="w-28 h-28 rounded-full overflow-hidden bg-white border-[4px] border-[#BDD7EE] group-hover:border-[#00B4D8] shadow-md flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-all duration-500 relative z-10">
                   {photoMap[d.name] ? (
                     <img src={photoMap[d.name]} alt={d.name} width="112" height="112" class="w-full h-full object-cover object-top" />
                   ) : (
@@ -545,10 +547,10 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
                   )}
                 </div>
                 <!-- Card Content -->
-                <div class="mt-4 flex-grow flex flex-col items-center justify-center gap-2">
-                  <h3 class="font-extrabold text-slate-800 text-[15px] md:text-[17px] leading-snug group-hover:text-[#0C58B6] transition-colors">{d.name}</h3>
+                <div class="mt-4 flex-grow flex flex-col items-center justify-center gap-2 relative z-10">
+                  <h3 class="font-extrabold text-slate-800 text-[15px] md:text-[17px] leading-snug group-hover:text-[#0B4F9C] transition-colors">{d.name}</h3>
                   <div class="mt-1">
-                    <span class="inline-block text-[11px] text-[#0B4F9C] font-bold uppercase tracking-wider bg-[#EAF4FF] px-2.5 py-0.5 rounded border border-[#BDD7EE]/50 leading-relaxed text-balance">
+                    <span class="inline-block text-[11px] text-[#0B4F9C] font-extrabold uppercase tracking-wider bg-[#EAF4FF] px-3 py-1 rounded-full border border-[#BDD7EE] group-hover:bg-[#0B4F9C] group-hover:text-white transition-all duration-300">
                       {d.position}
                     </span>
                   </div>
@@ -738,15 +740,17 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
       <div class="px-8 md:px-12 pb-10 pt-8">
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {quickLinks.map((link) => (
-            <a href={link.href} class="group relative bg-white border border-slate-200 rounded-xl p-5 hover:border-[#0B4F9C]/40 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col gap-3">
-              <div class="w-12 h-12 rounded-xl bg-[#EAF4FF] text-[#0B4F9C] flex items-center justify-center flex-shrink-0">
+            <a href={link.href} class="group relative bg-white border border-[#BDD7EE]/80 rounded-xl p-5 hover:border-[#00B4D8] hover:shadow-[0_12px_24px_-4px_rgba(11,79,156,0.15)] hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col gap-3">
+              <!-- Subtle card background glow on hover -->
+              <div class="absolute inset-0 bg-gradient-to-br from-[#EAF4FF]/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+              <div class="w-12 h-12 rounded-xl bg-[#EAF4FF] text-[#0B4F9C] group-hover:bg-[#0B4F9C] group-hover:text-white flex items-center justify-center flex-shrink-0 transition-all duration-300 shadow-xs group-hover:shadow-md relative z-10 group-hover:scale-110">
                 <Icon name={link.icon} size={22} strokeWidth={1.75} />
               </div>
-              <div>
-                <div class="font-semibold text-slate-800 text-sm leading-snug">{link.label}</div>
+              <div class="relative z-10">
+                <div class="font-bold text-slate-800 text-sm leading-snug group-hover:text-[#0B4F9C] transition-colors">{link.label}</div>
                 <div class="text-xs text-slate-500 mt-1 leading-relaxed">{link.desc}</div>
               </div>
-              <span class="absolute bottom-4 right-4 text-[#0B4F9C] opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 text-sm font-bold">&rarr;</span>
+              <span class="absolute bottom-4 right-4 text-[#0B4F9C] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-base font-extrabold z-10">&rarr;</span>
             </a>
           ))}
         </div>

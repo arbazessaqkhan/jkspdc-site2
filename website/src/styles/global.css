@@ -2,38 +2,97 @@
 
 /* Ticker animation */
 @keyframes ticker {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
+
 .animate-ticker {
   animation: ticker 35s linear infinite;
 }
 
 /* Counter animation */
 @keyframes count-up {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Slow pulse for status indicators */
 @keyframes slow-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.5;
+    transform: scale(1.15);
+  }
 }
+
 .animate-slow-pulse {
   animation: slow-pulse 2.5s ease-in-out infinite;
 }
 
+/* Hydro Power Glow Pulse */
+@keyframes hydro-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 12px rgba(0, 180, 216, 0.35);
+  }
+
+  50% {
+    box-shadow: 0 0 22px rgba(0, 180, 216, 0.65);
+  }
+}
+
+.animate-hydro-glow {
+  animation: hydro-glow 3s ease-in-out infinite;
+}
+
+/* Shimmer Sweep Effect */
+@keyframes shimmer-sweep {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer-bg {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.4) 50%, rgba(255, 255, 255, 0) 100%);
+  background-size: 200% 100%;
+}
+
 
 @theme {
-  /* === Government PSU Palette (JKSPDCL Blue) === */
+  /* === Government PSU Palette (Hydro Power Theme) === */
   --color-brand-primary: #0B4F9C;
-  --color-brand-primary-dark: #084A8F;
-  --color-brand-primary-deeper: #073A80;
+  --color-brand-primary-dark: #073B75;
+  --color-brand-primary-deeper: #042750;
   --color-brand-secondary: #1A5276;
-  --color-brand-secondary-hover: #154360;
-  --color-brand-accent: #D8681B;       /* Kept ONLY for hero/slider elements */
+  --color-brand-secondary-hover: #113852;
+  --color-brand-accent: #D8681B;
+  /* Kept ONLY for hero/slider elements */
   --color-brand-accent-hover: #C65D18;
+  --color-brand-hydro-cyan: #00B4D8;
+  --color-brand-hydro-teal: #00C9A7;
 
   --color-brand-text: #1B2A41;
   --color-brand-muted: #4B5563;
@@ -45,13 +104,13 @@
   --color-brand-bg-subtle: #EAF4FF;
   --color-brand-bg-light: #D6EAF8;
   --color-brand-header-tint: #D6EAF8;
-  --color-brand-footer: #083B73;
+  --color-brand-footer: #042750;
 
-  --shadow-card: 0 2px 4px -1px rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
-  --shadow-card-hover: 0 8px 16px -4px rgb(11 79 156 / 0.15), 0 4px 6px -4px rgb(11 79 156 / 0.1);
+  --shadow-card: 0 3px 6px -1px rgba(11, 79, 156, 0.06), 0 2px 4px -2px rgba(11, 79, 156, 0.04);
+  --shadow-card-hover: 0 14px 28px -6px rgba(11, 79, 156, 0.16), 0 6px 12px -4px rgba(0, 180, 216, 0.12);
 
-  --radius-btn: 4px;
-  --radius-card: 6px;
+  --radius-btn: 6px;
+  --radius-card: 10px;
 }
 
 /* Custom utility variables for GIGW font-accessibility settings */
@@ -92,52 +151,74 @@ html {
   outline: none;
 }
 
-/* --- BUTTON COMPONENTS --- */
+/* --- BUTTON COMPONENTS WITH HYDRO GLOW & HOVER SWEEP --- */
 @utility btn-primary {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-brand-primary);
+  background: linear-gradient(135deg, #0B4F9C 0%, #084A8F 100%);
   color: #ffffff;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.875rem;
-  padding: 0.625rem 1.25rem;
+  padding: 0.625rem 1.35rem;
   border-radius: var(--radius-btn);
-  border: 1px solid transparent;
-  transition: all 0.2s ease-in-out;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 3px 10px -2px rgba(11, 79, 156, 0.3);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
+  overflow: hidden;
 
   &:hover {
-    background-color: var(--color-brand-primary-dark);
+    background: linear-gradient(135deg, #0D5BB4 0%, #073F7B 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px -3px rgba(11, 79, 156, 0.4), 0 0 12px rgba(0, 180, 216, 0.25);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px -1px rgba(11, 79, 156, 0.4);
   }
 
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
   }
 }
 
 @utility btn-secondary {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-brand-secondary);
+  background: linear-gradient(135deg, #1A5276 0%, #154360 100%);
   color: #ffffff;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.875rem;
-  padding: 0.625rem 1.25rem;
+  padding: 0.625rem 1.35rem;
   border-radius: var(--radius-btn);
-  border: 1px solid transparent;
-  transition: all 0.2s ease-in-out;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 3px 10px -2px rgba(26, 82, 118, 0.25);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
+  overflow: hidden;
 
   &:hover {
-    background-color: var(--color-brand-secondary-hover);
+    background: linear-gradient(135deg, #1F618D 0%, #113852 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px -3px rgba(26, 82, 118, 0.35);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+    transform: none;
   }
 }
 
@@ -147,17 +228,23 @@ html {
   justify-content: center;
   background-color: transparent;
   color: var(--color-brand-primary);
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.875rem;
-  padding: 0.625rem 1.25rem;
+  padding: 0.625rem 1.35rem;
   border-radius: var(--radius-btn);
-  border: 1px solid var(--color-brand-primary);
-  transition: all 0.2s ease-in-out;
+  border: 1.5px solid var(--color-brand-primary);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
 
   &:hover {
-    background-color: var(--color-brand-primary);
+    background: linear-gradient(135deg, #0B4F9C 0%, #084A8F 100%);
     color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px -3px rgba(11, 79, 156, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 
   &:disabled {
@@ -165,31 +252,74 @@ html {
     color: var(--color-brand-primary);
     background-color: transparent;
     cursor: not-allowed;
+    transform: none;
   }
 }
 
-/* --- CARD COMPONENTS --- */
+/* --- CARD COMPONENTS WITH NEON ROYAL BLUE HOVER OUTLINE --- */
 @utility card-static {
   background-color: #ffffff;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #BDD7EE;
   border-radius: var(--radius-card);
   padding: 1.5rem;
   box-shadow: var(--shadow-card);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    border-color: #00B4D8;
+    box-shadow: 0 0 0 2px #00B4D8, 0 0 20px rgba(0, 180, 216, 0.45), 0 10px 25px -5px rgba(11, 79, 156, 0.2);
+    transform: translateY(-2px);
+  }
 }
 
 @utility card-interactive {
   background-color: #ffffff;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #BDD7EE;
   border-radius: var(--radius-card);
   padding: 1.5rem;
   box-shadow: var(--shadow-card);
-  transition: all 0.2s ease-in-out;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    box-shadow: var(--shadow-card-hover);
-    transform: translateY(-2px);
-    border-color: #d1d5db;
+    border-color: #00B4D8;
+    box-shadow: 0 0 0 2px #00B4D8, 0 0 22px rgba(0, 180, 216, 0.5), 0 12px 28px -6px rgba(11, 79, 156, 0.25);
+    transform: translateY(-4px) scale(1.005);
   }
+}
+
+@utility glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(189, 215, 238, 0.7);
+  border-radius: var(--radius-card);
+  box-shadow: 0 8px 32px 0 rgba(11, 79, 156, 0.06);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    border-color: #00B4D8;
+    box-shadow: 0 0 0 2px #00B4D8, 0 0 22px rgba(0, 180, 216, 0.5), 0 12px 28px -6px rgba(11, 79, 156, 0.2);
+  }
+}
+
+/* GLOBAL NEON ROYAL BLUE HOVER OUTLINE FOR ALL CARDS, ITEMS & ROWS */
+.neon-card-hover,
+.marquee-item,
+.tender-card {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.neon-card-hover:hover,
+.marquee-item:hover,
+.tender-card:hover {
+  border-color: #00B4D8 !important;
+  box-shadow: 0 0 0 2px #00B4D8, 0 0 18px rgba(0, 180, 216, 0.5), 0 10px 24px -4px rgba(11, 79, 156, 0.2) !important;
+}
+
+tbody tr:hover {
+  outline: 2px solid #00B4D8 !important;
+  outline-offset: -2px;
+  box-shadow: 0 0 14px rgba(0, 180, 216, 0.45) !important;
 }
 
 /* --- FORM COMPONENTS --- */
@@ -330,6 +460,7 @@ html {
   .grid-cols-1.lg\:grid-cols-3.gap-8:has(article):has(aside) article {
     grid-column: span 4 / span 4 !important;
   }
+
   .grid-cols-1.lg\:grid-cols-3.gap-8:has(article):has(aside) aside {
     grid-column: span 1 / span 1 !important;
   }
