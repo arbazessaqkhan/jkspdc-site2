@@ -1,0 +1,106 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
+---
+
+<Layout 
+  title="Accessibility Statement - GIGW 3.0 Compliance" 
+  description="Accessibility Statement and commitment of Jammu & Kashmir State Power Development Corporation Limited under GIGW 3.0 and WCAG 2.1 AA guidelines."
+>
+  <div class="space-y-8">
+    <!-- Breadcrumbs -->
+    <nav class="text-xs text-slate-500" aria-label="Breadcrumbs">
+      <ol class="flex items-center gap-2">
+        <li><a href="/" class="hover:underline">Home</a></li>
+        <li>/</li>
+        <li><span class="text-slate-400">Policies</span></li>
+        <li>/</li>
+        <li><span class="font-semibold text-[#0B4F9C]">Accessibility Statement</span></li>
+      </ol>
+    </nav>
+
+    <!-- Header -->
+    <header class="border-b border-slate-200 pb-5">
+      <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-[#0B4F9C]/10 text-[#0B4F9C] text-xs font-bold uppercase tracking-wider mb-2">
+        GIGW 3.0 &amp; WCAG 2.1 AA Compliant
+      </div>
+      <h1 class="text-3xl font-extrabold text-[#0B4F9C]">Accessibility Statement</h1>
+      <p class="text-sm text-slate-650 mt-1">Official commitment to providing an inclusive, accessible web experience for all citizens including persons with disabilities.</p>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Main Content Area -->
+      <main class="lg:col-span-2 space-y-6 text-sm text-slate-700 leading-relaxed">
+        <section class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-4">
+          <h2 class="text-xl font-bold text-slate-900 border-b border-slate-100 pb-2">Our Commitment</h2>
+          <p>
+            Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL) is committed to ensuring that its official web portal is accessible to all users, regardless of technology or ability. We actively work to increase the accessibility and usability of our website in adherence to the <strong>Guidelines for Indian Government Websites (GIGW 3.0)</strong> and the <strong>World Wide Web Consortium (W3C) Web Content Accessibility Guidelines (WCAG) 2.1 Level AA standards</strong>.
+          </p>
+        </section>
+
+        <section class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-4">
+          <h2 class="text-xl font-bold text-slate-900 border-b border-slate-100 pb-2">Accessibility Features Implemented</h2>
+          <ul class="space-y-3">
+            <li class="flex items-start gap-3">
+              <Icon name="check-circle" size={18} class="text-emerald-600 shrink-0 mt-0.5" />
+              <div>
+                <strong class="text-slate-900">Text Resizing &amp; High Contrast:</strong> Controls provided at the top of every page (`A-`, `A`, `A+` font adjustments and High-Contrast Mode toggle).
+              </div>
+            </li>
+            <li class="flex items-start gap-3">
+              <Icon name="check-circle" size={18} class="text-emerald-600 shrink-0 mt-0.5" />
+              <div>
+                <strong class="text-slate-900">Screen Reader Accessibility:</strong> Form fields, navigation elements, images, and tables incorporate descriptive ARIA labels, alt text, and semantic HTML tags.
+              </div>
+            </li>
+            <li class="flex items-start gap-3">
+              <Icon name="check-circle" size={18} class="text-emerald-600 shrink-0 mt-0.5" />
+              <div>
+                <strong class="text-slate-900">Skip to Main Content:</strong> Direct keyboard shortcut (`Tab` key) enabling screen reader users to bypass top header menus and jump straight to main content (`#main-content`).
+              </div>
+            </li>
+            <li class="flex items-start gap-3">
+              <Icon name="check-circle" size={18} class="text-emerald-600 shrink-0 mt-0.5" />
+              <div>
+                <strong class="text-slate-900">Multilingual &amp; Multi-Format Support:</strong> Information available in English and regional languages, with standardized tags (`[PDF, Size]`) on downloadable files.
+              </div>
+            </li>
+          </ul>
+        </section>
+
+        <section class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-4">
+          <h2 class="text-xl font-bold text-slate-900 border-b border-slate-100 pb-2">Feedback &amp; Contact Information</h2>
+          <p>
+            If you encounter any accessibility barriers while using this website or require content in an alternative accessible format, please reach out to our Web Information Manager:
+          </p>
+          <div class="bg-slate-50 border border-slate-200 p-4 rounded-lg text-xs space-y-1">
+            <p class="font-bold text-[#0B4F9C]">Web Information Manager (WIM)</p>
+            <p>IT &amp; Systems Division, JKSPDCL</p>
+            <p>Exhibition Grounds, Jahangir Chowk, Srinagar — 190009</p>
+            <p class="pt-1">Email: <a href="mailto:md-jkspdcl@jk.gov.in" class="text-[#0B4F9C] font-semibold underline">md-jkspdcl@jk.gov.in</a></p>
+          </div>
+        </section>
+      </main>
+
+      <!-- Sidebar -->
+      <aside class="space-y-4">
+        <div class="bg-gradient-to-br from-[#0B4F9C]/5 to-[#0B4F9C]/10 border border-[#0B4F9C]/20 p-5 rounded-xl">
+          <h3 class="font-bold text-[#0B4F9C] mb-2 border-b border-[#0B4F9C]/20 pb-2 text-base">Assistive Technology Tools</h3>
+          <p class="text-xs text-slate-600 leading-relaxed mb-3">
+            This portal is tested with screen readers like NVDA, JAWS, and VoiceOver across Chrome, Firefox, Edge, and Safari browsers.
+          </p>
+        </div>
+
+        <div class="bg-white border border-slate-200 p-5 rounded-xl shadow-sm space-y-2">
+          <h3 class="font-bold text-slate-900 text-sm border-b border-slate-100 pb-2">Policy Navigation</h3>
+          <ul class="space-y-2 text-xs font-semibold text-[#0B4F9C]">
+            <li><a href="/policies/privacy" class="hover:underline flex items-center gap-1">&rarr; Privacy Policy</a></li>
+            <li><a href="/policies/terms" class="hover:underline flex items-center gap-1">&rarr; Terms of Use</a></li>
+            <li><a href="/policies/hyperlinking" class="hover:underline flex items-center gap-1">&rarr; Hyperlinking Policy</a></li>
+            <li><a href="/policies/copyright" class="hover:underline flex items-center gap-1">&rarr; Copyright Policy</a></li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+</Layout>

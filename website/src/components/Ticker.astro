@@ -1,0 +1,96 @@
+---
+export interface TickerItem {
+  type: string;
+  text: string;
+  colorClass: string;
+  url?: string;
+}
+
+export interface Props {
+  items?: TickerItem[];
+}
+
+const { items = [] } = Astro.props;
+
+let tickerItems: TickerItem[] = items;
+
+if (tickerItems.length === 0) {
+  try {
+    const [tendersRes, notifsRes] = await Promise.all([
+      fetch('http://localhost:3000/api/public/tenders').catch(() => null),
+      fetch('http://localhost:3000/api/public/notifications').catch(() => null),
+    ]);
+
+    let tenders: any[] = [];
+    if (tendersRes && tendersRes.ok) tenders = await tendersRes.json();
+
+    let notifs: any[] = [];
+    if (notifsRes && notifsRes.ok) notifs = await notifsRes.json();
+
+    const fetched: TickerItem[] = [];
+
+    tenders.filter((t: any) => t.status === 'Active').slice(0, 4).forEach((t: any) => {
+      fetched.push({
+        type: 'TENDER',
+        text: `${t.title} (NIT Ref: ${t.referenceNo})`,
+        colorClass: 'text-cyan-300 bg-cyan-500/10 border-cyan-400/20',
+        url: t.documentUrl || `/stakeholders/vendors/tender-details?id=${t.id}`,
+      });
+    });
+
+    notifs.slice(0, 4).forEach((n: any) => {
+      fetched.push({
+        type: 'NOTIFICATION',
+        text: `${n.title} ${n.fileName ? `(File: ${n.fileName})` : ''}`,
+        colorClass: 'text-yellow-400 bg-yellow-500/10 border-yellow-400/20',
+        url: n.documentUrl || `/stakeholders/investors/announcement`,
+      });
+    });
+
+    if (fetched.length > 0) {
+      tickerItems = fetched;
+    }
+  } catch (e) {
+    console.error('Error fetching ticker items:', e);
+  }
+}
+
+if (tickerItems.length === 0) {
+  tickerItems = [
+    { 
+      type: 'LIVE', 
+      text: 'Jammu & Kashmir State Power Development Corporation Limited official portal online.', 
+      colorClass: 'text-yellow-400 bg-yellow-500/10 border-yellow-400/20' 
+    }
+  ];
+}
+---
+
+<div class="bg-[#08305C] text-white relative overflow-hidden border-t border-b border-[#0B4F9C]/30" aria-live="polite" aria-label="Live announcements">
+  <div class="flex items-stretch" style="max-width:100%;">
+    <div class="shrink-0 bg-[#1B3A6B] text-white text-xs font-bold px-4 flex items-center gap-2 uppercase tracking-wide z-20" style="white-space:nowrap;">
+      <span class="w-2 h-2 rounded-full bg-slate-300 animate-slow-pulse" style="display:inline-block;flex-shrink:0;"></span>
+      Updates
+    </div>
+    <div style="overflow:hidden; flex:1; position:relative;">
+      <!-- Fade-out overlays -->
+      <div class="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-[#08305C] to-transparent z-10 pointer-events-none"></div>
+      <div class="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[#08305C] to-transparent z-10 pointer-events-none"></div>
+
+      <div class="animate-ticker" style="gap: 3.5rem; padding: 0.5rem 0; font-size: 0.8rem; font-weight: 500;">
+        {[...tickerItems, ...tickerItems].map((item) => (
+          <span style="padding-right:4rem;">
+            › <strong class={`font-extrabold uppercase tracking-wider text-[10px] mr-1 px-1.5 py-0.5 rounded border ${item.colorClass}`}>{item.type}:</strong> 
+            {item.url ? (
+              <a href={item.url} target="_blank" rel="noopener noreferrer" class="text-slate-100 hover:underline hover:text-white transition-colors">
+                {item.text}
+              </a>
+            ) : (
+              <span class="text-slate-100">{item.text}</span>
+            )}
+          </span>
+        ))}
+      </div>
+    </div>
+  </div>
+</div>
