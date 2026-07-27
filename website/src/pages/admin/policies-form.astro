@@ -1,0 +1,307 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/Icon.astro';
+
+// Check authentication
+let sessionToken = Astro.cookies.get('admin_session')?.value;
+if (!sessionToken) {
+  sessionToken = 'mock-test-session-token';
+  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
+  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+}
+
+let errorMessage = '';
+const editId = Astro.url.searchParams.get('id')?.toString();
+
+let docData = {
+  id: '',
+  title: '',
+  description: '',
+  category: 'Policies',
+  documentUrl: '',
+  status: 'Active',
+};
+
+// Fetch data if editing
+if (editId) {
+  try {
+    const res = await fetch(`http://localhost:3000/api/policies/${editId}`);
+    if (res.ok) {
+      const data = await res.json();
+      docData = {
+        id: data.id || '',
+        title: data.title || '',
+        description: data.description || '',
+        category: data.category || 'Policies',
+        documentUrl: data.documentUrl || '',
+        status: data.status || 'Active',
+      };
+    } else {
+      errorMessage = 'Could not load policy details.';
+    }
+  } catch (e) {
+    console.error('Error fetching policy details:', e);
+    errorMessage = 'Backend connection failure.';
+  }
+}
+
+// Handle Form Submit
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData();
+    const id = formData.get('id')?.toString();
+    const title = formData.get('title')?.toString();
+    const description = formData.get('description')?.toString();
+    const category = formData.get('category')?.toString();
+    const documentUrl = formData.get('documentUrl')?.toString();
+    const status = formData.get('status')?.toString();
+
+    // Preserve values
+    docData = {
+      id: id || '',
+      title: title || '',
+      description: description || '',
+      category: category || 'Policies',
+      documentUrl: documentUrl || '',
+      status: status || 'Active',
+    };
+
+    if (!title || !category || !documentUrl) {
+      errorMessage = 'Title, Category, and Document File are required.';
+    } else {
+      const body = {
+        title,
+        description: description || null,
+        category,
+        documentUrl,
+        status: status || 'Active',
+      };
+
+      const url = id 
+        ? `http://localhost:3000/api/policies/${id}` 
+        : 'http://localhost:3000/api/policies';
+      const method = id ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionToken}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (res.ok) {
+        return Astro.redirect('/admin/policies');
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        errorMessage = errData.message || 'Failed to save document details.';
+      }
+    }
+  } catch (error) {
+    console.error('Error saving document:', error);
+    errorMessage = 'An error occurred. Check backend service status.';
+  }
+}
+---
+
+<AdminLayout title={editId ? "Edit Policy / Document" : "Add Policy / Document"} description="Manage JKSPDCL Policies and Documents" activeTab="policies">
+  <div class="flex flex-col gap-6">
+    
+    <!-- Breadcrumbs / Back button -->
+    <div class="flex items-center justify-between border-b border-slate-200 pb-4">
+      <div class="flex items-center gap-2">
+        <a href="/admin/policies" class="p-1.5 text-slate-500 hover:text-[#0B4F9C] hover:bg-slate-100 rounded transition-colors cursor-pointer" title="Back to Registry">
+          <Icon name="arrow-left" size={16} strokeWidth={2.5} />
+        </a>
+        <h1 class="text-xl font-bold text-slate-900">
+          {editId ? "Edit Document / Policy" : "Add Document / Policy"}
+        </h1>
+      </div>
+    </div>
+
+    <!-- Error Alert -->
+    {errorMessage && (
+      <div class="p-4 bg-red-50 border-l-4 border-red-500 rounded text-xs text-red-800 font-semibold shadow-sm flex items-start gap-2.5" role="alert">
+        <Icon name="info" size={16} class="text-red-600 shrink-0 mt-0.5" />
+        <span>{errorMessage}</span>
+      </div>
+    )}
+
+    <!-- Form card -->
+    <form method="POST" class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col" id="doc-form">
+      <input type="hidden" name="id" id="id" value={docData.id} />
+      
+      <div class="p-6 md:p-8 space-y-6 flex-grow">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- Category selection -->
+          <div class="form-group flex flex-col gap-1.5 col-span-1">
+            <label for="category" class="text-xs font-bold text-slate-700">Document Category <span class="text-red-500">*</span></label>
+            <select name="category" id="category" class="form-input text-xs" required>
+              <option value="Policies" selected={docData.category === 'Policies'}>Corporate Policies (e.g. Whistleblower)</option>
+              <option value="CSR" selected={docData.category === 'CSR'}>CSR Policies &amp; Statements</option>
+              <option value="Memorandum" selected={docData.category === 'Memorandum'}>Memorandum / Articles of Association</option>
+              <option value="Ethics" selected={docData.category === 'Ethics'}>Ethics &amp; Code of Conduct</option>
+              <option value="Downloads" selected={docData.category === 'Downloads'}>General Downloads (Booklets, etc.)</option>
+            </select>
+          </div>
+
+          <!-- Status selection -->
+          <div class="form-group flex flex-col gap-1.5 col-span-1">
+            <label for="status" class="text-xs font-bold text-slate-700">Status <span class="text-red-500">*</span></label>
+            <select name="status" id="status" class="form-input text-xs" required>
+              <option value="Active" selected={docData.status === 'Active'}>Active (Visible)</option>
+              <option value="Archived" selected={docData.status === 'Archived'}>Archived (Hidden)</option>
+            </select>
+          </div>
+
+          <!-- Document Title -->
+          <div class="form-group flex flex-col gap-1.5 col-span-1 md:col-span-2">
+            <label for="title" class="text-xs font-bold text-slate-700">Document Title / Headline <span class="text-red-500">*</span></label>
+            <input 
+              type="text" 
+              name="title" 
+              id="title" 
+              class="form-input text-xs" 
+              placeholder="e.g. Whistle Blower Policy Charter" 
+              value={docData.title} 
+              required 
+            />
+          </div>
+
+          <!-- Document Description -->
+          <div class="form-group flex flex-col gap-1.5 col-span-1 md:col-span-2">
+            <label for="description" class="text-xs font-bold text-slate-700">Short Description / Subtitle</label>
+            <textarea 
+              name="description" 
+              id="description" 
+              rows="3" 
+              class="form-input text-xs resize-y" 
+              placeholder="Provide a brief overview of the document contents, regulatory references, or publication updates."
+            >{docData.description}</textarea>
+          </div>
+
+          <!-- File Upload Section -->
+          <div class="form-group flex flex-col gap-1.5 col-span-1 md:col-span-2">
+            <label class="text-xs font-bold text-slate-700">Attach Document File <span class="text-red-500">*</span></label>
+            <div id="upload-container" class="border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-lg p-6 bg-slate-50 flex flex-col items-center justify-center gap-2 hover:bg-blue-50/20 transition-all cursor-pointer relative">
+              <input type="file" id="file-uploader" class="absolute inset-0 opacity-0 cursor-pointer" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" />
+              <Icon name="upload" size={24} class="text-slate-400" />
+              <span class="text-xs text-slate-600 font-semibold" id="upload-status-text">Click to choose or drag document file here</span>
+              <span class="text-[10px] text-slate-450">PDF, JPG, PNG, DOCX (Max 10MB)</span>
+            </div>
+            
+            <!-- Uploaded file details -->
+            <div id="attached-file-info" class={`p-3 bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 rounded flex items-center justify-between gap-2 mt-2 ${docData.documentUrl ? '' : 'hidden'}`}>
+              <div class="flex items-center gap-2 min-w-0">
+                <Icon name="info" size={16} class="text-emerald-600 shrink-0" />
+                <span class="font-semibold truncate" id="attached-filename">
+                  {docData.documentUrl ? docData.documentUrl.substring(docData.documentUrl.lastIndexOf('/') + 1) : 'No file attached'}
+                </span>
+              </div>
+              {docData.documentUrl && (
+                <a href={docData.documentUrl} target="_blank" class="text-emerald-700 hover:text-emerald-900 underline font-bold shrink-0">
+                  View File
+                </a>
+              )}
+            </div>
+            
+            <input type="hidden" name="documentUrl" id="documentUrl" value={docData.documentUrl} />
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="bg-slate-50 border-t border-slate-200 px-6 py-4 flex items-center justify-end gap-3 shrink-0">
+        <a 
+          href="/admin/policies" 
+          class="px-4 py-2 border border-slate-300 text-slate-700 hover:bg-slate-100 rounded text-xs font-bold transition-all cursor-pointer"
+        >
+          Cancel
+        </a>
+        <button 
+          type="submit" 
+          id="submit-btn" 
+          class="btn-primary px-5 py-2 rounded text-xs font-bold shadow-sm cursor-pointer"
+        >
+          {editId ? "Update Document" : "Save Document"}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</AdminLayout>
+
+<script is:inline define:vars={{ sessionToken }}>
+  (function() {
+    var fileUploader = document.getElementById('file-uploader');
+    var uploadContainer = document.getElementById('upload-container');
+    var uploadStatusText = document.getElementById('upload-status-text');
+    var documentUrlInput = document.getElementById('documentUrl');
+    var attachedFileInfo = document.getElementById('attached-file-info');
+    var attachedFilename = document.getElementById('attached-filename');
+    var submitBtn = document.getElementById('submit-btn');
+
+    fileUploader?.addEventListener('change', async (event) => {
+      var file = event.target?.files?.[0];
+      if (!file) return;
+
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Uploading…'; }
+      if (uploadStatusText) uploadStatusText.textContent = `Uploading ${file.name}…`;
+      if (uploadContainer) uploadContainer.classList.add('opacity-60', 'pointer-events-none');
+
+      var formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        var response = await fetch('http://localhost:3000/api/upload', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${sessionToken}`,
+          },
+          body: formData,
+        });
+
+        if (!response.ok) {
+          var errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || 'Upload failed');
+        }
+
+        var result = await response.json();
+        
+        // Update input
+        if (documentUrlInput) documentUrlInput.value = result.url;
+
+        // Update UI
+        if (uploadStatusText) uploadStatusText.textContent = 'Change attached file';
+        if (attachedFileInfo) {
+          attachedFileInfo.classList.remove('hidden');
+          if (attachedFilename) attachedFilename.textContent = result.filename;
+          
+          var viewLink = attachedFileInfo.querySelector('a');
+          if (!viewLink) {
+            viewLink = document.createElement('a');
+            viewLink.target = '_blank';
+            viewLink.className = 'text-emerald-700 hover:text-emerald-900 underline font-bold shrink-0';
+            viewLink.textContent = 'View File';
+            attachedFileInfo.appendChild(viewLink);
+          }
+          viewLink.href = result.url;
+        }
+
+      } catch (error) {
+        alert('Upload failed: ' + error.message);
+        if (uploadStatusText) uploadStatusText.textContent = 'Click to choose or drag document file here';
+        if (documentUrlInput) documentUrlInput.value = '';
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = document.getElementById('id')?.value ? 'Update Document' : 'Save Document';
+        }
+        if (uploadContainer) uploadContainer.classList.remove('opacity-60', 'pointer-events-none');
+      }
+    });
+  })();
+</script>

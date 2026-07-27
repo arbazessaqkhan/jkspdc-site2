@@ -1,5 +1,28 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
+
+let memoDoc = null;
+let policyUrl = "/MoA_AoA.pdf";
+let memoTitle = "Memorandum & Articles of Association (MoA & AoA)";
+let memoDesc = "Official certified copies showing legal incorporation clauses under the Companies Act.";
+
+try {
+  const res = await fetch('http://localhost:3000/api/policies?category=Memorandum');
+  if (res.ok) {
+    const data = await res.json();
+    const activeDocs = data.filter(d => d.status === 'Active');
+    if (activeDocs.length > 0) {
+      memoDoc = activeDocs[0];
+      policyUrl = memoDoc.documentUrl;
+      memoTitle = memoDoc.title;
+      if (memoDoc.description) {
+        memoDesc = memoDoc.description;
+      }
+    }
+  }
+} catch (e) {
+  console.error('Error fetching memorandum document:', e);
+}
 ---
 
 <Layout 
@@ -35,10 +58,10 @@ import Layout from '../../../layouts/Layout.astro';
         <!-- Document download box -->
         <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm flex items-center justify-between gap-4">
           <div>
-            <h3 class="font-bold text-gray-900 text-sm mb-1">Memorandum & Articles of Association (MoA & AoA)</h3>
-            <p class="text-xs text-gray-500">Official certified copies showing legal incorporation clauses under the Companies Act.</p>
+            <h3 class="font-bold text-gray-900 text-sm mb-1">{memoTitle}</h3>
+            <p class="text-xs text-gray-550">{memoDesc}</p>
           </div>
-          <a href="/MoA_AoA.pdf" target="_blank" rel="noopener noreferrer" class="btn-outline text-xs whitespace-nowrap">
+          <a href={policyUrl} target="_blank" rel="noopener noreferrer" class="btn-primary text-xs whitespace-nowrap cursor-pointer">
             📄 View MoA & AoA PDF
           </a>
         </div>

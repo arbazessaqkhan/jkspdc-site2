@@ -19,6 +19,7 @@ import { UsersModule } from './users/users.module';
 import { UploadModule } from './upload/upload.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { GalleryModule } from './gallery/gallery.module';
+import { PoliciesModule } from './policies/policies.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { GalleryModule } from './gallery/gallery.module';
     UploadModule,
     NotificationsModule,
     GalleryModule,
+    PoliciesModule,
   ],
   controllers: [
     ContactController,

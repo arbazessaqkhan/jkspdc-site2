@@ -1,5 +1,20 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
+
+let ethicsDoc = null;
+
+try {
+  const res = await fetch('http://localhost:3000/api/policies?category=Ethics');
+  if (res.ok) {
+    const data = await res.json();
+    const activeDocs = data.filter(d => d.status === 'Active');
+    if (activeDocs.length > 0) {
+      ethicsDoc = activeDocs[0];
+    }
+  }
+} catch (e) {
+  console.error('Error fetching ethics document:', e);
+}
 ---
 
 <Layout 
@@ -35,12 +50,18 @@ import Layout from '../../../layouts/Layout.astro';
         <!-- Document download box -->
         <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm flex items-center justify-between gap-4">
           <div>
-            <h3 class="font-bold text-gray-900 text-sm mb-1">Official Code of Conduct & Ethics Document</h3>
-            <p class="text-xs text-gray-500">Approved by the Board of Directors and applicable to all administrative and technical personnel.</p>
+            <h3 class="font-bold text-gray-900 text-sm mb-1">{ethicsDoc ? ethicsDoc.title : "Official Code of Conduct & Ethics Document"}</h3>
+            <p class="text-xs text-gray-550">{ethicsDoc ? (ethicsDoc.description || "Approved by the Board of Directors and applicable to all administrative and technical personnel.") : "Approved by the Board of Directors and applicable to all administrative and technical personnel."}</p>
           </div>
-          <a href="#" class="btn-outline text-xs whitespace-nowrap">
-            📄 Download Code_of_Conduct.pdf <span class="text-[10px] text-gray-500 font-normal block mt-1">(Content Pending Approval)</span>
-          </a>
+          {ethicsDoc ? (
+            <a href={ethicsDoc.documentUrl} target="_blank" rel="noopener noreferrer" class="btn-primary text-xs whitespace-nowrap cursor-pointer">
+              📄 View Code of Conduct PDF
+            </a>
+          ) : (
+            <a href="#" class="btn-outline text-xs whitespace-nowrap cursor-not-allowed">
+              📄 Download Code_of_Conduct.pdf <span class="text-[10px] text-gray-500 font-normal block mt-1">(Content Pending Approval)</span>
+            </a>
+          )}
         </div>
       </article>
 
