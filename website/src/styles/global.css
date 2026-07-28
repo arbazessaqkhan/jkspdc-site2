@@ -107,7 +107,7 @@
   --color-brand-footer: #042750;
 
   --shadow-card: 0 3px 6px -1px rgba(11, 79, 156, 0.06), 0 2px 4px -2px rgba(11, 79, 156, 0.04);
-  --shadow-card-hover: 0 14px 28px -6px rgba(11, 79, 156, 0.16), 0 6px 12px -4px rgba(0, 180, 216, 0.12);
+  --shadow-card-hover: 0 14px 28px -6px rgba(11, 79, 156, 0.16), 0 6px 12px -4px rgba(11, 79, 156, 0.08);
 
   --radius-btn: 6px;
   --radius-card: 10px;
@@ -172,7 +172,7 @@ html {
   &:hover {
     background: linear-gradient(135deg, #0D5BB4 0%, #073F7B 100%);
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px -3px rgba(11, 79, 156, 0.4), 0 0 12px rgba(0, 180, 216, 0.25);
+    box-shadow: 0 8px 20px -3px rgba(11, 79, 156, 0.4);
   }
 
   &:active {
@@ -256,7 +256,7 @@ html {
   }
 }
 
-/* --- CARD COMPONENTS WITH NEON ROYAL BLUE HOVER OUTLINE --- */
+/* --- CARD COMPONENTS --- */
 @utility card-static {
   background-color: #ffffff;
   border: 1px solid #BDD7EE;
@@ -266,8 +266,8 @@ html {
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    border-color: #00B4D8;
-    box-shadow: 0 0 0 2px #00B4D8, 0 0 20px rgba(0, 180, 216, 0.45), 0 10px 25px -5px rgba(11, 79, 156, 0.2);
+    border-color: #0B4F9C;
+    box-shadow: 0 10px 25px -5px rgba(11, 79, 156, 0.12), 0 8px 16px -6px rgba(11, 79, 156, 0.08);
     transform: translateY(-2px);
   }
 }
@@ -281,8 +281,8 @@ html {
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    border-color: #00B4D8;
-    box-shadow: 0 0 0 2px #00B4D8, 0 0 22px rgba(0, 180, 216, 0.5), 0 12px 28px -6px rgba(11, 79, 156, 0.25);
+    border-color: #0B4F9C;
+    box-shadow: 0 12px 28px -6px rgba(11, 79, 156, 0.15), 0 8px 20px -8px rgba(11, 79, 156, 0.12);
     transform: translateY(-4px) scale(1.005);
   }
 }
@@ -297,12 +297,12 @@ html {
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    border-color: #00B4D8;
-    box-shadow: 0 0 0 2px #00B4D8, 0 0 22px rgba(0, 180, 216, 0.5), 0 12px 28px -6px rgba(11, 79, 156, 0.2);
+    border-color: #0B4F9C;
+    box-shadow: 0 12px 28px -6px rgba(11, 79, 156, 0.12);
   }
 }
 
-/* GLOBAL NEON ROYAL BLUE HOVER OUTLINE FOR ALL CARDS, ITEMS & ROWS */
+/* GLOBAL HOVER STATES FOR CARDS & LIST ITEMS */
 .neon-card-hover,
 .marquee-item,
 .tender-card {
@@ -312,14 +312,12 @@ html {
 .neon-card-hover:hover,
 .marquee-item:hover,
 .tender-card:hover {
-  border-color: #00B4D8 !important;
-  box-shadow: 0 0 0 2px #00B4D8, 0 0 18px rgba(0, 180, 216, 0.5), 0 10px 24px -4px rgba(11, 79, 156, 0.2) !important;
+  border-color: #0B4F9C !important;
+  box-shadow: 0 8px 24px -4px rgba(11, 79, 156, 0.15) !important;
 }
 
 tbody tr:hover {
-  outline: 2px solid #00B4D8 !important;
-  outline-offset: -2px;
-  box-shadow: 0 0 14px rgba(0, 180, 216, 0.45) !important;
+  background-color: #F1F7FD !important;
 }
 
 /* --- FORM COMPONENTS --- */
