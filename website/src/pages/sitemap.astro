@@ -6,21 +6,17 @@ import Layout from '../layouts/Layout.astro';
   title="Sitemap - JKSPDC" 
   description="Comprehensive sitemap and index of all pages on the JKSPDC website."
 >
-  <div class="space-y-6">
-    <!-- Breadcrumbs -->
-    <nav class="text-xs text-gray-500" aria-label="Breadcrumbs">
-      <ol class="flex gap-2">
-        <li><a href="/" class="hover:underline">Home</a></li>
-        <li>/</li>
-        <li><span class="font-semibold text-[#0B4F9C]">Sitemap</span></li>
-      </ol>
-    </nav>
-
-    <!-- Page Header -->
-    <header class="border-b border-gray-200 pb-4">
-      <h2 class="text-3xl font-extrabold text-[#0B4F9C]">Website Sitemap</h2>
-      <p class="text-sm text-gray-600 mt-1">A GIGW-compliant index of all published informational routes and portals.</p>
-    </header>
+  <div class="space-y-0">
+    <!-- Premium Page Header Band -->
+    <div class="page-header-band animate-fadeInUp">
+      <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
+        <a href="/">Home</a>
+        <span class="separator">/</span>
+        <span class="current">Sitemap</span>
+      </nav>
+      <h1>Website Sitemap</h1>
+      <p class="page-subtitle">Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL)</p>
+    </div>
 
     <!-- Content -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

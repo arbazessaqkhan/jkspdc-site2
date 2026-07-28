@@ -33,28 +33,24 @@ if (policies.length === 0) {
   title="Corporate Policies - About Us" 
   description="One-stop directory of all official corporate policies, vigilance frameworks, and compliance guidelines of JKSPDC."
 >
-  <div class="space-y-6">
-    <!-- Breadcrumbs -->
-    <nav class="text-xs text-gray-500" aria-label="Breadcrumbs">
-      <ol class="flex gap-2">
-        <li><a href="/" class="hover:underline">Home</a></li>
-        <li>/</li>
-        <li><span class="text-gray-400">About Us</span></li>
-        <li>/</li>
-        <li><span class="font-semibold text-[#0B4F9C]">Policies</span></li>
-      </ol>
-    </nav>
-
-    <!-- Page Header -->
-    <header class="border-b border-gray-200 pb-4">
-      <h2 class="text-3xl font-extrabold text-[#0B4F9C]">Corporate Policies</h2>
-      <p class="text-sm text-gray-600 mt-1">Official governance charters, environmental compliance, and organizational guidelines of the corporation.</p>
-    </header>
+  <div class="space-y-0">
+    <!-- Premium Page Header Band -->
+    <div class="page-header-band animate-fadeInUp">
+      <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
+        <a href="/">Home</a>
+        <span class="separator">/</span>
+        <span>About Us</span>
+        <span class="separator">/</span>
+        <span class="current">Policies</span>
+      </nav>
+      <h1>Corporate Policies</h1>
+      <p class="page-subtitle">Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL)</p>
+    </div>
 
     <!-- Content Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fadeInUp delay-200">
       <!-- Main List -->
-      <article class="lg:col-span-2 space-y-4">
+      <article class="lg:col-span-2 prose-gov">
         {policies.map((p, index) => (
           <div class="bg-white border border-gray-200 hover:border-gray-300 rounded-xl p-5 shadow-sm transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div class="space-y-1 max-w-xl">
@@ -104,20 +100,20 @@ if (policies.length === 0) {
       </article>
 
       <!-- Sidebar -->
-      <aside class="space-y-4">
+      <aside class="space-y-5 animate-fadeIn delay-300">
         <div class="card-static bg-gradient-to-br from-[#0B4F9C]/5 to-[#0B4F9C]/10 border border-[#0B4F9C]/15">
-          <h3 class="font-bold text-[#0B4F9C] mb-2 border-b border-[#0B4F9C]/15 pb-2">Policies Submissions</h3>
+          <h3 class="sidebar-card-title">Policies Submissions</h3>
           <p class="text-xs text-slate-650 leading-relaxed mb-3">
             JKSPDCL updates its corporate governance framework periodically in compliance with statutory instructions. Newly formulated policy charters will be listed here immediately post Board clearance.
           </p>
         </div>
         
         <div class="card-static">
-          <h3 class="font-bold text-gray-900 mb-2 border-b border-gray-100 pb-2">Quick Navigation</h3>
+          <h3 class="sidebar-card-title">Quick Navigation</h3>
           <ul class="flex flex-col gap-2 text-xs font-semibold text-[#0B4F9C]">
-            <li><a href="/about-us/explore/association-memorandum" class="hover:underline block py-1">&rarr; MoA & AoA</a></li>
-            <li><a href="/about-us/explore/ethics-code" class="hover:underline block py-1">&rarr; Code of Conduct</a></li>
-            <li><a href="/about-us/explore/roles-responsibility" class="hover:underline block py-1">&rarr; Roles & Responsibilities</a></li>
+            <li><a href="/about-us/explore/association-memorandum" class="sidebar-link">MoA & AoA</a></li>
+            <li><a href="/about-us/explore/ethics-code" class="sidebar-link">Code of Conduct</a></li>
+            <li><a href="/about-us/explore/roles-responsibility" class="sidebar-link">Roles & Responsibilities</a></li>
           </ul>
         </div>
       </aside>
