@@ -116,24 +116,69 @@
 /* Custom utility variables for GIGW font-accessibility settings */
 :root {
   --focus-ring-color: #106EE9;
-  --font-heading: "Plus Jakarta Sans", "Noto Sans", system-ui, sans-serif;
-  --font-body: "Noto Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-heading: "Noto Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-body: "Noto Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 html {
   font-family: var(--font-body);
+  font-weight: 400; /* Noto Sans Regular */
   scroll-behavior: smooth;
   color: var(--color-brand-text);
   background-color: #ffffff;
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   TYPOGRAPHIC HIERARCHY — Display Font for Headings
+   NOTO SANS TYPOGRAPHIC HIERARCHY & WEIGHT VARIATIONS
+   1. Noto Sans Regular (font-weight: 400) - Body text & paragraphs
+   2. Noto Sans Medium (font-weight: 500) - Sub-navigation, badges, inputs
+   3. Noto Sans Semi Bold (font-weight: 600) - Subtitles, cards, table headers
+   4. Noto Sans Bold (font-weight: 700) - Main page titles & key headers
    ═══════════════════════════════════════════════════════════════ */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.015em;
   text-wrap: balance;
+}
+
+h1 {
+  font-weight: 700; /* Noto Sans Bold */
+}
+
+h2 {
+  font-weight: 700; /* Noto Sans Bold */
+}
+
+h3, h4 {
+  font-weight: 600; /* Noto Sans Semi Bold */
+}
+
+h5, h6 {
+  font-weight: 500; /* Noto Sans Medium */
+}
+
+p, span, li, td {
+  font-family: var(--font-body);
+}
+
+.font-regular {
+  font-family: "Noto Sans", sans-serif;
+  font-weight: 400;
+}
+
+.font-medium {
+  font-family: "Noto Sans", sans-serif;
+  font-weight: 500;
+}
+
+.font-semibold {
+  font-family: "Noto Sans", sans-serif;
+  font-weight: 600;
+}
+
+.font-bold, .font-extrabold {
+  font-family: "Noto Sans", sans-serif;
+  font-weight: 700;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -144,6 +189,7 @@ h1, h2, h3, h4, h5, h6 {
     opacity: 0;
     transform: translateY(24px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -151,8 +197,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideInLeft {
@@ -160,6 +211,7 @@ h1, h2, h3, h4, h5, h6 {
     opacity: 0;
     transform: translateX(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -178,11 +230,25 @@ h1, h2, h3, h4, h5, h6 {
   animation: slideInLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.delay-100 { animation-delay: 0.1s; }
-.delay-200 { animation-delay: 0.2s; }
-.delay-300 { animation-delay: 0.3s; }
-.delay-400 { animation-delay: 0.4s; }
-.delay-500 { animation-delay: 0.5s; }
+.delay-100 {
+  animation-delay: 0.1s;
+}
+
+.delay-200 {
+  animation-delay: 0.2s;
+}
+
+.delay-300 {
+  animation-delay: 0.3s;
+}
+
+.delay-400 {
+  animation-delay: 0.4s;
+}
+
+.delay-500 {
+  animation-delay: 0.5s;
+}
 
 /* ═══════════════════════════════════════════════════════════════
    PAGE HEADER BANNER — Premium Gradient Band for Inner Pages
@@ -215,8 +281,8 @@ h1, h2, h3, h4, h5, h6 {
   position: absolute;
   inset: 0;
   background-image:
-    radial-gradient(circle at 85% 20%, rgba(255,255,255,0.04) 0%, transparent 50%),
-    radial-gradient(circle at 15% 80%, rgba(255,255,255,0.03) 0%, transparent 40%);
+    radial-gradient(circle at 85% 20%, rgba(255, 255, 255, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 15% 80%, rgba(255, 255, 255, 0.03) 0%, transparent 40%);
   pointer-events: none;
 }
 
@@ -289,7 +355,8 @@ h1, h2, h3, h4, h5, h6 {
    GOVERNMENT PROSE STYLING — Refined Article Content
    ═══════════════════════════════════════════════════════════════ */
 .prose-gov {
-  font-size: 0.9375rem; /* 15px */
+  font-size: 0.9375rem;
+  /* 15px */
   line-height: 1.8;
   color: #334155;
   letter-spacing: -0.005em;
@@ -627,8 +694,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* 2. Primary Navigation Bar Tabs & Dropdown Links */
-nav[aria-label="Primary Navigation"] ul li > a:hover,
-nav[aria-label="Primary Navigation"] ul li > button:hover {
+nav[aria-label="Primary Navigation"] ul li>a:hover,
+nav[aria-label="Primary Navigation"] ul li>button:hover {
   outline: 2px solid #60A5FA !important;
   outline-offset: -2px !important;
   border-radius: 4px;
