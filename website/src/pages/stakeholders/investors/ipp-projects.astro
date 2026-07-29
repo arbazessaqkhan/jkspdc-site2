@@ -10,10 +10,14 @@ const ippPhases = [
     title: 'Phase I — IPP Hydroelectric Projects',
     desc: 'Independent Power Producer (IPP) Hydroelectric Projects allotted under Phase I Policy Guidelines.',
     projects: [
-      { name: 'Lower Kalnai HEP', capacityMw: 48, basin: 'Chenab Basin', location: 'Doda', status: 'Under Implementation', developer: 'M/s Coastal Projects Ltd / Allotted Developer', remarks: 'DPR Approved / Pre-construction' },
-      { name: 'Ratle HEP (IPP Stage)', capacityMw: 850, basin: 'Chenab Basin', location: 'Kishtwar', status: 'JV Transition / Construction', developer: 'Ratle Hydroelectric Power Corp Ltd (RHPCL)', remarks: 'JV Executing Phase I Allotment' },
-      { name: 'Parnai Small HEP', capacityMw: 37.5, basin: 'Jhelum Basin (Poonch)', location: 'Poonch', status: 'Under Civil Works', developer: 'State IPP Cell / Allocated IPP', remarks: 'Implementation Agreement Active' },
-      { name: 'Sewa-I HEP', capacityMw: 9, basin: 'Ravi Basin', location: 'Kathua', status: 'Operational / IPP Allotment', developer: 'Private IPP Developer', remarks: 'PPA Executed with PDD' }
+      { name: 'Boniyar HEP', capacityMw: 12, basin: 'Jhelum Basin', location: 'Baramula', status: 'Work in Progress', developer: 'Ms VRB Hydro Power', remarks: 'Work in progress' },
+      { name: 'Ranjala Dunadi HEP', capacityMw: 15, basin: 'Chenab Basin', location: 'Doda', status: 'Commissioned', developer: 'Ms Choudhary Power Projects Limited', remarks: 'Commissioned' },
+      { name: 'Kahmil HEP', capacityMw: 4, basin: 'Jhelum Basin', location: 'Kupwara', status: 'Terminated', developer: 'Ms Rehbar Engineering Ltd.', remarks: 'Contract Terminated due to Poor Performance by Developer(2017 2018)' },
+      { name: 'Mandi HEP', capacityMw: 12.5, basin: 'Jhelum Basin (Punch)', location: 'Punch', status: 'Commissioned', developer: 'Ms Magpie Hydel Constructions', remarks: 'Commissioned' },
+      { name: 'Athwatoo HEP', capacityMw: 10, basin: 'Jhelum Basin', location: 'Bandipore', status: 'Commissioned', developer: 'Ms Magpie and Co.', remarks: 'Commissioned' },
+      { name: 'Brenwar HEP', capacityMw: 7.5, basin: 'Jhelum Basin', location: 'Badgam', status: 'Commissioned', developer: 'Ms P and R Engineering', remarks: 'Commissioned' },
+      { name: 'Aharbal HEP', capacityMw: 22.5, basin: 'Jhelum Basin', location: 'Pulwama', status: 'Surrendered', developer: 'Ms JAL', remarks: 'Project Site surrendered due to Tourism and Environmental issues.' },
+      { name: 'Drung HEP', capacityMw: 5, basin: 'Ravi Basin', location: 'Kathua', status: 'Land Acquisition', developer: 'Ms Chenab Valley Leasing Company.', remarks: 'Land Acquisition clearance in Progress.' }
     ]
   },
   { 
@@ -22,8 +26,10 @@ const ippPhases = [
     title: 'Phase II — IPP Hydroelectric Projects',
     desc: 'IPP Hydro Electric Projects allotted under Phase II for capacity expansion and DPR evaluation.',
     projects: [
-      { name: 'Sanichari Small Hydel Project', capacityMw: 12, basin: 'Chenab Basin', location: 'Kishtwar', status: 'DPR Evaluation', developer: 'Private Developer Allotted', remarks: 'Environmental Clearance in Process' },
-      { name: 'Dhauli Ganga Small HEP', capacityMw: 25, basin: 'Ravi Basin', location: 'Kathua', status: 'Implementation Agreement', developer: 'Allotted IPP Developer', remarks: 'Land Acquisition Phase' }
+      { name: 'Chandanwari HEP', capacityMw: 7, basin: 'Jhelum Basin', location: 'Baramula', status: 'DPR Preparation', developer: 'Ms Nazir Hussain Khan', remarks: 'DPR under preparation' },
+      { name: 'Ans I HEP', capacityMw: 40, basin: 'Chenab Basin', location: 'Riasi', status: 'Implementation Agreement', developer: 'Ms Sri Awantika Consortium', remarks: 'In 2012 Implementation agreement was signed and DPR was under prepration. However the IPP has' },
+      { name: 'Girjan Ki Gali HEP', capacityMw: 12, basin: 'Chenab Basin (Rajouri)', location: 'Rajaori', status: 'DPR Preparation', developer: 'Ms Raheja Power Ventures Pvt Ltd', remarks: 'DPR under preparation' },
+      { name: 'Patnazi Bunjwa HEP', capacityMw: 21, basin: 'Chenab Basin', location: 'Kishtwar', status: 'TEC Accorded', developer: 'Ms Patnazi Power (Energo Group)', remarks: 'TEC accorded to DPR' }
     ]
   },
   { 
@@ -32,48 +38,120 @@ const ippPhases = [
     title: 'Phase III — IPP Hydroelectric Projects',
     desc: 'Phase III Hydroelectric IPP Allotments under BOOT (Build-Own-Operate-Transfer) schema.',
     projects: [
-      { name: 'Kirthai Stage-I HEP', capacityMw: 390, basin: 'Chenab Basin', location: 'Kishtwar', status: 'Clearance Phase', developer: 'Chenab Valley Power Projects (CVPPPL)', remarks: 'Detailed Techno-Economic Appraisal' },
-      { name: 'Kirthai Stage-II HEP', capacityMw: 930, basin: 'Chenab Basin', location: 'Kishtwar', status: 'DPR Approved', developer: 'Chenab Valley Power Projects (CVPPPL)', remarks: 'Pre-construction Activities' }
+      { name: 'Chingus II HEP', capacityMw: 3, basin: 'Chenab Basin (Rajouri)', location: 'Rajaori', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Pumbai Aridajan HEP', capacityMw: 4, basin: 'Jhelum Basin', location: 'Kulgam', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Hanswar HEP', capacityMw: 6, basin: 'Chenab Basin', location: 'Kishtwar', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Phagla HEP', capacityMw: 16, basin: 'Jhelum Basin (Punch)', location: 'Punch', status: 'No Response', developer: '—', remarks: 'No Response. (Project is being implemented under PMDP 2015)' },
+      { name: 'Mawar HEP', capacityMw: 10, basin: 'Jhelum Basin', location: 'Kupwara', status: 'Non Responsive', developer: '—', remarks: 'Non Responsive Bid' },
+      { name: 'Kutbal HEP', capacityMw: 4, basin: 'Jhelum Basin', location: 'Kulgam', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Shaliganga HEP', capacityMw: 4.5, basin: 'Jhelum Basin', location: 'Badgam', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Thanamandi HEP', capacityMw: 2.75, basin: 'Chenab Basin', location: 'Thanna Mandi', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Boniyar HEP', capacityMw: 6, basin: 'Jhelum Basin', location: 'Baramula', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Gulabgarh HEP', capacityMw: 6.5, basin: 'Chenab Basin', location: 'Riasi', status: 'LOA Withdrawn', developer: 'Ms Boom Systems Pvt.', remarks: 'Bidder Didnot pay upfront Premium. LOA Withdrawn To be retendered under Phase IV.' },
+      { name: 'Kutimarg HEP', capacityMw: 7.25, basin: 'Jhelum Basin', location: 'Kulgam', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Shranz HEP', capacityMw: 10, basin: 'Jhelum Basin', location: 'Baramula', status: 'LOA Withdrawn', developer: 'Ms Trumboo Cement Industries pvt. Ltd.', remarks: 'Bidder Didnot pay upfront Premium.LOA Withdrawn To be retendered under Phase IV.' },
+      { name: 'Upper Ans I HEP', capacityMw: 5.5, basin: 'Chenab Basin', location: 'Rajaori', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Shunahkag HEP', capacityMw: 9, basin: 'Jhelum Basin', location: 'Badgam', status: 'LOA Withdrawn', developer: 'Ms Boom Systems Pvt. Ltd.', remarks: 'Bidder Didnot pay upfront Premium. LOA Withdrawn To be retendered under Phase IV' },
+      { name: 'Chingus I HEP', capacityMw: 3, basin: 'Chenab Basin (Rajouri)', location: 'Rajaori', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Sultanphatri HEP', capacityMw: 3, basin: 'Jhelum Basin (Punch)', location: 'Punch', status: 'DPR Preparation', developer: 'Ms SRM Contractors Pvt. Ltd.', remarks: 'DPR under preparation' },
+      { name: 'Sewa I HEP', capacityMw: 8, basin: 'Ravi Basin', location: 'Kathua', status: 'Non Responsive', developer: '—', remarks: 'Non Responsive Bid' },
+      { name: 'Erin HEP', capacityMw: 10, basin: 'Jhelum Basin', location: 'Bandipore', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Nihama HEP', capacityMw: 6, basin: 'Jhelum Basin', location: 'Kulgam', status: 'LOA Withdrawn', developer: 'Ms Millde East Recycling Company WILL.', remarks: 'Bidder Didnot pay upfront Premium. LOA WithdrawnTo be retendered under Phase IV' },
+      { name: 'Chenani IV HEP', capacityMw: 7, basin: 'Chenab Basin', location: 'Udhampur', status: 'Non Responsive', developer: '—', remarks: 'Non Responsive Bid.' },
+      { name: 'Bringi HEP', capacityMw: 4, basin: 'Jhelum Basin', location: 'Anantnag', status: 'No Response', developer: '—', remarks: 'No Response' }
+    ]
+  },
+  { 
+    id: 'phase-4', 
+    name: 'Phase 4', 
+    title: 'Phase IV — IPP Hydroelectric Projects',
+    desc: 'Phase IV Hydroelectric IPP Allotments including retendered projects and design preparation.',
+    projects: [
+      { name: 'Chingus II HEP', capacityMw: 3, basin: 'Chenab Basin (Rajouri)', location: 'Rajaori', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Pumbai Aridajan HEP', capacityMw: 4, basin: 'Jhelum Basin', location: 'Kulgam', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Hanswar HEP', capacityMw: 6, basin: 'Chenab Basin', location: 'Kishtwar', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Phagla HEP', capacityMw: 16, basin: 'Jhelum Basin (Punch)', location: 'Punch', status: 'No Response', developer: '—', remarks: 'No Response. (Project is being implemented under PMDP 2015)' },
+      { name: 'Mawar HEP', capacityMw: 10, basin: 'Jhelum Basin', location: 'Kupwara', status: 'Non Responsive', developer: '—', remarks: 'Non Responsive Bid' },
+      { name: 'Kutbal HEP', capacityMw: 4, basin: 'Jhelum Basin', location: 'Kulgam', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Shaliganga HEP', capacityMw: 4.5, basin: 'Jhelum Basin', location: 'Badgam', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Thanamandi HEP', capacityMw: 2.75, basin: 'Chenab Basin', location: 'Thanna Mandi', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Boniyar HEP', capacityMw: 6, basin: 'Jhelum Basin', location: 'Baramula', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Gulabgarh HEP', capacityMw: 6.5, basin: 'Chenab Basin', location: 'Riasi', status: 'LOA Withdrawn', developer: 'Ms Boom Systems Pvt.', remarks: 'Bidder Didnot pay upfront Premium. LOA Withdrawn To be retendered under Phase IV.' },
+      { name: 'Kutimarg HEP', capacityMw: 7.25, basin: 'Jhelum Basin', location: 'Kulgam', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Shranz HEP', capacityMw: 10, basin: 'Jhelum Basin', location: 'Baramula', status: 'LOA Withdrawn', developer: 'Ms Trumboo Cement Industries pvt. Ltd.', remarks: 'Bidder Didnot pay upfront Premium.LOA Withdrawn To be retendered under Phase IV.' },
+      { name: 'Upper Ans I HEP', capacityMw: 5.5, basin: 'Chenab Basin', location: 'Rajaori', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Shunahkag HEP', capacityMw: 9, basin: 'Jhelum Basin', location: 'Badgam', status: 'LOA Withdrawn', developer: 'Ms Boom Systems Pvt. Ltd.', remarks: 'Bidder Didnot pay upfront Premium. LOA Withdrawn To be retendered under Phase IV' },
+      { name: 'Chingus I HEP', capacityMw: 3, basin: 'Chenab Basin (Rajouri)', location: 'Rajaori', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Sultanphatri HEP', capacityMw: 3, basin: 'Jhelum Basin (Punch)', location: 'Punch', status: 'DPR Preparation', developer: 'Ms SRM Contractors Pvt. Ltd.', remarks: 'DPR under preparation' },
+      { name: 'Sewa I HEP', capacityMw: 8, basin: 'Ravi Basin', location: 'Kathua', status: 'Non Responsive', developer: '—', remarks: 'Non Responsive Bid' },
+      { name: 'Erin HEP', capacityMw: 10, basin: 'Jhelum Basin', location: 'Bandipore', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Nihama HEP', capacityMw: 6, basin: 'Jhelum Basin', location: 'Kulgam', status: 'LOA Withdrawn', developer: 'Ms Millde East Recycling Company WILL.', remarks: 'Bidder Didnot pay upfront Premium. LOA WithdrawnTo be retendered under Phase IV' },
+      { name: 'Chenani IV HEP', capacityMw: 7, basin: 'Chenab Basin', location: 'Udhampur', status: 'Non Responsive', developer: '—', remarks: 'Non Responsive Bid.' },
+      { name: 'Bringi HEP', capacityMw: 4, basin: 'Jhelum Basin', location: 'Anantnag', status: 'No Response', developer: '—', remarks: 'No Response' }
     ]
   },
   { 
     id: 'phase-5', 
     name: 'Phase 5', 
-    title: 'Phase V — IPP Solar & Clean Energy Projects',
-    desc: 'Phase V Clean Energy IPP Allotments including grid-connected solar power installations.',
+    title: 'Phase V — IPP Hydroelectric Projects',
+    desc: 'Phase V Hydroelectric IPP Allotments including retendered projects and design preparation.',
     projects: [
-      { name: 'Samba Solar IPP Park', capacityMw: 30, basin: 'Outer Plains', location: 'Samba', status: 'Land Allotted / Tariff Finalized', developer: 'Solar IPP Developer', remarks: 'Grid Interconnection Study Completed' },
-      { name: 'Kathua Solar IPP Station', capacityMw: 20, basin: 'Outer Plains', location: 'Kathua', status: 'PPA Signed', developer: 'Renewable IPP Partner', remarks: 'Substation Connectivity Approved' }
+      { name: 'Chingus II HEP', capacityMw: 3, basin: 'Chenab Basin (Rajouri)', location: 'Rajaori', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Pumbai Aridajan HEP', capacityMw: 4, basin: 'Jhelum Basin', location: 'Kulgam', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Hanswar HEP', capacityMw: 6, basin: 'Chenab Basin', location: 'Kishtwar', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Phagla HEP', capacityMw: 16, basin: 'Jhelum Basin (Punch)', location: 'Punch', status: 'No Response', developer: '—', remarks: 'No Response. (Project is being implemented under PMDP 2015)' },
+      { name: 'Mawar HEP', capacityMw: 10, basin: 'Jhelum Basin', location: 'Kupwara', status: 'Non Responsive', developer: '—', remarks: 'Non Responsive Bid' },
+      { name: 'Kutbal HEP', capacityMw: 4, basin: 'Jhelum Basin', location: 'Kulgam', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Shaliganga HEP', capacityMw: 4.5, basin: 'Jhelum Basin', location: 'Badgam', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Thanamandi HEP', capacityMw: 2.75, basin: 'Chenab Basin', location: 'Thanna Mandi', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Boniyar HEP', capacityMw: 6, basin: 'Jhelum Basin', location: 'Baramula', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Gulabgarh HEP', capacityMw: 6.5, basin: 'Chenab Basin', location: 'Riasi', status: 'LOA Withdrawn', developer: 'Ms Boom Systems Pvt.', remarks: 'Bidder Didnot pay upfront Premium. LOA Withdrawn To be retendered under Phase IV.' },
+      { name: 'Kutimarg HEP', capacityMw: 7.25, basin: 'Jhelum Basin', location: 'Kulgam', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Shranz HEP', capacityMw: 10, basin: 'Jhelum Basin', location: 'Baramula', status: 'LOA Withdrawn', developer: 'Ms Trumboo Cement Industries pvt. Ltd.', remarks: 'Bidder Didnot pay upfront Premium.LOA Withdrawn To be retendered under Phase IV.' },
+      { name: 'Upper Ans I HEP', capacityMw: 5.5, basin: 'Chenab Basin', location: 'Rajaori', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Shunahkag HEP', capacityMw: 9, basin: 'Jhelum Basin', location: 'Badgam', status: 'LOA Withdrawn', developer: 'Ms Boom Systems Pvt. Ltd.', remarks: 'Bidder Didnot pay upfront Premium. LOA Withdrawn To be retendered under Phase IV' },
+      { name: 'Chingus I HEP', capacityMw: 3, basin: 'Chenab Basin (Rajouri)', location: 'Rajaori', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Sultanphatri HEP', capacityMw: 3, basin: 'Jhelum Basin (Punch)', location: 'Punch', status: 'DPR Preparation', developer: 'Ms SRM Contractors Pvt. Ltd.', remarks: 'DPR under preparation' },
+      { name: 'Sewa I HEP', capacityMw: 8, basin: 'Ravi Basin', location: 'Kathua', status: 'Non Responsive', developer: '—', remarks: 'Non Responsive Bid' },
+      { name: 'Erin HEP', capacityMw: 10, basin: 'Jhelum Basin', location: 'Bandipore', status: 'No Response', developer: '—', remarks: 'No Response' },
+      { name: 'Nihama HEP', capacityMw: 6, basin: 'Jhelum Basin', location: 'Kulgam', status: 'LOA Withdrawn', developer: 'Ms Millde East Recycling Company WILL.', remarks: 'Bidder Didnot pay upfront Premium. LOA WithdrawnTo be retendered under Phase IV' },
+      { name: 'Chenani IV HEP', capacityMw: 7, basin: 'Chenab Basin', location: 'Udhampur', status: 'Non Responsive', developer: '—', remarks: 'Non Responsive Bid.' },
+      { name: 'Bringi HEP', capacityMw: 4, basin: 'Jhelum Basin', location: 'Anantnag', status: 'No Response', developer: '—', remarks: 'No Response' }
     ]
   },
   { 
     id: 'phase-6', 
     name: 'Phase 6', 
-    title: 'Phase VI — Small Hydel & Renewable IPPs',
-    desc: 'Small Hydel Projects under Phase VI for decentralized rural electrification and clean generation.',
+    title: 'Phase VI — IPP Hydroelectric Projects',
+    desc: 'Independent Power Producer (IPP) Hydroelectric Projects allotted under Phase VI Policy Guidelines.',
     projects: [
-      { name: 'Suru Small HEP', capacityMw: 10, basin: 'Indus Basin', location: 'Kargil', status: 'Under DPR', developer: 'Local Renewable Developer', remarks: 'Feasibility Stage' },
-      { name: 'Marusudar Micro Hydel', capacityMw: 8.5, basin: 'Chenab Basin', location: 'Kishtwar', status: 'Survey & Investigation', developer: 'Allotted IPP Partner', remarks: 'Water Availability Study' }
+      { name: 'Boniyar HEP', capacityMw: 12, basin: 'Jhelum Basin', location: 'Baramula', status: 'Work in Progress', developer: 'Ms VRB Hydro Power', remarks: 'Work in progress' },
+      { name: 'Ranjala Dunadi HEP', capacityMw: 15, basin: 'Chenab Basin', location: 'Doda', status: 'Commissioned', developer: 'Ms Choudhary Power Projects Limited', remarks: 'Commissioned' },
+      { name: 'Kahmil HEP', capacityMw: 4, basin: 'Jhelum Basin', location: 'Kupwara', status: 'Terminated', developer: 'Ms Rehbar Engineering Ltd.', remarks: 'Contract Terminated due to Poor Performance by Developer(2017 2018)' },
+      { name: 'Mandi HEP', capacityMw: 12.5, basin: 'Jhelum Basin (Punch)', location: 'Punch', status: 'Commissioned', developer: 'Ms Magpie Hydel Constructions', remarks: 'Commissioned' },
+      { name: 'Athwatoo HEP', capacityMw: 10, basin: 'Jhelum Basin', location: 'Bandipore', status: 'Commissioned', developer: 'Ms Magpie and Co.', remarks: 'Commissioned' },
+      { name: 'Brenwar HEP', capacityMw: 7.5, basin: 'Jhelum Basin', location: 'Badgam', status: 'Commissioned', developer: 'Ms P and R Engineering', remarks: 'Commissioned' },
+      { name: 'Aharbal HEP', capacityMw: 22.5, basin: 'Jhelum Basin', location: 'Pulwama', status: 'Surrendered', developer: 'Ms JAL', remarks: 'Project Site surrendered due to Tourism and Environmental issues.' },
+      { name: 'Drung HEP', capacityMw: 5, basin: 'Ravi Basin', location: 'Kathua', status: 'Land Acquisition', developer: 'Ms Chenab Valley Leasing Company.', remarks: 'Land Acquisition clearance in Progress.' }
     ]
   },
   { 
     id: 'phase-7', 
     name: 'Phase 7', 
     title: 'Phase VII — IPP Hydro & Renewable Allotments',
-    desc: 'Phase VII Projects focused on tariff optimization and long-term PPA execution.',
-    projects: [
-      { name: 'Anantnag Small Hydel IPP', capacityMw: 15, basin: 'Jhelum Basin', location: 'Anantnag', status: 'PPA Execution', developer: 'Empanelled IPP', remarks: 'Evacuation Line DPR Ready' },
-      { name: 'Reasi Solar Hybrid IPP', capacityMw: 10, basin: 'Chenab Basin', location: 'Reasi', status: 'Land Survey', developer: 'Renewable IPP', remarks: 'MoU Under Process' }
-    ]
+    desc: 'No projects registered under Phase VII.',
+    projects: []
   },
   { 
     id: 'phase-8', 
     name: 'Phase 8', 
     title: 'Phase VIII — IPP Hydroelectric Expansion',
-    desc: 'Phase VIII Large & Medium Hydroelectric allotments under state clean energy policy.',
+    desc: 'Phase VIII Hydroelectric IPP Allotments under state clean energy policy.',
     projects: [
-      { name: 'Bhadarwah Extension Hydel IPP', capacityMw: 70, basin: 'Chenab Basin', location: 'Doda', status: 'Pre-Feasibility', developer: 'Allotted IPP Consortium', remarks: 'Hydrological Data Collection' },
-      { name: 'Rajouri Run-of-River IPP', capacityMw: 50, basin: 'Manawar Tawi', location: 'Rajouri', status: 'Survey Phase', developer: 'Private IPP Developer', remarks: 'Initial Site Survey' }
+      { name: 'Chandanwari HEP', capacityMw: 7, basin: 'Jhelum Basin', location: 'Baramula', status: 'DPR Preparation', developer: 'Ms Nazir Hussain Khan', remarks: 'DPR under preparation' },
+      { name: 'Ans I HEP', capacityMw: 40, basin: 'Chenab Basin', location: 'Riasi', status: 'Implementation Agreement', developer: 'Ms Sri Awantika Consortium', remarks: 'In 2012 Implementation agreement was signed and DPR was under prepration. However the IPP has' },
+      { name: 'Girjan Ki Gali HEP', capacityMw: 12, basin: 'Chenab Basin (Rajouri)', location: 'Rajaori', status: 'DPR Preparation', developer: 'Ms Raheja Power Ventures Pvt Ltd', remarks: 'DPR under preparation' },
+      { name: 'Patnazi Bunjwa HEP', capacityMw: 21, basin: 'Chenab Basin', location: 'Kishtwar', status: 'TEC Accorded', developer: 'Ms Patnazi Power (Energo Group)', remarks: 'TEC accorded to DPR' }
     ]
   },
   { 
