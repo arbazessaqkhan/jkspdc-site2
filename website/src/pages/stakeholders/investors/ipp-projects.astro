@@ -1,0 +1,231 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import Icon from '../../../components/Icon.astro';
+
+// Phases data with stored project details
+const ippPhases = [
+  { 
+    id: 'phase-1', 
+    name: 'Phase 1', 
+    title: 'Phase I — IPP Hydroelectric Projects',
+    desc: 'Independent Power Producer (IPP) Hydroelectric Projects allotted under Phase I Policy Guidelines.',
+    projects: [
+      { name: 'Lower Kalnai HEP', capacityMw: 48, basin: 'Chenab Basin', location: 'Doda', status: 'Under Implementation', developer: 'M/s Coastal Projects Ltd / Allotted Developer', remarks: 'DPR Approved / Pre-construction' },
+      { name: 'Ratle HEP (IPP Stage)', capacityMw: 850, basin: 'Chenab Basin', location: 'Kishtwar', status: 'JV Transition / Construction', developer: 'Ratle Hydroelectric Power Corp Ltd (RHPCL)', remarks: 'JV Executing Phase I Allotment' },
+      { name: 'Parnai Small HEP', capacityMw: 37.5, basin: 'Jhelum Basin (Poonch)', location: 'Poonch', status: 'Under Civil Works', developer: 'State IPP Cell / Allocated IPP', remarks: 'Implementation Agreement Active' },
+      { name: 'Sewa-I HEP', capacityMw: 9, basin: 'Ravi Basin', location: 'Kathua', status: 'Operational / IPP Allotment', developer: 'Private IPP Developer', remarks: 'PPA Executed with PDD' }
+    ]
+  },
+  { 
+    id: 'phase-2', 
+    name: 'Phase 2', 
+    title: 'Phase II — IPP Hydroelectric Projects',
+    desc: 'IPP Hydro Electric Projects allotted under Phase II for capacity expansion and DPR evaluation.',
+    projects: [
+      { name: 'Sanichari Small Hydel Project', capacityMw: 12, basin: 'Chenab Basin', location: 'Kishtwar', status: 'DPR Evaluation', developer: 'Private Developer Allotted', remarks: 'Environmental Clearance in Process' },
+      { name: 'Dhauli Ganga Small HEP', capacityMw: 25, basin: 'Ravi Basin', location: 'Kathua', status: 'Implementation Agreement', developer: 'Allotted IPP Developer', remarks: 'Land Acquisition Phase' }
+    ]
+  },
+  { 
+    id: 'phase-3', 
+    name: 'Phase 3', 
+    title: 'Phase III — IPP Hydroelectric Projects',
+    desc: 'Phase III Hydroelectric IPP Allotments under BOOT (Build-Own-Operate-Transfer) schema.',
+    projects: [
+      { name: 'Kirthai Stage-I HEP', capacityMw: 390, basin: 'Chenab Basin', location: 'Kishtwar', status: 'Clearance Phase', developer: 'Chenab Valley Power Projects (CVPPPL)', remarks: 'Detailed Techno-Economic Appraisal' },
+      { name: 'Kirthai Stage-II HEP', capacityMw: 930, basin: 'Chenab Basin', location: 'Kishtwar', status: 'DPR Approved', developer: 'Chenab Valley Power Projects (CVPPPL)', remarks: 'Pre-construction Activities' }
+    ]
+  },
+  { 
+    id: 'phase-5', 
+    name: 'Phase 5', 
+    title: 'Phase V — IPP Solar & Clean Energy Projects',
+    desc: 'Phase V Clean Energy IPP Allotments including grid-connected solar power installations.',
+    projects: [
+      { name: 'Samba Solar IPP Park', capacityMw: 30, basin: 'Outer Plains', location: 'Samba', status: 'Land Allotted / Tariff Finalized', developer: 'Solar IPP Developer', remarks: 'Grid Interconnection Study Completed' },
+      { name: 'Kathua Solar IPP Station', capacityMw: 20, basin: 'Outer Plains', location: 'Kathua', status: 'PPA Signed', developer: 'Renewable IPP Partner', remarks: 'Substation Connectivity Approved' }
+    ]
+  },
+  { 
+    id: 'phase-6', 
+    name: 'Phase 6', 
+    title: 'Phase VI — Small Hydel & Renewable IPPs',
+    desc: 'Small Hydel Projects under Phase VI for decentralized rural electrification and clean generation.',
+    projects: [
+      { name: 'Suru Small HEP', capacityMw: 10, basin: 'Indus Basin', location: 'Kargil', status: 'Under DPR', developer: 'Local Renewable Developer', remarks: 'Feasibility Stage' },
+      { name: 'Marusudar Micro Hydel', capacityMw: 8.5, basin: 'Chenab Basin', location: 'Kishtwar', status: 'Survey & Investigation', developer: 'Allotted IPP Partner', remarks: 'Water Availability Study' }
+    ]
+  },
+  { 
+    id: 'phase-7', 
+    name: 'Phase 7', 
+    title: 'Phase VII — IPP Hydro & Renewable Allotments',
+    desc: 'Phase VII Projects focused on tariff optimization and long-term PPA execution.',
+    projects: [
+      { name: 'Anantnag Small Hydel IPP', capacityMw: 15, basin: 'Jhelum Basin', location: 'Anantnag', status: 'PPA Execution', developer: 'Empanelled IPP', remarks: 'Evacuation Line DPR Ready' },
+      { name: 'Reasi Solar Hybrid IPP', capacityMw: 10, basin: 'Chenab Basin', location: 'Reasi', status: 'Land Survey', developer: 'Renewable IPP', remarks: 'MoU Under Process' }
+    ]
+  },
+  { 
+    id: 'phase-8', 
+    name: 'Phase 8', 
+    title: 'Phase VIII — IPP Hydroelectric Expansion',
+    desc: 'Phase VIII Large & Medium Hydroelectric allotments under state clean energy policy.',
+    projects: [
+      { name: 'Bhadarwah Extension Hydel IPP', capacityMw: 70, basin: 'Chenab Basin', location: 'Doda', status: 'Pre-Feasibility', developer: 'Allotted IPP Consortium', remarks: 'Hydrological Data Collection' },
+      { name: 'Rajouri Run-of-River IPP', capacityMw: 50, basin: 'Manawar Tawi', location: 'Rajouri', status: 'Survey Phase', developer: 'Private IPP Developer', remarks: 'Initial Site Survey' }
+    ]
+  },
+  { 
+    id: 'phase-9', 
+    name: 'Phase 9', 
+    title: 'Phase IX — Strategic Hybrid & Clean Energy IPPs',
+    desc: 'Phase IX Strategic Hybrid Clean Energy IPP Projects.',
+    projects: [
+      { name: 'Jammu Solar-Wind Hybrid IPP', capacityMw: 60, basin: 'Outer Plains', location: 'Jammu', status: 'EOI Phase', developer: 'Clean Energy IPP', remarks: 'EOI Bids Invited' },
+      { name: 'Udhampur Small Hydel Stage-I', capacityMw: 40, basin: 'Chenab Basin', location: 'Udhampur', status: 'Draft DPR', developer: 'Allotted Developer', remarks: 'Environmental Impact Assessment' }
+    ]
+  },
+  { 
+    id: 'phase-10', 
+    name: 'Phase 10', 
+    title: 'Phase X — Ultra Mega Renewable Energy Parks',
+    desc: 'Phase X Ultra Mega Renewable & Hydro Energy Parks for long-term power security.',
+    projects: [
+      { name: 'Mega Renewable Energy Park Phase-X', capacityMw: 500, basin: 'Multi-Basin', location: 'J&K Region', status: 'Concept & Policy Stage', developer: 'State IPP Cell / Joint Venture', remarks: 'Policy Framework Under Review' }
+    ]
+  }
+];
+
+const phase1Data = ippPhases[0];
+---
+
+<Layout 
+  title="IPP Projects - Investors Corner" 
+  description="Independent Power Producer (IPP) Hydroelectric & Renewable Energy Projects across J&K."
+>
+  <div class="space-y-8">
+    <!-- Premium Page Header Band -->
+    <div class="page-header-band animate-fadeInUp">
+      <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
+        <a href="/">Home</a>
+        <span class="separator">/</span>
+        <span>Investors Corner</span>
+        <span class="separator">/</span>
+        <span class="current">IPP Projects</span>
+      </nav>
+      <h1>IPP Projects</h1>
+      <p class="page-subtitle">Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL)</p>
+    </div>
+
+    <!-- Phase Selector Buttons Grid (No MW text, Click leads directly inside data behind) -->
+    <div class="animate-fadeInUp delay-200 space-y-4">
+      <div class="flex items-center justify-between border-b border-[#0B4F9C]/20 pb-2">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-[#0B4F9C] flex items-center gap-2">
+          <Icon name="briefcase" size={16} strokeWidth={2} />
+          Select Project Allotment Phase
+        </h2>
+        <span class="text-xs font-semibold text-[#0B4F9C]">
+          Click any Phase button to open stored details
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="phase-buttons-container">
+        {ippPhases.map((phase) => (
+          <a
+            href={`/stakeholders/investors/ipp-project-details?phase=${phase.id}`}
+            class="phase-card-btn group block p-5 rounded-2xl border-2 border-[#1E6BCE]/30 hover:border-[#0B4F9C] bg-white hover:bg-slate-50/90 text-center shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer select-none"
+            style="outline: 2px solid transparent; outline-offset: -2px;"
+          >
+            <span class="text-lg font-extrabold text-[#0B4F9C] group-hover:text-[#073B75] tracking-wide block">
+              {phase.name}
+            </span>
+            <span class="text-xs font-semibold text-slate-500 mt-1 block group-hover:text-[#0B4F9C]">
+              Open Phase Data &rarr;
+            </span>
+          </a>
+        ))}
+      </div>
+    </div>
+
+    <!-- Default Static Phase 1 Overview Register -->
+    <div id="phase-detail-card" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6 animate-fadeIn delay-300">
+      <!-- Active Phase Title Banner -->
+      <div class="border-b border-slate-200 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <div class="inline-block text-[10px] font-bold uppercase tracking-wider bg-[#EAF4FF] text-[#0B4F9C] px-3 py-1 rounded-full mb-1 border border-[#BDD7EE]">
+            Default Allotment Phase Overview
+          </div>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-[#0B4F9C]">
+            {phase1Data.title}
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-600 font-normal mt-1 leading-relaxed">
+            {phase1Data.desc}
+          </p>
+        </div>
+        <div class="flex items-center gap-3 flex-shrink-0">
+          <a href={`/stakeholders/investors/ipp-project-details?phase=${phase1Data.id}`} class="bg-[#0B4F9C] hover:bg-[#084A8F] text-white text-xs font-bold px-4 py-2 rounded-lg shadow-xs transition-all flex items-center gap-1.5">
+            <span>Explore Phase 1 Full Data</span> &rarr;
+          </a>
+        </div>
+      </div>
+
+      <!-- Static Stored Project Table for Phase 1 -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+            <Icon name="file-text" size={16} strokeWidth={2} class="text-[#0B4F9C]" />
+            Stored Projects Register ({phase1Data.name})
+          </h3>
+          <span class="text-xs text-slate-500 font-semibold italic">Official IPP Data</span>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="table-data min-w-full">
+            <thead>
+              <tr>
+                <th scope="col" class="text-left">S.No</th>
+                <th scope="col" class="text-left">Name of Project</th>
+                <th scope="col" class="text-left">District / Basin</th>
+                <th scope="col" class="text-left">Capacity (MW)</th>
+                <th scope="col" class="text-left">Clearance Stage / Status</th>
+                <th scope="col" class="text-left">Developer / Allotted IPP</th>
+                <th scope="col" class="text-left">Remarks</th>
+              </tr>
+            </thead>
+            <tbody>
+              {phase1Data.projects.map((proj, idx) => (
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                  <td class="text-left font-bold text-xs">{idx + 1}</td>
+                  <td class="font-bold text-left text-xs text-[#0B4F9C]">
+                    <a href={`/stakeholders/investors/ipp-project-details?phase=${phase1Data.id}`} class="hover:underline">
+                      {proj.name}
+                    </a>
+                  </td>
+                  <td class="text-left text-xs">{proj.location} ({proj.basin})</td>
+                  <td class="font-semibold text-slate-700 text-left text-xs">{proj.capacityMw} MW</td>
+                  <td class="text-left text-xs">
+                    <span class="inline-block bg-blue-50 text-[#0B4F9C] border border-blue-200 px-2 py-0.5 rounded text-[11px] font-semibold">
+                      {proj.status}
+                    </span>
+                  </td>
+                  <td class="text-left text-xs text-slate-700 font-semibold">{proj.developer}</td>
+                  <td class="text-left text-xs text-slate-500">{proj.remarks}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Information Callout Note -->
+        <div class="bg-blue-50/60 border border-blue-200/80 rounded-xl p-4 text-xs text-slate-700 leading-relaxed flex items-start gap-3">
+          <Icon name="info" size={18} strokeWidth={2} class="text-[#0B4F9C] flex-shrink-0 mt-0.5" />
+          <div>
+            <span class="font-bold text-[#0B4F9C] block mb-0.5">Corporate IPP Framework Note:</span>
+            Clicking any Phase button above will open the complete stored dataset, developer credentials, and DPR specifications for that specific phase.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
