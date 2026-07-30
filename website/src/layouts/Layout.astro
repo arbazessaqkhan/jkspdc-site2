@@ -3,6 +3,7 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import Icon from '../components/Icon.astro';
+import Ticker from '../components/Ticker.astro';
 
 interface Props {
   title: string;
@@ -196,7 +197,7 @@ const canonical = canonicalUrl || Astro.url.href;
     <a href="#main-content" class="skip-link">Skip to Main Content</a>
 
     <!-- Composite Header Component -->
-    <Header />
+
     <header class="bg-[#EAF4FF] border-b-2 border-[#0B4F9C] shadow-sm">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between">
         <!-- Left Logo -->
@@ -291,34 +292,7 @@ const canonical = canonicalUrl || Astro.url.href;
       </div>
 
       <!-- Live News Ticker Bar (Placed between organization heading and navigation menu bar) -->
-      <div class="bg-[#08305C] text-white relative overflow-hidden border-t border-b border-[#0B4F9C]/30" aria-live="polite" aria-label="Live announcements">
-        <div class="flex items-stretch" style="max-width:100%;">
-          <div class="shrink-0 bg-[#1B3A6B] text-white text-xs font-bold px-4 flex items-center gap-2 uppercase tracking-wide z-20" style="white-space:nowrap;">
-            <span class="w-2 h-2 rounded-full bg-slate-300" style="display:inline-block;flex-shrink:0;"></span>
-            Updates
-          </div>
-          <div style="overflow:hidden; flex:1; position:relative;">
-            <!-- Fade-out overlays at both entry and exit edges -->
-            <div class="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-[#08305C] to-transparent z-10 pointer-events-none"></div>
-            <div class="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[#08305C] to-transparent z-10 pointer-events-none"></div>
-
-            <div class="animate-ticker" style="gap: 3.5rem; padding: 0.5rem 0; font-size: 0.8rem; font-weight: 500;">
-              {[...tickerItems, ...tickerItems].map((item: any) => (
-                <span style="padding-right:4rem;">
-                  › <strong class={`font-extrabold uppercase tracking-wider text-[10px] mr-1 px-1.5 py-0.5 rounded border ${item.colorClass}`}>{item.type}:</strong> 
-                  {item.url ? (
-                    <a href={item.url} target="_blank" rel="noopener noreferrer" class="text-slate-100 hover:underline hover:text-white transition-colors">
-                      {item.text}
-                    </a>
-                  ) : (
-                    <span class="text-slate-100">{item.text}</span>
-                  )}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+      <Ticker />
 
       <!-- Navigation Bar (With CSS and Keyboard Accessible Dropdowns) -->
       <nav class="bg-gradient-to-r from-[#073B75] via-[#0B4F9C] to-[#042750] border-t border-white/10 shadow-md relative" aria-label="Primary Navigation">
