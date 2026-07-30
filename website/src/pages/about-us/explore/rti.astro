@@ -6,27 +6,23 @@ import Layout from '../../../layouts/Layout.astro';
   title="RTI Act (Section 4) - About Us | JKSPDC Official Portal" 
   description="Right to Information Act disclosures under Section 4 by Jammu & Kashmir State Power Development Corporation Limited (JKSPDCL)."
 >
-  <div class="space-y-6">
-    <!-- Breadcrumbs -->
-    <nav class="text-xs text-gray-500" aria-label="Breadcrumbs">
-      <ol class="flex gap-2">
-        <li><a href="/" class="hover:underline">Home</a></li>
-        <li>/</li>
-        <li><span class="text-gray-400">RTI</span></li>
-        <li>/</li>
-        <li><span class="font-semibold text-[#0B4F9C]">RTI Act (Sec 4)</span></li>
-      </ol>
-    </nav>
-
-    <!-- Page Header -->
-    <header class="border-b border-gray-200 pb-4">
-      <h2 class="text-3xl font-extrabold text-[#0B4F9C]">Right to Information Act – Section 4</h2>
-      <p class="text-sm text-gray-600 mt-1">Mandatory disclosures under the RTI Act, 2005 by JKSPDCL.</p>
-    </header>
+  <div class="space-y-0">
+    <!-- Premium Page Header Band -->
+    <div class="page-header-band animate-fadeInUp">
+      <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
+        <a href="/">Home</a>
+        <span class="separator">/</span>
+        <span>RTI</span>
+        <span class="separator">/</span>
+        <span class="current">RTI Act (Sec 4)</span>
+      </nav>
+      <h1>RTI — Right to Information Act (Section 4)</h1>
+      <p class="page-subtitle">Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL)</p>
+    </div>
 
     <!-- Content -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <article class="lg:col-span-2 space-y-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fadeInUp delay-200">
+      <article class="lg:col-span-2 prose-gov">
 
         <div class="bg-blue-50 border-l-4 border-[#0B4F9C] rounded-r-lg p-4 text-sm text-[#0B4F9C]">
           <strong>Statutory Obligation:</strong> In accordance with Section 4(1)(b) of the Right to Information Act, 2005, JKSPDCL proactively publishes the following information for public awareness.
@@ -64,13 +60,13 @@ import Layout from '../../../layouts/Layout.astro';
       </article>
 
       <!-- Sidebar -->
-      <aside class="space-y-4">
+      <aside class="space-y-5 animate-fadeIn delay-300">
         <div class="card-static">
-          <h3 class="font-bold text-gray-900 mb-2 border-b border-gray-100 pb-2">RTI Resources</h3>
+          <h3 class="sidebar-card-title">RTI Resources</h3>
           <ul class="flex flex-col gap-2 text-xs font-semibold text-[#0B4F9C]">
-            <li><a href="/about-us/others/contact" class="hover:underline block py-1">&rarr; Contact PIO</a></li>
-            <li><a href="/media/downloads" class="hover:underline block py-1">&rarr; Download RTI Forms</a></li>
-            <li><a href="/about-us/explore/overview" class="hover:underline block py-1">&rarr; Corporate Overview</a></li>
+            <li><a href="/about-us/others/contact" class="sidebar-link">Contact PIO</a></li>
+            <li><a href="/media/downloads" class="sidebar-link">Download RTI Forms</a></li>
+            <li><a href="/about-us/explore/overview" class="sidebar-link">Corporate Overview</a></li>
           </ul>
         </div>
         <div class="card-static bg-amber-50 border-amber-200">

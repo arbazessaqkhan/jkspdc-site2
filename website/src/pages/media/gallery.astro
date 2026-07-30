@@ -71,30 +71,28 @@ function getImageUrl(url: string) {
   title="Photo & Video Gallery - Media" 
   description="Photo and video gallery of JKSPDC power stations and corporate events."
 >
-  <div class="space-y-6">
-    <!-- Breadcrumbs -->
-    <nav class="text-xs text-gray-500" aria-label="Breadcrumbs">
-      <ol class="flex gap-2">
-        <li><a href="/" class="hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0B4F9C] rounded px-1">Home</a></li>
-        <li>/</li>
-        <li><span class="text-gray-400">Media Center</span></li>
-        <li>/</li>
-        <li><span class="font-semibold text-[#0B4F9C]">Gallery</span></li>
-      </ol>
-    </nav>
+  <div class="space-y-0">
+    <!-- Premium Page Header Band -->
+    <div class="page-header-band animate-fadeInUp">
+      <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
+        <a href="/">Home</a>
+        <span class="separator">/</span>
+        <span>Media Center</span>
+        <span class="separator">/</span>
+        <span class="current">Gallery</span>
+      </nav>
+      <h1>Photo & Media Gallery</h1>
+      <p class="page-subtitle">Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL)</p>
+    </div>
 
-    <!-- Page Header -->
-    <header class="border-b border-gray-200 pb-4 flex flex-col md:flex-row md:items-end justify-between gap-4">
-      <div>
-        <h2 class="text-3xl font-extrabold text-[#0B4F9C]">Photo &amp; Media Gallery</h2>
-        <p class="text-sm text-gray-600 mt-1 font-medium">Visual showcase of hydroelectric projects, operations, and corporate achievements.</p>
-      </div>
-      {errorMessage && (
+    <div class="animate-fadeInUp delay-200">
+    {errorMessage && (
+      <div class="mb-4">
         <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 rounded-lg">
           ⚠️ {errorMessage}
         </span>
-      )}
-    </header>
+      </div>
+    )}
 
     <!-- Main Full-Width Content -->
     <div class="space-y-6">

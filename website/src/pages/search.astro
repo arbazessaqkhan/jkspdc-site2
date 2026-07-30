@@ -6,21 +6,17 @@ import Layout from '../layouts/Layout.astro';
   title="Search Results - JKSPDC" 
   description="Search results and page index locator for the JKSPDC portal."
 >
-  <div class="space-y-6">
-    <!-- Breadcrumbs -->
-    <nav class="text-xs text-gray-500" aria-label="Breadcrumbs">
-      <ol class="flex gap-2">
-        <li><a href="/" class="hover:underline">Home</a></li>
-        <li>/</li>
-        <li><span class="font-semibold text-[#0B4F9C]">Search</span></li>
-      </ol>
-    </nav>
-
-    <!-- Page Header -->
-    <header class="border-b border-gray-200 pb-4">
-      <h2 class="text-3xl font-extrabold text-[#0B4F9C]">Search Portal</h2>
-      <p class="text-sm text-gray-600 mt-1">Locate records, announcements, and pages across the website.</p>
-    </header>
+  <div class="space-y-0">
+    <!-- Premium Page Header Band -->
+    <div class="page-header-band animate-fadeInUp">
+      <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
+        <a href="/">Home</a>
+        <span class="separator">/</span>
+        <span class="current">Search</span>
+      </nav>
+      <h1>Search Portal</h1>
+      <p class="page-subtitle">Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL)</p>
+    </div>
 
     <!-- Search Form and Results -->
     <div class="space-y-6 max-w-3xl">

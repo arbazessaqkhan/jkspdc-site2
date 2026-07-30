@@ -54,17 +54,19 @@ const formatSize = (bytes: number) => {
   title={tender ? `Tender - ${tender.referenceNo}` : "Tender Details"} 
   description="Detailed view of Notice Inviting Tender (NIT), bid details, work specifications, and associated corrigendums."
 >
-  <div class="space-y-6 max-w-5xl mx-auto">
-    <!-- Breadcrumbs -->
-    <nav class="text-xs text-gray-500" aria-label="Breadcrumbs">
-      <ol class="flex gap-2">
-        <li><a href="/" class="hover:underline">Home</a></li>
-        <li>/</li>
-        <li><a href="/stakeholders/vendors/tender-bids" class="hover:underline text-gray-500">Tenders</a></li>
-        <li>/</li>
-        <li><span class="font-semibold text-[#0B4F9C]">Details</span></li>
-      </ol>
-    </nav>
+  <div class="space-y-0 max-w-5xl mx-auto">
+    <!-- Premium Page Header Band -->
+    <div class="page-header-band animate-fadeInUp">
+      <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
+        <a href="/">Home</a>
+        <span class="separator">/</span>
+        <a href="/stakeholders/vendors/tender-bids">Tenders</a>
+        <span class="separator">/</span>
+        <span class="current">Details</span>
+      </nav>
+      <h1>{tender ? `NIT Ref: ${tender.referenceNo}` : "Tender Details"}</h1>
+      <p class="page-subtitle">Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL)</p>
+    </div>
 
     <!-- Error State -->
     {errorMessage && (

@@ -7,30 +7,22 @@ import Icon from '../../components/Icon.astro';
   title="Profile - Shri Manoj Sinha (Hon'ble Lieutenant Governor)" 
   description="Official profile of Shri Manoj Sinha, the Hon'ble Lieutenant Governor of the Union Territory of Jammu and Kashmir."
 >
-  <div class="space-y-6">
-    <!-- Breadcrumbs -->
-    <nav class="text-xs text-gray-500" aria-label="Breadcrumbs">
-      <ol class="flex gap-2">
-        <li><a href="/" class="hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0B4F9C] rounded px-1">Home</a></li>
-        <li>/</li>
-        <li><span class="text-gray-400">Key Dignitaries</span></li>
-        <li>/</li>
-        <li><span class="font-semibold text-[#0B4F9C]">Shri Manoj Sinha</span></li>
-      </ol>
-    </nav>
-
-    <!-- Back Button -->
-    <div>
-      <a 
-        href="/" 
-        class="inline-flex items-center gap-2 px-3 py-1.5 border border-slate-200 hover:border-[#0B4F9C] text-xs font-bold text-slate-600 hover:text-white hover:bg-[#0B4F9C] rounded transition-[background-color,border-color,color] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C]/50"
-      >
-        <Icon name="arrow-left" size={12} strokeWidth={2.5} /> Back to Home
-      </a>
+  <div class="space-y-0">
+    <!-- Premium Page Header Band -->
+    <div class="page-header-band animate-fadeInUp">
+      <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
+        <a href="/">Home</a>
+        <span class="separator">/</span>
+        <span>Key Dignitaries</span>
+        <span class="separator">/</span>
+        <span class="current">Shri Manoj Sinha</span>
+      </nav>
+      <h1>Official Profile</h1>
+      <p class="page-subtitle">Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL)</p>
     </div>
 
     <!-- Main Container -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fadeInUp delay-200">
       
       <!-- Left Column: Portrait Card & Stats -->
       <div class="space-y-6">

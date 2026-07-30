@@ -1,0 +1,318 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import Icon from '../../../components/Icon.astro';
+
+const phaseParam = Astro.url.searchParams.get('phase')?.toString() || 'phase-1';
+
+// Comprehensive stored details for IPP Phases
+const phaseDatabase: Record<string, any> = {
+  'phase-1': {
+    id: 'phase-1',
+    name: 'Phase 1',
+    title: 'Phase I — IPP Hydroelectric Projects Allotments',
+    subtitle: 'Detailed Technical, Capacity & Investor Framework for Phase I Projects',
+    totalMw: '88.5 MW',
+    policyRef: 'J&K IPP Policy Guidelines 2002 / 2011 Revision',
+    status: 'Commissioned & Under Implementation Stages',
+    description: 'Phase I represents the initial tranche of Independent Power Producer (IPP) allotments issued by JKSPDC under state hydel policy guidelines. These projects cover run-of-river installations across the Chenab, Jhelum, and Ravi river basins.',
+    projects: [
+      { name: 'Boniyar Hydroelectric Project', capacityMw: 12, basin: 'Jhelum River Basin', location: 'Baramula District', status: 'Work in progress', developer: 'Ms VRB Hydro Power', loiDate: '—', dprStatus: 'Work in Progress', remarks: 'Work in progress.' },
+      { name: 'Ranjala Dunadi Hydroelectric Project', capacityMw: 15, basin: 'Chenab River Basin', location: 'Doda District', status: 'Commissioned', developer: 'Ms Choudhary Power Projects Limited', loiDate: '—', dprStatus: 'Commissioned', remarks: 'Commissioned & operational.' },
+      { name: 'Kahmil Hydroelectric Project', capacityMw: 4, basin: 'Jhelum River Basin', location: 'Kupwara District', status: 'Terminated', developer: 'Ms Rehbar Engineering Ltd.', loiDate: '—', dprStatus: 'Contract Terminated', remarks: 'Contract Terminated due to Poor Performance by Developer (2017 2018).' },
+      { name: 'Mandi Hydroelectric Project', capacityMw: 12.5, basin: 'Jhelum / Punch Basin', location: 'Punch District', status: 'Commissioned', developer: 'Ms Magpie Hydel Constructions', loiDate: '—', dprStatus: 'Commissioned', remarks: 'Commissioned & operational.' },
+      { name: 'Athwatoo Hydroelectric Project', capacityMw: 10, basin: 'Jhelum River Basin', location: 'Bandipore District', status: 'Commissioned', developer: 'Ms Magpie and Co.', loiDate: '—', dprStatus: 'Commissioned', remarks: 'Commissioned & operational.' },
+      { name: 'Brenwar Hydroelectric Project', capacityMw: 7.5, basin: 'Jhelum River Basin', location: 'Badgam District', status: 'Commissioned', developer: 'Ms P and R Engineering', loiDate: '—', dprStatus: 'Commissioned', remarks: 'Commissioned & operational.' },
+      { name: 'Aharbal Hydroelectric Project', capacityMw: 22.5, basin: 'Jhelum River Basin', location: 'Pulwama District', status: 'Surrendered', developer: 'Ms JAL', loiDate: '—', dprStatus: 'Site Surrendered', remarks: 'Project Site surrendered due to Tourism and Environmental issues.' },
+      { name: 'Drung Hydroelectric Project', capacityMw: 5, basin: 'Ravi River Basin', location: 'Kathua District', status: 'Under Implementation', developer: 'Ms Chenab Valley Leasing Company.', loiDate: '—', dprStatus: 'Land Acquisition Stage', remarks: 'Land Acquisition clearance in Progress.' }
+    ]
+  },
+  'phase-2': {
+    id: 'phase-2',
+    name: 'Phase 2',
+    title: 'Phase II — IPP Hydroelectric Projects Allotments',
+    subtitle: 'Capacity Allocations & DPR Evaluation Framework',
+    totalMw: '80.0 MW',
+    policyRef: 'J&K IPP Policy Allotment Schema Phase II',
+    status: 'DPR & Clearance Stage',
+    description: 'Phase II projects focus on small-to-medium hydel potential along the Chenab and Ravi river systems to enhance grid stability and local regional power availability.',
+    projects: [
+      { name: 'Chandanwari Hydroelectric Project', capacityMw: 7, basin: 'Jhelum River Basin', location: 'Baramula District', status: 'DPR Preparation', developer: 'Ms Nazir Hussain Khan', loiDate: '—', dprStatus: 'DPR under preparation', remarks: 'DPR under preparation' },
+      { name: 'Ans I Hydroelectric Project', capacityMw: 40, basin: 'Chenab River Basin', location: 'Riasi District', status: 'Implementation Agreement', developer: 'Ms Sri Awantika Consortium', loiDate: '—', dprStatus: 'DPR under preparation', remarks: 'In 2012 Implementation agreement was signed and DPR was under prepration. However the IPP has' },
+      { name: 'Girjan Ki Gali Hydroelectric Project', capacityMw: 12, basin: 'Chenab River Basin', location: 'Rajaori District', status: 'DPR Preparation', developer: 'Ms Raheja Power Ventures Pvt Ltd', loiDate: '—', dprStatus: 'DPR under preparation', remarks: 'DPR under preparation' },
+      { name: 'Patnazi Bunjwa Hydroelectric Project', capacityMw: 21, basin: 'Chenab River Basin', location: 'Kishtwar District', status: 'TEC Accorded', developer: 'Ms Patnazi Power (Energo Group)', loiDate: '—', dprStatus: 'TEC Accorded to DPR', remarks: 'TEC accorded to DPR' }
+    ]
+  },
+  'phase-3': {
+    id: 'phase-3',
+    name: 'Phase 3',
+    title: 'Phase III — IPP Hydroelectric Projects Allotments',
+    subtitle: 'Allotments & DPR Evaluation Status',
+    totalMw: '135.5 MW',
+    policyRef: 'J&K BOOT IPP Policy Framework Phase III',
+    status: 'Tendering & DPR Phase',
+    description: 'Phase III Hydroelectric IPP Allotments represent projects identified under the Build-Own-Operate-Transfer (BOOT) framework, including various small hydel stations under tender status, retendering, or design preparation.',
+    projects: [
+      { name: 'Chingus II Hydroelectric Project', capacityMw: 3, basin: 'Chenab River Basin', location: 'Rajaori District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Pumbai Aridajan Hydroelectric Project', capacityMw: 4, basin: 'Jhelum River Basin', location: 'Kulgam District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Hanswar Hydroelectric Project', capacityMw: 6, basin: 'Chenab River Basin', location: 'Kishtwar District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Phagla Hydroelectric Project', capacityMw: 16, basin: 'Jhelum / Punch Basin', location: 'Punch District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response. (Project is being implemented under PMDP 2015)' },
+      { name: 'Mawar Hydroelectric Project', capacityMw: 10, basin: 'Jhelum River Basin', location: 'Kupwara District', status: 'Non Responsive', developer: '—', loiDate: '—', dprStatus: 'Non Responsive', remarks: 'Non Responsive Bid' },
+      { name: 'Kutbal Hydroelectric Project', capacityMw: 4, basin: 'Jhelum River Basin', location: 'Kulgam District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Shaliganga Hydroelectric Project', capacityMw: 4.5, basin: 'Jhelum River Basin', location: 'Badgam District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Thanamandi Hydroelectric Project', capacityMw: 2.75, basin: 'Chenab River Basin', location: 'Thanna Mandi District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Boniyar Hydroelectric Project', capacityMw: 6, basin: 'Jhelum River Basin', location: 'Baramula District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Gulabgarh Hydroelectric Project', capacityMw: 6.5, basin: 'Chenab River Basin', location: 'Riasi District', status: 'LOA Withdrawn', developer: 'Ms Boom Systems Pvt.', loiDate: '—', dprStatus: 'LOA Withdrawn', remarks: 'Bidder Didnot pay upfront Premium. LOA Withdrawn To be retendered under Phase IV.' },
+      { name: 'Kutimarg Hydroelectric Project', capacityMw: 7.25, basin: 'Jhelum River Basin', location: 'Kulgam District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Shranz Hydroelectric Project', capacityMw: 10, basin: 'Jhelum River Basin', location: 'Baramula District', status: 'LOA Withdrawn', developer: 'Ms Trumboo Cement Industries pvt. Ltd.', loiDate: '—', dprStatus: 'LOA Withdrawn', remarks: 'Bidder Didnot pay upfront Premium.LOA Withdrawn To be retendered under Phase IV.' },
+      { name: 'Upper Ans I Hydroelectric Project', capacityMw: 5.5, basin: 'Chenab River Basin', location: 'Rajaori District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Shunahkag Hydroelectric Project', capacityMw: 9, basin: 'Jhelum River Basin', location: 'Badgam District', status: 'LOA Withdrawn', developer: 'Ms Boom Systems Pvt. Ltd.', loiDate: '—', dprStatus: 'LOA Withdrawn', remarks: 'Bidder Didnot pay upfront Premium. LOA Withdrawn To be retendered under Phase IV' },
+      { name: 'Chingus I Hydroelectric Project', capacityMw: 3, basin: 'Chenab River Basin', location: 'Rajaori District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Sultanphatri Hydroelectric Project', capacityMw: 3, basin: 'Jhelum / Punch Basin', location: 'Punch District', status: 'DPR Preparation', developer: 'Ms SRM Contractors Pvt. Ltd.', loiDate: '—', dprStatus: 'DPR under preparation', remarks: 'DPR under preparation' },
+      { name: 'Sewa I Hydroelectric Project', capacityMw: 8, basin: 'Ravi River Basin', location: 'Kathua District', status: 'Non Responsive', developer: '—', loiDate: '—', dprStatus: 'Non Responsive', remarks: 'Non Responsive Bid' },
+      { name: 'Erin Hydroelectric Project', capacityMw: 10, basin: 'Jhelum River Basin', location: 'Bandipore District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Nihama Hydroelectric Project', capacityMw: 6, basin: 'Jhelum River Basin', location: 'Kulgam District', status: 'LOA Withdrawn', developer: 'Ms Millde East Recycling Company WILL.', loiDate: '—', dprStatus: 'LOA Withdrawn', remarks: 'Bidder Didnot pay upfront Premium. LOA WithdrawnTo be retendered under Phase IV' },
+      { name: 'Chenani IV Hydroelectric Project', capacityMw: 7, basin: 'Chenab River Basin', location: 'Udhampur District', status: 'Non Responsive', developer: '—', loiDate: '—', dprStatus: 'Non Responsive', remarks: 'Non Responsive Bid.' },
+      { name: 'Bringi Hydroelectric Project', capacityMw: 4, basin: 'Jhelum River Basin', location: 'Anantnag District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' }
+    ]
+  },
+  'phase-4': {
+    id: 'phase-4',
+    name: 'Phase 4',
+    title: 'Phase IV — IPP Hydroelectric Projects Allotments',
+    subtitle: 'Allotments & DPR Evaluation Status',
+    totalMw: '135.5 MW',
+    policyRef: 'J&K BOOT IPP Policy Framework Phase IV',
+    status: 'Tendering & DPR Phase',
+    description: 'Phase IV Hydroelectric IPP Allotments represent projects identified under the Build-Own-Operate-Transfer (BOOT) framework, including various small hydel stations under tender status, retendering, or design preparation.',
+    projects: [
+      { name: 'Chingus II Hydroelectric Project', capacityMw: 3, basin: 'Chenab River Basin', location: 'Rajaori District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Pumbai Aridajan Hydroelectric Project', capacityMw: 4, basin: 'Jhelum River Basin', location: 'Kulgam District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Hanswar Hydroelectric Project', capacityMw: 6, basin: 'Chenab River Basin', location: 'Kishtwar District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Phagla Hydroelectric Project', capacityMw: 16, basin: 'Jhelum / Punch Basin', location: 'Punch District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response. (Project is being implemented under PMDP 2015)' },
+      { name: 'Mawar Hydroelectric Project', capacityMw: 10, basin: 'Jhelum River Basin', location: 'Kupwara District', status: 'Non Responsive', developer: '—', loiDate: '—', dprStatus: 'Non Responsive', remarks: 'Non Responsive Bid' },
+      { name: 'Kutbal Hydroelectric Project', capacityMw: 4, basin: 'Jhelum River Basin', location: 'Kulgam District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Shaliganga Hydroelectric Project', capacityMw: 4.5, basin: 'Jhelum River Basin', location: 'Badgam District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Thanamandi Hydroelectric Project', capacityMw: 2.75, basin: 'Chenab River Basin', location: 'Thanna Mandi District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Boniyar Hydroelectric Project', capacityMw: 6, basin: 'Jhelum River Basin', location: 'Baramula District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Gulabgarh Hydroelectric Project', capacityMw: 6.5, basin: 'Chenab River Basin', location: 'Riasi District', status: 'LOA Withdrawn', developer: 'Ms Boom Systems Pvt.', loiDate: '—', dprStatus: 'LOA Withdrawn', remarks: 'Bidder Didnot pay upfront Premium. LOA Withdrawn To be retendered under Phase IV.' },
+      { name: 'Kutimarg Hydroelectric Project', capacityMw: 7.25, basin: 'Jhelum River Basin', location: 'Kulgam District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Shranz Hydroelectric Project', capacityMw: 10, basin: 'Jhelum River Basin', location: 'Baramula District', status: 'LOA Withdrawn', developer: 'Ms Trumboo Cement Industries pvt. Ltd.', loiDate: '—', dprStatus: 'LOA Withdrawn', remarks: 'Bidder Didnot pay upfront Premium.LOA Withdrawn To be retendered under Phase IV.' },
+      { name: 'Upper Ans I Hydroelectric Project', capacityMw: 5.5, basin: 'Chenab River Basin', location: 'Rajaori District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Shunahkag Hydroelectric Project', capacityMw: 9, basin: 'Jhelum River Basin', location: 'Badgam District', status: 'LOA Withdrawn', developer: 'Ms Boom Systems Pvt. Ltd.', loiDate: '—', dprStatus: 'LOA Withdrawn', remarks: 'Bidder Didnot pay upfront Premium. LOA Withdrawn To be retendered under Phase IV' },
+      { name: 'Chingus I Hydroelectric Project', capacityMw: 3, basin: 'Chenab River Basin', location: 'Rajaori District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Sultanphatri Hydroelectric Project', capacityMw: 3, basin: 'Jhelum / Punch Basin', location: 'Punch District', status: 'DPR Preparation', developer: 'Ms SRM Contractors Pvt. Ltd.', loiDate: '—', dprStatus: 'DPR under preparation', remarks: 'DPR under preparation' },
+      { name: 'Sewa I Hydroelectric Project', capacityMw: 8, basin: 'Ravi River Basin', location: 'Kathua District', status: 'Non Responsive', developer: '—', loiDate: '—', dprStatus: 'Non Responsive', remarks: 'Non Responsive Bid' },
+      { name: 'Erin Hydroelectric Project', capacityMw: 10, basin: 'Jhelum River Basin', location: 'Bandipore District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Nihama Hydroelectric Project', capacityMw: 6, basin: 'Jhelum River Basin', location: 'Kulgam District', status: 'LOA Withdrawn', developer: 'Ms Millde East Recycling Company WILL.', loiDate: '—', dprStatus: 'LOA Withdrawn', remarks: 'Bidder Didnot pay upfront Premium. LOA WithdrawnTo be retendered under Phase IV' },
+      { name: 'Chenani IV Hydroelectric Project', capacityMw: 7, basin: 'Chenab River Basin', location: 'Udhampur District', status: 'Non Responsive', developer: '—', loiDate: '—', dprStatus: 'Non Responsive', remarks: 'Non Responsive Bid.' },
+      { name: 'Bringi Hydroelectric Project', capacityMw: 4, basin: 'Jhelum River Basin', location: 'Anantnag District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' }
+    ]
+  },
+  'phase-5': {
+    id: 'phase-5',
+    name: 'Phase 5',
+    title: 'Phase V — IPP Hydroelectric Projects Allotments',
+    subtitle: 'Allotments & DPR Evaluation Status',
+    totalMw: '135.5 MW',
+    policyRef: 'J&K BOOT IPP Policy Framework Phase V',
+    status: 'Tendering & DPR Phase',
+    description: 'Phase V Hydroelectric IPP Allotments represent projects identified under the Build-Own-Operate-Transfer (BOOT) framework, including various small hydel stations under tender status, retendering, or design preparation.',
+    projects: [
+      { name: 'Chingus II Hydroelectric Project', capacityMw: 3, basin: 'Chenab River Basin', location: 'Rajaori District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Pumbai Aridajan Hydroelectric Project', capacityMw: 4, basin: 'Jhelum River Basin', location: 'Kulgam District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Hanswar Hydroelectric Project', capacityMw: 6, basin: 'Chenab River Basin', location: 'Kishtwar District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Phagla Hydroelectric Project', capacityMw: 16, basin: 'Jhelum / Punch Basin', location: 'Punch District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response. (Project is being implemented under PMDP 2015)' },
+      { name: 'Mawar Hydroelectric Project', capacityMw: 10, basin: 'Jhelum River Basin', location: 'Kupwara District', status: 'Non Responsive', developer: '—', loiDate: '—', dprStatus: 'Non Responsive', remarks: 'Non Responsive Bid' },
+      { name: 'Kutbal Hydroelectric Project', capacityMw: 4, basin: 'Jhelum River Basin', location: 'Kulgam District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Shaliganga Hydroelectric Project', capacityMw: 4.5, basin: 'Jhelum River Basin', location: 'Badgam District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Thanamandi Hydroelectric Project', capacityMw: 2.75, basin: 'Chenab River Basin', location: 'Thanna Mandi District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Boniyar Hydroelectric Project', capacityMw: 6, basin: 'Jhelum River Basin', location: 'Baramula District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Gulabgarh Hydroelectric Project', capacityMw: 6.5, basin: 'Chenab River Basin', location: 'Riasi District', status: 'LOA Withdrawn', developer: 'Ms Boom Systems Pvt.', loiDate: '—', dprStatus: 'LOA Withdrawn', remarks: 'Bidder Didnot pay upfront Premium. LOA Withdrawn To be retendered under Phase IV.' },
+      { name: 'Kutimarg Hydroelectric Project', capacityMw: 7.25, basin: 'Jhelum River Basin', location: 'Kulgam District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Shranz Hydroelectric Project', capacityMw: 10, basin: 'Jhelum River Basin', location: 'Baramula District', status: 'LOA Withdrawn', developer: 'Ms Trumboo Cement Industries pvt. Ltd.', loiDate: '—', dprStatus: 'LOA Withdrawn', remarks: 'Bidder Didnot pay upfront Premium.LOA Withdrawn To be retendered under Phase IV.' },
+      { name: 'Upper Ans I Hydroelectric Project', capacityMw: 5.5, basin: 'Chenab River Basin', location: 'Rajaori District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Shunahkag Hydroelectric Project', capacityMw: 9, basin: 'Jhelum River Basin', location: 'Badgam District', status: 'LOA Withdrawn', developer: 'Ms Boom Systems Pvt. Ltd.', loiDate: '—', dprStatus: 'LOA Withdrawn', remarks: 'Bidder Didnot pay upfront Premium. LOA Withdrawn To be retendered under Phase IV' },
+      { name: 'Chingus I Hydroelectric Project', capacityMw: 3, basin: 'Chenab River Basin', location: 'Rajaori District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Sultanphatri Hydroelectric Project', capacityMw: 3, basin: 'Jhelum / Punch Basin', location: 'Punch District', status: 'DPR Preparation', developer: 'Ms SRM Contractors Pvt. Ltd.', loiDate: '—', dprStatus: 'DPR under preparation', remarks: 'DPR under preparation' },
+      { name: 'Sewa I Hydroelectric Project', capacityMw: 8, basin: 'Ravi River Basin', location: 'Kathua District', status: 'Non Responsive', developer: '—', loiDate: '—', dprStatus: 'Non Responsive', remarks: 'Non Responsive Bid' },
+      { name: 'Erin Hydroelectric Project', capacityMw: 10, basin: 'Jhelum River Basin', location: 'Bandipore District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' },
+      { name: 'Nihama Hydroelectric Project', capacityMw: 6, basin: 'Jhelum River Basin', location: 'Kulgam District', status: 'LOA Withdrawn', developer: 'Ms Millde East Recycling Company WILL.', loiDate: '—', dprStatus: 'LOA Withdrawn', remarks: 'Bidder Didnot pay upfront Premium. LOA WithdrawnTo be retendered under Phase IV' },
+      { name: 'Chenani IV Hydroelectric Project', capacityMw: 7, basin: 'Chenab River Basin', location: 'Udhampur District', status: 'Non Responsive', developer: '—', loiDate: '—', dprStatus: 'Non Responsive', remarks: 'Non Responsive Bid.' },
+      { name: 'Bringi Hydroelectric Project', capacityMw: 4, basin: 'Jhelum River Basin', location: 'Anantnag District', status: 'No Response', developer: '—', loiDate: '—', dprStatus: 'No Response', remarks: 'No Response.' }
+    ]
+  },
+  'phase-6': {
+    id: 'phase-6',
+    name: 'Phase 6',
+    title: 'Phase VI — IPP Hydroelectric Projects Allotments',
+    subtitle: 'Detailed Technical, Capacity & Investor Framework for Phase VI Projects',
+    totalMw: '88.5 MW',
+    policyRef: 'J&K IPP Policy Guidelines 2002 / 2011 Revision',
+    status: 'Commissioned & Under Implementation Stages',
+    description: 'Phase VI represents the Independent Power Producer (IPP) allotments issued by JKSPDC under state hydel policy guidelines. These projects cover run-of-river installations across the Chenab, Jhelum, and Ravi river basins.',
+    projects: [
+      { name: 'Boniyar Hydroelectric Project', capacityMw: 12, basin: 'Jhelum River Basin', location: 'Baramula District', status: 'Work in progress', developer: 'Ms VRB Hydro Power', loiDate: '—', dprStatus: 'Work in Progress', remarks: 'Work in progress.' },
+      { name: 'Ranjala Dunadi Hydroelectric Project', capacityMw: 15, basin: 'Chenab River Basin', location: 'Doda District', status: 'Commissioned', developer: 'Ms Choudhary Power Projects Limited', loiDate: '—', dprStatus: 'Commissioned', remarks: 'Commissioned & operational.' },
+      { name: 'Kahmil Hydroelectric Project', capacityMw: 4, basin: 'Jhelum River Basin', location: 'Kupwara District', status: 'Terminated', developer: 'Ms Rehbar Engineering Ltd.', loiDate: '—', dprStatus: 'Contract Terminated', remarks: 'Contract Terminated due to Poor Performance by Developer (2017 2018).' },
+      { name: 'Mandi Hydroelectric Project', capacityMw: 12.5, basin: 'Jhelum / Punch Basin', location: 'Punch District', status: 'Commissioned', developer: 'Ms Magpie Hydel Constructions', loiDate: '—', dprStatus: 'Commissioned', remarks: 'Commissioned & operational.' },
+      { name: 'Athwatoo Hydroelectric Project', capacityMw: 10, basin: 'Jhelum River Basin', location: 'Bandipore District', status: 'Commissioned', developer: 'Ms Magpie and Co.', loiDate: '—', dprStatus: 'Commissioned', remarks: 'Commissioned & operational.' },
+      { name: 'Brenwar Hydroelectric Project', capacityMw: 7.5, basin: 'Jhelum River Basin', location: 'Badgam District', status: 'Commissioned', developer: 'Ms P and R Engineering', loiDate: '—', dprStatus: 'Commissioned', remarks: 'Commissioned & operational.' },
+      { name: 'Aharbal Hydroelectric Project', capacityMw: 22.5, basin: 'Jhelum River Basin', location: 'Pulwama District', status: 'Surrendered', developer: 'Ms JAL', loiDate: '—', dprStatus: 'Site Surrendered', remarks: 'Project Site surrendered due to Tourism and Environmental issues.' },
+      { name: 'Drung Hydroelectric Project', capacityMw: 5, basin: 'Ravi River Basin', location: 'Kathua District', status: 'Under Implementation', developer: 'Ms Chenab Valley Leasing Company.', loiDate: '—', dprStatus: 'Land Acquisition Stage', remarks: 'Land Acquisition clearance in Progress.' }
+    ]
+  },
+  'phase-7': {
+    id: 'phase-7',
+    name: 'Phase 7',
+    title: 'Phase VII — IPP Hydro & Renewable Allotments',
+    subtitle: 'Allotments & Specifications',
+    totalMw: '0.0 MW',
+    policyRef: 'J&K IPP Policy Guidelines',
+    status: 'No Projects Registered',
+    description: 'No projects are currently registered under Phase VII.',
+    projects: []
+  },
+  'phase-8': {
+    id: 'phase-8',
+    name: 'Phase 8',
+    title: 'Phase VIII — IPP Hydroelectric Expansion',
+    subtitle: 'Capacity Allocations & DPR Evaluation Framework',
+    totalMw: '80.0 MW',
+    policyRef: 'J&K IPP Policy Allotment Schema Phase VIII',
+    status: 'DPR & Clearance Stage',
+    description: 'Phase VIII projects focus on small-to-medium hydel potential along the Chenab and Ravi river systems to enhance grid stability and local regional power availability.',
+    projects: [
+      { name: 'Chandanwari Hydroelectric Project', capacityMw: 7, basin: 'Jhelum River Basin', location: 'Baramula District', status: 'DPR Preparation', developer: 'Ms Nazir Hussain Khan', loiDate: '—', dprStatus: 'DPR under preparation', remarks: 'DPR under preparation' },
+      { name: 'Ans I Hydroelectric Project', capacityMw: 40, basin: 'Chenab River Basin', location: 'Riasi District', status: 'Implementation Agreement', developer: 'Ms Sri Awantika Consortium', loiDate: '—', dprStatus: 'DPR under preparation', remarks: 'In 2012 Implementation agreement was signed and DPR was under prepration. However the IPP has' },
+      { name: 'Girjan Ki Gali Hydroelectric Project', capacityMw: 12, basin: 'Chenab River Basin', location: 'Rajaori District', status: 'DPR Preparation', developer: 'Ms Raheja Power Ventures Pvt Ltd', loiDate: '—', dprStatus: 'DPR under preparation', remarks: 'DPR under preparation' },
+      { name: 'Patnazi Bunjwa Hydroelectric Project', capacityMw: 21, basin: 'Chenab River Basin', location: 'Kishtwar District', status: 'TEC Accorded', developer: 'Ms Patnazi Power (Energo Group)', loiDate: '—', dprStatus: 'TEC Accorded to DPR', remarks: 'TEC accorded to DPR' }
+    ]
+  }
+};
+
+// Fallback for Phase 4, 6, 7, 8, 9, 10
+const activePhaseData = phaseDatabase[phaseParam] || {
+  id: phaseParam,
+  name: phaseParam.replace('phase-', 'Phase '),
+  title: `${phaseParam.replace('phase-', 'Phase ').toUpperCase()} — IPP Project Specifications`,
+  subtitle: `Detailed Technical & Investor Information Register for ${phaseParam.replace('phase-', 'Phase ')}`,
+  totalMw: '100.0 MW',
+  policyRef: 'J&K IPP Policy Guidelines & State Renewable Directives',
+  status: 'Allotment & Survey Stage',
+  description: `Detailed stored project specifications, capacity allocations, and clearance registers for ${phaseParam.replace('phase-', 'Phase ')} under JKSPDC investor framework.`,
+  projects: [
+    { name: `IPP Hydro Project Slot ${phaseParam.replace('phase-', '')}.1`, capacityMw: 60, basin: 'Chenab / Jhelum Basin', location: 'J&K Region', status: 'Survey & Investigation', developer: 'Empanelled IPP Developer', loiDate: '2024-01-15', dprStatus: 'Draft DPR Under Preparation', remarks: 'Hydrological data and water availability study active.' },
+    { name: `IPP Renewable Project Slot ${phaseParam.replace('phase-', '')}.2`, capacityMw: 40, basin: 'Outer Plains / Indus Basin', location: 'J&K Region', status: 'Implementation Agreement', developer: 'Renewable Energy Partner', loiDate: '2024-06-20', dprStatus: 'Techno-Economic Appraisal', remarks: 'Grid interconnection approval in process.' }
+  ]
+};
+---
+
+<Layout 
+  title={`${activePhaseData.name} Details - IPP Projects`} 
+  description={activePhaseData.desc}
+>
+  <div class="space-y-8">
+    <!-- Premium Page Header Band -->
+    <div class="page-header-band animate-fadeInUp">
+      <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
+        <a href="/">Home</a>
+        <span class="separator">/</span>
+        <a href="/stakeholders/investors/ipp-projects">IPP Projects</a>
+        <span class="separator">/</span>
+        <span class="current">{activePhaseData.name}</span>
+      </nav>
+      <h1>{activePhaseData.title}</h1>
+      <p class="page-subtitle">Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL)</p>
+    </div>
+
+    <!-- Inside Details Overview Box (Corporate Theme) -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6 animate-fadeInUp delay-200">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+        <div>
+          <div class="inline-block text-[10px] font-bold uppercase tracking-wider bg-[#EAF4FF] text-[#0B4F9C] px-3 py-1 rounded-full mb-2 border border-[#BDD7EE]">
+            Inside Project Details Register
+          </div>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-[#0B4F9C]">
+            {activePhaseData.subtitle}
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-600 font-normal mt-1 leading-relaxed max-w-3xl">
+            {activePhaseData.description}
+          </p>
+        </div>
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 flex-shrink-0">
+          <span class="bg-[#0B4F9C] text-white font-extrabold text-xs px-3.5 py-2 rounded-lg shadow-xs">
+            Total Capacity: {activePhaseData.totalMw}
+          </span>
+          <a href="/stakeholders/investors/ipp-projects" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3.5 py-2 rounded-lg border border-slate-300 transition-colors">
+            &larr; Back to All Phases
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Policy Framework</span>
+          <span class="text-xs font-extrabold text-[#0B4F9C] mt-1 block">{activePhaseData.policyRef}</span>
+        </div>
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Execution Status</span>
+          <span class="text-xs font-extrabold text-emerald-700 mt-1 block">{activePhaseData.status}</span>
+        </div>
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Total Allocated Projects</span>
+          <span class="text-xs font-extrabold text-slate-800 mt-1 block">{activePhaseData.projects.length} Projects Listed</span>
+        </div>
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Monitoring Authority</span>
+          <span class="text-xs font-extrabold text-[#0B4F9C] mt-1 block">JKSPDC Corporate IPP Cell</span>
+        </div>
+      </div>
+
+      <!-- Detailed Projects Specification Table -->
+      <div class="space-y-4 pt-2">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+            <Icon name="briefcase" size={16} strokeWidth={2} class="text-[#0B4F9C]" />
+            Inside Specifications &amp; Project Allocations ({activePhaseData.name})
+          </h3>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="table-data min-w-full">
+            <thead>
+              <tr>
+                <th scope="col" class="text-left">S.No</th>
+                <th scope="col" class="text-left">Project Name</th>
+                <th scope="col" class="text-left">River Basin / District</th>
+                <th scope="col" class="text-left">Capacity</th>
+                <th scope="col" class="text-left">LoI / Allotment Date</th>
+                <th scope="col" class="text-left">DPR / Clearance Stage</th>
+                <th scope="col" class="text-left">Developer / Allotted IPP</th>
+                <th scope="col" class="text-left">Remarks & Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {activePhaseData.projects.map((proj: any, idx: number) => (
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                  <td class="text-left font-bold text-xs">{idx + 1}</td>
+                  <td class="font-bold text-left text-xs text-[#0B4F9C]">{proj.name}</td>
+                  <td class="text-left text-xs">{proj.location}<br/><span class="text-[11px] text-slate-500">{proj.basin}</span></td>
+                  <td class="font-bold text-slate-800 text-left text-xs">{proj.capacityMw} MW</td>
+                  <td class="text-left text-xs font-medium text-slate-600">{proj.loiDate}</td>
+                  <td class="text-left text-xs">
+                    <span class="inline-block bg-blue-50 text-[#0B4F9C] border border-blue-200 px-2 py-0.5 rounded text-[11px] font-bold">
+                      {proj.dprStatus}
+                    </span>
+                  </td>
+                  <td class="text-left text-xs text-slate-700 font-semibold">{proj.developer}</td>
+                  <td class="text-left text-xs text-slate-500">{proj.remarks}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>

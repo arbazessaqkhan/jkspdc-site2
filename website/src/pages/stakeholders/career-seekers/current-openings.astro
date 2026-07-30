@@ -30,28 +30,24 @@ const getDocUrl = (url?: string) => {
   title="Current Openings - Careers" 
   description="Career opportunities, recruitment advertisements, and vacancy updates from JKSPDC."
 >
-  <div class="space-y-6">
-    <!-- Breadcrumbs -->
-    <nav class="text-xs text-gray-500" aria-label="Breadcrumbs">
-      <ol class="flex gap-2">
-        <li><a href="/" class="hover:underline">Home</a></li>
-        <li>/</li>
-        <li><span class="text-gray-400">Careers</span></li>
-        <li>/</li>
-        <li><span class="font-semibold text-[#0B4F9C]">Current Openings</span></li>
-      </ol>
-    </nav>
-
-    <!-- Page Header -->
-    <header class="border-b border-gray-200 pb-4">
-      <h2 class="text-3xl font-extrabold text-[#0B4F9C]">Current Openings</h2>
-      <p class="text-sm text-gray-600 mt-1">Join JKSPDC and contribute to the clean energy transition in Jammu &amp; Kashmir.</p>
-    </header>
+  <div class="space-y-0">
+    <!-- Premium Page Header Band -->
+    <div class="page-header-band animate-fadeInUp">
+      <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
+        <a href="/">Home</a>
+        <span class="separator">/</span>
+        <span>Careers</span>
+        <span class="separator">/</span>
+        <span class="current">Current Openings</span>
+      </nav>
+      <h1>Current Openings</h1>
+      <p class="page-subtitle">Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL)</p>
+    </div>
 
     <!-- Content -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fadeInUp delay-200">
       <!-- Main Content -->
-      <article class="lg:col-span-2 space-y-6">
+      <article class="lg:col-span-2 prose-gov">
         
         {errorMessage && (
           <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 text-xs font-semibold">
@@ -110,12 +106,12 @@ const getDocUrl = (url?: string) => {
       </article>
 
       <!-- Sidebar -->
-      <aside class="space-y-4">
+      <aside class="space-y-5 animate-fadeIn delay-300">
         <div class="card-static">
-          <h3 class="font-bold text-gray-900 mb-2 border-b border-gray-100 pb-2">Careers Utilities</h3>
+          <h3 class="sidebar-card-title">Careers Utilities</h3>
           <ul class="flex flex-col gap-2 text-xs font-semibold text-[#0B4F9C]">
-            <li><a href="/media/downloads" class="hover:underline block py-1">&rarr; Downloads Booklet</a></li>
-            <li><a href="/about-us/explore/overview" class="hover:underline block py-1">&rarr; Organization Chart</a></li>
+            <li><a href="/media/downloads" class="sidebar-link">Downloads Booklet</a></li>
+            <li><a href="/about-us/explore/overview" class="sidebar-link">Organization Chart</a></li>
           </ul>
         </div>
       </aside>

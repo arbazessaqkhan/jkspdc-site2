@@ -26,34 +26,31 @@ const faqs = [
   title="Help & FAQ - JKSPDC Portal" 
   description="Help guide and Frequently Asked Questions (FAQ) for navigating the JKSPDC portal, viewing tenders, and contacting offices."
 >
-  <div class="space-y-8">
-    <!-- Breadcrumbs -->
-    <nav class="text-xs text-slate-500" aria-label="Breadcrumbs">
-      <ol class="flex items-center gap-2">
-        <li><a href="/" class="hover:underline">Home</a></li>
-        <li>/</li>
-        <li><span class="font-semibold text-[#0B4F9C]">Help &amp; FAQ</span></li>
-      </ol>
-    </nav>
+  <div class="space-y-0">
+    <!-- Premium Page Header Band -->
+    <div class="page-header-band animate-fadeInUp">
+      <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
+        <a href="/">Home</a>
+        <span class="separator">/</span>
+        <span class="current">Help</span>
+      </nav>
+      <h1>Help & Support</h1>
+      <p class="page-subtitle">Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL)</p>
+    </div>
 
-    <!-- Header -->
-    <header class="border-b border-slate-200 pb-5">
-      <h1 class="text-3xl font-extrabold text-[#0B4F9C]">Help &amp; Frequently Asked Questions</h1>
-      <p class="text-sm text-slate-650 mt-1">Guide to navigating the portal, downloading official documents, and finding information.</p>
-    </header>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Main Content Area -->
-      <main class="lg:col-span-2 space-y-6 text-sm text-slate-700 leading-relaxed">
-        <section class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-4">
-          <h2 class="text-xl font-bold text-slate-900 border-b border-slate-100 pb-2">Frequently Asked Questions</h2>
+    <!-- Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fadeInUp delay-200">
+      <!-- Main Text -->
+      <article class="lg:col-span-2 space-y-6">
+        <section class="card-static space-y-4">
+          <h2 class="text-xl font-bold text-[#0B4F9C] border-b border-gray-100 pb-2">Frequently Asked Questions</h2>
           <div class="space-y-4">
             {faqs.map((faq, index) => (
-              <div class="border-b border-slate-100 pb-4 last:border-0 last:pb-0 space-y-1">
-                <h3 class="font-bold text-slate-900 text-sm flex items-start gap-2">
+              <div class="border-b border-gray-100 pb-4 last:border-0 last:pb-0 space-y-1">
+                <h3 class="font-bold text-gray-900 text-sm flex items-start gap-2">
                   <span class="text-[#0B4F9C] font-extrabold">Q{index + 1}.</span> {faq.q}
                 </h3>
-                <p class="text-xs text-slate-600 pl-6 leading-relaxed">
+                <p class="text-xs text-gray-600 pl-6 leading-relaxed">
                   {faq.a}
                 </p>
               </div>
@@ -61,24 +58,32 @@ const faqs = [
           </div>
         </section>
 
-        <section class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-4">
-          <h2 class="text-xl font-bold text-slate-900 border-b border-slate-100 pb-2">Viewing Official Documents</h2>
-          <p>
+        <section class="card-static space-y-4">
+          <h2 class="text-xl font-bold text-[#0B4F9C] border-b border-gray-100 pb-2">Viewing Official Documents</h2>
+          <p class="text-xs text-gray-700 leading-relaxed">
             Most downloadable documents (such as Tenders, Tariff Orders, and Corporate Policies) on this site are in <strong>Portable Document Format (PDF)</strong>. To view these files, you will need a PDF reader such as Adobe Acrobat Reader (free download) or any modern browser with PDF rendering enabled.
           </p>
         </section>
-      </main>
+      </article>
 
       <!-- Sidebar -->
-      <aside class="space-y-4">
-        <div class="bg-white border border-slate-200 p-5 rounded-xl shadow-sm space-y-2">
-          <h3 class="font-bold text-slate-900 text-sm border-b border-slate-100 pb-2">Mandatory Policies</h3>
-          <ul class="space-y-2 text-xs font-semibold text-[#0B4F9C]">
-            <li><a href="/policies/accessibility" class="hover:underline flex items-center gap-1">&rarr; Accessibility Statement</a></li>
-            <li><a href="/policies/privacy" class="hover:underline flex items-center gap-1">&rarr; Privacy Policy</a></li>
-            <li><a href="/policies/terms" class="hover:underline flex items-center gap-1">&rarr; Terms of Use</a></li>
-            <li><a href="/policies/hyperlinking" class="hover:underline flex items-center gap-1">&rarr; Hyperlinking Policy</a></li>
-            <li><a href="/policies/copyright" class="hover:underline flex items-center gap-1">&rarr; Copyright Policy</a></li>
+      <aside class="space-y-5 animate-fadeIn delay-300">
+        <div class="card-static">
+          <h3 class="sidebar-card-title">Support Links</h3>
+          <ul class="flex flex-col gap-2 text-xs font-semibold text-[#0B4F9C]">
+            <li><a href="/sitemap" class="sidebar-link">Sitemap</a></li>
+            <li><a href="/about-us/others/contact" class="sidebar-link">Contact Directory</a></li>
+          </ul>
+        </div>
+
+        <div class="card-static">
+          <h3 class="sidebar-card-title">Mandatory Policies</h3>
+          <ul class="flex flex-col gap-2 text-xs font-semibold text-[#0B4F9C]">
+            <li><a href="/policies/accessibility" class="sidebar-link">Accessibility Statement</a></li>
+            <li><a href="/policies/privacy" class="sidebar-link">Privacy Policy</a></li>
+            <li><a href="/policies/terms" class="sidebar-link">Terms of Use</a></li>
+            <li><a href="/policies/hyperlinking" class="sidebar-link">Hyperlinking Policy</a></li>
+            <li><a href="/policies/copyright" class="sidebar-link">Copyright Policy</a></li>
           </ul>
         </div>
       </aside>

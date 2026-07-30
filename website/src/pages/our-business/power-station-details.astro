@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import Icon from '../../components/Icon.astro';
+import { formatProjectName } from '../../utils/projectFormatter';
 
 const id = Astro.url.searchParams.get('id')?.toString();
 let project: any = null;
@@ -32,23 +33,26 @@ const getProjectPhotoUrl = (proj: any) => {
   return `/projects/${slug}.jpg`;
 };
 const photoUrl = getProjectPhotoUrl(project);
+const formattedTitle = project ? formatProjectName(project.name) : "Power Station Details";
 ---
 
 <Layout 
-  title={project ? `${project.name} - Details` : "Power Station Details"} 
+  title={formattedTitle} 
   description={project ? project.description : "Details of JKSPDCL power station."}
 >
-  <div class="space-y-6">
-    <!-- Breadcrumbs -->
-    <nav class="text-xs text-gray-500" aria-label="Breadcrumbs">
-      <ol class="flex gap-2">
-        <li><a href="/" class="hover:underline">Home</a></li>
-        <li>/</li>
-        <li><a href="/our-business/power-stations" class="hover:underline text-gray-500">Power Stations</a></li>
-        <li>/</li>
-        <li><span class="font-semibold text-[#0B4F9C]">{project ? project.name : 'Details'}</span></li>
-      </ol>
-    </nav>
+  <div class="space-y-0">
+    <!-- Premium Page Header Band -->
+    <div class="page-header-band animate-fadeInUp">
+      <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
+        <a href="/">Home</a>
+        <span class="separator">/</span>
+        <a href="/our-business/power-stations">Power Stations</a>
+        <span class="separator">/</span>
+        <span class="current">{project ? project.name : 'Details'}</span>
+      </nav>
+      <h1>{formattedTitle}</h1>
+      <p class="page-subtitle">Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL)</p>
+    </div>
 
     {errorMessage && (
       <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 text-xs font-semibold">

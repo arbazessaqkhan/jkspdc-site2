@@ -75,8 +75,75 @@ function getImageUrl(url: string) {
   return url;
 }
 
-// Get the latest uploaded gallery pictures (limit to 6)
-const latestPhotos = gallery.slice().reverse().slice(0, 6);
+// 1. Office & Corporate Events (Office Happenings, Retirements, Awards, MoUs)
+const officePhotos = gallery.filter((item: any) => 
+  !item.partition || item.partition.toLowerCase() !== 'projects'
+);
+
+const fallbackOfficePhotos = [
+  {
+    id: 'office-seed-1',
+    title: 'Signing of Implementation Agreement between NHPC & JKSPDC',
+    imageUrl: '/gallery/signing_agreement.png',
+    partition: 'MoU & Official Events',
+  },
+  {
+    id: 'office-seed-2',
+    title: 'Retirement Ceremony & Service Felicitation of Executive Director (Civil)',
+    imageUrl: '/gallery/retirement_ed_civil.png',
+    partition: 'Retirements & Honors',
+  },
+  {
+    id: 'office-seed-3',
+    title: 'Corporate Headquarters Review Meeting & Awards Announcement',
+    imageUrl: '/gallery/reference_tenders.png',
+    partition: 'Office Happenings & Awards',
+  },
+];
+
+const displayOfficePhotos = officePhotos.length > 0 ? officePhotos : fallbackOfficePhotos;
+
+// 2. Project Photographs ONLY (Hydroelectric Plants, Dams, Solar Assets)
+const projectGalleryPhotos = gallery.filter((item: any) => 
+  item.partition && item.partition.toLowerCase() === 'projects'
+);
+
+const fallbackProjectPhotos = [
+  {
+    id: 'proj-seed-1',
+    title: 'Baglihar Hydroelectric Project (900 MW) — Dam & Power House Complex',
+    imageUrl: '/projects/bhep-i.jpg',
+    partition: 'Hydroelectric Project',
+    location: 'Ramban, Chenab Basin',
+    capacity: '900 MW'
+  },
+  {
+    id: 'proj-seed-2',
+    title: 'Lower Jhelum Hydroelectric Station (105 MW) Gantamulla',
+    imageUrl: '/projects/ljhp.jpg',
+    partition: 'Operational Project',
+    location: 'Baramulla, Jhelum Basin',
+    capacity: '105 MW'
+  },
+  {
+    id: 'proj-seed-3',
+    title: 'Upper Sindh Hydroelectric Project II (105 MW) Kangan',
+    imageUrl: '/projects/ushp-ii.jpg',
+    partition: 'Operational Project',
+    location: 'Ganderbal, Jhelum Basin',
+    capacity: '105 MW'
+  },
+  {
+    id: 'proj-seed-4',
+    title: 'Pahalgam Hydroelectric Station & Headworks',
+    imageUrl: '/projects/mhep-pahalgam.jpg',
+    partition: 'Small Hydel Project',
+    location: 'Anantnag, Jhelum Basin',
+    capacity: '4.5 MW'
+  }
+];
+
+const displayProjectPhotos = projectGalleryPhotos.length > 0 ? projectGalleryPhotos : fallbackProjectPhotos;
 
 const photoMap = {
   "Shri Manoj Sinha": "/dignitaries/manoj_sinha.png",
@@ -374,7 +441,7 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
     <!-- ============================================================ -->
     <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-10 gap-6 items-stretch">
       
-      <!-- LEFT COLUMN: WELCOME TO JKSPDC (40% width = 4 cols) -->
+      <!-- LEFT COLUMN: WELCOME & OFFICE GALLERY CAROUSEL (40% width = 4 cols) -->
       <div class="md:col-span-2 lg:col-span-4 flex flex-col">
         <!-- Section Header -->
         <div class="text-left mb-4 flex-shrink-0">
@@ -385,14 +452,60 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
           <div class="w-10 h-0.5 bg-[#D8681B] mt-2.5 rounded-full"></div>
         </div>
 
-        <!-- Welcome Card Container -->
-        <div class="bg-white border border-[#BDD7EE]/60 rounded-2xl p-6 flex flex-col justify-between flex-grow h-[320px] shadow-sm">
-          <p class="text-slate-600 text-xs lg:text-[13px] leading-relaxed text-left">
-            Electricity is an essential source of commercial energy. It is vital for sustained economic growth. An increase in demand for power implies growth of the economy leading to modernization, industrialization and improvement in basic amenities culminating into a better quality of life of people.
-          </p>
-          <a href="/about-us/explore/overview" class="inline-flex items-center gap-2 bg-[#0C58B6] hover:bg-[#084A8F] text-white font-semibold px-5 py-2.5 rounded-lg text-xs transition-colors shadow-sm self-start mt-4">
-            Read More &raquo;
-          </a>
+        <!-- Welcome Card Container with Office Gallery Carousel -->
+        <div class="bg-white border border-[#BDD7EE]/60 rounded-2xl p-4 flex flex-col justify-between flex-grow h-[320px] shadow-sm overflow-hidden relative">
+          <!-- Text Paragraph -->
+          <div class="mb-2">
+            <p class="text-slate-600 text-xs leading-relaxed text-left line-clamp-2">
+              Electricity is an essential source of commercial energy. It is vital for sustained economic growth, modernization, and industrialization across J&K.
+            </p>
+          </div>
+
+          <!-- Office Events, Retirements & Awards Carousel -->
+          <div class="relative w-full flex-grow rounded-xl overflow-hidden shadow-xs border border-slate-200 bg-slate-900 group" id="office-carousel-container">
+            <div class="absolute inset-0" id="office-slides">
+              {displayOfficePhotos.map((photo: any, index: number) => (
+                <div class={`office-slide absolute inset-0 transition-opacity duration-700 ease-in-out ${index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
+                  <img 
+                    src={getImageUrl(photo.imageUrl)} 
+                    alt={photo.title} 
+                    class="w-full h-full object-cover" 
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                  />
+                  <!-- Overlay Caption -->
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent flex flex-col justify-end p-3 z-10 text-left">
+                    <span class="inline-block self-start text-[8px] font-bold uppercase bg-[#D8681B] text-white px-2 py-0.5 rounded-full mb-1 tracking-wider shadow-xs">
+                      {photo.partition || 'Office Happenings & Awards'}
+                    </span>
+                    <h4 class="text-white text-[11px] font-extrabold leading-snug line-clamp-1" style="text-shadow: 0 1px 3px rgba(0,0,0,0.6);">
+                      {photo.title}
+                    </h4>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <!-- Controls -->
+            <button id="office-prev" class="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-6 h-6 rounded-full bg-black/45 text-white flex items-center justify-center hover:bg-black/65 transition text-xs font-bold shadow-xs focus-visible:outline-none" aria-label="Previous image">&#8249;</button>
+            <button id="office-next" class="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-6 h-6 rounded-full bg-black/45 text-white flex items-center justify-center hover:bg-black/65 transition text-xs font-bold shadow-xs focus-visible:outline-none" aria-label="Next image">&#8250;</button>
+
+            <!-- Indicators (Dots) -->
+            <div class="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 z-20">
+              {displayOfficePhotos.map((_, i) => (
+                <button data-office-dot={String(i)} class={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${i === 0 ? 'bg-[#D8681B] w-3' : 'bg-white/50'}`} aria-label={`Go to slide ${i + 1}`}></button>
+              ))}
+            </div>
+          </div>
+
+          <!-- Read More & Admin Gallery Link -->
+          <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-100">
+            <a href="/about-us/explore/overview" class="text-[#0B4F9C] hover:underline font-bold text-xs">
+              Read More &raquo;
+            </a>
+            <a href="/media/gallery" class="text-xs text-slate-500 hover:text-[#0B4F9C] font-semibold flex items-center gap-1">
+              📷 Office Gallery &rarr;
+            </a>
+          </div>
         </div>
       </div>
 
@@ -524,9 +637,11 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
           directors.map((d: any) => {
             const profileHref = routeMap[d.name] || "/about-us/management/board";
             return (
-              <a href={profileHref} class="group bg-white rounded-xl border border-[#BDD7EE] shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col items-center text-center h-full w-full">
+              <a href={profileHref} class="group bg-white rounded-xl border border-[#BDD7EE] shadow-sm hover:shadow-lg hover:border-[#0B4F9C] hover:outline hover:outline-2 hover:outline-[#0B4F9C] -outline-offset-2 hover:-translate-y-1.5 transition-all duration-300 p-6 flex flex-col items-center text-center h-full w-full relative overflow-hidden">
+                <!-- Subtle background glow on hover -->
+                <div class="absolute inset-0 bg-gradient-to-b from-[#EAF4FF]/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                 <!-- Photo container (Enlarged to w-28 h-28 = 112px) -->
-                <div class="w-28 h-28 rounded-full overflow-hidden bg-white border-[4px] border-[#BDD7EE]/50 shadow-sm flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-500">
+                <div class="w-28 h-28 rounded-full overflow-hidden bg-white border-[4px] border-[#BDD7EE] group-hover:border-[#0B4F9C] shadow-md flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-all duration-500 relative z-10">
                   {photoMap[d.name] ? (
                     <img src={photoMap[d.name]} alt={d.name} width="112" height="112" class="w-full h-full object-cover object-top" />
                   ) : (
@@ -545,10 +660,10 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
                   )}
                 </div>
                 <!-- Card Content -->
-                <div class="mt-4 flex-grow flex flex-col items-center justify-center gap-2">
-                  <h3 class="font-extrabold text-slate-800 text-[15px] md:text-[17px] leading-snug group-hover:text-[#0C58B6] transition-colors">{d.name}</h3>
+                <div class="mt-4 flex-grow flex flex-col items-center justify-center gap-2 relative z-10">
+                  <h3 class="font-extrabold text-slate-800 text-[15px] md:text-[17px] leading-snug group-hover:text-[#0B4F9C] transition-colors">{d.name}</h3>
                   <div class="mt-1">
-                    <span class="inline-block text-[11px] text-[#0B4F9C] font-bold uppercase tracking-wider bg-[#EAF4FF] px-2.5 py-0.5 rounded border border-[#BDD7EE]/50 leading-relaxed text-balance">
+                    <span class="inline-block text-[11px] text-[#0B4F9C] font-extrabold uppercase tracking-wider bg-[#EAF4FF] px-3 py-1 rounded-full border border-[#BDD7EE] group-hover:bg-[#0B4F9C] group-hover:text-white transition-all duration-300">
                       {d.position}
                     </span>
                   </div>
@@ -599,14 +714,18 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
             </div>
           </div>
 
-          <!-- Right: Photo Gallery Carousel Column (5 cols) -->
+          <!-- Right: Project Photographs Carousel Column (5 cols) -->
           <div class="lg:col-span-5 flex flex-col justify-center w-full">
-            <div class="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-md border border-slate-200 bg-slate-50 group" id="gallery-carousel-container">
+            <div class="text-left mb-2 flex items-center justify-between">
+              <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#0B4F9C]">Project Photographs Carousel</span>
+              <span class="text-[10px] text-slate-400 font-semibold">Hydroelectric & Renewable Assets</span>
+            </div>
+            <div class="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-md border border-slate-200 bg-slate-900 group" id="project-carousel-container">
               
               <!-- Carousel Track -->
-              <div class="absolute inset-0" id="gallery-slides">
-                {latestPhotos.map((photo: any, index: number) => (
-                  <div class={`gallery-slide absolute inset-0 transition-opacity duration-700 ease-in-out ${index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
+              <div class="absolute inset-0" id="project-slides">
+                {displayProjectPhotos.map((photo: any, index: number) => (
+                  <div class={`project-slide absolute inset-0 transition-opacity duration-700 ease-in-out ${index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
                     <img 
                       src={getImageUrl(photo.imageUrl)} 
                       alt={photo.title} 
@@ -615,25 +734,37 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
                     />
                     <!-- Overlay Caption -->
                     <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent flex flex-col justify-end p-5 z-10">
-                      <span class="inline-block self-start text-[9px] font-bold uppercase bg-[#D8681B] text-white px-2.5 py-0.5 rounded-full mb-2 tracking-wider shadow-sm">
-                        {photo.partition || 'Gallery'}
-                      </span>
+                      <div class="flex items-center gap-2 mb-2 flex-wrap">
+                        <span class="inline-block text-[9px] font-bold uppercase bg-[#0B4F9C] text-white px-2.5 py-0.5 rounded-full tracking-wider shadow-sm">
+                          {photo.partition || 'Hydroelectric Project'}
+                        </span>
+                        {photo.capacity && (
+                          <span class="inline-block text-[9px] font-bold uppercase bg-[#D8681B] text-white px-2 py-0.5 rounded-full tracking-wider shadow-sm">
+                            {photo.capacity}
+                          </span>
+                        )}
+                      </div>
                       <h4 class="text-white text-xs md:text-sm font-extrabold leading-snug tracking-wide line-clamp-2" style="text-shadow: 0 1px 4px rgba(0,0,0,0.5);">
                         {photo.title}
                       </h4>
+                      {photo.location && (
+                        <p class="text-white/80 text-[10px] mt-1 font-semibold flex items-center gap-1">
+                          📍 {photo.location}
+                        </p>
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
 
               <!-- Controls -->
-              <button id="gallery-prev" class="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/45 text-white flex items-center justify-center hover:bg-black/60 transition text-sm font-bold shadow-sm focus-visible:outline-none" aria-label="Previous image">&#8249;</button>
-              <button id="gallery-next" class="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/45 text-white flex items-center justify-center hover:bg-black/60 transition text-sm font-bold shadow-sm focus-visible:outline-none" aria-label="Next image">&#8250;</button>
+              <button id="project-prev" class="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/45 text-white flex items-center justify-center hover:bg-black/60 transition text-sm font-bold shadow-sm focus-visible:outline-none" aria-label="Previous image">&#8249;</button>
+              <button id="project-next" class="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/45 text-white flex items-center justify-center hover:bg-black/60 transition text-sm font-bold shadow-sm focus-visible:outline-none" aria-label="Next image">&#8250;</button>
 
               <!-- Indicators (Dots) -->
               <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20">
-                {latestPhotos.map((_, i) => (
-                  <button data-gallery-dot={String(i)} class={`w-2 h-2 rounded-full transition-all duration-300 ${i === 0 ? 'bg-[#D8681B] w-4' : 'bg-white/50'}`} aria-label={`Go to slide ${i + 1}`}></button>
+                {displayProjectPhotos.map((_, i) => (
+                  <button data-project-dot={String(i)} class={`w-2 h-2 rounded-full transition-all duration-300 ${i === 0 ? 'bg-[#D8681B] w-4' : 'bg-white/50'}`} aria-label={`Go to slide ${i + 1}`}></button>
                 ))}
               </div>
             </div>
@@ -738,15 +869,17 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
       <div class="px-8 md:px-12 pb-10 pt-8">
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {quickLinks.map((link) => (
-            <a href={link.href} class="group relative bg-white border border-slate-200 rounded-xl p-5 hover:border-[#0B4F9C]/40 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col gap-3">
-              <div class="w-12 h-12 rounded-xl bg-[#EAF4FF] text-[#0B4F9C] flex items-center justify-center flex-shrink-0">
+            <a href={link.href} class="group relative bg-white border border-[#BDD7EE]/80 rounded-xl p-5 hover:border-[#0B4F9C] hover:outline hover:outline-2 hover:outline-[#0B4F9C] -outline-offset-2 hover:shadow-[0_12px_24px_-4px_rgba(11,79,156,0.15)] hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col gap-3">
+              <!-- Subtle card background glow on hover -->
+              <div class="absolute inset-0 bg-gradient-to-br from-[#EAF4FF]/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+              <div class="w-12 h-12 rounded-xl bg-[#EAF4FF] text-[#0B4F9C] group-hover:bg-[#0B4F9C] group-hover:text-white flex items-center justify-center flex-shrink-0 transition-all duration-300 shadow-xs group-hover:shadow-md relative z-10 group-hover:scale-110">
                 <Icon name={link.icon} size={22} strokeWidth={1.75} />
               </div>
-              <div>
-                <div class="font-semibold text-slate-800 text-sm leading-snug">{link.label}</div>
+              <div class="relative z-10">
+                <div class="font-bold text-slate-800 text-sm leading-snug group-hover:text-[#0B4F9C] transition-colors">{link.label}</div>
                 <div class="text-xs text-slate-500 mt-1 leading-relaxed">{link.desc}</div>
               </div>
-              <span class="absolute bottom-4 right-4 text-[#0B4F9C] opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 text-sm font-bold">&rarr;</span>
+              <span class="absolute bottom-4 right-4 text-[#0B4F9C] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-base font-extrabold z-10">&rarr;</span>
             </a>
           ))}
         </div>
@@ -849,38 +982,71 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
   dots.forEach(function(d) { d.onclick = function() { goTo(parseInt(d.dataset.dot, 10)); }; });
   setInterval(function() { goTo(cur+1); }, 6000);
 
-  /* ── GALLERY CAROUSEL ────────────────────────────────────── */
-  var gSlides = document.querySelectorAll('.gallery-slide');
-  var gTotal = gSlides.length;
-  var gCur = 0, gDots = document.querySelectorAll('[data-gallery-dot]');
+  /* ── OFFICE GALLERY CAROUSEL (Top Section) ───────────────── */
+  var oSlides = document.querySelectorAll('.office-slide');
+  var oTotal = oSlides.length;
+  var oCur = 0, oDots = document.querySelectorAll('[data-office-dot]');
 
-  function goToGallery(n) {
-    if (gTotal === 0) return;
-    if (gSlides[gCur]) {
-      gSlides[gCur].classList.replace('opacity-100', 'opacity-0');
-      gSlides[gCur].classList.replace('z-10', 'z-0');
+  function goToOffice(n) {
+    if (oTotal === 0) return;
+    if (oSlides[oCur]) {
+      oSlides[oCur].classList.replace('opacity-100', 'opacity-0');
+      oSlides[oCur].classList.replace('z-10', 'z-0');
     }
-    if (gDots[gCur]) {
-      gDots[gCur].className = 'w-2 h-2 rounded-full transition-all duration-300 bg-white/50';
+    if (oDots[oCur]) {
+      oDots[oCur].className = 'w-1.5 h-1.5 rounded-full transition-all duration-300 bg-white/50';
     }
-    gCur = ((n % gTotal) + gTotal) % gTotal;
-    if (gSlides[gCur]) {
-      gSlides[gCur].classList.replace('opacity-0', 'opacity-100');
-      gSlides[gCur].classList.replace('z-0', 'z-10');
+    oCur = ((n % oTotal) + oTotal) % oTotal;
+    if (oSlides[oCur]) {
+      oSlides[oCur].classList.replace('opacity-0', 'opacity-100');
+      oSlides[oCur].classList.replace('z-0', 'z-10');
     }
-    if (gDots[gCur]) {
-      gDots[gCur].className = 'w-2 h-2 rounded-full transition-all duration-300 bg-[#D8681B] w-4';
+    if (oDots[oCur]) {
+      oDots[oCur].className = 'w-1.5 h-1.5 rounded-full transition-all duration-300 bg-[#D8681B] w-3';
     }
   }
 
-  var gPrev = document.getElementById('gallery-prev');
-  if (gPrev) gPrev.onclick = function() { goToGallery(gCur - 1); };
-  var gNext = document.getElementById('gallery-next');
-  if (gNext) gNext.onclick = function() { goToGallery(gCur + 1); };
-  gDots.forEach(function(d) {
-    d.onclick = function() { goToGallery(parseInt(d.dataset.galleryDot, 10)); };
+  var oPrev = document.getElementById('office-prev');
+  if (oPrev) oPrev.onclick = function() { goToOffice(oCur - 1); };
+  var oNext = document.getElementById('office-next');
+  if (oNext) oNext.onclick = function() { goToOffice(oCur + 1); };
+  oDots.forEach(function(d) {
+    d.onclick = function() { goToOffice(parseInt(d.dataset.officeDot, 10)); };
   });
-  setInterval(function() { goToGallery(gCur + 1); }, 5000);
+  setInterval(function() { goToOffice(oCur + 1); }, 5000);
+
+  /* ── PROJECT GALLERY CAROUSEL (About Us Section) ─────────── */
+  var pSlides = document.querySelectorAll('.project-slide');
+  var pTotal = pSlides.length;
+  var pCur = 0, pDots = document.querySelectorAll('[data-project-dot]');
+
+  function goToProject(n) {
+    if (pTotal === 0) return;
+    if (pSlides[pCur]) {
+      pSlides[pCur].classList.replace('opacity-100', 'opacity-0');
+      pSlides[pCur].classList.replace('z-10', 'z-0');
+    }
+    if (pDots[pCur]) {
+      pDots[pCur].className = 'w-2 h-2 rounded-full transition-all duration-300 bg-white/50';
+    }
+    pCur = ((n % pTotal) + pTotal) % pTotal;
+    if (pSlides[pCur]) {
+      pSlides[pCur].classList.replace('opacity-0', 'opacity-100');
+      pSlides[pCur].classList.replace('z-0', 'z-10');
+    }
+    if (pDots[pCur]) {
+      pDots[pCur].className = 'w-2 h-2 rounded-full transition-all duration-300 bg-[#D8681B] w-4';
+    }
+  }
+
+  var pPrev = document.getElementById('project-prev');
+  if (pPrev) pPrev.onclick = function() { goToProject(pCur - 1); };
+  var pNext = document.getElementById('project-next');
+  if (pNext) pNext.onclick = function() { goToProject(pCur + 1); };
+  pDots.forEach(function(d) {
+    d.onclick = function() { goToProject(parseInt(d.dataset.projectDot, 10)); };
+  });
+  setInterval(function() { goToProject(pCur + 1); }, 5500);
 
   /* ── PROJECT FILTER ──────────────────────────────────────── */
   var cards = document.querySelectorAll('.project-card');

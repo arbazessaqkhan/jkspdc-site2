@@ -124,9 +124,20 @@ model Notification {
 
 model GalleryItem {
   id        String   @id @default(uuid())
-  title     String
-  imageUrl  String
+  title       String
+  imageUrl    String
   partition String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model PolicyDocument {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  category    String   // "Policies", "CSR", "Memorandum", "Ethics", "Downloads"
+  documentUrl String
+  status      String   @default("Active") // "Active", "Archived"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

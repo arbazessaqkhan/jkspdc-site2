@@ -6,28 +6,24 @@ import Layout from '../../../layouts/Layout.astro';
   title="Financial Results - Investors" 
   description="Audited and unaudited financial statements of JKSPDC."
 >
-  <div class="space-y-6">
-    <!-- Breadcrumbs -->
-    <nav class="text-xs text-gray-500" aria-label="Breadcrumbs">
-      <ol class="flex gap-2">
-        <li><a href="/" class="hover:underline">Home</a></li>
-        <li>/</li>
-        <li><span class="text-gray-400">Investors</span></li>
-        <li>/</li>
-        <li><span class="font-semibold text-[#0B4F9C]">Financial Results</span></li>
-      </ol>
-    </nav>
-
-    <!-- Page Header -->
-    <header class="border-b border-gray-200 pb-4">
-      <h2 class="text-3xl font-extrabold text-[#0B4F9C]">Financial Results</h2>
-      <p class="text-sm text-gray-600 mt-1">Registry of audited balance sheets, profit & loss, and audit reports.</p>
-    </header>
+  <div class="space-y-0">
+    <!-- Premium Page Header Band -->
+    <div class="page-header-band animate-fadeInUp">
+      <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
+        <a href="/">Home</a>
+        <span class="separator">/</span>
+        <span>Investors</span>
+        <span class="separator">/</span>
+        <span class="current">Financial Results</span>
+      </nav>
+      <h1>Financial Results</h1>
+      <p class="page-subtitle">Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL)</p>
+    </div>
 
     <!-- Content -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fadeInUp delay-200">
       <!-- Main Content -->
-      <article class="lg:col-span-2 space-y-4">
+      <article class="lg:col-span-2 prose-gov">
         <!-- Safety content placeholder -->
         <div class="bg-gray-50 border border-gray-200 text-gray-700 rounded-lg p-6 text-center text-sm shadow-sm">
           <p class="font-semibold text-gray-800 mb-1">Financial Results Registries Pending Official Approval</p>
@@ -39,12 +35,12 @@ import Layout from '../../../layouts/Layout.astro';
       </article>
 
       <!-- Sidebar -->
-      <aside class="space-y-4">
+      <aside class="space-y-5 animate-fadeIn delay-300">
         <div class="card-static">
-          <h3 class="font-bold text-gray-900 mb-2 border-b border-gray-100 pb-2">Investor Corner</h3>
+          <h3 class="sidebar-card-title">Investor Corner</h3>
           <ul class="flex flex-col gap-2 text-xs font-semibold text-[#0B4F9C]">
-            <li><a href="/stakeholders/investors/chairman-statement" class="hover:underline block py-1">&rarr; Chairman's Statement</a></li>
-            <li><a href="/stakeholders/investors/annual-reports" class="hover:underline block py-1">&rarr; Annual Reports</a></li>
+            <li><a href="/stakeholders/investors/chairman-statement" class="sidebar-link">Chairman's Statement</a></li>
+            <li><a href="/stakeholders/investors/annual-reports" class="sidebar-link">Annual Reports</a></li>
           </ul>
         </div>
       </aside>
