@@ -27,6 +27,9 @@ try {
 const getProjectPhotoUrl = (proj: any) => {
   if (!proj) return null;
   const slug = proj.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  if (slug === 'kirthai-hep-stage-1') {
+    return '/logo.png';
+  }
   if (slug === 'ganderbal' || slug === 'ushp-i' || slug === 'sewa-iii') {
     return `/projects/${slug}.png`;
   }
@@ -86,7 +89,7 @@ const formattedTitle = project ? formatProjectName(project.name) : "Power Statio
                   <img 
                     src={photoUrl} 
                     alt={`${project.name} Power House Facility`} 
-                    class="w-full h-[322px] object-cover rounded-xl shadow-sm border border-slate-100 bg-slate-50"
+                    class={`w-full h-[322px] rounded-xl shadow-sm border border-slate-100 bg-slate-50 ${photoUrl === '/logo.png' ? 'object-contain p-8' : 'object-cover'}`}
                     onerror="handleImageError(this);"
                   />
                   <div class="mt-2 text-center text-[10px] text-slate-500 font-semibold italic">

@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Icon from '../components/Icon.astro';
+import { formatProjectName } from '../utils/projectFormatter';
 
 let directors = [];
 let tenders = [];
@@ -825,7 +826,7 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
             <div class="project-card bg-white rounded-xl border border-slate-200 p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-250" data-status={p.status} data-type={p.type} data-name={p.name.toLowerCase()}>
               <div class="flex items-start justify-between mb-4">
                 <div class="flex-1 min-w-0 pr-3">
-                  <div class="font-bold text-slate-900 text-sm leading-snug">{p.name}</div>
+                  <div class="font-bold text-slate-900 text-sm leading-snug">{formatProjectName(p.name)}</div>
                   {(p.location || p.basin) && (
                     <div class="text-xs text-slate-400 mt-1">{p.location}{p.location && p.basin ? ' — ' : ''}{p.basin ? `${p.basin} Basin` : ''}</div>
                   )}

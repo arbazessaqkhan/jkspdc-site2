@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import { formatProjectName } from '../../utils/projectFormatter';
 
 let projects = [];
 let errorMessage = '';
@@ -67,7 +68,7 @@ try {
                   <tr class="hover:bg-slate-50/80 transition-colors">
                     <td class="font-bold text-left text-xs">
                       <a href={`/our-business/power-station-details?id=${p.id}`} class="text-[#0B4F9C] hover:underline">
-                        {p.name}
+                        {formatProjectName(p.name)}
                       </a>
                     </td>
                     <td class="text-left">{p.type}</td>
