@@ -20,6 +20,7 @@ import { UploadModule } from './upload/upload.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { GalleryModule } from './gallery/gallery.module';
 import { PoliciesModule } from './policies/policies.module';
+import { AgmModule } from './agm/agm.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { PoliciesModule } from './policies/policies.module';
     NotificationsModule,
     GalleryModule,
     PoliciesModule,
+    AgmModule,
   ],
   controllers: [
     ContactController,

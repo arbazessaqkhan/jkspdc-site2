@@ -36,4 +36,10 @@ export class PublicApiService {
       orderBy: { publishDate: 'desc' },
     });
   }
+
+  async getAgmDocuments() {
+    return this.prisma.agmDocument.findMany({
+      orderBy: { meetingDate: 'desc' },
+    });
+  }
 }

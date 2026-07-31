@@ -141,3 +141,13 @@ model PolicyDocument {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model AgmDocument {
+  id          String   @id @default(uuid())
+  title       String
+  meetingDate DateTime
+  fileName    String
+  documentUrl String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
