@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import Icon from '../components/Icon.astro';
+import HydroChat from '../components/HydroChat.astro';
 
 interface Props {
   title: string;
@@ -658,6 +659,9 @@ if (tickerItems.length === 0) {
 
       </div>
     </footer>
+
+    <!-- Persistent Hydro AI Assistant Widget -->
+    <HydroChat />
 
     <!-- Floating Scroll to Top Button -->
     <button

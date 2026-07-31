@@ -21,6 +21,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { GalleryModule } from './gallery/gallery.module';
 import { PoliciesModule } from './policies/policies.module';
 import { AgmModule } from './agm/agm.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { AgmModule } from './agm/agm.module';
     GalleryModule,
     PoliciesModule,
     AgmModule,
+    ChatModule,
   ],
   controllers: [
     ContactController,

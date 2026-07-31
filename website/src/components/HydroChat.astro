@@ -1,0 +1,310 @@
+---
+---
+
+<!-- Hydro AI Floating Chatbot Widget -->
+<div id="hydro-chatbot-container" class="fixed bottom-6 right-6 z-50 font-sans">
+
+  <!-- Floating Toggle Button ("Ask Hydro") -->
+  <button
+    id="hydro-toggle-btn"
+    class="flex items-center gap-2.5 bg-gradient-to-r from-[#0B4F9C] to-[#008080] hover:from-[#083A73] hover:to-[#006666] text-white px-4 py-3 rounded-full shadow-2xl transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-[#0B4F9C]/30 border border-white/20 group"
+    aria-label="Ask Hydro AI Assistant"
+  >
+    <div class="relative flex items-center justify-center w-6 h-6 rounded-full bg-white/20 group-hover:rotate-12 transition-transform">
+      <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2a10 10 0 1 0 10 10H12V2z"></path>
+        <path d="M12 12L2.5 7.5"></path>
+        <path d="M12 12v9.5"></path>
+      </svg>
+      <!-- Pulse Badge Indicator -->
+      <span class="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+      </span>
+    </div>
+    <span class="font-bold text-xs uppercase tracking-wider text-white pr-1">Ask Hydro</span>
+  </button>
+
+  <!-- Chatbot Window Panel -->
+  <div
+    id="hydro-chat-window"
+    class="hidden flex-col w-[360px] sm:w-[400px] h-[520px] bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transition-all duration-300 transform origin-bottom-right"
+  >
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-[#0B4F9C] via-[#094285] to-[#008080] p-4 text-white flex items-center justify-between shadow-md">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full bg-white/15 border border-white/30 flex items-center justify-center text-white font-black text-sm shadow-inner">
+          ⚡
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <h3 class="font-extrabold text-sm tracking-wide">Hydro</h3>
+            <span class="bg-emerald-500/20 text-emerald-300 text-[9px] font-bold px-1.5 py-0.2 rounded border border-emerald-400/30 uppercase">AI Online</span>
+          </div>
+          <p class="text-[10px] text-blue-100 font-medium">JKSPDCL Official Assistant</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-1">
+        <button id="hydro-minimize-btn" class="p-1.5 hover:bg-white/15 rounded-lg text-white/80 hover:text-white transition-colors" aria-label="Minimize Chat">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </button>
+        <button id="hydro-close-btn" class="p-1.5 hover:bg-white/15 rounded-lg text-white/80 hover:text-white transition-colors" aria-label="Close Chat">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Quick Prompts Banner -->
+    <div class="bg-slate-50 border-b border-slate-200/80 px-3 py-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth">
+      <span class="text-[10px] font-bold uppercase text-slate-400 flex-shrink-0 pr-1">Suggested:</span>
+      <button class="hydro-prompt-chip whitespace-nowrap text-[10px] font-semibold bg-white hover:bg-blue-50 text-[#0B4F9C] border border-blue-200 px-2.5 py-1 rounded-full shadow-2xs transition-colors">Kirthai HEP Stage-1</button>
+      <button class="hydro-prompt-chip whitespace-nowrap text-[10px] font-semibold bg-white hover:bg-blue-50 text-[#0B4F9C] border border-blue-200 px-2.5 py-1 rounded-full shadow-2xs transition-colors">Operating Power Stations</button>
+      <button class="hydro-prompt-chip whitespace-nowrap text-[10px] font-semibold bg-white hover:bg-blue-50 text-[#0B4F9C] border border-blue-200 px-2.5 py-1 rounded-full shadow-2xs transition-colors">Board of Directors</button>
+      <button class="hydro-prompt-chip whitespace-nowrap text-[10px] font-semibold bg-white hover:bg-blue-50 text-[#0B4F9C] border border-blue-200 px-2.5 py-1 rounded-full shadow-2xs transition-colors">Latest Tenders</button>
+    </div>
+
+    <!-- Messages Container -->
+    <div id="hydro-messages" class="flex-1 p-4 overflow-y-auto space-y-3.5 bg-slate-50/50 scroll-smooth">
+      <!-- Default Greeting -->
+      <div class="flex items-start gap-2.5 animate-fadeIn">
+        <div class="w-7 h-7 rounded-full bg-[#0B4F9C] text-white font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5 shadow-xs">H</div>
+        <div class="bg-white border border-slate-200 rounded-2xl rounded-tl-xs p-3 text-xs text-slate-800 shadow-xs max-w-[85%] leading-relaxed">
+          Hello! I'm <strong>Hydro</strong>, your AI assistant. How can I help you today?
+          <div class="text-[9px] text-slate-400 mt-1">Just now</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Typing Indicator -->
+    <div id="hydro-typing" class="hidden px-4 py-2 bg-slate-50/50">
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 rounded-full bg-[#0B4F9C]/20 text-[#0B4F9C] text-[10px] font-bold flex items-center justify-center">H</div>
+        <div class="bg-white border border-slate-200 px-3 py-1.5 rounded-full flex items-center gap-1 shadow-2xs">
+          <span class="w-1.5 h-1.5 bg-[#0B4F9C] rounded-full animate-bounce"></span>
+          <span class="w-1.5 h-1.5 bg-[#0B4F9C] rounded-full animate-bounce [animation-delay:0.2s]"></span>
+          <span class="w-1.5 h-1.5 bg-[#0B4F9C] rounded-full animate-bounce [animation-delay:0.4s]"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input Form -->
+    <form id="hydro-form" class="p-3 bg-white border-t border-slate-200 flex items-center gap-2">
+      <input
+        id="hydro-input"
+        type="text"
+        placeholder="Ask Hydro about JKSPDCL projects, board..."
+        class="flex-1 bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-[#0B4F9C] focus:bg-white transition-all text-slate-800"
+        autocomplete="off"
+      />
+      <button
+        type="submit"
+        class="bg-[#0B4F9C] hover:bg-[#084A8F] text-white p-2 rounded-xl transition-colors shadow-xs flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[#0B4F9C]"
+        aria-label="Send Message"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+        </svg>
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Hydro Chatbot Client Logic with LocalStorage Session Memory
+  document.addEventListener('DOMContentLoaded', () => {
+    const toggleBtn = document.getElementById('hydro-toggle-btn');
+    const chatWindow = document.getElementById('hydro-chat-window');
+    const closeBtn = document.getElementById('hydro-close-btn');
+    const minimizeBtn = document.getElementById('hydro-minimize-btn');
+    const messagesContainer = document.getElementById('hydro-messages');
+    const form = document.getElementById('hydro-form') as HTMLFormElement;
+    const input = document.getElementById('hydro-input') as HTMLInputElement;
+    const typingIndicator = document.getElementById('hydro-typing');
+    const chips = document.querySelectorAll('.hydro-prompt-chip');
+
+    let isWindowOpen = localStorage.getItem('hydro_chat_open') === 'true';
+    let chatHistory = [];
+
+    try {
+      const saved = localStorage.getItem('hydro_chat_history');
+      if (saved) {
+        chatHistory = JSON.parse(saved);
+      }
+    } catch (e) {
+      chatHistory = [];
+    }
+
+    // Toggle Chat Window
+    function setOpenState(open: boolean) {
+      isWindowOpen = open;
+      localStorage.setItem('hydro_chat_open', open ? 'true' : 'false');
+      if (open) {
+        chatWindow?.classList.remove('hidden');
+        chatWindow?.classList.add('flex');
+        toggleBtn?.classList.add('hidden');
+        input?.focus();
+        scrollToBottom();
+      } else {
+        chatWindow?.classList.remove('flex');
+        chatWindow?.classList.add('hidden');
+        toggleBtn?.classList.remove('hidden');
+      }
+    }
+
+    toggleBtn?.addEventListener('click', () => setOpenState(true));
+    closeBtn?.addEventListener('click', () => setOpenState(false));
+    minimizeBtn?.addEventListener('click', () => setOpenState(false));
+
+    // Restore state
+    if (isWindowOpen) {
+      setOpenState(true);
+    }
+    if (chatHistory.length > 0) {
+      renderHistory();
+    }
+
+    // Handle Quick Chips Click
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const text = chip.textContent?.trim();
+        if (text) {
+          submitUserMessage(text);
+        }
+      });
+    });
+
+    // Handle Form Submit
+    form?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (text) {
+        submitUserMessage(text);
+        input.value = '';
+      }
+    });
+
+    async function submitUserMessage(userText: string) {
+      const timeStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+      
+      // Add User Message
+      chatHistory.push({ role: 'user', text: userText, timestamp: timeStr });
+      saveHistory();
+      renderHistory();
+      scrollToBottom();
+
+      // Show typing indicator
+      typingIndicator?.classList.remove('hidden');
+
+      try {
+        const res = await fetch('http://localhost:3000/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: userText,
+            currentPage: window.location.pathname,
+            history: chatHistory
+          })
+        });
+
+        typingIndicator?.classList.add('hidden');
+
+        if (res.ok) {
+          const data = await res.json();
+          const replyTime = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+          chatHistory.push({ role: 'assistant', text: data.reply, timestamp: replyTime });
+          saveHistory();
+          renderHistory();
+          scrollToBottom();
+        } else {
+          chatHistory.push({ role: 'assistant', text: "I'm having trouble accessing that information right now. Please try again in a moment.", timestamp: timeStr });
+          saveHistory();
+          renderHistory();
+          scrollToBottom();
+        }
+      } catch (err) {
+        typingIndicator?.classList.add('hidden');
+        chatHistory.push({ role: 'assistant', text: "I'm having trouble accessing that information right now. Please try again in a moment.", timestamp: timeStr });
+        saveHistory();
+        renderHistory();
+        scrollToBottom();
+      }
+    }
+
+    function saveHistory() {
+      try {
+        localStorage.setItem('hydro_chat_history', JSON.stringify(chatHistory.slice(-20)));
+      } catch(e) {}
+    }
+
+    function renderHistory() {
+      if (!messagesContainer) return;
+      
+      let html = `
+        <div class="flex items-start gap-2.5">
+          <div class="w-7 h-7 rounded-full bg-[#0B4F9C] text-white font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5 shadow-xs">H</div>
+          <div class="bg-white border border-slate-200 rounded-2xl rounded-tl-xs p-3 text-xs text-slate-800 shadow-xs max-w-[85%] leading-relaxed">
+            Hello! I'm <strong>Hydro</strong>, your AI assistant. How can I help you today?
+            <div class="text-[9px] text-slate-400 mt-1">Just now</div>
+          </div>
+        </div>
+      `;
+
+      chatHistory.forEach(item => {
+        if (item.role === 'user') {
+          html += `
+            <div class="flex justify-end">
+              <div class="bg-[#0B4F9C] text-white rounded-2xl rounded-tr-xs p-3 text-xs shadow-xs max-w-[85%] leading-relaxed">
+                ${escapeHtml(item.text)}
+                <div class="text-[9px] text-blue-200 mt-1 text-right">${item.timestamp}</div>
+              </div>
+            </div>
+          `;
+        } else {
+          html += `
+            <div class="flex items-start gap-2.5">
+              <div class="w-7 h-7 rounded-full bg-[#0B4F9C] text-white font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5 shadow-xs">H</div>
+              <div class="bg-white border border-slate-200 rounded-2xl rounded-tl-xs p-3 text-xs text-slate-800 shadow-xs max-w-[88%] leading-relaxed prose-sm">
+                ${formatMarkdown(item.text)}
+                <div class="text-[9px] text-slate-400 mt-1.5">${item.timestamp}</div>
+              </div>
+            </div>
+          `;
+        }
+      });
+
+      messagesContainer.innerHTML = html;
+    }
+
+    function scrollToBottom() {
+      if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+    }
+
+    function escapeHtml(str: string) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    // Markdown Parser helper for links, bold text, bullets, and headings
+    function formatMarkdown(text: string) {
+      let formatted = escapeHtml(text);
+
+      // Headings
+      formatted = formatted.replace(/^### (.*$)/gim, '<h4 class="font-extrabold text-[#0B4F9C] text-xs mt-1 mb-1">$1</h4>');
+
+      // Bold
+      formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+      // Markdown Links: [Title](URL)
+      formatted = formatted.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-[#0B4F9C] font-semibold underline hover:text-[#083A73]">$1</a>');
+
+      // Bullet lists
+      formatted = formatted.replace(/^- (.*$)/gim, '<li class="ml-3 list-disc text-slate-700 my-0.5">$1</li>');
+
+      // Line breaks
+      formatted = formatted.replace(/\n/g, '<br />');
+
+      return formatted;
+    }
+  });
+</script>
