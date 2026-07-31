@@ -166,7 +166,60 @@ async function main() {
       update: item,
     });
   }
-  console.log('Gallery items seeded.');
+  // 5. Create Sample Active Tenders
+  const tenders = [
+    {
+      id: 'tender-seed-1',
+      referenceNo: 'JKSPDCL/eNIT/2026/CIVIL/01',
+      title: 'Construction & Slope Stabilization Works for Kirthai HEP Stage-1 Access Road',
+      description: 'Comprehensive civil execution for access road network and tunnel portal slope protection at Gulabgarh, Padder.',
+      documentType: 'NIT',
+      workCategory: 'Civil',
+      locationTag: 'HQ_SRINAGAR',
+      publishDate: new Date('2026-07-15'),
+      closingDate: new Date('2026-08-30'),
+      documentUrl: '/uploads/tenders/nit_kirthai_civil_01.pdf',
+      fileSizeBytes: 2450000,
+      status: 'Active',
+    },
+    {
+      id: 'tender-seed-2',
+      referenceNo: 'JKSPDCL/eNIT/2026/EM/04',
+      title: 'Supply and Installation of 132kV Switchyard Equipment at USHP II Kangan',
+      description: 'Electro-mechanical retrofitting and circuit breaker replacement for Upper Sindh Hydel Project Stage II.',
+      documentType: 'NIT',
+      workCategory: 'Electro-Mechanical',
+      locationTag: 'HEP_LOWER_JHELUM',
+      publishDate: new Date('2026-07-20'),
+      closingDate: new Date('2026-09-15'),
+      documentUrl: '/uploads/tenders/nit_ushp_em_04.pdf',
+      fileSizeBytes: 1850000,
+      status: 'Active',
+    },
+    {
+      id: 'tender-seed-3',
+      referenceNo: 'JKSPDCL/eNIT/2026/IT/09',
+      title: 'Development of SCADA Integration & Real-time Telemetry Data Portal',
+      description: 'IT and telemetry integration across operational hydroelectric power houses in J&K.',
+      documentType: 'NIT',
+      workCategory: 'IT',
+      locationTag: 'HQ_JAMMU',
+      publishDate: new Date('2026-07-25'),
+      closingDate: new Date('2026-09-01'),
+      documentUrl: '/uploads/tenders/nit_it_scada_09.pdf',
+      fileSizeBytes: 1200000,
+      status: 'Active',
+    }
+  ];
+
+  for (const t of tenders) {
+    await prisma.tender.upsert({
+      where: { referenceNo: t.referenceNo },
+      create: t,
+      update: t,
+    });
+  }
+  console.log('Sample tenders seeded.');
 
   console.log('Seeding completed successfully!');
 }

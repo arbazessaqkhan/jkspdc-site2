@@ -160,7 +160,7 @@ const getDocUrl = (url?: string) => {
               data-status={tender.status} 
               data-category={tender.workCategory} 
               data-location={tender.locationTag} 
-              data-search-keys={`${tender.title.toLowerCase()} ${tender.referenceNo.toLowerCase()} ${(tender.corrigendums || []).map((c: any) => c.title.toLowerCase()).join(' ')}`}
+              data-search-keys={`${(tender.id || '').toLowerCase()} ${(tender.referenceNo || '').toLowerCase()} ${(tender.title || '').toLowerCase()} ${(tender.workCategory || '').toLowerCase()} ${(tender.locationTag || '').toLowerCase()} ${(tender.documentType || '').toLowerCase()} ${(tender.description || '').toLowerCase()} ${(tender.corrigendums || []).map((c: any) => `${c.title} ${c.id || ''}`).join(' ').toLowerCase()}`}
             >
               <div class="space-y-2 text-left flex-1 min-w-0">
                 <div>

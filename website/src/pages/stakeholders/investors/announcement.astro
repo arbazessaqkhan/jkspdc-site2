@@ -66,18 +66,31 @@ const formatDate = (dateStr: string) => {
       <!-- Main Content -->
       <article class="lg:col-span-2 space-y-6">
         
-        <!-- Filter Bar -->
-        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <label for="year-filter" class="text-xs font-bold text-slate-650">Select Year</label>
-            <select id="year-filter" class="form-select text-xs py-1.5 pr-8 pl-3 border-slate-200 rounded bg-white">
-              <option value="All">All Years</option>
-              {years.map((y: any) => (
-                <option value={String(y)}>{y}</option>
-              ))}
-            </select>
+        <!-- Filter & Search Bar -->
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+          <div class="flex items-center gap-3 flex-1">
+            <div class="flex items-center gap-2 shrink-0">
+              <label for="year-filter" class="text-xs font-bold text-slate-650 shrink-0">Select Year</label>
+              <select id="year-filter" class="form-select text-xs py-1.5 pr-8 pl-3 border-slate-200 rounded bg-white">
+                <option value="All">All Years</option>
+                {years.map((y: any) => (
+                  <option value={String(y)}>{y}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div class="relative flex-1 max-w-sm">
+              <label for="notif-search-input" class="sr-only">Search Notifications</label>
+              <input 
+                id="notif-search-input" 
+                type="text" 
+                placeholder="Search by word, char, title, ID or file..." 
+                class="w-full text-xs bg-white border border-slate-200 rounded-lg py-1.5 px-3 focus:outline-none focus:ring-2 focus:ring-[#0B4F9C]" 
+              />
+            </div>
           </div>
-          <div class="text-xs text-slate-500 font-semibold" id="count-display">
+
+          <div class="text-xs text-slate-500 font-semibold shrink-0" id="count-display">
             Showing {notifications.length} item(s)
           </div>
         </div>
@@ -93,6 +106,7 @@ const formatDate = (dateStr: string) => {
               <div 
                 class="notif-card p-5 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                 data-year={new Date(notif.publishDate).getFullYear()}
+                data-search-keys={`${(notif.id || '').toLowerCase()} ${(notif.title || '').toLowerCase()} ${(notif.fileName || '').toLowerCase()}`}
               >
                 <div class="space-y-1.5 flex-1 min-w-0 text-left">
                   <h4 class="font-extrabold text-slate-800 text-sm leading-snug">{notif.title}</h4>
@@ -141,17 +155,23 @@ const formatDate = (dateStr: string) => {
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const filter = document.getElementById('year-filter') as HTMLSelectElement;
+    const searchInput = document.getElementById('notif-search-input') as HTMLInputElement;
     const countDisplay = document.getElementById('count-display');
     const cards = document.querySelectorAll('.notif-card');
 
     function filterAnnouncements() {
-      if (!filter) return;
-      const selectedYear = filter.value;
+      const selectedYear = filter ? filter.value : 'All';
+      const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
       let visibleCount = 0;
 
       cards.forEach((card: any) => {
         const year = card.getAttribute('data-year');
-        if (selectedYear === 'All' || year === selectedYear) {
+        const searchKeys = card.getAttribute('data-search-keys') || '';
+
+        const matchesYear = selectedYear === 'All' || year === selectedYear;
+        const matchesSearch = query === '' || searchKeys.includes(query);
+
+        if (matchesYear && matchesSearch) {
           card.classList.remove('hidden');
           visibleCount++;
         } else {
@@ -165,6 +185,7 @@ const formatDate = (dateStr: string) => {
     }
 
     filter?.addEventListener('change', filterAnnouncements);
+    searchInput?.addEventListener('input', filterAnnouncements);
     filterAnnouncements();
   });
 </script>
