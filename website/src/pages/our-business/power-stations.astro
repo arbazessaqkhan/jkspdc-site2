@@ -124,9 +124,9 @@ const centralGroup = sectorGroups.find(g => g.name === 'Central') || { name: 'Ce
                     </thead>
                     <tbody>
                       {basin.projects.map((p) => (
-                        <tr class="hover:bg-slate-50/80 transition-colors">
+                        <tr class="hover:bg-slate-100/70 transition-colors cursor-pointer" onclick={`window.location.href='/our-business/power-station-details?id=${p.id}'`}>
                           <td class="font-bold text-left text-xs">
-                            <a href={`/our-business/power-station-details?id=${p.id}`} class="text-[#0B4F9C] hover:underline">
+                            <a href={`/our-business/power-station-details?id=${p.id}`} class="text-[#0B4F9C] hover:underline" onclick="event.stopPropagation();">
                               {formatProjectName(p.name)}
                             </a>
                           </td>
@@ -177,9 +177,9 @@ const centralGroup = sectorGroups.find(g => g.name === 'Central') || { name: 'Ce
                     </thead>
                     <tbody>
                       {basin.projects.map((p) => (
-                        <tr class="hover:bg-slate-50/80 transition-colors">
+                        <tr class="hover:bg-slate-100/70 transition-colors cursor-pointer" onclick={`window.location.href='/our-business/power-station-details?id=${p.id}'`}>
                           <td class="font-bold text-left text-xs">
-                            <a href={`/our-business/power-station-details?id=${p.id}`} class="text-[#0B4F9C] hover:underline">
+                            <a href={`/our-business/power-station-details?id=${p.id}`} class="text-[#0B4F9C] hover:underline" onclick="event.stopPropagation();">
                               {formatProjectName(p.name)}
                             </a>
                           </td>

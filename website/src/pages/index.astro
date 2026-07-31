@@ -823,10 +823,10 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
       <div class="px-8 md:px-12 pt-6 pb-3">
         <div id="projects-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {projects.map((p) => (
-            <div class="project-card bg-white rounded-xl border border-slate-200 p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-250" data-status={p.status} data-type={p.type} data-name={p.name.toLowerCase()}>
+            <a href={`/our-business/power-station-details?id=${p.id}`} class="project-card block bg-white rounded-xl border border-slate-200 p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-250 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C] group" data-status={p.status} data-type={p.type} data-name={p.name.toLowerCase()}>
               <div class="flex items-start justify-between mb-4">
                 <div class="flex-1 min-w-0 pr-3">
-                  <div class="font-bold text-slate-900 text-sm leading-snug">{formatProjectName(p.name)}</div>
+                  <div class="font-bold text-slate-900 text-sm leading-snug group-hover:text-[#0B4F9C] transition-colors">{formatProjectName(p.name)}</div>
                   {(p.location || p.basin) && (
                     <div class="text-xs text-slate-400 mt-1">{p.location}{p.location && p.basin ? ' — ' : ''}{p.basin ? `${p.basin} Basin` : ''}</div>
                   )}
@@ -843,9 +843,9 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
                   {p.type}
                 </span>
                 <span class="text-slate-400">Est. {p.yearOfCommissioning || '—'}</span>
-                <a href={`/our-business/power-station-details?id=${p.id}`} class="text-[#0B4F9C] hover:underline font-semibold">Details &rarr;</a>
+                <span class="text-[#0B4F9C] font-semibold group-hover:underline">Details &rarr;</span>
               </div>
-            </div>
+            </a>
           ))}
         </div>
       </div>
