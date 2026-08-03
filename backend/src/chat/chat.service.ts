@@ -37,6 +37,7 @@ export class ChatService {
     { title: "Corporate Vision", url: "/about-us/explore/vision", description: "Our long-term target for power sufficiency and clean power development.", keywords: ["vision", "target", "future", "goal", "goals"] },
     { title: "Corporate Mission", url: "/about-us/explore/mission", description: "Our mission and operational priorities for power capacity development.", keywords: ["mission", "objective", "objectives", "priority", "priorities"] },
     { title: "Corporate Profile", url: "/about-us/explore/profile", description: "Incorporation details, legal status, and registration profile.", keywords: ["incorporation", "legal status", "registration"] },
+    { title: "GSTIN Registration Details", url: "/about-us/explore/gstin-registration", description: "Official Goods and Services Tax Identification Number (GSTIN), primary GSTIN, state-wise registration profile, and GST tax invoice guidelines.", keywords: ["gst", "gstin", "tax", "goods and services tax", "taxation", "tin", "tax invoice", "pan", "cin"] },
     { title: "Main Objectives", url: "/about-us/explore/objectives", description: "Core corporate and commercial objectives of the corporation.", keywords: ["commercial objective", "objectives", "aim", "aims"] },
     { title: "Organization Chart", url: "/about-us/explore/organization-chart", description: "Hierarchical structure of the administrative and technical wings of the corporation.", keywords: ["org chart", "organization", "organogram", "hierarchy", "structure", "wing", "wings"] },
     { title: "Roles & Responsibility", url: "/about-us/explore/roles-responsibility", description: "Authorized roles and responsibilities assigned to corporate wings and officers.", keywords: ["role", "roles", "responsibility", "responsibilities", "duty", "duties"] },
@@ -48,6 +49,8 @@ export class ChatService {
     { title: "Honours & Awards", url: "/about-us/others/awards", description: "Recognitions, corporate safety certificates, and milestones awarded to JKSPDC.", keywords: ["award", "awards", "honour", "honours", "certificate", "certificates", "recognition"] },
     { title: "Contact Corporate Offices", url: "/about-us/others/contact", description: "Official headquarters details and correspondence channels in Srinagar and Jammu.", keywords: ["contact", "contacts", "address", "addresses", "email", "office", "offices", "headquarters", "srinagar", "jammu"] },
     { title: "Corporate Policies", url: "/about-us/explore/policies", description: "One-stop directory of all official corporate policies, vigilance frameworks, and compliance guidelines.", keywords: ["policy", "policies", "framework", "frameworks", "guideline", "guidelines", "compliance", "rule", "rules"] },
+    { title: "RTI Act (Section 4)", url: "/about-us/explore/rti", description: "Right to Information Act disclosures under Section 4, statutory obligations, Public Information Officer (PIO) contacts, and RTI application forms.", keywords: ["rti", "right to information", "section 4", "pio", "public information officer", "statutory disclosures", "transparency"] },
+    { title: "Current Openings & Careers", url: "/stakeholders/career-seekers/current-openings", description: "Official career portal, job notifications, recruitment circulars, and employment opportunities at JKSPDC.", keywords: ["career", "careers", "job", "jobs", "opening", "openings", "recruitment", "vacancy", "vacancies", "employment"] },
 
     // Our Business & Hydro Assets
     { title: "Operating Power Stations", url: "/our-business/power-stations", description: "Registry of active hydroelectric and thermal power plants managed by the corporation.", keywords: ["power station", "power stations", "operating", "power plant", "power plants", "bhep", "ushp", "ljhp", "chep", "capacity", "hydro"] },
@@ -116,7 +119,7 @@ export class ChatService {
     const rawInput = (dto.message || '').trim();
     if (!rawInput) {
       return {
-        reply: "Hello! I am the **HYDRO ADVANCED AI ASSISTANT (v2026.1)**. I provide 100% guidance across all pages, services, tenders, policies, and hydroelectric power stations on the JKSPDC web platform. How can I assist you today?",
+        reply: "Hello! I am the **HYDRO ADVANCED AI ASSISTANT (v2026.1)**. I provide 100% complete guidance and granular facts across all pages, services, tenders, GSTIN records, policies, and hydroelectric power stations on the JKSPDC web platform.\n\n💡 **Tip:** Ask me about *GST / GSTIN*, *tenders*, *BHEP*, *board of directors*, *financials*, *CSR policy*, *RTI*, *careers*, or *contact*!",
       };
     }
 
@@ -125,7 +128,7 @@ export class ChatService {
     // 1. Greeting Check
     if (this.isGreeting(lowerInput)) {
       return {
-        reply: "Hello! I am the **HYDRO ADVANCED AI ASSISTANT (v2026.1)**, your 100% complete AI guide for the entire JKSPDC website. I can guide you through any page, tender, commercial tariff, CSR policy, or power project. How can I help you?",
+        reply: "Hello! I am the **HYDRO ADVANCED AI ASSISTANT (v2026.1)**, your 100% complete AI guide for the entire JKSPDC website. I can guide you through any page, tender, GSTIN profile, commercial tariff, CSR policy, or power project.\n\n💡 **Tip:** Try searching for keywords like *GST*, *GSTIN*, *BHEP*, *overview*, *tenders*, *board*, *finance*, *RTI*, or *contact*!",
       };
     }
 
@@ -142,6 +145,19 @@ export class ChatService {
       return { reply: pageInfo };
     }
 
+    // 3.5 GST / GSTIN & Tax Registration Entity Check (Enmapped for GST & GSTIN)
+    if (
+      lowerInput.includes('gst') ||
+      lowerInput.includes('gstin') ||
+      lowerInput.includes('gist') ||
+      /\b(tax|taxation|tin|pan|cin)\b/i.test(lowerInput) ||
+      lowerInput.includes('goods and services tax') ||
+      lowerInput.includes('tax registration') ||
+      lowerInput.includes('tax invoice')
+    ) {
+      return { reply: this.generateGstinProfileReport() };
+    }
+
     // 4. Retrieve Database Entities in parallel
     const [
       stations,
@@ -154,6 +170,136 @@ export class ChatService {
       this.prisma.tender.findMany({ orderBy: { createdAt: 'desc' } }),
       this.prisma.policyDocument.findMany({ orderBy: { createdAt: 'desc' } }),
     ]);
+
+    // 4.1 Comprehensive Topic Interceptors for 100% Granular Fact Retrieval (Strict Word-Boundary Matching)
+    if (
+      /\b(overview|history|mohra|panchamrit)\b/i.test(lowerInput) ||
+      lowerInput.includes('historical legacy') ||
+      lowerInput.includes('capital structure') ||
+      lowerInput.includes('5000 crore') ||
+      lowerInput.includes('2593')
+    ) {
+      return { reply: this.generateCorporateOverviewReport() };
+    }
+
+    if (
+      /\b(profile|pbt)\b/i.test(lowerInput) ||
+      lowerInput.includes('corporate profile') ||
+      lowerInput.includes('company profile') ||
+      lowerInput.includes('paid-up capital') ||
+      lowerInput.includes('authorised capital') ||
+      lowerInput.includes('power sales revenue') ||
+      lowerInput.includes('1136') ||
+      lowerInput.includes('361.64')
+    ) {
+      return { reply: this.generateCorporateProfileReport() };
+    }
+
+    if (
+      /\b(board|director|directors|leadership|governor)\b/i.test(lowerInput) ||
+      lowerInput.includes('board of directors') ||
+      lowerInput.includes('manoj sinha') ||
+      lowerInput.includes('omar abdullah') ||
+      lowerInput.includes('ashwani kumar') ||
+      lowerInput.includes('rahul yadav') ||
+      lowerInput.includes('managing director') ||
+      lowerInput.includes('chief minister')
+    ) {
+      return { reply: this.generateBoardAndLeadershipReport(directors) };
+    }
+
+    if (
+      /\b(executives|directory|phonebook|edtech|edfin)\b/i.test(lowerInput) ||
+      lowerInput.includes('executive directory') ||
+      lowerInput.includes('phone directory') ||
+      lowerInput.includes('senior executives') ||
+      lowerInput.includes('company secretary') ||
+      lowerInput.includes('contact email')
+    ) {
+      return { reply: this.generateExecutivesDirectoryReport() };
+    }
+
+    if (
+      /\b(commercial|tariff|tariffs|billing|bill|bills|ppa|jmr|serc|cerc|discom|discoms|kpdcl|jpdcl)\b/i.test(lowerInput) ||
+      lowerInput.includes('power purchase') ||
+      lowerInput.includes('power trading') ||
+      lowerInput.includes('power beneficiaries')
+    ) {
+      return { reply: this.generateCommercialAndTariffReport() };
+    }
+
+    if (
+      /\bcsr\b/i.test(lowerInput) ||
+      lowerInput.includes('social responsibility') ||
+      lowerInput.includes('csr policy') ||
+      lowerInput.includes('csr project') ||
+      lowerInput.includes('csr plan') ||
+      lowerInput.includes('csr report') ||
+      lowerInput.includes('csr format')
+    ) {
+      return { reply: this.generateCsrAndEnvironmentReport('csr') };
+    }
+
+    if (
+      /\b(environment|environmental|emp|clearance|clearances|moefcc|cat|afforestation|catchment)\b/i.test(lowerInput) ||
+      lowerInput.includes('r&r') ||
+      lowerInput.includes('rehabilitation') ||
+      lowerInput.includes('resettlement')
+    ) {
+      return { reply: this.generateCsrAndEnvironmentReport('environment') };
+    }
+
+    if (
+      /\b(moa|aoa|memorandum|ethics|ethic|conduct)\b/i.test(lowerInput) ||
+      lowerInput.includes('articles of association') ||
+      lowerInput.includes('code of conduct')
+    ) {
+      return { reply: this.generateLegalAndMoaAoaReport(lowerInput) };
+    }
+
+    if (
+      /\b(financial|financials|finance|balance|audit|mou)\b/i.test(lowerInput) ||
+      lowerInput.includes('financial result') ||
+      lowerInput.includes('annual report') ||
+      lowerInput.includes('balance sheet') ||
+      lowerInput.includes('audit report')
+    ) {
+      return { reply: this.generateFinancialsAndInvestorReport() };
+    }
+
+    if (
+      /\b(msme|msmes|startup|startups|emd|clpm)\b/i.test(lowerInput) ||
+      lowerInput.includes('vendor portal') ||
+      lowerInput.includes('online payment') ||
+      lowerInput.includes('emd payment') ||
+      lowerInput.includes('tender fee') ||
+      lowerInput.includes('contract labor')
+    ) {
+      return { reply: this.generateVendorAndTenderPortalReport() };
+    }
+
+    if (
+      /\b(tender|tenders|bid|bids|nit|enit|rfp|procurement)\b/i.test(lowerInput)
+    ) {
+      return { reply: this.generateVendorAndTenderPortalReport() };
+    }
+
+    if (
+      /\b(rti|pio)\b/i.test(lowerInput) ||
+      lowerInput.includes('right to information') ||
+      lowerInput.includes('section 4') ||
+      lowerInput.includes('public information officer')
+    ) {
+      return { reply: this.generateRtiReport() };
+    }
+
+    if (
+      /\b(career|careers|job|jobs|vacancy|vacancies|recruitment)\b/i.test(lowerInput) ||
+      lowerInput.includes('current openings') ||
+      lowerInput.includes('employment')
+    ) {
+      return { reply: this.generateCareersReport() };
+    }
 
     // 5. Global Master Report Request
     if (lowerInput === 'everything' || lowerInput === 'everything globally' || lowerInput.includes('master report') || lowerInput.includes('all projects')) {
@@ -243,26 +389,51 @@ export class ChatService {
       };
     }
 
-    // 9. STEM & TOKEN-TOLERANT WEBSITE KNOWLEDGE BASE ROUTE MATCHING (Handles "policy", "policies", "tender", "tenders", etc.)
+    // 9. RELEVANCE-SCORED WEBSITE KNOWLEDGE BASE ROUTE MATCHING (Word-boundary & weighted scoring)
     const userTokens = this.extractStems(lowerInput);
 
-    const matchingRoutes = this.websiteRoutes.filter(route => {
-      // 1. Direct title or keyword substring match
-      if (lowerInput.includes(route.title.toLowerCase())) return true;
-      if (route.keywords.some(k => lowerInput.includes(k))) return true;
+    const scoredRoutes = this.websiteRoutes.map(route => {
+      let score = 0;
+      const lowerTitle = route.title.toLowerCase();
+      const lowerDesc = route.description.toLowerCase();
 
-      // 2. Token stem match
-      return userTokens.some(token => {
-        if (token.length < 3) return false;
-        return route.keywords.some(k => k.includes(token) || token.includes(k)) ||
-               route.title.toLowerCase().includes(token) ||
-               route.description.toLowerCase().includes(token);
+      // 1. Direct Title & Keyword Matches
+      if (lowerTitle === lowerInput) score += 100;
+      else if (lowerInput.includes(lowerTitle)) score += 80;
+
+      if (route.keywords.some(k => k === lowerInput)) score += 90;
+      else if (route.keywords.some(k => lowerInput.includes(k) && k.length >= 3)) score += 50;
+
+      // 2. Token Word-Boundary Matching (Prevents sub-string false positives like 'gist' matching 'registration')
+      userTokens.forEach(token => {
+        if (token.length < 2) return;
+        const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const wordRegex = new RegExp(`\\b${escaped}\\b`, 'i');
+
+        if (route.keywords.some(k => k === token)) {
+          score += 60;
+        } else if (route.keywords.some(k => wordRegex.test(k))) {
+          score += 40;
+        }
+
+        if (wordRegex.test(lowerTitle)) {
+          score += 50;
+        }
+
+        if (wordRegex.test(lowerDesc)) {
+          score += 25;
+        }
       });
-    });
 
-    if (matchingRoutes.length > 0) {
-      const topRoute = matchingRoutes[0];
-      let linksList = matchingRoutes.slice(0, 5).map(r => `- **[${r.title}](${r.url})**: ${r.description}`).join('\n');
+      return { route, score };
+    }).filter(item => item.score > 0);
+
+    scoredRoutes.sort((a, b) => b.score - a.score);
+
+    if (scoredRoutes.length > 0) {
+      const topRoute = scoredRoutes[0].route;
+      const topMatches = scoredRoutes.slice(0, 5).map(item => item.route);
+      let linksList = topMatches.map(r => `- **[${r.title}](${r.url})**: ${r.description}`).join('\n');
 
       return {
         reply: `### Website Guide: ${topRoute.title}\n\n` +
@@ -296,17 +467,20 @@ export class ChatService {
              `- **[Financial Results](/stakeholders/investors/financial-results)** — Balance sheets & annual reports.\n` +
              `- **[CSR Policy & Overview](/sustainability/csr/overview)** — Corporate social responsibility initiatives.\n` +
              `- **[Website Sitemap](/sitemap)** — Full index of all 67 website routes.\n\n` +
-             `💡 **Tip:** You can ask me about any station name (e.g. *CHEP*, *BHEP*, *Kirthai*), or keywords like *policy*, *policies*, *tenders*, *finance*, or *contact*!`
+             `💡 **Tip:** You can ask me about *GST / GSTIN*, any station name (*CHEP*, *BHEP*, *Kirthai*), or keywords like *overview*, *board*, *tenders*, *finance*, *CSR*, *RTI*, or *contact*!`
     };
   }
 
-  // Token Stemming Helper to strip common English suffixes (e.g., policy/policies, tender/tenders)
+  // Token Stemming Helper to strip common English suffixes (e.g., policy/policies, tender/tenders) & map aliases
   private extractStems(text: string): string[] {
-    const rawWords = text.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w.length >= 3);
+    const rawWords = text.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w.length >= 2);
     const stems: string[] = [];
 
     rawWords.forEach(w => {
       stems.push(w);
+      if (w === 'gist') {
+        stems.push('gst', 'gstin');
+      }
       if (w.endsWith('ies') && w.length > 4) {
         stems.push(w.slice(0, -3) + 'y'); // policies -> policy
       } else if (w.endsWith('es') && w.length > 3) {
@@ -594,5 +768,198 @@ export class ChatService {
              `Feel free to ask me any question about this section or ask me to guide you to any other portal on the website!`;
     }
     return `You are currently viewing: \`${url}\`. Feel free to ask me to guide you anywhere across our website!`;
+  }
+
+  private generateGstinProfileReport(): string {
+    return `### Goods & Services Tax Identification Number (GSTIN) Profile\n\n` +
+           `| Legal Identifier / Parameter | Details & Statutory Records |\n` +
+           `|---|---|\n` +
+           `| **Legal Entity Name** | Jammu & Kashmir State Power Development Corporation Limited (JKSPDCL) |\n` +
+           `| **Primary GSTIN** | \`01AAACJ9770H2ZL\` |\n` +
+           `| **PAN (Permanent Account Number)** | \`AAACJ9770H\` |\n` +
+           `| **CIN (Corporate Identity Number)** | \`U40101JK1995SGC001418\` |\n` +
+           `| **State / State Code** | Jammu & Kashmir (State Code: \`01\`) |\n` +
+           `| **Principal Place of Business** | Corporate Office, Ashok Nagar, Satwari, Jammu-180004 |\n\n` +
+           `📌 **Vendor & Billing Invoicing Requirements:**\n` +
+           `- All vendors, contractors, and service providers must reference the correct GSTIN (**\`01AAACJ9770H2ZL\`**) on all tax invoices submitted for payment processing.\n` +
+           `- For any queries related to TDS under GST or financial transaction compliance, please contact the Commercial and Accounts division.\n\n` +
+           `💡 **Navigation Guide:** View official registration details on the [GSTIN Registration Details](/about-us/explore/gstin-registration) page.`;
+  }
+
+  private generateCorporateOverviewReport(): string {
+    return `### Corporate Overview — Jammu & Kashmir State Power Development Corporation Limited (JKSPDCL)\n\n` +
+           `**1. Executive Mandate & Governance:**\n` +
+           `- **Incorporation:** Established in **1995** under the Companies Act as a wholly owned Public Sector Undertaking (PSU) of the Government of Jammu & Kashmir.\n` +
+           `- **Core Purpose:** Formed to take over, execute, complete, operate, and maintain all power stations and power projects across the UT of Jammu & Kashmir.\n\n` +
+           `**2. Historical Generation Legacy:**\n` +
+           `- Power development began with the historic **4 MW Mohra Hydroelectric Plant in 1905**, one of Asia's earliest hydel installations.\n` +
+           `- Currently operates **13 Hydroelectric Projects (HEPs)** with an aggregate installed capacity of **1,197.4 MW**, anchored by the flagship **900 MW Baglihar Hydroelectric Project (BHEP)** on the Chenab River.\n\n` +
+           `**3. Power Realisation & Beneficiaries:**\n` +
+           `- Primary power generated caters to the UT of J&K, sold to local DISCOMs (**KPDCL** & **JPDCL**) via JKPCL (Trade Co).\n` +
+           `- Surplus seasonal power is traded to external state utilities through **PTC India Ltd.**, **IEX (Indian Energy Exchange)**, and **Haryana Power Purchase Centre (HPPC)**.\n\n` +
+           `**4. Capital Structure & Joint Ventures:**\n` +
+           `- **Authorised Share Capital:** \`Rs. 5,000.00 Crores\`\n` +
+           `- **Paid-up Share Capital:** \`Rs. 2,593.3443 Crores\`\n` +
+           `- **Joint Venture Investments:** \`Rs. 2,357.61 Crores\` in joint venture corporations with NHPC:\n` +
+           `  - **Chenab Valley Power Projects Pvt. Ltd. (CVPPPL):** Incorporated in 2011 (3,094 MW combined: Pakal Dul 1,000MW, Kiru 624MW, Kwar 540MW commissioning in 2026, Kirthai-II 930MW).\n` +
+           `  - **Ratle Hydroelectric Power Corporation Limited (RHPCL):** Incorporated in 2021 for the 850 MW Ratle HEP (slated for May 2026 commissioning).\n\n` +
+           `**5. Ongoing & Future Generation Mandate:**\n` +
+           `- **Under Construction:** 37.5 MW Parnai HEP and 12 MW Karnah HEP.\n` +
+           `- **Award Stage:** 93 MW New Ganderbal HEP and 48 MW Lower Kalnai HEP.\n` +
+           `- **Appraisal Stage:** 390 MW Kirthai-I HEP.\n` +
+           `- **Clean Energy Transition:** Expanding into solar, wind, green hydrogen, and hybrid solutions aligned with India's *"Panchamrit"* pledge (50% energy requirements from renewables by 2030).\n\n` +
+           `💡 **Navigation Guide:** Open the [Corporate Overview](/about-us/explore/overview) page for complete disclosures.`;
+  }
+
+  private generateCorporateProfileReport(): string {
+    return `### Official Corporate Profile & Operational Parameters\n\n` +
+           `| Corporate Parameter | Official Disclosures & Financial Data |\n` +
+           `|---|---|\n` +
+           `| **Full Corporate Name** | Jammu and Kashmir State Power Development Corporation Limited (JKSPDCL) |\n` +
+           `| **Legal Status** | Wholly owned Public Sector Undertaking (PSU) of the Government of J&K |\n` +
+           `| **Year of Incorporation** | 1995 (under the Companies Act) |\n` +
+           `| **Corporate Mandate** | Take over, execute, complete, operate, and maintain power stations in J&K |\n` +
+           `| **Authorised Share Capital** | **Rs. 5,000.00 Crores** |\n` +
+           `| **Paid-up Share Capital** | **Rs. 2,593.3443 Crores** |\n` +
+           `| **Joint Venture Investments** | **Rs. 2,357.61 Crores** (Invested in CVPPPL & RHPCL with NHPC) |\n` +
+           `| **Revenue from Power Sales** | **Rs. 1,136.94 Crores** *(Financial Year 2023-24)* |\n` +
+           `| **Profit Before Tax (PBT)** | **Rs. 361.64 Crores** *(Financial Year 2023-24)* |\n` +
+           `| **Operating Generation Infrastructure** | 13 Hydroelectric Projects (HEPs) totaling **1,197.4 MW** capacity |\n` +
+           `| **Primary Statutory Identifiers** | GSTIN: \`01AAACJ9770H2ZL\` \| PAN: \`AAACJ9770H\` \| CIN: \`U40101JK1995SGC001418\` |\n\n` +
+           `💡 **Navigation Guide:** View statutory filings on the [Corporate Profile](/about-us/explore/profile) page.`;
+  }
+
+  private generateBoardAndLeadershipReport(directors: any[]): string {
+    let directorsMarkdown = directors && directors.length > 0
+      ? directors.map(d => `- **${d.name}**: ${d.position} (*Role: ${d.role}*)`).join('\n')
+      : `- **Shri Manoj Sinha**: Honorable Lieutenant Governor, UT of Jammu and Kashmir\n` +
+        `- **Shri Omar Abdullah**: Honorable Chief Minister, UT of Jammu and Kashmir (Minister Incharge PDD)\n` +
+        `- **Shri Ashwani Kumar (IAS)**: Financial Commissioner / Chairman, JKSPDC\n` +
+        `- **Shri Rahul Yadav (IAS)**: Managing Director, JKSPDC`;
+
+    return `### Board of Directors & Executive Governance\n\n` +
+           `The Board of Directors guides corporate policy, capital allocations, and hydro infrastructure deployment for the Corporation:\n\n` +
+           `${directorsMarkdown}\n\n` +
+           `#### Key Governance Sub-Committees:\n` +
+           `- **Audit Committee:** Reviews statutory audit reports, internal compliance, financial statements, and accounts.\n` +
+           `- **Projects Committee:** Evaluates DPR formulations, tender approvals, civil/EM package awards, and execution timelines.\n` +
+           `- **General Management Committee:** Regulates corporate HR policies, administrative wing deployments, and inter-departmental operations.\n\n` +
+           `💡 **Navigation Guide:** Explore leadership profiles on the [Board of Directors](/about-us/management/board) and [Committee of Directors](/about-us/management/committees) pages.`;
+  }
+
+  private generateExecutivesDirectoryReport(): string {
+    return `### Phone Directory & Official Contact Registry of Senior Executives\n\n` +
+           `| Designation / Wing | Official Location | Contact Channel / Email |\n` +
+           `|---|---|---|\n` +
+           `| **Managing Director** | Corporate Office Srinagar / Jammu | \`md@jkspdc.nic.in\` |\n` +
+           `| **Executive Director (Technical)** | Technical Wing, Srinagar | \`edtech@jkspdc.nic.in\` |\n` +
+           `| **Executive Director (Finance)** | Finance Wing, Jammu | \`edfin@jkspdc.nic.in\` |\n` +
+           `| **Company Secretary** | Legal & Governance Secretariat, Srinagar | \`cs@jkspdc.nic.in\` |\n` +
+           `| **General Correspondence** | Corporate Public Interface | \`contact@jkspdc.nic.in\` |\n\n` +
+           `📌 **Headquarters Locations:**\n` +
+           `- **Jammu Corporate Office:** Ashok Nagar, Satwari, Jammu-180004.\n` +
+           `- **Srinagar Corporate Office:** Exhibition Grounds, Srinagar-190001.\n\n` +
+           `💡 **Navigation Guide:** View directory records on the [Senior Executives Directory](/about-us/explore/executives-directory) page.`;
+  }
+
+  private generateCommercialAndTariffReport(): string {
+    return `### Commercial Operations, Tariff Schedules & Power Billing\n\n` +
+           `**1. Commercial Wing Responsibilities:**\n` +
+           `- **Power Purchase Agreements (PPA):** Executes long-term power supply contracts with state DISCOMs (**KPDCL** & **JPDCL**).\n` +
+           `- **Tariff Determination:** Submits tariff petitions to **J&K SERC** (State Electricity Regulatory Commission) and **CERC**.\n` +
+           `- **Power Trading Desk:** Manages energy scheduling and trading desks with power pools including **IEX**, **PTC India**, and **HPPC**.\n` +
+           `- **Billing & Realisation:** Registers joint meter readings (JMR), raises power purchase bills, and reconciles monthly collections.\n\n` +
+           `**2. FY 2023-24 Commercial Realisation Highlights:**\n` +
+           `- **Total Revenue from Power Sales:** \`Rs. 1,136.94 Crores\`\n` +
+           `- **Profit Before Tax (PBT):** \`Rs. 361.64 Crores\`\n\n` +
+           `💡 **Navigation Guide:** View tariff petitions and billing registries on the [Tariff Schedules](/commercial/tariff), [Commercial Overview](/commercial/overview), and [Power Billing Registry](/commercial/billing) pages.`;
+  }
+
+  private generateCsrAndEnvironmentReport(type: 'csr' | 'environment'): string {
+    if (type === 'csr') {
+      return `### Corporate Social Responsibility (CSR) & Community Welfare\n\n` +
+             `**1. CSR Mandate & Core Focus Areas:**\n` +
+             `- **Community Infrastructure:** Healthcare facilities, drinking water schemes, rural electrification, and local educational support near hydro project project sites.\n` +
+             `- **Project Selection Parameters:** Prioritizes local populations in project-affected areas in Chenab, Jhelum, and Ravi river basins.\n` +
+             `- **Governance & Disclosures:** Administered under official CSR Policy, guided by annual budget plans, implementation rules, and published CSR reports.\n\n` +
+             `**2. Vendor & Public Participation:**\n` +
+             `- Local area proposals and assistance funding requests can be submitted using downloadable forms on the CSR portal.\n\n` +
+             `💡 **Navigation Guide:** Access guidelines, budget plans, and forms on the [CSR Operations Overview](/sustainability/csr/overview) and [CSR Policy](/sustainability/csr/policy) pages.`;
+    }
+
+    return `### Environmental Management & Regulatory Clearances\n\n` +
+           `**1. Environmental Preamble & Conservation:**\n` +
+           `- **MoEFCC Clearances:** Projects operate with strict Environment Management Plans (EMP) approved by MoEFCC and J&K Pollution Control Board.\n` +
+           `- **Catchment Area Treatment (CAT):** Systematic reforestation, soil conservation, and water quality monitoring.\n` +
+           `- **Rehabilitation & Resettlement (R&R):** Community resettlement packages, compensation, and local development programs.\n` +
+           `- **Statutory Disclosures:** Six-monthly environment compliance reports are published routinely for public audit.\n\n` +
+           `💡 **Navigation Guide:** View certificates and reports on the [Environmental Clearances](/sustainability/environment/clearance) and [Six Monthly Compliance Reports](/sustainability/environment/six-monthly-reports) pages.`;
+  }
+
+  private generateLegalAndMoaAoaReport(lowerInput: string): string {
+    if (lowerInput.includes('ethics') || lowerInput.includes('code of conduct')) {
+      return `### Code of Business Conduct & Corporate Ethics\n\n` +
+             `JKSPDC operates in full compliance with corporate governance standards approved by the Board of Directors:\n\n` +
+             `- **Integrity & Transparency:** Anti-corruption, zero tolerance for procurement fraud, and ethical conflict resolution.\n` +
+             `- **Applicability:** Mandatory for all directors, senior management, technical officers, and administrative personnel.\n` +
+             `- **Compliance Framework:** Regular internal audits and vigilance monitoring.\n\n` +
+             `💡 **Navigation Guide:** View the full guidelines on the [Code of Conduct & Ethics](/about-us/explore/ethics-code) page.`;
+    }
+
+    return `### Memorandum & Articles of Association (MoA & AoA)\n\n` +
+           `The foundational constitution defining JKSPDC's legal existence under the Companies Act:\n\n` +
+           `- **Memorandum of Association (MoA):** Details the object clauses, corporate jurisdiction, and authorised share capital limit (\`Rs. 5,000 Crores\`).\n` +
+           `- **Articles of Association (AoA):** Defines internal administration rules, voting procedures, board appointment guidelines, and share transfer regulations.\n` +
+           `- **Download Document:** Official certified copy available as PDF file (\`/MoA_AoA.pdf\`).\n\n` +
+           `💡 **Navigation Guide:** Access statutory documents on the [Memorandum & Articles of Association](/about-us/explore/association-memorandum) page.`;
+  }
+
+  private generateFinancialsAndInvestorReport(): string {
+    return `### Financial Results, Investor Disclosures & MoU Agreements\n\n` +
+           `**1. Financial Performance Summary (FY 2023-24):**\n` +
+           `- **Revenue from Power Sales:** \`Rs. 1,136.94 Crores\`\n` +
+           `- **Profit Before Tax (PBT):** \`Rs. 361.64 Crores\`\n` +
+           `- **Authorised Capital:** \`Rs. 5,000.00 Crores\`\n` +
+           `- **Paid-up Capital:** \`Rs. 2,593.3443 Crores\`\n` +
+           `- **Investments in JVs:** \`Rs. 2,357.61 Crores\` in CVPPPL & RHPCL\n\n` +
+           `**2. Investor Resources & Disclosures:**\n` +
+           `- **Annual Reports:** Comprehensive financial dossiers and audited balance sheets available for download.\n` +
+           `- **MoU with Ministry of Power (MoP):** Performance evaluation agreements signed with MoP, Government of India.\n\n` +
+           `💡 **Navigation Guide:** Download reports on the [Financial Results](/stakeholders/investors/financial-results) and [Annual Reports](/stakeholders/investors/annual-reports) pages.`;
+  }
+
+  private generateVendorAndTenderPortalReport(): string {
+    return `### Vendors, Tenders & Procurement Utilities\n\n` +
+           `**1. Tenders & Bidding Opportunities:**\n` +
+           `- Active Notices Inviting Tenders (NIT), pre-bid updates, eNIT downloads, and corrigenda.\n` +
+           `- **Vendor Portal:** Contractor registration, pre-qualification, and profile management.\n\n` +
+           `**2. EMD & Tender Fee Payment Gateway:**\n` +
+           `- Secure online payment portal for Earnest Money Deposits (EMD) and tender document fees.\n\n` +
+           `**3. Startups & MSME Facilitation Corner:**\n` +
+           `- Exemptions on tender document fees and EMD for registered Startups and MSMEs.\n\n` +
+           `**4. Contract Labor Payment Management (CLPM):**\n` +
+           `- Mandatory portal monitoring labor payment compliance and contractor statutory records.\n\n` +
+           `💡 **Navigation Guide:** Visit [Tenders & Bids](/stakeholders/vendors/tender-bids), [Online Payment Gateway](/stakeholders/vendors/online-payment), and [MSME Corner](/stakeholders/vendors/msme-corner).`;
+  }
+
+  private generateRtiReport(): string {
+    return `### RTI — Right to Information Act (Section 4) Disclosures\n\n` +
+           `In accordance with Section 4(1)(b) of the Right to Information Act, 2005, JKSPDCL proactively publishes statutory information for public transparency:\n\n` +
+           `1. **Organisation, Functions & Duties:** [Corporate Overview](/about-us/explore/overview)\n` +
+           `2. **Powers & Duties of Officers:** [Roles & Responsibilities](/about-us/explore/roles-responsibility)\n` +
+           `3. **Norms Set for Functions:** [Main Objectives](/about-us/explore/objectives)\n` +
+           `4. **Rules, Regulations & Records:** [Corporate Policies](/about-us/explore/policies)\n` +
+           `5. **Directory of Officers & Remuneration:** [Senior Executives Directory](/about-us/explore/executives-directory)\n` +
+           `6. **Public Information Officer (PIO) Contacts:** Contact head office at Srinagar or Jammu.\n\n` +
+           `💡 **Navigation Guide:** Access disclosures and RTI forms on the [RTI Act (Section 4)](/about-us/explore/rti) page.`;
+  }
+
+  private generateCareersReport(): string {
+    return `### Current Openings & Career Opportunities\n\n` +
+           `**1. Recruitment Notifications:**\n` +
+           `- Employment circulars, technical apprenticeship schemes, engineer recruitments, and administrative vacancies at JKSPDC.\n\n` +
+           `**2. Application & Eligibility:**\n` +
+           `- Job notifications specify qualification criteria, domain experience, age limits, and online/offline submission procedures.\n\n` +
+           `💡 **Navigation Guide:** Check active job notifications on the [Current Openings & Careers](/stakeholders/career-seekers/current-openings) page.`;
   }
 }
