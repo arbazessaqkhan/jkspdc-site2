@@ -7,44 +7,46 @@
   <!-- Floating Toggle Button ("Ask Hydro") -->
   <button
     id="hydro-toggle-btn"
-    class="flex items-center gap-2.5 bg-gradient-to-r from-[#0B4F9C] to-[#008080] hover:from-[#083A73] hover:to-[#006666] text-white px-4 py-3 rounded-full shadow-2xl transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-[#0B4F9C]/30 border border-white/20 group"
+    class="flex items-center gap-3 bg-gradient-to-r from-[#0B4F9C] via-[#093B77] to-[#008080] hover:from-[#083A73] hover:to-[#006666] text-white px-4.5 py-3 rounded-full shadow-2xl transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-[#0B4F9C]/30 border border-white/30 group"
     aria-label="Ask Hydro AI Assistant"
   >
-    <div class="relative flex items-center justify-center w-6 h-6 rounded-full bg-white/20 group-hover:rotate-12 transition-transform">
-      <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 2a10 10 0 1 0 10 10H12V2z"></path>
-        <path d="M12 12L2.5 7.5"></path>
-        <path d="M12 12v9.5"></path>
-      </svg>
+    <div class="relative flex items-center justify-center w-8 h-8 rounded-full bg-white/10 group-hover:rotate-6 transition-transform border border-white/20 overflow-hidden">
+      <img src="/hydro_ai_logo.png" alt="Hydro AI Logo" class="w-full h-full object-cover rounded-full" />
       <!-- Pulse Badge Indicator -->
       <span class="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
-        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400"></span>
       </span>
     </div>
-    <span class="font-bold text-xs uppercase tracking-wider text-white pr-1">Ask Hydro</span>
+    <div class="flex flex-col text-left">
+      <span class="font-black text-xs uppercase tracking-wider text-white">Ask Hydro</span>
+      <span class="text-[9px] text-cyan-200 font-medium tracking-tight">AI Project Specialist v2026</span>
+    </div>
   </button>
 
   <!-- Chatbot Window Panel -->
   <div
     id="hydro-chat-window"
-    class="hidden flex-col w-[360px] sm:w-[400px] h-[520px] bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transition-all duration-300 transform origin-bottom-right"
+    class="hidden flex-col w-[380px] sm:w-[420px] h-[560px] bg-slate-900 rounded-2xl shadow-2xl border border-slate-800 overflow-hidden transition-all duration-300 transform origin-bottom-right text-slate-100"
   >
-    <!-- Header -->
-    <div class="bg-gradient-to-r from-[#0B4F9C] via-[#094285] to-[#008080] p-4 text-white flex items-center justify-between shadow-md">
+    <!-- Glassmorphic Header -->
+    <div class="bg-gradient-to-r from-[#0B4F9C] via-[#083B75] to-[#006666] p-4 text-white flex items-center justify-between shadow-lg border-b border-cyan-500/20 backdrop-blur-md">
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-full bg-white/15 border border-white/30 flex items-center justify-center text-white font-black text-sm shadow-inner">
-          ⚡
+        <div class="w-10 h-10 rounded-full border-2 border-cyan-400/40 shadow-inner overflow-hidden flex-shrink-0 bg-slate-900">
+          <img src="/hydro_ai_logo.png" alt="Hydro AI Logo" class="w-full h-full object-cover" />
         </div>
         <div>
-          <div class="flex items-center gap-1.5">
-            <h3 class="font-extrabold text-sm tracking-wide">Hydro</h3>
-            <span class="bg-emerald-500/20 text-emerald-300 text-[9px] font-bold px-1.5 py-0.2 rounded border border-emerald-400/30 uppercase">AI Online</span>
+          <div class="flex items-center gap-2">
+            <h3 class="font-black text-sm tracking-wide text-white">HYDRO AI</h3>
+            <span class="bg-cyan-400/20 text-cyan-300 text-[9px] font-bold px-2 py-0.5 rounded-full border border-cyan-400/30 uppercase tracking-wider">v2026.1</span>
           </div>
-          <p class="text-[10px] text-blue-100 font-medium">JKSPDCL Official Assistant</p>
+          <p class="text-[10px] text-blue-200 font-medium">JKSPDC Advanced AI Assistant</p>
         </div>
       </div>
       <div class="flex items-center gap-1">
+        <button id="hydro-clear-btn" class="p-1.5 hover:bg-white/15 rounded-lg text-white/80 hover:text-white transition-colors" title="Clear History" aria-label="Clear History">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+        </button>
         <button id="hydro-minimize-btn" class="p-1.5 hover:bg-white/15 rounded-lg text-white/80 hover:text-white transition-colors" aria-label="Minimize Chat">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
         </button>
@@ -54,51 +56,57 @@
       </div>
     </div>
 
-    <!-- Quick Prompts Banner -->
-    <div class="bg-slate-50 border-b border-slate-200/80 px-3 py-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth">
-      <span class="text-[10px] font-bold uppercase text-slate-400 flex-shrink-0 pr-1">Suggested:</span>
-      <button class="hydro-prompt-chip whitespace-nowrap text-[10px] font-semibold bg-white hover:bg-blue-50 text-[#0B4F9C] border border-blue-200 px-2.5 py-1 rounded-full shadow-2xs transition-colors">Kirthai HEP Stage-1</button>
-      <button class="hydro-prompt-chip whitespace-nowrap text-[10px] font-semibold bg-white hover:bg-blue-50 text-[#0B4F9C] border border-blue-200 px-2.5 py-1 rounded-full shadow-2xs transition-colors">Operating Power Stations</button>
-      <button class="hydro-prompt-chip whitespace-nowrap text-[10px] font-semibold bg-white hover:bg-blue-50 text-[#0B4F9C] border border-blue-200 px-2.5 py-1 rounded-full shadow-2xs transition-colors">Board of Directors</button>
-      <button class="hydro-prompt-chip whitespace-nowrap text-[10px] font-semibold bg-white hover:bg-blue-50 text-[#0B4F9C] border border-blue-200 px-2.5 py-1 rounded-full shadow-2xs transition-colors">Latest Tenders</button>
+    <!-- Quick Prompts Horizontal Scroll -->
+    <div class="bg-slate-950/80 border-b border-slate-800 px-3 py-2 flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth">
+      <span class="text-[9px] font-bold uppercase text-cyan-400 flex-shrink-0">Suggested:</span>
+      <button class="hydro-prompt-chip whitespace-nowrap text-[10px] font-bold bg-cyan-950/60 hover:bg-cyan-900/80 text-cyan-300 border border-cyan-700/40 px-2.5 py-1 rounded-full transition-colors">Everything Globally</button>
+      <button class="hydro-prompt-chip whitespace-nowrap text-[10px] font-bold bg-blue-950/60 hover:bg-blue-900/80 text-blue-300 border border-blue-700/40 px-2.5 py-1 rounded-full transition-colors">Compare BHEP I & BHEP II</button>
+      <button class="hydro-prompt-chip whitespace-nowrap text-[10px] font-bold bg-indigo-950/60 hover:bg-indigo-900/80 text-indigo-300 border border-indigo-700/40 px-2.5 py-1 rounded-full transition-colors">Calculate Total Capacity</button>
+      <button class="hydro-prompt-chip whitespace-nowrap text-[10px] font-bold bg-teal-950/60 hover:bg-teal-900/80 text-teal-300 border border-teal-700/40 px-2.5 py-1 rounded-full transition-colors">Kirthai HEP Stage-1</button>
+      <button class="hydro-prompt-chip whitespace-nowrap text-[10px] font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 py-1 rounded-full transition-colors">Active Tenders</button>
     </div>
 
     <!-- Messages Container -->
-    <div id="hydro-messages" class="flex-1 p-4 overflow-y-auto space-y-3.5 bg-slate-50/50 scroll-smooth">
+    <div id="hydro-messages" class="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-900/90 scroll-smooth">
       <!-- Default Greeting -->
-      <div class="flex items-start gap-2.5 animate-fadeIn">
-        <div class="w-7 h-7 rounded-full bg-[#0B4F9C] text-white font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5 shadow-xs">H</div>
-        <div class="bg-white border border-slate-200 rounded-2xl rounded-tl-xs p-3 text-xs text-slate-800 shadow-xs max-w-[85%] leading-relaxed">
-          Hello! I'm <strong>Hydro</strong>, your AI assistant. How can I help you today?
-          <div class="text-[9px] text-slate-400 mt-1">Just now</div>
+      <div class="flex items-start gap-3 animate-fadeIn">
+        <div class="w-8 h-8 rounded-full border border-cyan-500/40 overflow-hidden flex-shrink-0 bg-slate-950 shadow-md mt-0.5">
+          <img src="/hydro_ai_logo.png" alt="Hydro AI" class="w-full h-full object-cover" />
+        </div>
+        <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl rounded-tl-xs p-3.5 text-xs text-slate-200 shadow-md max-w-[88%] leading-relaxed">
+          Hello! I am **HYDRO (v2026.1)**, your AI Project Specialist. I provide precise, context-grounded information, analytical comparisons, and mathematical workflows for all JKSPDC projects. How can I assist you today?
+          <div class="text-[9px] text-slate-500 mt-1.5 font-mono">Just now</div>
         </div>
       </div>
     </div>
 
     <!-- Typing Indicator -->
-    <div id="hydro-typing" class="hidden px-4 py-2 bg-slate-50/50">
-      <div class="flex items-center gap-2">
-        <div class="w-6 h-6 rounded-full bg-[#0B4F9C]/20 text-[#0B4F9C] text-[10px] font-bold flex items-center justify-center">H</div>
-        <div class="bg-white border border-slate-200 px-3 py-1.5 rounded-full flex items-center gap-1 shadow-2xs">
-          <span class="w-1.5 h-1.5 bg-[#0B4F9C] rounded-full animate-bounce"></span>
-          <span class="w-1.5 h-1.5 bg-[#0B4F9C] rounded-full animate-bounce [animation-delay:0.2s]"></span>
-          <span class="w-1.5 h-1.5 bg-[#0B4F9C] rounded-full animate-bounce [animation-delay:0.4s]"></span>
+    <div id="hydro-typing" class="hidden px-4 py-2 bg-slate-900/80 border-t border-slate-800">
+      <div class="flex items-center gap-2.5">
+        <div class="w-6 h-6 rounded-full border border-cyan-500/40 overflow-hidden bg-slate-950">
+          <img src="/hydro_ai_logo.png" alt="Hydro Typing" class="w-full h-full object-cover" />
+        </div>
+        <div class="bg-slate-800 border border-slate-700 px-3.5 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
+          <span class="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce"></span>
+          <span class="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+          <span class="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+          <span class="text-[10px] text-cyan-300 font-bold ml-1">Analyzing...</span>
         </div>
       </div>
     </div>
 
     <!-- Input Form -->
-    <form id="hydro-form" class="p-3 bg-white border-t border-slate-200 flex items-center gap-2">
+    <form id="hydro-form" class="p-3 bg-slate-950 border-t border-slate-800 flex items-center gap-2">
       <input
         id="hydro-input"
         type="text"
-        placeholder="Ask Hydro about JKSPDCL projects, board..."
-        class="flex-1 bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-[#0B4F9C] focus:bg-white transition-all text-slate-800"
+        placeholder="Ask Hydro about projects, tenders, comparisons..."
+        class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
         autocomplete="off"
       />
       <button
         type="submit"
-        class="bg-[#0B4F9C] hover:bg-[#084A8F] text-white p-2 rounded-xl transition-colors shadow-xs flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[#0B4F9C]"
+        class="bg-gradient-to-r from-[#0B4F9C] to-[#008080] hover:from-[#083A73] hover:to-[#006666] text-white p-2.5 rounded-xl transition-all shadow-md flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-cyan-400"
         aria-label="Send Message"
       >
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,7 +118,6 @@
 </div>
 
 <script>
-  // Hydro Chatbot Client Logic with LocalStorage Session Memory
   document.addEventListener('DOMContentLoaded', () => {
     const toggleBtn = document.getElementById('hydro-toggle-btn');
     const chatWindow = document.getElementById('hydro-chat-window');
@@ -121,20 +128,16 @@
     const input = document.getElementById('hydro-input') as HTMLInputElement;
     const typingIndicator = document.getElementById('hydro-typing');
     const chips = document.querySelectorAll('.hydro-prompt-chip');
+    const clearBtn = document.getElementById('hydro-clear-btn');
 
     let isWindowOpen = localStorage.getItem('hydro_chat_open') === 'true';
-    let chatHistory = [];
+    let chatHistory: Array<{ role: string; text: string; timestamp: string }> = [];
 
-    try {
-      const saved = localStorage.getItem('hydro_chat_history');
-      if (saved) {
-        chatHistory = JSON.parse(saved);
-      }
-    } catch (e) {
-      chatHistory = [];
-    }
+    // Reset history on page view for clean operational state
+    chatHistory = [];
 
-    // Toggle Chat Window
+    const chatbotContainer = document.getElementById('hydro-chatbot-container');
+
     function setOpenState(open: boolean) {
       isWindowOpen = open;
       localStorage.setItem('hydro_chat_open', open ? 'true' : 'false');
@@ -151,19 +154,34 @@
       }
     }
 
-    toggleBtn?.addEventListener('click', () => setOpenState(true));
-    closeBtn?.addEventListener('click', () => setOpenState(false));
-    minimizeBtn?.addEventListener('click', () => setOpenState(false));
-
-    // Restore state
-    if (isWindowOpen) {
-      setOpenState(true);
-    }
-    if (chatHistory.length > 0) {
+    function clearChatHistory() {
+      chatHistory = [];
       renderHistory();
     }
 
-    // Handle Quick Chips Click
+    toggleBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setOpenState(true);
+    });
+    closeBtn?.addEventListener('click', () => setOpenState(false));
+    minimizeBtn?.addEventListener('click', () => setOpenState(false));
+    clearBtn?.addEventListener('click', () => clearChatHistory());
+
+    // Auto-minimize when user clicks outside the chatbot box
+    document.addEventListener('click', (event: MouseEvent) => {
+      if (isWindowOpen && chatbotContainer) {
+        const target = event.target as Node;
+        if (!chatbotContainer.contains(target)) {
+          setOpenState(false);
+        }
+      }
+    });
+
+    if (isWindowOpen) {
+      setOpenState(true);
+    }
+    renderHistory();
+
     chips.forEach(chip => {
       chip.addEventListener('click', () => {
         const text = chip.textContent?.trim();
@@ -173,7 +191,6 @@
       });
     });
 
-    // Handle Form Submit
     form?.addEventListener('submit', (e) => {
       e.preventDefault();
       const text = input.value.trim();
@@ -185,14 +202,11 @@
 
     async function submitUserMessage(userText: string) {
       const timeStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-      
-      // Add User Message
+
       chatHistory.push({ role: 'user', text: userText, timestamp: timeStr });
-      saveHistory();
       renderHistory();
       scrollToBottom();
 
-      // Show typing indicator
       typingIndicator?.classList.remove('hidden');
 
       try {
@@ -212,39 +226,32 @@
           const data = await res.json();
           const replyTime = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
           chatHistory.push({ role: 'assistant', text: data.reply, timestamp: replyTime });
-          saveHistory();
           renderHistory();
           scrollToBottom();
         } else {
-          chatHistory.push({ role: 'assistant', text: "I'm having trouble accessing that information right now. Please try again in a moment.", timestamp: timeStr });
-          saveHistory();
+          chatHistory.push({ role: 'assistant', text: "I do not have that specific data point available in the project records.", timestamp: timeStr });
           renderHistory();
           scrollToBottom();
         }
       } catch (err) {
         typingIndicator?.classList.add('hidden');
-        chatHistory.push({ role: 'assistant', text: "I'm having trouble accessing that information right now. Please try again in a moment.", timestamp: timeStr });
-        saveHistory();
+        chatHistory.push({ role: 'assistant', text: "I do not have that specific data point available in the project records.", timestamp: timeStr });
         renderHistory();
         scrollToBottom();
       }
     }
 
-    function saveHistory() {
-      try {
-        localStorage.setItem('hydro_chat_history', JSON.stringify(chatHistory.slice(-20)));
-      } catch(e) {}
-    }
-
     function renderHistory() {
       if (!messagesContainer) return;
-      
+
       let html = `
-        <div class="flex items-start gap-2.5">
-          <div class="w-7 h-7 rounded-full bg-[#0B4F9C] text-white font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5 shadow-xs">H</div>
-          <div class="bg-white border border-slate-200 rounded-2xl rounded-tl-xs p-3 text-xs text-slate-800 shadow-xs max-w-[85%] leading-relaxed">
-            Hello! I'm <strong>Hydro</strong>, your AI assistant. How can I help you today?
-            <div class="text-[9px] text-slate-400 mt-1">Just now</div>
+        <div class="flex items-start gap-3">
+          <div class="w-8 h-8 rounded-full border border-cyan-500/40 overflow-hidden flex-shrink-0 bg-slate-950 shadow-md mt-0.5">
+            <img src="/hydro_ai_logo.png" alt="Hydro AI" class="w-full h-full object-cover" />
+          </div>
+          <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl rounded-tl-xs p-3.5 text-xs text-slate-200 shadow-md max-w-[88%] leading-relaxed">
+            Hello! I am **HYDRO (v2026.1)**, your AI Project Specialist. I provide precise, context-grounded information, analytical comparisons, and mathematical workflows for all JKSPDC projects. How can I assist you today?
+            <div class="text-[9px] text-slate-500 mt-1.5 font-mono">Just now</div>
           </div>
         </div>
       `;
@@ -253,19 +260,24 @@
         if (item.role === 'user') {
           html += `
             <div class="flex justify-end">
-              <div class="bg-[#0B4F9C] text-white rounded-2xl rounded-tr-xs p-3 text-xs shadow-xs max-w-[85%] leading-relaxed">
+              <div class="bg-gradient-to-r from-[#0B4F9C] to-[#008080] text-white rounded-2xl rounded-tr-xs p-3.5 text-xs shadow-md max-w-[85%] leading-relaxed border border-cyan-400/20">
                 ${escapeHtml(item.text)}
-                <div class="text-[9px] text-blue-200 mt-1 text-right">${item.timestamp}</div>
+                <div class="text-[9px] text-cyan-200 mt-1 text-right font-mono">${item.timestamp}</div>
               </div>
             </div>
           `;
         } else {
           html += `
-            <div class="flex items-start gap-2.5">
-              <div class="w-7 h-7 rounded-full bg-[#0B4F9C] text-white font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5 shadow-xs">H</div>
-              <div class="bg-white border border-slate-200 rounded-2xl rounded-tl-xs p-3 text-xs text-slate-800 shadow-xs max-w-[88%] leading-relaxed prose-sm">
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-full border border-cyan-500/40 overflow-hidden flex-shrink-0 bg-slate-950 shadow-md mt-0.5">
+                <img src="/hydro_ai_logo.png" alt="Hydro AI" class="w-full h-full object-cover" />
+              </div>
+              <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl rounded-tl-xs p-3.5 text-xs text-slate-200 shadow-md max-w-[90%] leading-relaxed prose-invert">
                 ${formatMarkdown(item.text)}
-                <div class="text-[9px] text-slate-400 mt-1.5">${item.timestamp}</div>
+                <div class="text-[9px] text-slate-500 mt-2 font-mono border-t border-slate-700/50 pt-1 flex justify-between">
+                  <span>HYDRO AI v2026.1</span>
+                  <span>${item.timestamp}</span>
+                </div>
               </div>
             </div>
           `;
@@ -285,21 +297,59 @@
       return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
-    // Markdown Parser helper for links, bold text, bullets, and headings
     function formatMarkdown(text: string) {
       let formatted = escapeHtml(text);
 
+      // Markdown Tables
+      const tableRegex = /((?:\|[^\n]+\|\n?)+)/g;
+      formatted = formatted.replace(tableRegex, (match) => {
+        const lines = match.trim().split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        if (lines.length < 2) return match;
+
+        const headerLine = lines[0];
+        const rowsLines = lines.slice(1).filter(l => !l.includes('---'));
+
+        const parseRow = (line: string) => line.split('|').slice(1, -1).map(cell => cell.trim());
+
+        const headers = parseRow(headerLine);
+        const rows = rowsLines.map(parseRow);
+
+        let tableHtml = '<div class="my-2.5 overflow-x-auto rounded-xl border border-slate-700 shadow-lg"><table class="w-full text-[11px] text-left border-collapse"><thead class="bg-slate-950 text-cyan-400 font-extrabold uppercase border-b border-slate-800"><tr>';
+        headers.forEach(h => {
+          tableHtml += `<th class="px-2.5 py-2">${h}</th>`;
+        });
+        tableHtml += '</tr></thead><tbody class="divide-y divide-slate-800 bg-slate-900/90 font-medium text-slate-200">';
+        rows.forEach(r => {
+          tableHtml += '<tr class="hover:bg-slate-800/80 transition-colors">';
+          r.forEach((cell, idx) => {
+            if (idx === 0) {
+              tableHtml += `<td class="px-2.5 py-2 font-bold text-slate-300">${cell}</td>`;
+            } else if (idx === 1) {
+              tableHtml += `<td class="px-2.5 py-2 font-extrabold text-cyan-300">${cell}</td>`;
+            } else {
+              tableHtml += `<td class="px-2.5 py-2 font-semibold text-slate-300">${cell}</td>`;
+            }
+          });
+          tableHtml += '</tr>';
+        });
+        tableHtml += '</tbody></table></div>';
+        return tableHtml;
+      });
+
       // Headings
-      formatted = formatted.replace(/^### (.*$)/gim, '<h4 class="font-extrabold text-[#0B4F9C] text-xs mt-1 mb-1">$1</h4>');
+      formatted = formatted.replace(/^### (.*$)/gim, '<h4 class="font-black text-cyan-400 text-xs mt-2 mb-1.5 tracking-wide uppercase flex items-center gap-1.5"><span class="text-cyan-500">⚡</span> $1</h4>');
 
       // Bold
-      formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong class="font-extrabold text-cyan-200">$1</strong>');
 
-      // Markdown Links: [Title](URL)
-      formatted = formatted.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-[#0B4F9C] font-semibold underline hover:text-[#083A73]">$1</a>');
+      // Markdown Links
+      formatted = formatted.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-cyan-400 font-bold underline hover:text-cyan-300 transition-colors">$1</a>');
 
-      // Bullet lists
-      formatted = formatted.replace(/^- (.*$)/gim, '<li class="ml-3 list-disc text-slate-700 my-0.5">$1</li>');
+      // Bullets
+      formatted = formatted.replace(/^- (.*$)/gim, '<li class="ml-3 list-disc text-slate-300 my-1">$1</li>');
+
+      // Code blocks
+      formatted = formatted.replace(/`([^`]+)`/g, '<code class="bg-slate-950 text-cyan-300 font-mono text-[10px] px-1.5 py-0.5 rounded border border-slate-700">$1</code>');
 
       // Line breaks
       formatted = formatted.replace(/\n/g, '<br />');
