@@ -119,7 +119,7 @@ async function main() {
   }
   console.log('Power stations seeded.');
 
-  // 4. Create Gallery Items
+  // 4. Create Gallery Items (Official Events, Corporate & Admin Gallery photos)
   const galleryItems = [
     {
       id: 'gallery-seed-1',
@@ -132,18 +132,6 @@ async function main() {
       title: 'Retirement Ceremony of Executive Director Civil, JKSPDC',
       imageUrl: '/gallery/retirement_ed_civil.png',
       partition: 'Corporate',
-    },
-    {
-      id: 'gallery-seed-3',
-      title: 'Hydroelectric Project Site View',
-      imageUrl: '/gallery/projects_gallery.jpg',
-      partition: 'Projects',
-    },
-    {
-      id: 'gallery-seed-4',
-      title: 'Baglihar Hydroelectric Dam Construction',
-      imageUrl: '/slider1.jpg',
-      partition: 'Projects',
     },
     {
       id: 'gallery-seed-5',

@@ -95,25 +95,34 @@
       </div>
     </div>
 
-    <!-- Input Form -->
-    <form id="hydro-form" class="p-3 bg-slate-950 border-t border-slate-800 flex items-center gap-2">
-      <input
-        id="hydro-input"
-        type="text"
-        placeholder="Ask Hydro about projects, tenders, comparisons..."
-        class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
-        autocomplete="off"
-      />
-      <button
-        type="submit"
-        class="bg-gradient-to-r from-[#0B4F9C] to-[#008080] hover:from-[#083A73] hover:to-[#006666] text-white p-2.5 rounded-xl transition-all shadow-md flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-cyan-400"
-        aria-label="Send Message"
+    <!-- Input Form with Live Suggestions Dropdown -->
+    <div class="relative p-3 bg-slate-950 border-t border-slate-800">
+      <!-- Live Search Suggestions Dropdown -->
+      <div
+        id="hydro-suggestions-dropdown"
+        class="hidden absolute bottom-full left-3 right-3 mb-2 bg-slate-900/95 border border-cyan-500/40 rounded-xl shadow-2xl overflow-hidden z-50 backdrop-blur-md max-h-56 overflow-y-auto divide-y divide-slate-800"
       >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-        </svg>
-      </button>
-    </form>
+      </div>
+
+      <form id="hydro-form" class="flex items-center gap-2">
+        <input
+          id="hydro-input"
+          type="text"
+          placeholder="Ask Hydro or type keywords for suggestions..."
+          class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+          autocomplete="off"
+        />
+        <button
+          type="submit"
+          class="bg-gradient-to-r from-[#0B4F9C] to-[#008080] hover:from-[#083A73] hover:to-[#006666] text-white p-2.5 rounded-xl transition-all shadow-md flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-cyan-400"
+          aria-label="Send Message"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+          </svg>
+        </button>
+      </form>
+    </div>
   </div>
 </div>
 
@@ -191,10 +200,104 @@
       });
     });
 
+    // Live Suggestions Index for Search Auto-Suggestions
+    const SUGGESTIONS_INDEX = [
+      { keyword: "gst", title: "GSTIN Registration Details", path: "/about-us/explore/gstin-registration", category: "Taxation", query: "GSTIN Registration Details" },
+      { keyword: "gstin", title: "Primary GSTIN (01AAACJ9770H2ZL)", path: "/about-us/explore/gstin-registration", category: "Taxation", query: "GSTIN Profile" },
+      { keyword: "bhep", title: "Baglihar Hydroelectric Project (BHEP)", path: "/our-business/power-stations", category: "Operating Station", query: "BHEP Power Station" },
+      { keyword: "chep", title: "Chenani Hydroelectric Project (CHEP)", path: "/our-business/power-stations", category: "Operating Station", query: "CHEP Power Station" },
+      { keyword: "kirthai", title: "Kirthai HEP Stage-1 (390 MW)", path: "/our-business/under-development", category: "Under Development", query: "Kirthai HEP Stage-1" },
+      { keyword: "tender", title: "Active Tenders, eNITs & Bids Portal", path: "/stakeholders/vendors/tender-bids", category: "Procurement", query: "Active Tenders" },
+      { keyword: "board", title: "Board of Directors & Leadership", path: "/about-us/management/board", category: "Governance", query: "Board of Directors" },
+      { keyword: "executives", title: "Senior Executive Directory", path: "/about-us/explore/executives-directory", category: "Directory", query: "Executives Directory" },
+      { keyword: "tariff", title: "Commercial Tariffs & Billing Schedules", path: "/commercial/tariff", category: "Commercial", query: "Tariff Schedules" },
+      { keyword: "csr", title: "CSR Policy, Activities & Reports", path: "/sustainability/csr/overview", category: "Sustainability", query: "CSR Policy & Overview" },
+      { keyword: "environment", title: "Environmental Clearances & EMP Reports", path: "/sustainability/environment/clearance", category: "Environment", query: "Environmental Clearances" },
+      { keyword: "rti", title: "RTI Act Section 4 Statutory Disclosures", path: "/about-us/explore/rti", category: "Transparency", query: "RTI Act Disclosures" },
+      { keyword: "careers", title: "Current Openings & Job Notifications", path: "/stakeholders/career-seekers/current-openings", category: "Careers", query: "Current Openings" },
+      { keyword: "overview", title: "Corporate History & Overview", path: "/about-us/explore/overview", category: "About Us", query: "Corporate Overview" },
+      { keyword: "profile", title: "Corporate Profile & Financials", path: "/about-us/explore/profile", category: "About Us", query: "Corporate Profile" },
+      { keyword: "moa", title: "Memorandum & Articles of Association (MoA/AoA)", path: "/about-us/explore/association-memorandum", category: "Legal", query: "MoA & AoA" },
+      { keyword: "ethics", title: "Code of Business Conduct & Ethics", path: "/about-us/explore/ethics-code", category: "Governance", query: "Code of Ethics" },
+      { keyword: "downloads", title: "Official Downloads & Forms (NIT, User Creation)", path: "/media/downloads", category: "Media & Downloads", query: "Downloads" },
+      { keyword: "contact", title: "Contact Corporate Headquarters (Srinagar & Jammu)", path: "/about-us/others/contact", category: "Contact", query: "Contact Corporate Offices" },
+      { keyword: "annual report", title: "Annual Reports & Financial Results", path: "/stakeholders/investors/annual-reports", category: "Financials", query: "Annual Reports" },
+      { keyword: "msme", title: "Startups & MSME Corner", path: "/stakeholders/vendors/msme-corner", category: "Vendors", query: "MSME Corner" },
+      { keyword: "clpm", title: "Contract Labor Payment Management (CLPM)", path: "/stakeholders/vendors/clpm-portal", category: "Compliance", query: "CLPM Portal" },
+      { keyword: "online payment", title: "Online Tender Fee & EMD Payment Gateway", path: "/stakeholders/vendors/online-payment", category: "Payment", query: "Online Payment Gateway" },
+      { keyword: "sitemap", title: "Website Sitemap (All 67 Routes)", path: "/sitemap", category: "Navigation", query: "Website Sitemap" },
+    ];
+
+    const suggestionsDropdown = document.getElementById('hydro-suggestions-dropdown');
+
+    function updateSuggestions(val: string) {
+      if (!val || val.length < 1) {
+        if (suggestionsDropdown) suggestionsDropdown.classList.add('hidden');
+        return;
+      }
+
+      const q = val.toLowerCase();
+      const matches = SUGGESTIONS_INDEX.filter(item => 
+        item.keyword.toLowerCase().includes(q) ||
+        item.title.toLowerCase().includes(q) ||
+        item.category.toLowerCase().includes(q)
+      ).slice(0, 5);
+
+      if (matches.length === 0) {
+        if (suggestionsDropdown) suggestionsDropdown.classList.add('hidden');
+        return;
+      }
+
+      if (suggestionsDropdown) {
+        suggestionsDropdown.innerHTML = matches.map(m => `
+          <button type="button" data-query="${m.query}" class="hydro-suggestion-item w-full text-left p-2.5 hover:bg-cyan-950/80 transition-colors flex items-center justify-between gap-2 group cursor-pointer border-b border-slate-800 last:border-0">
+            <div class="truncate">
+              <div class="text-xs font-bold text-slate-100 group-hover:text-cyan-300 truncate">${m.title}</div>
+              <div class="text-[10px] text-slate-400 truncate">${m.path}</div>
+            </div>
+            <span class="text-[9px] font-extrabold uppercase bg-cyan-950 text-cyan-400 border border-cyan-800/60 px-1.5 py-0.5 rounded shrink-0">${m.category}</span>
+          </button>
+        `).join('');
+
+        suggestionsDropdown.classList.remove('hidden');
+
+        suggestionsDropdown.querySelectorAll('.hydro-suggestion-item').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const query = (btn as HTMLElement).getAttribute('data-query');
+            if (query) {
+              submitUserMessage(query);
+              if (input) input.value = '';
+              suggestionsDropdown.classList.add('hidden');
+            }
+          });
+        });
+      }
+    }
+
+    input?.addEventListener('input', (e) => {
+      const target = e.target as HTMLInputElement;
+      updateSuggestions(target.value.trim());
+    });
+
+    input?.addEventListener('focus', (e) => {
+      const target = e.target as HTMLInputElement;
+      if (target.value.trim().length > 0) {
+        updateSuggestions(target.value.trim());
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (suggestionsDropdown && !suggestionsDropdown.contains(e.target as Node) && e.target !== input) {
+        suggestionsDropdown.classList.add('hidden');
+      }
+    });
+
     form?.addEventListener('submit', (e) => {
       e.preventDefault();
       const text = input.value.trim();
       if (text) {
+        if (suggestionsDropdown) suggestionsDropdown.classList.add('hidden');
         submitUserMessage(text);
         input.value = '';
       }

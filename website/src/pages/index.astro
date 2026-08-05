@@ -21,10 +21,10 @@ let gallery = [
     partition: 'Corporate',
   },
   {
-    id: 'gallery-seed-3',
-    title: 'Hydroelectric Project Site View',
-    imageUrl: '/gallery/projects_gallery.jpg',
-    partition: 'Projects',
+    id: 'gallery-seed-5',
+    title: 'Corporate HQ and Administrative Building',
+    imageUrl: '/slider2.jpg',
+    partition: 'Corporate',
   },
 ];
 
@@ -76,9 +76,9 @@ function getImageUrl(url: string) {
   return url;
 }
 
-// 1. Office & Corporate Events (Office Happenings, Retirements, Awards, MoUs)
+// 1. Office & Corporate Events (Only gallery pictures uploaded by admin in galary section)
 const officePhotos = gallery.filter((item: any) => 
-  !item.partition || item.partition.toLowerCase() !== 'projects'
+  !item.partition || (item.partition.toLowerCase() !== 'projects' && item.partition.toLowerCase() !== 'project')
 );
 
 const fallbackOfficePhotos = [
@@ -95,10 +95,16 @@ const fallbackOfficePhotos = [
     partition: 'Retirements & Honors',
   },
   {
-    id: 'office-seed-3',
-    title: 'Corporate Headquarters Review Meeting & Awards Announcement',
-    imageUrl: '/gallery/reference_tenders.png',
-    partition: 'Office Happenings & Awards',
+    id: 'office-seed-5',
+    title: 'Corporate Headquarters Review Meeting',
+    imageUrl: '/slider2.jpg',
+    partition: 'Corporate',
+  },
+  {
+    id: 'office-seed-6',
+    title: 'Official Executive Board Meeting',
+    imageUrl: '/slider3.jpg',
+    partition: 'Official Events',
   },
 ];
 
@@ -455,13 +461,6 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
 
         <!-- Welcome Card Container with Office Gallery Carousel -->
         <div class="bg-white border border-[#BDD7EE]/60 rounded-2xl p-4 flex flex-col justify-between flex-grow h-[320px] shadow-sm overflow-hidden relative">
-          <!-- Text Paragraph -->
-          <div class="mb-2">
-            <p class="text-slate-600 text-xs leading-relaxed text-left line-clamp-2">
-              Electricity is an essential source of commercial energy. It is vital for sustained economic growth, modernization, and industrialization across J&K.
-            </p>
-          </div>
-
           <!-- Office Events, Retirements & Awards Carousel -->
           <div class="relative w-full flex-grow rounded-xl overflow-hidden shadow-xs border border-slate-200 bg-slate-900 group" id="office-carousel-container">
             <div class="absolute inset-0" id="office-slides">
