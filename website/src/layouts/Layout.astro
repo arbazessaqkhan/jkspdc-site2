@@ -159,6 +159,25 @@ if (tickerItems.length === 0) {
       .bhashini-toast {
         display: none !important;
       }
+
+      /* ── Navigation Menu Dropdown Toggle ─────────────────── */
+      .nav-dropdown-item:hover > .nav-dropdown-menu:not(.is-closed),
+      .nav-dropdown-item.is-open > .nav-dropdown-menu {
+        display: block !important;
+      }
+
+      .nav-dropdown-item.is-closed > .nav-dropdown-menu {
+        display: none !important;
+      }
+
+      .nav-dropdown-item:hover .dropdown-arrow:not(.is-arrow-closed),
+      .nav-dropdown-item.is-open .dropdown-arrow {
+        transform: rotate(180deg);
+      }
+
+      .nav-dropdown-item.is-closed .dropdown-arrow {
+        transform: rotate(0deg) !important;
+      }
     </style>
     <!-- Incremental font size helper (GIGW Accessibility) & Preference persistence -->
     <script is:inline>
@@ -246,8 +265,63 @@ if (tickerItems.length === 0) {
               btn.addEventListener('click', toggleLangDropdown);
             }
             
+            // Navigation Menu Toggle Logic (1st click = maximize/open, 2nd click = minimize/close)
+            var navItems = document.querySelectorAll('.nav-dropdown-item');
+            navItems.forEach(function(item) {
+              var btn = item.querySelector('.nav-dropdown-btn');
+              var menu = item.querySelector('.nav-dropdown-menu');
+              if (!btn || !menu) return;
+
+              btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                var isClosed = item.classList.contains('is-closed');
+                var isOpen = item.classList.contains('is-open');
+
+                // Determine if menu is currently visible
+                var isShowing = isOpen || (!isClosed && window.getComputedStyle(menu).display !== 'none');
+
+                // Close all other dropdowns
+                navItems.forEach(function(other) {
+                  if (other !== item) {
+                    other.classList.remove('is-open');
+                    other.classList.add('is-closed');
+                    var otherBtn = other.querySelector('.nav-dropdown-btn');
+                    if (otherBtn) otherBtn.setAttribute('aria-expanded', 'false');
+                  }
+                });
+
+                if (isShowing) {
+                  // SECOND CLICK -> MINIMIZE / CLOSE
+                  item.classList.remove('is-open');
+                  item.classList.add('is-closed');
+                  btn.setAttribute('aria-expanded', 'false');
+                } else {
+                  // FIRST CLICK -> MAXIMIZE / OPEN
+                  item.classList.remove('is-closed');
+                  item.classList.add('is-open');
+                  btn.setAttribute('aria-expanded', 'true');
+                }
+              });
+
+              item.addEventListener('mouseleave', function() {
+                item.classList.remove('is-closed');
+                item.classList.remove('is-open');
+                btn.setAttribute('aria-expanded', 'false');
+              });
+            });
+
             // Close dropdown when clicking outside
             window.addEventListener('click', function(e) {
+              navItems.forEach(function(item) {
+                if (!item.contains(e.target)) {
+                  item.classList.remove('is-open');
+                  item.classList.add('is-closed');
+                  var btn = item.querySelector('.nav-dropdown-btn');
+                  if (btn) btn.setAttribute('aria-expanded', 'false');
+                }
+              });
               var menu = document.getElementById('lang-dropdown-menu');
               var btn = document.getElementById('lang-dropdown-btn');
               var arrow = document.getElementById('lang-arrow');
@@ -404,12 +478,12 @@ if (tickerItems.length === 0) {
             </li>
 
             <!-- About Us -->
-            <li class="relative group">
-              <button class="flex items-center gap-1.5 px-3.5 py-3.5 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent group-hover:border-white/60 text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
+            <li class="relative nav-dropdown-item">
+              <button class="nav-dropdown-btn flex items-center gap-1.5 px-3.5 py-3.5 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
                 About Us
-                <svg class="w-3 h-3 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                <svg class="dropdown-arrow w-3 h-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
               </button>
-              <div class="absolute left-0 mt-0 hidden group-hover:block group-focus-within:block bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[260px]">
+              <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[260px]">
                 <ul class="flex flex-col gap-0.5 text-xs px-2">
                   <li><a href="/about-us/explore/overview" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">About Us</a></li>
                   <li><a href="/about-us/explore/association-memorandum" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">MoA &amp; AoA</a></li>
@@ -423,12 +497,12 @@ if (tickerItems.length === 0) {
             </li>
 
             <!-- Projects -->
-            <li class="relative group">
-              <button class="flex items-center gap-1.5 px-3.5 py-3.5 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent group-hover:border-white/60 text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
+            <li class="relative nav-dropdown-item">
+              <button class="nav-dropdown-btn flex items-center gap-1.5 px-3.5 py-3.5 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
                 Projects
-                <svg class="w-3 h-3 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                <svg class="dropdown-arrow w-3 h-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
               </button>
-              <div class="absolute left-0 mt-0 hidden group-hover:block group-focus-within:block bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[240px]">
+              <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[240px]">
                 <ul class="flex flex-col gap-0.5 text-xs px-2">
                   <li><a href="/our-business/power-stations" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Operational Projects</a></li>
                   <li><a href="/our-business/construction" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Projects Under Construction</a></li>
@@ -438,12 +512,12 @@ if (tickerItems.length === 0) {
             </li>
 
             <!-- Tenders -->
-            <li class="relative group">
-              <button class="flex items-center gap-1.5 px-3.5 py-3.5 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent group-hover:border-white/60 text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
+            <li class="relative nav-dropdown-item">
+              <button class="nav-dropdown-btn flex items-center gap-1.5 px-3.5 py-3.5 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
                 Tenders
-                <svg class="w-3 h-3 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                <svg class="dropdown-arrow w-3 h-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
               </button>
-              <div class="absolute left-0 mt-0 hidden group-hover:block group-focus-within:block bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[250px]">
+              <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[250px]">
                 <ul class="flex flex-col gap-0.5 text-xs px-2">
                   <li><a href="/stakeholders/vendors/tender-bids#live" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Live Tenders &amp; Notices</a></li>
                   <li><a href="/stakeholders/vendors/tender-bids#amendments" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Amendments &amp; Clarifications</a></li>
@@ -460,12 +534,12 @@ if (tickerItems.length === 0) {
             </li>
 
             <!-- Investors Corner -->
-            <li class="relative group">
-              <button class="flex items-center gap-1.5 px-3.5 py-3.5 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent group-hover:border-white/60 text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
+            <li class="relative nav-dropdown-item">
+              <button class="nav-dropdown-btn flex items-center gap-1.5 px-3.5 py-3.5 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
                 Investors Corner
-                <svg class="w-3 h-3 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                <svg class="dropdown-arrow w-3 h-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
               </button>
-              <div class="absolute left-0 mt-0 hidden group-hover:block group-focus-within:block bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[230px]">
+              <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[230px]">
                 <ul class="flex flex-col gap-0.5 text-xs px-2">
                   <li><a href="/stakeholders/investors/agm" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Annual General Meetings</a></li>
                   <li><a href="/stakeholders/investors/ipp-projects" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">IPP Projects</a></li>
@@ -474,12 +548,12 @@ if (tickerItems.length === 0) {
             </li>
 
             <!-- RTI -->
-            <li class="relative group">
-              <button class="flex items-center gap-1.5 px-3.5 py-3.5 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent group-hover:border-white/60 text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
+            <li class="relative nav-dropdown-item">
+              <button class="nav-dropdown-btn flex items-center gap-1.5 px-3.5 py-3.5 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
                 RTI
-                <svg class="w-3 h-3 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                <svg class="dropdown-arrow w-3 h-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
               </button>
-              <div class="absolute left-0 mt-0 hidden group-hover:block group-focus-within:block bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[210px]">
+              <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[210px]">
                 <ul class="flex flex-col gap-0.5 text-xs px-2">
                   <li><a href="/about-us/explore/rti" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">RTI Act (Sec 4)</a></li>
                 </ul>
@@ -497,12 +571,12 @@ if (tickerItems.length === 0) {
             </li>
 
             <!-- Employees Corner -->
-            <li class="relative group">
-              <button class="flex items-center gap-1.5 px-3.5 py-3.5 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent group-hover:border-white/60 text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
+            <li class="relative nav-dropdown-item">
+              <button class="nav-dropdown-btn flex items-center gap-1.5 px-3.5 py-3.5 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
                 Employees Corner
-                <svg class="w-3 h-3 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                <svg class="dropdown-arrow w-3 h-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
               </button>
-              <div class="absolute right-0 mt-0 hidden group-hover:block group-focus-within:block bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[220px]">
+              <div class="nav-dropdown-menu absolute right-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[220px]">
                 <ul class="flex flex-col gap-0.5 text-xs px-2">
                   <li><a href="https://www.jkspdcl.com:2096/" target="_blank" rel="noopener" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Web Mail</a></li>
                   <li><a href="https://saccess.nic.in/" target="_blank" rel="noopener" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Nic-e-File</a></li>
@@ -516,12 +590,12 @@ if (tickerItems.length === 0) {
             </li>
 
             <!-- Contact Us -->
-            <li class="relative group">
-              <button class="flex items-center gap-1.5 px-3.5 py-3.5 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent group-hover:border-white/60 text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
+            <li class="relative nav-dropdown-item">
+              <button class="nav-dropdown-btn flex items-center gap-1.5 px-3.5 py-3.5 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
                 Contact Us
-                <svg class="w-3 h-3 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                <svg class="dropdown-arrow w-3 h-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
               </button>
-              <div class="absolute right-0 mt-0 hidden group-hover:block group-focus-within:block bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[200px]">
+              <div class="nav-dropdown-menu absolute right-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[200px]">
                 <ul class="flex flex-col gap-0.5 text-xs px-2">
                   <li><a href="/about-us/others/contact" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Contact Us</a></li>
                   <li><a href="/about-us/others/contact#feedback" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Feedback</a></li>
