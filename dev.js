@@ -2,6 +2,9 @@ const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
+const isWindows = process.platform === 'win32';
+const npmCmd = isWindows ? 'npm.cmd' : 'npm';
+
 // Prepend local Node/NPM directory to PATH if it exists
 const localNodeBinDir = path.resolve(__dirname, '.node/node-v20.15.0-win-x64');
 if (fs.existsSync(localNodeBinDir)) {
@@ -10,8 +13,27 @@ if (fs.existsSync(localNodeBinDir)) {
   console.log(`Using local Node/NPM from: ${localNodeBinDir}`);
 }
 
-const isWindows = process.platform === 'win32';
-const npmCmd = isWindows ? 'npm.cmd' : 'npm';
+// Clear lingering processes on port 3000 / 4321 to prevent EADDRINUSE errors
+try {
+  const { execSync } = require('child_process');
+  if (isWindows) {
+    // Find PIDs listening on port 3000
+    const stdout = execSync('netstat -ano | findstr :3000', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] });
+    const lines = stdout.split('\n');
+    lines.forEach(line => {
+      const parts = line.trim().split(/\s+/);
+      const pid = parts[parts.length - 1];
+      if (pid && pid !== '0' && parseInt(pid) !== process.pid) {
+        try {
+          execSync(`taskkill /F /PID ${pid}`, { stdio: 'ignore' });
+          console.log(`Cleared process PID ${pid} occupying port 3000.`);
+        } catch (e) {}
+      }
+    });
+  }
+} catch (e) {
+  // Ignore if port 3000 was free
+}
 
 console.log('Starting JKSPDC Web Platform (Frontend & Backend)...');
 

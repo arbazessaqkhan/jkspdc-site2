@@ -1,0 +1,210 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/Icon.astro';
+
+let slides: any[] = [];
+let errorMessage = '';
+const sessionToken = Astro.cookies.get('admin_session')?.value || '';
+
+try {
+  const res = await fetch('http://localhost:3000/api/hero-slides');
+  if (res.ok) slides = await res.json();
+} catch (e) {
+  errorMessage = 'Could not load hero slides.';
+}
+---
+
+<AdminLayout title="Hero Slider" description="Manage homepage hero slider images and content" activeTab="hero-slides">
+  <div class="flex flex-col gap-6">
+    <div class="flex items-center justify-between border-b border-slate-200 pb-5">
+      <div>
+        <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Hero Slider Manager</h1>
+        <p class="text-xs text-slate-600 font-medium mt-1">Manage the homepage hero carousel — images, titles, subtitles, and call-to-action links.</p>
+      </div>
+      <button id="add-slide-btn" class="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 shadow-md transition-colors cursor-pointer">
+        <Icon name="plus" size={14} /> Add Slide
+      </button>
+    </div>
+
+    {errorMessage && (
+      <div class="p-4 bg-amber-50 border-l-4 border-amber-500 rounded text-xs text-amber-800 font-semibold" role="alert">
+        <Icon name="info" size={14} class="inline text-amber-600 mr-1" /> {errorMessage}
+      </div>
+    )}
+
+    <!-- Slides Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      {slides.length === 0 ? (
+        <div class="col-span-full text-center py-12 text-slate-400 italic text-sm">No hero slides configured. Click "Add Slide" to create one.</div>
+      ) : (
+        slides.map((s: any) => (
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden group">
+            <div class="relative h-40 bg-slate-100 overflow-hidden">
+              <img src={s.imageUrl} alt={s.title} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+              <div class="absolute bottom-3 left-3 right-3">
+                <p class="text-white text-xs font-bold line-clamp-1">{s.title}</p>
+                {s.subtitle && <p class="text-white/70 text-[10px] line-clamp-1">{s.subtitle}</p>}
+              </div>
+              <div class="absolute top-2 right-2 flex items-center gap-1.5">
+                <span class={`px-2 py-0.5 rounded-full text-[9px] font-bold ${s.isActive ? 'bg-emerald-500 text-white' : 'bg-slate-500 text-white'}`}>{s.isActive ? 'Active' : 'Inactive'}</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-black/50 text-white">#{s.sortOrder}</span>
+              </div>
+            </div>
+            <div class="p-4 flex items-center justify-between">
+              <div class="text-[10px] text-slate-400">
+                {s.ctaText && <span>CTA: <strong class="text-slate-600">{s.ctaText}</strong></span>}
+                {s.ctaHref && <span class="ml-2">→ {s.ctaHref}</span>}
+              </div>
+              <div class="flex items-center gap-1.5">
+                <button class="edit-slide-btn p-1.5 text-amber-600 hover:bg-amber-50 rounded cursor-pointer" data-id={s.id} data-title={s.title} data-subtitle={s.subtitle || ''} data-image={s.imageUrl} data-cta-text={s.ctaText || ''} data-cta-href={s.ctaHref || ''} data-sort={s.sortOrder} data-active={s.isActive}>
+                  <Icon name="pencil" size={13} />
+                </button>
+                <button class="delete-slide-btn p-1.5 text-red-600 hover:bg-red-50 rounded cursor-pointer" data-id={s.id} data-title={s.title}>
+                  <Icon name="trash-2" size={13} />
+                </button>
+              </div>
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+
+    <!-- Modal -->
+    <div id="slide-modal" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+          <h3 id="slide-modal-title" class="text-sm font-extrabold text-slate-900">Add Slide</h3>
+          <button id="slide-modal-close" class="p-2 text-slate-400 hover:text-red-600 rounded-lg cursor-pointer"><Icon name="x" size={18} /></button>
+        </div>
+        <div class="p-6 flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
+          <input type="hidden" id="slide-edit-id" />
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">Title *</label>
+            <input id="slide-title" type="text" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">Subtitle</label>
+            <input id="slide-subtitle" type="text" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">Image</label>
+            <input id="slide-file" type="file" accept="image/*" class="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 cursor-pointer" />
+            <input id="slide-image-url" type="hidden" />
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">CTA Button Text</label>
+              <input id="slide-cta-text" type="text" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="e.g. Learn More" />
+            </div>
+            <div>
+              <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">CTA Link</label>
+              <input id="slide-cta-href" type="text" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="/about-us" />
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">Sort Order</label>
+              <input id="slide-sort" type="number" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" value="0" />
+            </div>
+            <div class="flex items-end pb-1">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input id="slide-active" type="checkbox" checked class="w-4 h-4 text-blue-600 rounded border-slate-300" />
+                <span class="text-xs font-semibold text-slate-700">Active</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="px-6 py-4 border-t border-slate-200 flex justify-end gap-3 bg-slate-50">
+          <button id="slide-modal-cancel" class="px-4 py-2 text-xs font-bold text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-100 cursor-pointer">Cancel</button>
+          <button id="slide-modal-save" class="px-6 py-2 text-xs font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-md cursor-pointer">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</AdminLayout>
+
+<script is:inline>
+(function() {
+  var modal = document.getElementById('slide-modal');
+  function getToken() { var m = document.cookie.match(/admin_session=([^;]+)/); return m ? m[1] : ''; }
+  function closeModal() { modal.classList.add('hidden'); }
+
+  document.getElementById('add-slide-btn').addEventListener('click', function() {
+    document.getElementById('slide-modal-title').textContent = 'Add Slide';
+    document.getElementById('slide-edit-id').value = '';
+    document.getElementById('slide-title').value = '';
+    document.getElementById('slide-subtitle').value = '';
+    document.getElementById('slide-cta-text').value = '';
+    document.getElementById('slide-cta-href').value = '';
+    document.getElementById('slide-sort').value = '0';
+    document.getElementById('slide-active').checked = true;
+    document.getElementById('slide-image-url').value = '';
+    document.getElementById('slide-file').value = '';
+    modal.classList.remove('hidden');
+  });
+
+  document.querySelectorAll('.edit-slide-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.getElementById('slide-modal-title').textContent = 'Edit Slide';
+      document.getElementById('slide-edit-id').value = btn.dataset.id;
+      document.getElementById('slide-title').value = btn.dataset.title;
+      document.getElementById('slide-subtitle').value = btn.dataset.subtitle;
+      document.getElementById('slide-cta-text').value = btn.dataset.ctaText;
+      document.getElementById('slide-cta-href').value = btn.dataset.ctaHref;
+      document.getElementById('slide-sort').value = btn.dataset.sort;
+      document.getElementById('slide-active').checked = btn.dataset.active === 'true';
+      document.getElementById('slide-image-url').value = btn.dataset.image;
+      document.getElementById('slide-file').value = '';
+      modal.classList.remove('hidden');
+    });
+  });
+
+  document.querySelectorAll('.delete-slide-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      if (!confirm('Delete slide "' + btn.dataset.title + '"?')) return;
+      fetch('http://localhost:3000/api/hero-slides/' + btn.dataset.id, { method: 'DELETE', headers: { Authorization: 'Bearer ' + getToken() } })
+        .then(function(r) { if (r.ok) window.location.reload(); else alert('Delete failed.'); });
+    });
+  });
+
+  document.getElementById('slide-modal-save').addEventListener('click', function() {
+    var token = getToken();
+    var editId = document.getElementById('slide-edit-id').value;
+    var fileInput = document.getElementById('slide-file');
+
+    function saveSlide(imageUrl) {
+      var body = {
+        title: document.getElementById('slide-title').value,
+        subtitle: document.getElementById('slide-subtitle').value,
+        imageUrl: imageUrl,
+        ctaText: document.getElementById('slide-cta-text').value,
+        ctaHref: document.getElementById('slide-cta-href').value,
+        sortOrder: parseInt(document.getElementById('slide-sort').value) || 0,
+        isActive: document.getElementById('slide-active').checked,
+      };
+      var url = editId ? 'http://localhost:3000/api/hero-slides/' + editId : 'http://localhost:3000/api/hero-slides';
+      fetch(url, { method: editId ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(body) })
+        .then(function(r) { if (r.ok) { alert('Saved!'); window.location.reload(); } else alert('Save failed.'); });
+    }
+
+    if (fileInput.files && fileInput.files.length > 0) {
+      var fd = new FormData(); fd.append('file', fileInput.files[0]);
+      fetch('http://localhost:3000/api/upload', { method: 'POST', headers: { Authorization: 'Bearer ' + token }, body: fd })
+        .then(function(r) { return r.json(); })
+        .then(function(d) { saveSlide(d.url || d.filePath); });
+    } else {
+      var existingUrl = document.getElementById('slide-image-url').value;
+      if (existingUrl || editId) {
+        saveSlide(existingUrl || '/slider1.jpg');
+      } else {
+        alert('Please select an image.');
+      }
+    }
+  });
+
+  document.getElementById('slide-modal-close').addEventListener('click', closeModal);
+  document.getElementById('slide-modal-cancel').addEventListener('click', closeModal);
+  modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
+})();
+</script>

@@ -151,3 +151,71 @@ model AgmDocument {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model PageContent {
+  id        String   @id @default(uuid())
+  pageSlug  String   @unique
+  title     String
+  content   String
+  metaDesc  String?
+  imageUrl  String?
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model Download {
+  id            String   @id @default(uuid())
+  title         String
+  category      String
+  fileName      String
+  documentUrl   String
+  fileSizeBytes Int      @default(0)
+  publishDate   DateTime @default(now())
+  status        String   @default("Active")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model FinancialDocument {
+  id          String   @id @default(uuid())
+  title       String
+  category    String
+  fiscalYear  String?
+  documentUrl String
+  fileName    String
+  publishDate DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Executive {
+  id            String   @id @default(uuid())
+  name          String
+  designation   String
+  department    String?
+  phone         String?
+  email         String?
+  officeAddress String?
+  sNo           Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model HeroSlide {
+  id        String   @id @default(uuid())
+  title     String
+  subtitle  String?
+  imageUrl  String
+  ctaText   String?
+  ctaHref   String?
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SiteSetting {
+  id    String @id @default(uuid())
+  key   String @unique
+  value String
+}

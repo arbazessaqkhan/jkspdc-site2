@@ -22,12 +22,12 @@ let downloads = [
 ];
 
 try {
-  const res = await fetch('http://localhost:3000/api/policies?category=Downloads');
+  const res = await fetch('http://localhost:3000/api/downloads');
   if (res.ok) {
     const data = await res.json();
-    const activeBackendDocs = data.filter(d => d.status === 'Active');
+    const activeBackendDocs = data.filter((d: any) => d.status === 'Active');
     if (activeBackendDocs.length > 0) {
-      downloads = [...downloads, ...activeBackendDocs];
+      downloads = [...activeBackendDocs, ...downloads];
     }
   }
 } catch (e) {

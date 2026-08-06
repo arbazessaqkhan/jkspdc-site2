@@ -1,0 +1,188 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/Icon.astro';
+
+let executives: any[] = [];
+let errorMessage = '';
+const sessionToken = Astro.cookies.get('admin_session')?.value || '';
+
+try {
+  const res = await fetch('http://localhost:3000/api/executives');
+  if (res.ok) executives = await res.json();
+} catch (e) {
+  errorMessage = 'Could not load executives directory.';
+}
+---
+
+<AdminLayout title="Executives Directory" description="Manage officers and executives directory" activeTab="executives">
+  <div class="flex flex-col gap-6">
+    <div class="flex items-center justify-between border-b border-slate-200 pb-5">
+      <div>
+        <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Executives Directory</h1>
+        <p class="text-xs text-slate-600 font-medium mt-1">Manage officers, executives, and key personnel displayed on the website.</p>
+      </div>
+      <button id="add-exec-btn" class="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 shadow-md transition-colors cursor-pointer">
+        <Icon name="plus" size={14} /> Add Executive
+      </button>
+    </div>
+
+    {errorMessage && (
+      <div class="p-4 bg-amber-50 border-l-4 border-amber-500 rounded text-xs text-amber-800 font-semibold" role="alert">
+        <Icon name="info" size={14} class="inline text-amber-600 mr-1" /> {errorMessage}
+      </div>
+    )}
+
+    <!-- Executives Table -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <table class="w-full text-xs">
+        <thead class="bg-slate-50 border-b border-slate-200">
+          <tr>
+            <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider w-12">S.No</th>
+            <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">Name</th>
+            <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">Designation</th>
+            <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">Department</th>
+            <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">Contact</th>
+            <th class="px-5 py-3 text-right text-[10px] font-bold text-slate-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {executives.length === 0 ? (
+            <tr><td colspan="6" class="px-5 py-8 text-center text-slate-400 italic">No executives found. Click "Add Executive" to add officers.</td></tr>
+          ) : (
+            executives.map((ex: any) => (
+              <tr class="hover:bg-slate-50/50 transition-colors">
+                <td class="px-5 py-3 text-slate-400 font-bold">{ex.sNo}</td>
+                <td class="px-5 py-3 font-semibold text-slate-800">{ex.name}</td>
+                <td class="px-5 py-3 text-slate-600">{ex.designation}</td>
+                <td class="px-5 py-3 text-slate-500">{ex.department || '—'}</td>
+                <td class="px-5 py-3 text-slate-500 text-[10px]">
+                  {ex.phone && <span class="block">{ex.phone}</span>}
+                  {ex.email && <span class="block text-blue-600">{ex.email}</span>}
+                </td>
+                <td class="px-5 py-3 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <button class="edit-exec-btn p-1.5 text-amber-600 hover:bg-amber-50 rounded cursor-pointer" data-id={ex.id} data-name={ex.name} data-designation={ex.designation} data-department={ex.department || ''} data-phone={ex.phone || ''} data-email={ex.email || ''} data-address={ex.officeAddress || ''} data-sno={ex.sNo}>
+                      <Icon name="pencil" size={13} />
+                    </button>
+                    <button class="delete-exec-btn p-1.5 text-red-600 hover:bg-red-50 rounded cursor-pointer" data-id={ex.id} data-name={ex.name}>
+                      <Icon name="trash-2" size={13} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Modal -->
+    <div id="exec-modal" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+          <h3 id="exec-modal-title" class="text-sm font-extrabold text-slate-900">Add Executive</h3>
+          <button id="exec-modal-close" class="p-2 text-slate-400 hover:text-red-600 rounded-lg cursor-pointer"><Icon name="x" size={18} /></button>
+        </div>
+        <div class="p-6 flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
+          <input type="hidden" id="exec-edit-id" />
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">Name *</label>
+              <input id="exec-name" type="text" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            </div>
+            <div>
+              <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">S.No</label>
+              <input id="exec-sno" type="number" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" value="0" />
+            </div>
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">Designation *</label>
+            <input id="exec-designation" type="text" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">Department</label>
+            <input id="exec-department" type="text" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">Phone</label>
+              <input id="exec-phone" type="text" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            </div>
+            <div>
+              <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">Email</label>
+              <input id="exec-email" type="email" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            </div>
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">Office Address</label>
+            <textarea id="exec-address" rows="2" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none resize-y"></textarea>
+          </div>
+        </div>
+        <div class="px-6 py-4 border-t border-slate-200 flex justify-end gap-3 bg-slate-50">
+          <button id="exec-modal-cancel" class="px-4 py-2 text-xs font-bold text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-100 cursor-pointer">Cancel</button>
+          <button id="exec-modal-save" class="px-6 py-2 text-xs font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-md cursor-pointer">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</AdminLayout>
+
+<script is:inline>
+(function() {
+  var modal = document.getElementById('exec-modal');
+  function getToken() { var m = document.cookie.match(/admin_session=([^;]+)/); return m ? m[1] : ''; }
+  function closeModal() { modal.classList.add('hidden'); }
+
+  document.getElementById('add-exec-btn').addEventListener('click', function() {
+    document.getElementById('exec-modal-title').textContent = 'Add Executive';
+    document.getElementById('exec-edit-id').value = '';
+    ['exec-name','exec-designation','exec-department','exec-phone','exec-email','exec-address'].forEach(function(id) { document.getElementById(id).value = ''; });
+    document.getElementById('exec-sno').value = '0';
+    modal.classList.remove('hidden');
+  });
+
+  document.querySelectorAll('.edit-exec-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.getElementById('exec-modal-title').textContent = 'Edit Executive';
+      document.getElementById('exec-edit-id').value = btn.dataset.id;
+      document.getElementById('exec-name').value = btn.dataset.name;
+      document.getElementById('exec-designation').value = btn.dataset.designation;
+      document.getElementById('exec-department').value = btn.dataset.department;
+      document.getElementById('exec-phone').value = btn.dataset.phone;
+      document.getElementById('exec-email').value = btn.dataset.email;
+      document.getElementById('exec-address').value = btn.dataset.address;
+      document.getElementById('exec-sno').value = btn.dataset.sno;
+      modal.classList.remove('hidden');
+    });
+  });
+
+  document.querySelectorAll('.delete-exec-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      if (!confirm('Delete "' + btn.dataset.name + '"?')) return;
+      fetch('http://localhost:3000/api/executives/' + btn.dataset.id, { method: 'DELETE', headers: { Authorization: 'Bearer ' + getToken() } })
+        .then(function(r) { if (r.ok) window.location.reload(); else alert('Delete failed.'); });
+    });
+  });
+
+  document.getElementById('exec-modal-save').addEventListener('click', function() {
+    var token = getToken();
+    var editId = document.getElementById('exec-edit-id').value;
+    var body = {
+      name: document.getElementById('exec-name').value,
+      designation: document.getElementById('exec-designation').value,
+      department: document.getElementById('exec-department').value,
+      phone: document.getElementById('exec-phone').value,
+      email: document.getElementById('exec-email').value,
+      officeAddress: document.getElementById('exec-address').value,
+      sNo: parseInt(document.getElementById('exec-sno').value) || 0,
+    };
+    var url = editId ? 'http://localhost:3000/api/executives/' + editId : 'http://localhost:3000/api/executives';
+    fetch(url, { method: editId ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(body) })
+      .then(function(r) { if (r.ok) { alert('Saved!'); window.location.reload(); } else alert('Save failed.'); });
+  });
+
+  document.getElementById('exec-modal-close').addEventListener('click', closeModal);
+  document.getElementById('exec-modal-cancel').addEventListener('click', closeModal);
+  modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
+})();
+</script>
