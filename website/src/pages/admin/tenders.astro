@@ -43,7 +43,7 @@ if (Astro.request.method === 'POST') {
 }
 
 // Fetch Tenders List
-let tenders = [];
+let tenders: any[] = [];
 try {
   const res = await fetch('http://localhost:3000/api/tenders');
   if (res.ok) {
@@ -57,21 +57,30 @@ try {
 }
 ---
 
-<AdminLayout title="Tenders & Bids" description="Manage JKSPDCL Tenders and Bids" activeTab="tenders">
+<AdminLayout title="Tenders & Bids" description="Manage JKSPDCL Tenders, Bids, and Attached Corrigendums" activeTab="tenders">
   <div class="flex flex-col gap-6">
     
     <!-- Page Header -->
-      <div class="bg-white rounded-lg border border-slate-200 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 class="text-xl font-bold text-[#0B4F9C]">Tenders &amp; Procurement Notices</h2>
-          <p class="text-xs text-slate-500 mt-0.5">Publish new tenders, archive expired bids, and manage document attachments.</p>
-        </div>
-      <a 
-        href="/admin/tenders-form" 
-        class="btn-primary flex items-center gap-1.5 self-start md:self-auto cursor-pointer"
-      >
-        <Icon name="plus" size={14} /> Publish Tender
-      </a>
+    <div class="bg-white rounded-lg border border-slate-200 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <h2 class="text-xl font-bold text-[#0B4F9C]">Tenders &amp; Procurement Notices</h2>
+        <p class="text-xs text-slate-500 mt-0.5">Publish new tenders, attach corrigendums to existing tenders, and manage bidding documents.</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button 
+          type="button"
+          id="btn-open-global-corr-modal"
+          class="px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+        >
+          <Icon name="plus" size={14} /> Attach Corrigendum
+        </button>
+        <a 
+          href="/admin/tenders-form" 
+          class="btn-primary flex items-center gap-1.5 self-start md:self-auto cursor-pointer"
+        >
+          <Icon name="plus" size={14} /> Publish Tender
+        </a>
+      </div>
     </div>
 
     <!-- Alerts -->
@@ -94,11 +103,11 @@ try {
             <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
               <th scope="col" class="p-4 w-12 text-center">#</th>
               <th scope="col" class="p-4">Reference No</th>
-              <th scope="col" class="p-4">Tender Title</th>
+              <th scope="col" class="p-4">Tender Title &amp; Attached Corrigendums</th>
               <th scope="col" class="p-4">Closing Date</th>
               <th scope="col" class="p-4">Status</th>
               <th scope="col" class="p-4">File Specs</th>
-              <th scope="col" class="p-4 w-36 text-center">Action</th>
+              <th scope="col" class="p-4 w-48 text-center">Actions</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-200 text-xs">
@@ -109,65 +118,404 @@ try {
                 </td>
               </tr>
             ) : (
-              tenders.map((tender, idx) => (
-                <tr key={tender.id} class="hover:bg-slate-50/50 transition-colors">
-                  <td class="p-4 text-center font-bold text-slate-400">{idx + 1}</td>
-                  <td class="p-4 font-bold text-[#0B4F9C]">{tender.referenceNo}</td>
-                  <td class="p-4 font-medium text-slate-800 text-left">
-                    <div class="flex flex-col gap-1.5">
-                      <span class="font-bold text-sm leading-snug">{tender.title}</span>
-                      {tender.description && <span class="text-[10px] text-slate-400 font-normal line-clamp-1">{tender.description}</span>}
-                      <div class="flex items-center gap-1.5 flex-wrap mt-1 select-none">
-                        <span class="px-1.5 py-0.5 rounded bg-blue-50 border border-blue-150 text-[#0B4F9C] text-[9px] font-bold uppercase">{tender.documentType || 'NIT'}</span>
-                        <span class="px-1.5 py-0.5 rounded bg-purple-50 border border-purple-150 text-purple-700 text-[9px] font-bold">{tender.workCategory || 'Civil'}</span>
-                        <span class="px-1.5 py-0.5 rounded bg-slate-50 border border-slate-200 text-slate-600 text-[9px] font-bold uppercase font-mono">{tender.locationTag?.replace('HQ_', 'HQ ')}</span>
+              tenders.map((tender: any, idx: number) => {
+                const corrs = tender.corrigendums && Array.isArray(tender.corrigendums) ? tender.corrigendums : [];
+                return (
+                  <tr key={tender.id} class="hover:bg-slate-50/50 transition-colors">
+                    <td class="p-4 text-center font-bold text-slate-400">{idx + 1}</td>
+                    <td class="p-4 font-bold text-[#0B4F9C] whitespace-nowrap">{tender.referenceNo}</td>
+                    <td class="p-4 font-medium text-slate-800 text-left">
+                      <div class="flex flex-col gap-1.5">
+                        <span class="font-bold text-sm leading-snug">{tender.title}</span>
+                        {tender.description && <span class="text-[10px] text-slate-400 font-normal line-clamp-1">{tender.description}</span>}
+                        
+                        <div class="flex items-center gap-1.5 flex-wrap mt-1 select-none">
+                          <span class="px-1.5 py-0.5 rounded bg-blue-50 border border-blue-150 text-[#0B4F9C] text-[9px] font-bold uppercase">{tender.documentType || 'NIT'}</span>
+                          <span class="px-1.5 py-0.5 rounded bg-purple-50 border border-purple-150 text-purple-700 text-[9px] font-bold">{tender.workCategory || 'Civil'}</span>
+                          <span class="px-1.5 py-0.5 rounded bg-slate-50 border border-slate-200 text-slate-600 text-[9px] font-bold uppercase font-mono">{tender.locationTag?.replace('HQ_', 'HQ ')}</span>
+                          {corrs.length > 0 && (
+                            <span class="px-2 py-0.5 rounded bg-amber-100 border border-amber-300 text-amber-900 text-[9px] font-extrabold flex items-center gap-1">
+                              📎 {corrs.length} Corrigendum(s) Attached
+                            </span>
+                          )}
+                        </div>
+
+                        <!-- Corrigendums List Pills -->
+                        {corrs.length > 0 && (
+                          <div class="mt-2 space-y-1 bg-amber-50/50 p-2 rounded border border-amber-200/60">
+                            {corrs.map((c: any, cIdx: number) => (
+                              <div class="text-[11px] font-semibold text-slate-700 flex items-center justify-between gap-2">
+                                <span class="truncate">📄 <strong>Corrigendum-{cIdx + 1}:</strong> {c.title}</span>
+                                <a href={c.documentUrl} target="_blank" class="text-amber-800 hover:underline font-bold text-[10px] shrink-0">
+                                  View PDF
+                                </a>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  </td>
-                  <td class="p-4 text-slate-600 font-medium">
-                    {tender.closingDate ? new Date(tender.closingDate).toLocaleDateString('en-IN', { dateStyle: 'medium' }) : '—'}
-                  </td>
-                  <td class="p-4">
-                    <span class={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                      tender.status === 'Active' ? 'bg-green-50 text-green-700 border border-green-200' :
-                      tender.status === 'Archived' ? 'bg-slate-100 text-slate-600 border border-slate-200' :
-                      'bg-red-50 text-red-700 border border-red-200'
-                    }`}>
-                      {tender.status}
-                    </span>
-                  </td>
-                  <td class="p-4 text-slate-500 font-medium">
-                    <a href={tender.documentUrl} target="_blank" class="hover:underline flex items-center gap-1 text-[#0B4F9C]">
-                      <Icon name="download" size={12} />
-                      <span>{tender.fileSizeBytes ? `${(tender.fileSizeBytes / (1024 * 1024)).toFixed(2)} MB` : 'PDF'}</span>
-                    </a>
-                  </td>
-                  <td class="p-4 flex justify-center gap-2">
-                    <a 
-                      href={`/admin/tenders-form?id=${tender.id}`}
-                      class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px] font-bold border border-slate-300 transition-colors cursor-pointer"
-                      aria-label={`Edit Tender ${tender.referenceNo}`}
-                    >
-                      Edit
-                    </a>
-                    <form method="POST" class="inline" onsubmit="return confirm('Are you sure you want to remove this tender?');">
-                      <input type="hidden" name="id" value={tender.id} />
-                      <input type="hidden" name="_action" value="delete" />
-                      <button 
-                        type="submit" 
-                        class="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded text-[11px] font-bold border border-red-200 transition-colors cursor-pointer"
-                        aria-label={`Delete Tender ${tender.referenceNo}`}
-                      >
-                        Delete
-                      </button>
-                    </form>
-                  </td>
-                </tr>
-              ))
+                    </td>
+                    <td class="p-4 text-slate-600 font-medium whitespace-nowrap">
+                      {tender.closingDate ? new Date(tender.closingDate).toLocaleDateString('en-IN', { dateStyle: 'medium' }) : '—'}
+                    </td>
+                    <td class="p-4">
+                      <span class={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                        tender.status === 'Active' ? 'bg-green-50 text-green-700 border border-green-200' :
+                        tender.status === 'Archived' ? 'bg-slate-100 text-slate-600 border border-slate-200' :
+                        'bg-red-50 text-red-700 border border-red-200'
+                      }`}>
+                        {tender.status}
+                      </span>
+                    </td>
+                    <td class="p-4 text-slate-500 font-medium whitespace-nowrap">
+                      <a href={tender.documentUrl} target="_blank" class="hover:underline flex items-center gap-1 text-[#0B4F9C]">
+                        <Icon name="download" size={12} />
+                        <span>{tender.fileSizeBytes ? `${(tender.fileSizeBytes / (1024 * 1024)).toFixed(2)} MB` : 'PDF'}</span>
+                      </a>
+                    </td>
+                    <td class="p-4">
+                      <div class="flex items-center justify-center gap-1.5">
+                        <button
+                          type="button"
+                          class="btn-attach-corr px-2 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded text-[11px] font-bold border border-amber-200 transition-colors cursor-pointer"
+                          data-tender-id={tender.id}
+                          data-tender-ref={tender.referenceNo}
+                          data-tender-title={tender.title}
+                          title="Attach Corrigendum PDF to this tender"
+                        >
+                          📎 +Corr
+                        </button>
+                        <a 
+                          href={`/admin/tenders-form?id=${tender.id}`}
+                          class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px] font-bold border border-slate-300 transition-colors cursor-pointer"
+                        >
+                          Edit
+                        </a>
+                        <form method="POST" class="inline" onsubmit="return confirm('Are you sure you want to remove this tender?');">
+                          <input type="hidden" name="id" value={tender.id} />
+                          <input type="hidden" name="_action" value="delete" />
+                          <button 
+                            type="submit" 
+                            class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded text-[11px] font-bold border border-red-200 transition-colors cursor-pointer"
+                          >
+                            Del
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
       </div>
     </div>
   </div>
+
+  <!-- ATTACH CORRIGENDUM MODAL DIALOG -->
+  <div id="corr-modal-backdrop" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-xl shadow-2xl border border-slate-200 max-w-xl w-full p-6 space-y-5 animate-fadeIn">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2 text-[#0B4F9C]">
+          <Icon name="plus" size={18} />
+          <h3 class="text-base font-extrabold">Attach Corrigendum / Amendment PDF</h3>
+        </div>
+        <button id="btn-close-corr-modal" class="text-slate-400 hover:text-slate-700 text-lg font-bold p-1 cursor-pointer">
+          ✕
+        </button>
+      </div>
+
+      <!-- Form Body -->
+      <form id="attach-corr-modal-form" class="space-y-4">
+        
+        <!-- Search & Select Target Tender -->
+        <div class="form-group flex flex-col gap-1.5 relative">
+          <label class="text-xs font-bold text-slate-700">Select Target Tender <span class="text-red-500">*</span></label>
+          <input 
+            type="text" 
+            id="modal-tender-search" 
+            class="form-input text-xs" 
+            placeholder="Type eNIT No, Tender ID, Title, or Keyword to search..." 
+            autocomplete="off"
+            required
+          />
+          <input type="hidden" id="modal-selected-tender-id" />
+          
+          <!-- Dropdown search suggestions -->
+          <div id="modal-tender-results" class="absolute left-0 right-0 top-[64px] bg-white border border-slate-200 rounded-lg shadow-xl max-h-48 overflow-y-auto z-20 hidden">
+            <!-- Populated via JS search -->
+          </div>
+
+          <div id="modal-selected-tender-badge" class="p-2.5 bg-blue-50 border border-blue-200 rounded text-xs text-[#0B4F9C] font-semibold hidden">
+            Selected: <span id="selected-tender-text" class="font-bold"></span>
+          </div>
+        </div>
+
+        <!-- Corrigendum Title -->
+        <div class="form-group flex flex-col gap-1.5">
+          <label for="modal-corr-title" class="text-xs font-bold text-slate-700">Corrigendum Title / Subject <span class="text-red-500">*</span></label>
+          <input 
+            type="text" 
+            id="modal-corr-title" 
+            class="form-input text-xs" 
+            placeholder="e.g. Corrigendum-I: Extension of bid submission deadline & amended BOQ" 
+            required 
+          />
+        </div>
+
+        <!-- Extended Dates (Optional) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="form-group flex flex-col gap-1.5">
+            <label for="modal-extended-closing" class="text-xs font-bold text-slate-700">Extended Closing Date (Optional)</label>
+            <input type="date" id="modal-extended-closing" class="form-input text-xs" />
+          </div>
+          <div class="form-group flex flex-col gap-1.5">
+            <label for="modal-extended-opening" class="text-xs font-bold text-slate-700">Extended Opening Date (Optional)</label>
+            <input type="date" id="modal-extended-opening" class="form-input text-xs" />
+          </div>
+        </div>
+
+        <!-- Corrigendum PDF File Attachment -->
+        <div class="form-group flex flex-col gap-1.5">
+          <label class="text-xs font-bold text-slate-700">Corrigendum PDF Document <span class="text-red-500">*</span></label>
+          <div id="modal-upload-box" class="border-2 border-dashed border-slate-300 hover:border-amber-400 rounded-lg p-5 bg-slate-50 flex flex-col items-center justify-center gap-1.5 hover:bg-amber-50/20 transition-all cursor-pointer relative">
+            <input type="file" id="modal-file-uploader" class="absolute inset-0 opacity-0 cursor-pointer" accept=".pdf,.doc,.docx" />
+            <Icon name="upload" size={20} class="text-slate-400" />
+            <span id="modal-upload-status" class="text-xs text-slate-600 font-semibold">Click to choose Corrigendum PDF file</span>
+            <span class="text-[10px] text-slate-400">PDF document max 10MB</span>
+          </div>
+          <input type="hidden" id="modal-doc-url" />
+          <input type="hidden" id="modal-file-size" />
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-end gap-3 border-t border-slate-100 pt-4">
+          <button type="button" id="btn-cancel-corr-modal" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-semibold border border-slate-300 transition-colors">
+            Cancel
+          </button>
+          <button type="submit" id="btn-submit-corr-modal" class="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded text-xs font-bold shadow-md transition-all cursor-pointer">
+            Confirm Attach Corrigendum
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script define:vars={{ sessionToken, tenders }}>
+    document.addEventListener('DOMContentLoaded', () => {
+      const modalBackdrop = document.getElementById('corr-modal-backdrop');
+      const btnOpenGlobal = document.getElementById('btn-open-global-corr-modal');
+      const btnCloseModal = document.getElementById('btn-close-corr-modal');
+      const btnCancelModal = document.getElementById('btn-cancel-corr-modal');
+      const searchInput = document.getElementById('modal-tender-search');
+      const hiddenTenderId = document.getElementById('modal-selected-tender-id');
+      const resultsBox = document.getElementById('modal-tender-results');
+      const badgeBox = document.getElementById('modal-selected-tender-badge');
+      const selectedTenderText = document.getElementById('selected-tender-text');
+      
+      const fileUploader = document.getElementById('modal-file-uploader');
+      const uploadStatus = document.getElementById('modal-upload-status');
+      const uploadBox = document.getElementById('modal-upload-box');
+      const hiddenDocUrl = document.getElementById('modal-doc-url');
+      const hiddenFileSize = document.getElementById('modal-file-size');
+
+      const modalForm = document.getElementById('attach-corr-modal-form');
+      const submitBtn = document.getElementById('btn-submit-corr-modal');
+
+      function openModal(preSelectedTender = null) {
+        if (!modalBackdrop) return;
+        modalBackdrop.classList.remove('hidden');
+        resetModalForm();
+
+        if (preSelectedTender) {
+          selectTender(preSelectedTender);
+        }
+      }
+
+      function closeModal() {
+        if (!modalBackdrop) return;
+        modalBackdrop.classList.add('hidden');
+        resetModalForm();
+      }
+
+      function resetModalForm() {
+        if (modalForm) modalForm.reset();
+        if (hiddenTenderId) hiddenTenderId.value = '';
+        if (hiddenDocUrl) hiddenDocUrl.value = '';
+        if (hiddenFileSize) hiddenFileSize.value = '0';
+        if (badgeBox) badgeBox.classList.add('hidden');
+        if (resultsBox) resultsBox.classList.add('hidden');
+        if (uploadStatus) uploadStatus.textContent = 'Click to choose Corrigendum PDF file';
+        if (uploadBox) uploadBox.classList.remove('border-emerald-300', 'bg-emerald-50/20');
+      }
+
+      function selectTender(t) {
+        if (hiddenTenderId) hiddenTenderId.value = t.id;
+        if (searchInput) searchInput.value = `${t.referenceNo} — ${t.title}`;
+        if (selectedTenderText) selectedTenderText.textContent = `${t.referenceNo} (${t.title})`;
+        if (badgeBox) badgeBox.classList.remove('hidden');
+        if (resultsBox) resultsBox.classList.add('hidden');
+      }
+
+      btnOpenGlobal?.addEventListener('click', () => openModal());
+      btnCloseModal?.addEventListener('click', closeModal);
+      btnCancelModal?.addEventListener('click', closeModal);
+
+      // Row attach buttons
+      document.querySelectorAll('.btn-attach-corr').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-tender-id');
+          const ref = btn.getAttribute('data-tender-ref');
+          const title = btn.getAttribute('data-tender-title');
+          openModal({ id, referenceNo: ref, title });
+        });
+      });
+
+      // Search input live filtering
+      searchInput?.addEventListener('input', () => {
+        const query = searchInput.value.toLowerCase().trim();
+        if (!query) {
+          resultsBox?.classList.add('hidden');
+          return;
+        }
+
+        const matches = tenders.filter((t) => 
+          (t.referenceNo || '').toLowerCase().includes(query) ||
+          (t.title || '').toLowerCase().includes(query) ||
+          (t.id || '').toLowerCase().includes(query) ||
+          (t.workCategory || '').toLowerCase().includes(query)
+        );
+
+        if (matches.length === 0) {
+          resultsBox.innerHTML = '<div class="p-3 text-slate-400 italic text-xs">No matching tenders found</div>';
+        } else {
+          resultsBox.innerHTML = matches.map((t) => `
+            <div class="p-2.5 hover:bg-amber-50/70 border-b border-slate-100 last:border-0 cursor-pointer text-xs select-none item-tender-option" data-id="${t.id}">
+              <div class="font-bold text-[#0B4F9C]">${t.referenceNo}</div>
+              <div class="font-semibold text-slate-800 leading-snug truncate">${t.title}</div>
+            </div>
+          `).join('');
+
+          resultsBox.querySelectorAll('.item-tender-option').forEach((opt) => {
+            opt.addEventListener('click', () => {
+              const id = opt.getAttribute('data-id');
+              const t = tenders.find((x) => x.id === id);
+              if (t) selectTender(t);
+            });
+          });
+        }
+        resultsBox?.classList.remove('hidden');
+      });
+
+      // File upload handler
+      fileUploader?.addEventListener('change', async (e) => {
+        const file = e.target?.files?.[0];
+        if (!file) return;
+
+        if (uploadStatus) uploadStatus.textContent = `Uploading ${file.name}...`;
+        if (uploadBox) uploadBox.classList.add('opacity-60', 'pointer-events-none');
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+          const res = await fetch('http://localhost:3000/api/upload', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${sessionToken}` },
+            body: formData,
+          });
+
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || 'Upload failed');
+          }
+
+          const result = await res.json();
+          if (hiddenDocUrl) hiddenDocUrl.value = result.url;
+          if (hiddenFileSize) hiddenFileSize.value = result.sizeBytes;
+          if (uploadStatus) uploadStatus.textContent = `Attached: ${result.filename} (${Math.round(result.sizeBytes / 1024)} KB)`;
+          if (uploadBox) uploadBox.classList.add('border-emerald-300', 'bg-emerald-50/20');
+        } catch (err) {
+          alert(`Upload failed: ${err.message}`);
+          if (uploadStatus) uploadStatus.textContent = 'Click to choose Corrigendum PDF file';
+        } finally {
+          if (uploadBox) uploadBox.classList.remove('opacity-60', 'pointer-events-none');
+        }
+      });
+
+      // Submit Form Handler
+      modalForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const targetId = hiddenTenderId?.value;
+        const corrTitle = document.getElementById('modal-corr-title')?.value.trim();
+        const extClosing = document.getElementById('modal-extended-closing')?.value;
+        const extOpening = document.getElementById('modal-extended-opening')?.value;
+        const docUrl = hiddenDocUrl?.value;
+        const sizeBytes = parseInt(hiddenFileSize?.value || '0', 10);
+
+        if (!targetId) {
+          alert('Please select a target tender first.');
+          return;
+        }
+        if (!corrTitle) {
+          alert('Please enter the corrigendum title.');
+          return;
+        }
+        if (!docUrl) {
+          alert('Please attach the Corrigendum PDF file.');
+          return;
+        }
+
+        if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Saving...'; }
+
+        try {
+          // Fetch existing tender
+          const getRes = await fetch(`http://localhost:3000/api/tenders/${targetId}`);
+          if (!getRes.ok) throw new Error('Could not fetch target tender details.');
+          const tenderObj = await getRes.json();
+
+          const existingCorrs = Array.isArray(tenderObj.corrigendums) ? tenderObj.corrigendums : [];
+          
+          const newCorr = {
+            id: Math.random().toString(36).substring(2, 12),
+            title: corrTitle,
+            publishDate: new Date().toISOString(),
+            documentUrl: docUrl,
+            fileSizeBytes: sizeBytes,
+            extendedClosingDate: extClosing || null,
+            extendedBidOpeningDate: extOpening || null,
+          };
+
+          const updatedCorrs = [...existingCorrs, newCorr];
+
+          const putRes = await fetch(`http://localhost:3000/api/tenders/${targetId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${sessionToken}`,
+            },
+            body: JSON.stringify({
+              corrigendums: updatedCorrs,
+            }),
+          });
+
+          if (putRes.ok) {
+            alert('Corrigendum successfully attached to tender!');
+            window.location.reload();
+          } else {
+            const err = await putRes.json().catch(() => ({}));
+            throw new Error(err.message || 'Failed to update tender with corrigendum.');
+          }
+        } catch (err) {
+          alert(`Error attaching corrigendum: ${err.message}`);
+        } finally {
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Confirm Attach Corrigendum'; }
+        }
+      });
+    });
+  </script>
 </AdminLayout>

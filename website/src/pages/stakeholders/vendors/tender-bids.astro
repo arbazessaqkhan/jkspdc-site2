@@ -298,37 +298,6 @@ const tenderYears = Array.from(new Set(processedTenders.map((t: any) => new Date
       </aside>
     </div>
 
-    <!-- Compliance / Awards Logs (keeps feature complete) -->
-    <section class="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-4">
-      <h3 class="font-extrabold text-slate-800 text-base border-b border-slate-200 pb-2 flex items-center gap-2">
-        <span>📋</span> Awards, Debarments &amp; Compliance Notices
-      </h3>
-      <p class="text-xs text-slate-500 leading-relaxed">Official disclosures of debarred vendor registries, contract award details, and public evaluation summaries.</p>
-      
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-        {awardsAndBanned.length === 0 ? (
-          <div class="col-span-2 text-center py-6 text-xs text-slate-400 font-semibold italic">No recent awards or compliance notices published.</div>
-        ) : (
-          awardsAndBanned.map((item: any) => (
-            <div class="p-4 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
-              <div>
-                <span class={`px-2 py-0.5 rounded text-[9px] font-bold uppercase ${
-                  item.documentType === 'CONTRACT_AWARD' ? 'bg-emerald-50 text-emerald-700 border border-emerald-250' : 'bg-red-50 text-red-700 border border-red-200'
-                } border inline-block mb-2`}>
-                  {item.documentType === 'CONTRACT_AWARD' ? 'Contract Award' : 'Banned Firm'}
-                </span>
-                <h4 class="font-bold text-slate-800 text-xs leading-snug">{item.title}</h4>
-                <p class="text-[10px] text-slate-450 font-semibold mt-1 font-mono">{item.referenceNo}</p>
-              </div>
-              <a href={getDocUrl(item.documentUrl)} target="_blank" rel="noopener noreferrer" class="mt-4 text-[#0B4F9C] hover:underline font-bold text-xs inline-flex items-center gap-1">
-                <span>📄 View Notice</span>
-                <span class="text-[10px] text-slate-400">({item.fileSizeBytes ? `${(item.fileSizeBytes / 1024).toFixed(0)} KB` : 'PDF'})</span>
-              </a>
-            </div>
-          ))
-        )}
-      </div>
-    </section>
 
   </div>
 </Layout>
