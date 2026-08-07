@@ -7,7 +7,6 @@
   { "title": "Organization Chart", "url": "/about-us/explore/organization-chart", "description": "Hierarchical structure of the administrative and technical wings of the corporation." },
   { "title": "Roles & Responsibility", "url": "/about-us/explore/roles-responsibility", "description": "Authorized roles and responsibilities assigned to corporate wings and officers." },
   { "title": "Phone Directory of Senior Executives", "url": "/about-us/explore/executives-directory", "description": "Official contact registry for public interface and administrative departments." },
-  { "title": "Code of Business Conduct & Ethics", "url": "/about-us/explore/ethics-code", "description": "Ethical guidelines governing the operations, directors, and employees of the corporation." },
   { "title": "Memorandum and Articles of Association", "url": "/about-us/explore/association-memorandum", "description": "Foundational legal and corporate constitution files of the corporation." },
   { "title": "Board of Directors", "url": "/about-us/management/board", "description": "Authorized governing board of the corporation representing administrative and financial stakeholders." },
   { "title": "Committee of Directors", "url": "/about-us/management/committees", "description": "Audit, Projects, and General Management sub-committees of the Corporation's Board." },
@@ -24,7 +23,7 @@
 
   { "title": "Chairman's Statement", "url": "/stakeholders/investors/chairman-statement", "description": "Annual message from the Chairman regarding corporate growth and milestones." },
   { "title": "Financial Results", "url": "/stakeholders/investors/financial-results", "description": "Registry of audited balance sheets, profit & loss, and audit reports." },
-  { "title": "Investor Announcements", "url": "/stakeholders/investors/announcement", "description": "Official circulars, board meeting intimations, and announcements." },
+  { "title": "Notifications & Circulars", "url": "/notifications", "description": "Official notifications, circulars, office orders, and public notices of JKSPDC." },
   { "title": "Annual Reports", "url": "/stakeholders/investors/annual-reports", "description": "Official annual corporate progress dossiers for review and download." },
   { "title": "Investor Services & Utilities", "url": "/stakeholders/investors/more", "description": "Additional resources and disclosures for corporate stakeholders." },
   { "title": "Memorandums of Understanding (MoU) with MoP", "url": "/stakeholders/investors/mou-mop", "description": "Official agreements signed with the Ministry of Power, Government of India." },

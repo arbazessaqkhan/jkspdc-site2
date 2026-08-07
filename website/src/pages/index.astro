@@ -237,10 +237,10 @@ const quickLinks = [
   { icon: "briefcase", label: "Careers", desc: "Open positions", href: "/stakeholders/career-seekers/current-openings" },
   { icon: "scroll-text", label: "RTI", desc: "Right to Information", href: "/about-us/explore/rti" },
   { icon: "landmark", label: "Investors", desc: "Financial reports", href: "/stakeholders/investors/financial-results" },
-  { icon: "leaf", label: "CSR", desc: "Community initiatives", href: "/sustainability/csr/overview" },
+  { icon: "leaf", label: "CSR Policy", desc: "Community initiatives", href: "/sustainability/csr/policy" },
   { icon: "newspaper", label: "Media Centre", desc: "Press & announcements", href: "/media/press-releases" },
   { icon: "download", label: "Downloads", desc: "Documents & forms", href: "/media/downloads" },
-  { icon: "eye", label: "Vigilance", desc: "Integrity & compliance", href: "/about-us/explore/ethics-code" },
+  { icon: "eye", label: "Vigilance", desc: "Integrity & compliance", href: "/about-us/explore/policies" },
 ];
 
 
@@ -255,27 +255,27 @@ const fallbackNotifications = [
   {
     title: "Cancellation notice of NIT no. 03 of 2026 dated 20.05.2026 and 05 of 2026 dated 16.06.2026",
     publishDate: "2026-07-01",
-    documentUrl: "/stakeholders/investors/announcement"
+    documentUrl: "/notifications"
   },
   {
     title: "NOTICE FOR PUBLIC HEARING - Proposed 20MW Solar Power Installation in Samba district",
     publishDate: "2026-06-29",
-    documentUrl: "/stakeholders/investors/announcement"
+    documentUrl: "/notifications"
   },
   {
     title: "Corrigendum-II: Extension of Bid Submission Date for Design, Engineering & Commissioning of Pahalgam HEP",
     publishDate: "2026-06-25",
-    documentUrl: "/stakeholders/investors/announcement"
+    documentUrl: "/notifications"
   },
   {
     title: "Appointment of Senior Consultants for Environmental Impact Assessment of upcoming Hydro Projects",
     publishDate: "2026-06-20",
-    documentUrl: "/stakeholders/investors/announcement"
+    documentUrl: "/notifications"
   },
   {
     title: "Public Notice: Schedule of Board of Directors Meeting on Corporate Capital Restructuring",
     publishDate: "2026-06-15",
-    documentUrl: "/stakeholders/investors/announcement"
+    documentUrl: "/notifications"
   }
 ];
 
@@ -580,7 +580,7 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
 
             <div class="scroll-track animate-marquee-vertical flex flex-col gap-2.5" style={`--marquee-duration: ${displayNotifications.length * 7}s`}>
               {displayNotifications.map((notif: any) => {
-                const docUrl = getDocUrl(notif.documentUrl) || `/stakeholders/investors/announcement`;
+                const docUrl = getDocUrl(notif.documentUrl) || `/notifications`;
                 return (
                   <a href={docUrl} target="_blank" rel="noopener noreferrer" class="block p-3 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/35 rounded-lg shadow-xs text-left transition-all duration-150">
                     <div class="text-[10px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
@@ -595,7 +595,7 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
               })}
               {/* Duplicate for marquee */}
               {displayNotifications.map((notif: any) => {
-                const docUrl = getDocUrl(notif.documentUrl) || `/stakeholders/investors/announcement`;
+                const docUrl = getDocUrl(notif.documentUrl) || `/notifications`;
                 return (
                   <a href={docUrl} target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true" class="block p-3 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/35 rounded-lg shadow-xs text-left transition-all duration-150">
                     <div class="text-[10px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
@@ -611,7 +611,7 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
             </div>
           </div>
           <div class="bg-slate-100/70 border-t border-slate-200/50 py-2.5 text-center text-xs font-bold flex-shrink-0">
-            <a href="/stakeholders/investors/announcement" class="text-[#0B4F9C] hover:underline">View All Notifications &rarr;</a>
+            <a href="/notifications" class="text-[#0B4F9C] hover:underline">View All Notifications &rarr;</a>
           </div>
         </div>
       </div>

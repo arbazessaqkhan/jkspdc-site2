@@ -65,7 +65,7 @@ try {
 
   // Populate notifications (limit to top 4)
   notifs.slice(0, 4).forEach((n: any) => {
-    const notifDocUrl = getDocUrl(n.documentUrl) || `/stakeholders/investors/announcement`;
+    const notifDocUrl = getDocUrl(n.documentUrl) || `/notifications`;
     tickerItems.push({
       type: 'NOTIFICATION',
       text: `${n.title} (File: ${n.fileName})`,
@@ -491,7 +491,7 @@ if (tickerItems.length === 0) {
                   <li><a href="/about-us/management/board" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Board Of Director</a></li>
                   <li><a href="/about-us/explore/gstin-registration" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">GSTIN Registration Details</a></li>
                   <li><a href="/about-us/explore/policies" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Policies</a></li>
-                  <li><a href="/sustainability/csr/overview" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">CSR</a></li>
+                  <li><a href="/sustainability/csr/policy" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">CSR Policy</a></li>
                 </ul>
               </div>
             </li>
@@ -530,7 +530,7 @@ if (tickerItems.length === 0) {
 
             <!-- Notifications -->
             <li>
-              <a href="/stakeholders/investors/announcement" class="block px-3.5 py-3.5 text-white hover:bg-[#084A8F] transition-colors border-b-2 border-transparent hover:border-white/60">Notifications</a>
+              <a href="/notifications" class="block px-3.5 py-3.5 text-white hover:bg-[#084A8F] transition-colors border-b-2 border-transparent hover:border-white/60">Notifications</a>
             </li>
 
             <!-- Investors Corner -->
