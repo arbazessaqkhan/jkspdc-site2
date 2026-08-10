@@ -33,17 +33,7 @@
   { "title": "Online Payment Gateway", "url": "/stakeholders/vendors/online-payment", "description": "Submit tender document fees and earnest money deposits (EMD) securely online." },
   { "title": "Contract Labor Payment Management (CLPM)", "url": "/stakeholders/vendors/clpm-portal", "description": "Management portal monitoring labor payment compliance and records." },
 
-  { "title": "Commercial Operations Overview", "url": "/commercial/overview", "description": "Introduction to power trading, billing, tariff petitions, and revenue realization structures." },
-  { "title": "Power Trading Cell", "url": "/commercial/power-trading", "description": "Management of energy schedules and trading desks with power pools." },
-  { "title": "Commercial Wing Contacts", "url": "/commercial/contact", "description": "Official contacts for trading, billing settlements, and power purchase agreements (PPA)." },
-  { "title": "Applicable Laws & Regulations", "url": "/commercial/laws-regulations", "description": "Regulatory frame references under J&K SERC, CERC, and Electricity Acts." },
-  { "title": "Power Beneficiaries", "url": "/commercial/beneficiaries", "description": "Discoms, states, and union territories purchasing power from JKSPDC stations." },
-  { "title": "Revenue Realisation", "url": "/commercial/revenue-realisation", "description": "Realised power tariff billing receipts and settlement records." },
-  { "title": "Operating Power Stations (Commercial)", "url": "/commercial/operating-stations", "description": "Tariff parameters and corporate agreements of active power plants." },
-  { "title": "Tariff Schedules", "url": "/commercial/tariff", "description": "Approved power purchase rates for various beneficiary states." },
-  { "title": "Power Billing Registry", "url": "/commercial/billing", "description": "Registry of raised commercial bills and joint meter readings (JMR)." },
-  { "title": "Tariff Petitions", "url": "/commercial/tariff-petitions", "description": "Petitions filed before J&K State Electricity Regulatory Commission (SERC) and CERC." },
-  { "title": "Commercial Notices", "url": "/commercial/commercial-notices", "description": "Official commercial notifications, billing reminders, and circulars." },
+  { "title": "Power Trading Cell", "url": "/power-trading", "description": "Statutory Regulation 12 disclosures, trading licences, CERC/JERC orders, power tenders, and audited net worth statements." },
 
   { "title": "Environmental Preamble", "url": "/sustainability/environment/preamble", "description": "Our commitment to sustainable development, biodiversity preservation, and carbon reduction." },
   { "title": "Key Environmental Focus Areas", "url": "/sustainability/environment/key-areas", "description": "Water quality, catchment area treatment, and compensatory afforestation monitoring." },

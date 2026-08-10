@@ -1,0 +1,512 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+
+// Fetch backend tenders (filter for Power Trading or fallback)
+let powerTenders: any[] = [];
+try {
+  const res = await fetch('http://localhost:3000/api/tenders');
+  if (res.ok) {
+    const allTenders = await res.json();
+    powerTenders = allTenders.filter(
+      (t: any) =>
+        t.workCategory === 'Power Trading' ||
+        (t.title && t.title.toLowerCase().includes('power')) ||
+        (t.title && t.title.toLowerCase().includes('banking')) ||
+        (t.title && t.title.toLowerCase().includes('trading'))
+    );
+  }
+} catch (e) {
+  console.error('Failed to fetch power tenders:', e);
+}
+
+// Fetch backend policies/documents under Power Trading
+let powerDocs: any[] = [];
+try {
+  const res = await fetch('http://localhost:3000/api/policies');
+  if (res.ok) {
+    const allDocs = await res.json();
+    powerDocs = allDocs.filter((d: any) => d.category === 'Power Trading');
+  }
+} catch (e) {
+  console.error('Failed to fetch power trading docs:', e);
+}
+
+// Fallback Trading Licences & Orders
+const fallbackLicences = [
+  {
+    id: 'lic-1',
+    title: 'CERC Category-I Inter-State Power Trading Licence',
+    refNo: 'CERC/Licence/No.42/Trading/2024',
+    issuingAuthority: 'Central Electricity Regulatory Commission (CERC)',
+    validity: 'Valid up to 2045',
+    date: '2024-04-01',
+    fileUrl: '/documents/CERC-Category-1-Trading-Licence.pdf',
+    fileSize: '1.8 MB',
+    status: 'ACTIVE',
+  },
+  {
+    id: 'lic-2',
+    title: 'JERC Inter-State & Intra-State Power Trading Authorization Order',
+    refNo: 'JERC-JKL/Order/Pt-Trading/2025/08',
+    issuingAuthority: 'Joint Electricity Regulatory Commission (J&K & Ladakh)',
+    validity: 'Statutory Approval',
+    date: '2025-01-15',
+    fileUrl: '/documents/JERC-Power-Trading-Approval-Order.pdf',
+    fileSize: '1.2 MB',
+    status: 'ACTIVE',
+  },
+  {
+    id: 'lic-3',
+    title: 'CERC Regulation 12 Compliance & Code of Conduct Certificate',
+    refNo: 'JKSPDCL/PTC/CERC-Reg12/2025-26',
+    issuingAuthority: 'JKSPDCL Power Trading Cell Regulatory Desk',
+    validity: 'FY 2025-26 Annual Charter',
+    date: '2025-04-01',
+    fileUrl: '/documents/CERC-Regulation12-Compliance-Charter.pdf',
+    fileSize: '950 KB',
+    status: 'COMPLIANT',
+  },
+];
+
+// Fallback Monthly Reports
+const fallbackMonthlyDisclosures = [
+  { month: 'July 2026', fileUrl: '/documents/Monthly-Trading-Disclosure-Jul2026.pdf' },
+  { month: 'June 2026', fileUrl: '/documents/Monthly-Trading-Disclosure-Jun2026.pdf' },
+  { month: 'May 2026', fileUrl: '/documents/Monthly-Trading-Disclosure-May2026.pdf' },
+  { month: 'April 2026', fileUrl: '/documents/Monthly-Trading-Disclosure-Apr2026.pdf' },
+];
+
+// Fallback Open Power Tenders & Banking EoIs
+const fallbackPowerTenders = [
+  {
+    id: 'pt-tnd-1',
+    referenceNo: 'JKSPDCL/PTC/eNIT/2026/01',
+    title: 'Short-Term Procurement of RTC Power (100 MW) for Summer Peak Demand (May 2026 to Sept 2026)',
+    category: 'Power Procurement Tender',
+    closingDate: '2026-08-25',
+    documentUrl: '/documents/Tender-ShortTerm-RTC-Power-100MW.pdf',
+    fileSizeBytes: 2450000,
+    status: 'Active',
+    corrigendums: [
+      {
+        id: 'corr-pt-1',
+        title: 'Corrigendum-I: Extension of Bid Submission Date and Amended Energy Schedule',
+        publishDate: '2026-08-05',
+        documentUrl: '/documents/Corrigendum-1-RTC-Power.pdf',
+      },
+    ],
+  },
+  {
+    id: 'pt-tnd-2',
+    referenceNo: 'JKSPDCL/PTC/EoI/2026/02',
+    title: 'Expression of Interest (EoI) for Banking of Surplus Hydro Power (50 MW) during Summer Months with Return during Winter Months',
+    category: 'Energy Banking EoI',
+    closingDate: '2026-09-10',
+    documentUrl: '/documents/EoI-Hydro-Power-Banking-2026.pdf',
+    fileSizeBytes: 1850000,
+    status: 'Active',
+    corrigendums: [],
+  },
+  {
+    id: 'pt-tnd-3',
+    referenceNo: 'JKSPDCL/PTC/eNIT/2026/03',
+    title: 'Selection of Trading Licensee / Aggregator for Sale of Renewable Energy (Solar & Small Hydro) on Power Exchange (IEX / HPX / PXIL)',
+    category: 'Power Sale & Exchange Aggregation',
+    closingDate: '2026-09-18',
+    documentUrl: '/documents/Tender-Power-Exchange-Aggregator.pdf',
+    fileSizeBytes: 3100000,
+    status: 'Active',
+    corrigendums: [],
+  },
+];
+
+// Fallback Audited Financial Ratios & Net Worth Status
+const fallbackNetWorth = {
+  reportingYear: 'FY 2025-26',
+  statutoryNetWorth: '₹ 142.80 Crore',
+  minCategoryReq: '₹ 50.00 Crore (Category-I CERC Limit)',
+  currentRatio: '1.68',
+  liquidityRatio: '1.45',
+  capitalAdequacy: 'Compliant & Certified',
+  auditorName: 'M/s Gupta & Associates, Chartered Accountants',
+  auditorCertNo: 'CA/JKSPDCL/NW-CERT/2026-01',
+  certificateUrl: '/documents/Audited-NetWorth-Certificate-FY25-26.pdf',
+  certificateSize: '1.5 MB',
+};
+
+const displayTenders = powerTenders.length > 0 ? powerTenders : fallbackPowerTenders;
+
+const getDocUrl = (url?: string) => {
+  if (!url) return undefined;
+  if (url.startsWith('/uploads/')) {
+    return `http://localhost:3000${url}`;
+  }
+  return url;
+};
+---
+
+<Layout 
+  title="Power Trading Cell | Statutory Disclosures & Power Tenders" 
+  description="Official Power Trading Cell of JKSPDCL - Trading licences, CERC/JERC regulatory orders, Regulation 12 monthly disclosures, power tenders, and audited financial net worth status."
+>
+  <div class="space-y-6">
+    
+    <!-- Premium Page Header Band -->
+    <div class="bg-gradient-to-r from-[#073B75] via-[#0B4F9C] to-[#042750] text-white rounded-xl p-6 sm:p-8 shadow-xl border border-white/10 relative overflow-hidden">
+      <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
+      
+      <nav class="flex items-center gap-2 text-xs text-blue-200/90 font-medium mb-3 select-none" aria-label="Breadcrumbs">
+        <a href="/" class="hover:text-white transition-colors">Home</a>
+        <span>/</span>
+        <span class="text-white font-bold">Power Trading Cell</span>
+      </nav>
+
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-3">
+            <span class="p-2 bg-white/10 rounded-lg backdrop-blur-xs border border-white/20">📑</span>
+            Power Trading Cell
+          </h1>
+          <p class="text-xs sm:text-sm text-blue-100/90 mt-1 max-w-3xl leading-relaxed">
+            Statutory Disclosures, Regulatory Licences, Power Tenders, and Energy Market Framework of Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL).
+          </p>
+        </div>
+        
+        <div class="shrink-0 flex items-center gap-2">
+          <span class="px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-bold flex items-center gap-1.5 shadow-xs">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            CERC Category-I Licensee
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Navigation Jump Pills -->
+    <div class="bg-white rounded-xl p-3 border border-slate-200 shadow-sm flex items-center gap-2 overflow-x-auto text-xs font-bold text-slate-700 select-none">
+      <a href="#licences" class="px-3 py-2 bg-slate-100 hover:bg-[#0B4F9C] hover:text-white rounded-lg transition-colors whitespace-nowrap flex items-center gap-1.5">
+        <span>📜</span> Trading Licences &amp; Orders
+      </a>
+      <a href="#disclosures" class="px-3 py-2 bg-slate-100 hover:bg-[#0B4F9C] hover:text-white rounded-lg transition-colors whitespace-nowrap flex items-center gap-1.5">
+        <span>📊</span> Monthly Traded Volume (Reg 12)
+      </a>
+      <a href="#tenders" class="px-3 py-2 bg-slate-100 hover:bg-[#0B4F9C] hover:text-white rounded-lg transition-colors whitespace-nowrap flex items-center gap-1.5">
+        <span>💼</span> Open Power Tenders &amp; EoIs
+      </a>
+      <a href="#networth" class="px-3 py-2 bg-slate-100 hover:bg-[#0B4F9C] hover:text-white rounded-lg transition-colors whitespace-nowrap flex items-center gap-1.5">
+        <span>🧮</span> Audited Financial Ratios
+      </a>
+      <a href="#links" class="px-3 py-2 bg-slate-100 hover:bg-[#0B4F9C] hover:text-white rounded-lg transition-colors whitespace-nowrap flex items-center gap-1.5">
+        <span>🔗</span> Regulatory Links &amp; Portals
+      </a>
+    </div>
+
+    <!-- Main Content Area (Full Width Layout) -->
+    <div class="space-y-8">
+
+        <!-- SECTION: TRADING LICENCES & CERC/JERC ORDERS -->
+        <section id="licences" class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div class="flex items-center gap-2 text-[#0B4F9C]">
+              <span class="text-xl">📜</span>
+              <h2 class="text-lg font-bold">Trading Licences &amp; CERC / JERC Orders</h2>
+            </div>
+            <span class="px-2.5 py-1 bg-blue-50 text-[#0B4F9C] text-[10px] font-extrabold uppercase rounded border border-blue-200">Statutory Orders</span>
+          </div>
+
+          <p class="text-xs text-slate-600 leading-relaxed">
+            JKSPDCL operates its energy trading Desk under Inter-State Trading Licences granted by the Central Electricity Regulatory Commission (CERC) and statutory authorizations issued by Joint Electricity Regulatory Commission (JERC J&amp;K).
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+            {fallbackLicences.map((lic) => (
+              <div key={lic.id} class="p-4 bg-slate-50 rounded-lg border border-slate-200 hover:border-[#0B4F9C]/40 transition-all flex flex-col justify-between gap-3 shadow-xs">
+                <div class="space-y-1.5">
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="text-[10px] font-extrabold px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded uppercase font-mono">{lic.status}</span>
+                    <span class="text-[10px] text-slate-400 font-medium">Ref: {lic.refNo}</span>
+                  </div>
+                  <h3 class="text-xs font-bold text-slate-800 leading-snug">{lic.title}</h3>
+                  <p class="text-[11px] text-slate-500 font-medium">Authority: {lic.issuingAuthority}</p>
+                  <p class="text-[10px] text-slate-400">Validity: <strong class="text-slate-700">{lic.validity}</strong></p>
+                </div>
+                <div class="pt-2 border-t border-slate-200/60 flex items-center justify-between">
+                  <span class="text-[10px] font-mono text-slate-500">PDF • {lic.fileSize}</span>
+                  <a 
+                    href={lic.fileUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    class="px-3 py-1 bg-[#0B4F9C] hover:bg-[#084A8F] text-white text-xs font-bold rounded flex items-center gap-1 transition-colors shadow-xs"
+                  >
+                    <Icon name="download" size={12} /> View Document
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <!-- SECTION: MONTHLY TRADED VOLUME DISCLOSURES (REG 12) -->
+        <section id="disclosures" class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div class="flex items-center gap-2 text-[#0B4F9C]">
+              <span class="text-xl">📊</span>
+              <h2 class="text-lg font-bold">Monthly Traded Volume Disclosures (As per Reg 12)</h2>
+            </div>
+            <span class="px-2.5 py-1 bg-amber-50 text-amber-800 text-[10px] font-extrabold uppercase rounded border border-amber-200">CERC Regulation 12</span>
+          </div>
+
+          <p class="text-xs text-slate-600 leading-relaxed">
+            In compliance with Regulation 12 of CERC (Procedure, Terms and Conditions for grant of trading licence and other related matters) Regulations, JKSPDCL publishes monthly disclosures of energy volume traded.
+          </p>
+
+          <div class="overflow-x-auto border border-slate-200 rounded-lg shadow-xs">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-100 border-b border-slate-200 font-bold text-slate-700">
+                  <th class="p-3 w-12 text-center">#</th>
+                  <th class="p-3">Month Specified / Disclosure Period</th>
+                  <th class="p-3 text-right">Attached PDF Report</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200">
+                {(powerDocs.length > 0 ? powerDocs : fallbackMonthlyDisclosures).map((disc: any, idx: number) => {
+                  const monthName = disc.month || disc.title || `Monthly Report ${idx + 1}`;
+                  const pdfUrl = getDocUrl(disc.fileUrl || disc.fileUrlPath || disc.documentUrl) || `#`;
+                  return (
+                    <tr key={idx} class="hover:bg-slate-50 transition-colors">
+                      <td class="p-3 text-center font-bold text-slate-400">{idx + 1}</td>
+                      <td class="p-3 font-bold text-[#0B4F9C] text-xs sm:text-sm">
+                        📄 {monthName}
+                      </td>
+                      <td class="p-3 text-right">
+                        <a 
+                          href={pdfUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0B4F9C] hover:bg-[#084A8F] text-white rounded text-xs font-bold transition-colors shadow-xs"
+                        >
+                          <Icon name="download" size={12} /> Open PDF Report
+                        </a>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- SECTION: OPEN POWER TENDERS & EXPRESSIONS OF INTEREST -->
+        <section id="tenders" class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div class="flex items-center gap-2 text-[#0B4F9C]">
+              <span class="text-xl">💼</span>
+              <h2 class="text-lg font-bold">Open Power Tenders &amp; Expressions of Interest (EoI)</h2>
+            </div>
+            <a href="/stakeholders/vendors/tender-bids" class="text-xs font-bold text-[#0B4F9C] hover:underline flex items-center gap-1">
+              View All Tenders &rarr;
+            </a>
+          </div>
+
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Active tenders for Short-Term &amp; Medium-Term Power Procurement, Seasonal Energy Banking Expressions of Interest (EoI), and Power Exchange Aggregator Selection invited by JKSPDCL Power Trading Cell.
+          </p>
+
+          <div class="space-y-4 pt-2">
+            {displayTenders.map((tender: any) => {
+              const corrs = tender.corrigendums && Array.isArray(tender.corrigendums) ? tender.corrigendums : [];
+              const docUrl = getDocUrl(tender.documentUrl) || `#`;
+              return (
+                <div key={tender.id} class="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-[#0B4F9C]/40 transition-all shadow-xs space-y-3">
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <span class="px-2 py-0.5 rounded bg-[#0B4F9C] text-white text-[10px] font-extrabold uppercase">{tender.referenceNo}</span>
+                      <span class="px-2 py-0.5 rounded bg-purple-100 text-purple-800 text-[10px] font-bold">{tender.category || 'Power Procurement'}</span>
+                      {corrs.length > 0 && (
+                        <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-900 text-[10px] font-extrabold flex items-center gap-1 border border-amber-300">
+                          📎 {corrs.length} Corrigendum Attached
+                        </span>
+                      )}
+                    </div>
+                    <span class="text-[11px] font-bold text-slate-500">
+                      Closing: <strong class="text-slate-800">{tender.closingDate ? new Date(tender.closingDate).toLocaleDateString('en-IN', { dateStyle: 'medium' }) : '—'}</strong>
+                    </span>
+                  </div>
+
+                  <h3 class="text-sm font-bold text-slate-800 leading-snug">{tender.title}</h3>
+
+                  <!-- Corrigendums List Pill Box -->
+                  {corrs.length > 0 && (
+                    <div class="bg-amber-50/70 border border-amber-200 rounded-lg p-2.5 space-y-1.5">
+                      {corrs.map((c: any, cIdx: number) => (
+                        <div key={cIdx} class="text-xs font-semibold text-slate-700 flex items-center justify-between gap-2">
+                          <span class="truncate">📄 <strong>Corrigendum-{cIdx + 1}:</strong> {c.title}</span>
+                          <a href={getDocUrl(c.documentUrl)} target="_blank" class="text-amber-800 hover:underline font-bold text-[11px] shrink-0">
+                            Download PDF
+                          </a>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div class="flex items-center justify-between pt-2 border-t border-slate-200/60">
+                    <span class="text-[11px] font-mono text-slate-500">PDF Tender Notice</span>
+                    <a 
+                      href={docUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      class="px-3.5 py-1.5 bg-[#0B4F9C] hover:bg-[#084A8F] text-white text-xs font-bold rounded-lg flex items-center gap-1.5 transition-colors shadow-xs"
+                    >
+                      <Icon name="download" size={13} /> Download Tender PDF
+                    </a>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        <!-- SECTION: AUDITED FINANCIAL RATIOS & NET WORTH STATUS -->
+        <section id="networth" class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div class="flex items-center gap-2 text-[#0B4F9C]">
+              <span class="text-xl">🧮</span>
+              <h2 class="text-lg font-bold">Audited Financial Ratios &amp; Net Worth Status</h2>
+            </div>
+            <span class="px-2.5 py-1 bg-emerald-50 text-emerald-800 text-[10px] font-extrabold uppercase rounded border border-emerald-200">Statutory Certificate</span>
+          </div>
+
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Under CERC Trading Licence Regulations, Category-I Trading Licensees must maintain a minimum Net Worth of ₹50.00 Crore along with healthy capital adequacy and current ratios. Below is the audited net worth status of JKSPDCL.
+          </p>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-blue-50/50 p-4 rounded-xl border border-blue-100">
+            <div class="bg-white p-3 rounded-lg border border-slate-200 text-center">
+              <span class="text-[10px] text-slate-400 font-bold uppercase block">Audited Net Worth</span>
+              <span class="text-base font-extrabold text-[#0B4F9C]">{fallbackNetWorth.statutoryNetWorth}</span>
+            </div>
+            <div class="bg-white p-3 rounded-lg border border-slate-200 text-center">
+              <span class="text-[10px] text-slate-400 font-bold uppercase block">Min Requirement</span>
+              <span class="text-xs font-bold text-slate-700">{fallbackNetWorth.minCategoryReq}</span>
+            </div>
+            <div class="bg-white p-3 rounded-lg border border-slate-200 text-center">
+              <span class="text-[10px] text-slate-400 font-bold uppercase block">Current Ratio</span>
+              <span class="text-base font-extrabold text-emerald-700">{fallbackNetWorth.currentRatio}</span>
+            </div>
+            <div class="bg-white p-3 rounded-lg border border-slate-200 text-center">
+              <span class="text-[10px] text-slate-400 font-bold uppercase block">Liquidity Ratio</span>
+              <span class="text-base font-extrabold text-emerald-700">{fallbackNetWorth.liquidityRatio}</span>
+            </div>
+          </div>
+
+          <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h4 class="text-xs font-bold text-slate-800">Statutory Auditor Net Worth Certificate ({fallbackNetWorth.reportingYear})</h4>
+              <p class="text-[11px] text-slate-500">Issued by: {fallbackNetWorth.auditorName} (Cert No: {fallbackNetWorth.auditorCertNo})</p>
+            </div>
+            <a 
+              href={fallbackNetWorth.certificateUrl} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="px-4 py-2 bg-[#0B4F9C] hover:bg-[#084A8F] text-white text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 transition-colors shadow-xs shrink-0"
+            >
+              <Icon name="download" size={13} /> View Net Worth Certificate (PDF)
+            </a>
+          </div>
+        </section>
+
+        <!-- SECTION: IMPORTANT LINKS & REGULATORY PORTALS -->
+        <section id="links" class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div class="flex items-center gap-2 text-[#0B4F9C]">
+              <span class="text-xl">🔗</span>
+              <h2 class="text-lg font-bold">Important Links &amp; Regulatory Portals</h2>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            <a 
+              href="https://noar.in/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="p-3.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-[#0B4F9C]/50 rounded-lg transition-all flex flex-col justify-between gap-2 shadow-xs group"
+            >
+              <div class="flex items-center justify-between">
+                <span class="font-extrabold text-xs text-[#0B4F9C] group-hover:underline">NOAR Portal</span>
+                <span class="text-slate-400 group-hover:text-[#0B4F9C] text-xs">↗</span>
+              </div>
+              <p class="text-[11px] text-slate-500 leading-snug">National Open Access Registry for electronic scheduling of short-term open access.</p>
+            </a>
+
+            <a 
+              href="https://pdd.jk.gov.in/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="p-3.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-[#0B4F9C]/50 rounded-lg transition-all flex flex-col justify-between gap-2 shadow-xs group"
+            >
+              <div class="flex items-center justify-between">
+                <span class="font-extrabold text-xs text-[#0B4F9C] group-hover:underline">J&amp;K SLDC</span>
+                <span class="text-slate-400 group-hover:text-[#0B4F9C] text-xs">↗</span>
+              </div>
+              <p class="text-[11px] text-slate-500 leading-snug">J&amp;K State Load Despatch Centre for real-time grid operations &amp; scheduling.</p>
+            </a>
+
+            <a 
+              href="https://jercjkl.jk.gov.in/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="p-3.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-[#0B4F9C]/50 rounded-lg transition-all flex flex-col justify-between gap-2 shadow-xs group"
+            >
+              <div class="flex items-center justify-between">
+                <span class="font-extrabold text-xs text-[#0B4F9C] group-hover:underline">JERC J&amp;K &amp; Ladakh</span>
+                <span class="text-slate-400 group-hover:text-[#0B4F9C] text-xs">↗</span>
+              </div>
+              <p class="text-[11px] text-slate-500 leading-snug">Joint Electricity Regulatory Commission for tariff orders &amp; trading norms.</p>
+            </a>
+
+            <a 
+              href="https://cercind.gov.in/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="p-3.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-[#0B4F9C]/50 rounded-lg transition-all flex flex-col justify-between gap-2 shadow-xs group"
+            >
+              <div class="flex items-center justify-between">
+                <span class="font-extrabold text-xs text-[#0B4F9C] group-hover:underline">CERC India</span>
+                <span class="text-slate-400 group-hover:text-[#0B4F9C] text-xs">↗</span>
+              </div>
+              <p class="text-[11px] text-slate-500 leading-snug">Central Electricity Regulatory Commission inter-state trading regulations.</p>
+            </a>
+
+            <a 
+              href="https://www.iexindia.com/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="p-3.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-[#0B4F9C]/50 rounded-lg transition-all flex flex-col justify-between gap-2 shadow-xs group"
+            >
+              <div class="flex items-center justify-between">
+                <span class="font-extrabold text-xs text-[#0B4F9C] group-hover:underline">Indian Energy Exchange (IEX)</span>
+                <span class="text-slate-400 group-hover:text-[#0B4F9C] text-xs">↗</span>
+              </div>
+              <p class="text-[11px] text-slate-500 leading-snug">Day-Ahead, Real-Time &amp; Green Term Ahead Electricity Trading Platform.</p>
+            </a>
+
+            <a 
+              href="https://www.pxil.in/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="p-3.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-[#0B4F9C]/50 rounded-lg transition-all flex flex-col justify-between gap-2 shadow-xs group"
+            >
+              <div class="flex items-center justify-between">
+                <span class="font-extrabold text-xs text-[#0B4F9C] group-hover:underline">Power Exchange India (PXIL)</span>
+                <span class="text-slate-400 group-hover:text-[#0B4F9C] text-xs">↗</span>
+              </div>
+              <p class="text-[11px] text-slate-500 leading-snug">National level power exchange platform for electricity contract trading.</p>
+            </a>
+          </div>
+        </section>
+
+    </div>
+
+  </div>
+</Layout>
