@@ -464,9 +464,10 @@ if (tickerItems.length === 0) {
           </div>
         </div>
       </div>
+    </header>
 
-      <!-- Navigation Bar (With CSS and Keyboard Accessible Dropdowns) -->
-      <nav class="bg-gradient-to-r from-[#073B75] via-[#0B4F9C] to-[#042750] border-t border-white/10 shadow-md relative" aria-label="Primary Navigation">
+    <!-- Navigation Bar (Sticky Top-0 Globally Across Entire Website) -->
+    <nav class="bg-gradient-to-r from-[#073B75] via-[#0B4F9C] to-[#042750] border-t border-white/10 shadow-xl sticky top-0 z-50 transition-all duration-200" aria-label="Primary Navigation">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <ul class="flex flex-wrap w-full justify-between text-sm font-semibold">
             <!-- Home -->
@@ -603,7 +604,6 @@ if (tickerItems.length === 0) {
 
         </div>
       </nav>
-    </header>
 
     <!-- Main Content Container -->
     <main id="main-content" class={isHome ? "flex-grow focus:outline-none" : "flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 focus:outline-none"} tabindex="-1">
