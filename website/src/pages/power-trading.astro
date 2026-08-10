@@ -69,12 +69,54 @@ const fallbackLicences = [
   },
 ];
 
-// Fallback Monthly Reports
-const fallbackMonthlyDisclosures = [
-  { month: 'July 2026', fileUrl: '/documents/Monthly-Trading-Disclosure-Jul2026.pdf' },
-  { month: 'June 2026', fileUrl: '/documents/Monthly-Trading-Disclosure-Jun2026.pdf' },
-  { month: 'May 2026', fileUrl: '/documents/Monthly-Trading-Disclosure-May2026.pdf' },
-  { month: 'April 2026', fileUrl: '/documents/Monthly-Trading-Disclosure-Apr2026.pdf' },
+// Fallback Yearly Grouped Monthly Disclosures
+const fallbackYearlyDisclosures = [
+  {
+    year: 'Financial Year 2025-26',
+    yearBadge: 'FY 2025-26',
+    reports: [
+      { month: 'July 2026', fileUrl: '/documents/Monthly-Trading-Disclosure-Jul2026.pdf' },
+      { month: 'June 2026', fileUrl: '/documents/Monthly-Trading-Disclosure-Jun2026.pdf' },
+      { month: 'May 2026', fileUrl: '/documents/Monthly-Trading-Disclosure-May2026.pdf' },
+      { month: 'April 2026', fileUrl: '/documents/Monthly-Trading-Disclosure-Apr2026.pdf' },
+    ]
+  },
+  {
+    year: 'Financial Year 2024-25',
+    yearBadge: 'FY 2024-25',
+    reports: [
+      { month: 'March 2025', fileUrl: '/documents/Monthly-Trading-Disclosure-Mar2025.pdf' },
+      { month: 'February 2025', fileUrl: '/documents/Monthly-Trading-Disclosure-Feb2025.pdf' },
+      { month: 'January 2025', fileUrl: '/documents/Monthly-Trading-Disclosure-Jan2025.pdf' },
+      { month: 'December 2024', fileUrl: '/documents/Monthly-Trading-Disclosure-Dec2024.pdf' },
+      { month: 'November 2024', fileUrl: '/documents/Monthly-Trading-Disclosure-Nov2024.pdf' },
+      { month: 'October 2024', fileUrl: '/documents/Monthly-Trading-Disclosure-Oct2024.pdf' },
+      { month: 'September 2024', fileUrl: '/documents/Monthly-Trading-Disclosure-Sep2024.pdf' },
+      { month: 'August 2024', fileUrl: '/documents/Monthly-Trading-Disclosure-Aug2024.pdf' },
+      { month: 'July 2024', fileUrl: '/documents/Monthly-Trading-Disclosure-Jul2024.pdf' },
+      { month: 'June 2024', fileUrl: '/documents/Monthly-Trading-Disclosure-Jun2024.pdf' },
+      { month: 'May 2024', fileUrl: '/documents/Monthly-Trading-Disclosure-May2024.pdf' },
+      { month: 'April 2024', fileUrl: '/documents/Monthly-Trading-Disclosure-Apr2024.pdf' },
+    ]
+  },
+  {
+    year: 'Financial Year 2023-24',
+    yearBadge: 'FY 2023-24',
+    reports: [
+      { month: 'March 2024', fileUrl: '/documents/Monthly-Trading-Disclosure-Mar2024.pdf' },
+      { month: 'February 2024', fileUrl: '/documents/Monthly-Trading-Disclosure-Feb2024.pdf' },
+      { month: 'January 2024', fileUrl: '/documents/Monthly-Trading-Disclosure-Jan2024.pdf' },
+      { month: 'December 2023', fileUrl: '/documents/Monthly-Trading-Disclosure-Dec2023.pdf' },
+      { month: 'November 2023', fileUrl: '/documents/Monthly-Trading-Disclosure-Nov2023.pdf' },
+      { month: 'October 2023', fileUrl: '/documents/Monthly-Trading-Disclosure-Oct2023.pdf' },
+      { month: 'September 2023', fileUrl: '/documents/Monthly-Trading-Disclosure-Sep2023.pdf' },
+      { month: 'August 2023', fileUrl: '/documents/Monthly-Trading-Disclosure-Aug2023.pdf' },
+      { month: 'July 2023', fileUrl: '/documents/Monthly-Trading-Disclosure-Jul2023.pdf' },
+      { month: 'June 2023', fileUrl: '/documents/Monthly-Trading-Disclosure-Jun2023.pdf' },
+      { month: 'May 2023', fileUrl: '/documents/Monthly-Trading-Disclosure-May2023.pdf' },
+      { month: 'April 2023', fileUrl: '/documents/Monthly-Trading-Disclosure-Apr2023.pdf' },
+    ]
+  },
 ];
 
 // Fallback Open Power Tenders & Banking EoIs
@@ -121,19 +163,37 @@ const fallbackPowerTenders = [
   },
 ];
 
-// Fallback Audited Financial Ratios & Net Worth Status
-const fallbackNetWorth = {
-  reportingYear: 'FY 2025-26',
-  statutoryNetWorth: '₹ 142.80 Crore',
-  minCategoryReq: '₹ 50.00 Crore (Category-I CERC Limit)',
-  currentRatio: '1.68',
-  liquidityRatio: '1.45',
-  capitalAdequacy: 'Compliant & Certified',
-  auditorName: 'M/s Gupta & Associates, Chartered Accountants',
-  auditorCertNo: 'CA/JKSPDCL/NW-CERT/2026-01',
-  certificateUrl: '/documents/Audited-NetWorth-Certificate-FY25-26.pdf',
-  certificateSize: '1.5 MB',
-};
+// Fallback Yearly Net Worth Certificates
+const fallbackYearlyNetWorthCertificates = [
+  {
+    year: 'Financial Year 2025-26',
+    title: 'Audited Financial Ratios & Net Worth Certificate (FY 2025-26)',
+    auditor: 'M/s Gupta & Associates, Chartered Accountants',
+    certNo: 'CA/JKSPDCL/NW-CERT/2026-01',
+    fileUrl: '/documents/Audited-NetWorth-Certificate-FY25-26.pdf',
+  },
+  {
+    year: 'Financial Year 2024-25',
+    title: 'Audited Financial Ratios & Net Worth Certificate (FY 2024-25)',
+    auditor: 'M/s Gupta & Associates, Chartered Accountants',
+    certNo: 'CA/JKSPDCL/NW-CERT/2025-01',
+    fileUrl: '/documents/Audited-NetWorth-Certificate-FY24-25.pdf',
+  },
+  {
+    year: 'Financial Year 2023-24',
+    title: 'Audited Financial Ratios & Net Worth Certificate (FY 2023-24)',
+    auditor: 'M/s Sharma & Co., Chartered Accountants',
+    certNo: 'CA/JKSPDCL/NW-CERT/2024-01',
+    fileUrl: '/documents/Audited-NetWorth-Certificate-FY23-24.pdf',
+  },
+  {
+    year: 'Financial Year 2022-23',
+    title: 'Audited Financial Ratios & Net Worth Certificate (FY 2022-23)',
+    auditor: 'M/s Sharma & Co., Chartered Accountants',
+    certNo: 'CA/JKSPDCL/NW-CERT/2023-01',
+    fileUrl: '/documents/Audited-NetWorth-Certificate-FY22-23.pdf',
+  },
+];
 
 const displayTenders = powerTenders.length > 0 ? powerTenders : fallbackPowerTenders;
 
@@ -164,10 +224,15 @@ const getDocUrl = (url?: string) => {
 
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-3">
-            <span class="p-2 bg-white/10 rounded-lg backdrop-blur-xs border border-white/20">📑</span>
-            Power Trading Cell
-          </h1>
+          <div class="flex flex-wrap items-center gap-3">
+            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-3">
+              <span class="p-2 bg-white/10 rounded-lg backdrop-blur-xs border border-white/20">📑</span>
+              Power Trading Cell
+            </h1>
+            <span class="px-3 py-1 bg-amber-400 text-slate-950 text-xs font-black uppercase tracking-wider rounded-md border border-amber-300 shadow-md animate-pulse flex items-center gap-1">
+              ⚠️ DEMO / TEST PHASE
+            </span>
+          </div>
           <p class="text-xs sm:text-sm text-blue-100/90 mt-1 max-w-3xl leading-relaxed">
             Statutory Disclosures, Regulatory Licences, Power Tenders, and Energy Market Framework of Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL).
           </p>
@@ -182,13 +247,29 @@ const getDocUrl = (url?: string) => {
       </div>
     </div>
 
+    <!-- DEMO / TEST PHASE WARNING BANNER -->
+    <div class="bg-amber-500/15 border-2 border-amber-500/80 rounded-xl p-4 text-amber-950 shadow-sm flex items-start gap-3.5">
+      <div class="w-10 h-10 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center shrink-0 shadow-sm text-xl font-bold">
+        ⚠️
+      </div>
+      <div class="space-y-1">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-0.5 bg-amber-600 text-white text-xs font-black uppercase tracking-wider rounded font-mono">DEMO / TEST PHASE</span>
+          <span class="text-xs font-extrabold text-amber-900 uppercase tracking-wide">Structural Preview &amp; Testing Notice</span>
+        </div>
+        <p class="text-xs text-amber-950 font-semibold leading-relaxed">
+          Please note: The <strong>Power Trading Cell</strong> page is currently operating in <strong>DEMO / TESTING PHASE</strong>. All attached files, regulatory tables, and disclosures on this page are undergoing verification and are strictly for preview purposes.
+        </p>
+      </div>
+    </div>
+
     <!-- Quick Navigation Jump Pills -->
     <div class="bg-white rounded-xl p-3 border border-slate-200 shadow-sm flex items-center gap-2 overflow-x-auto text-xs font-bold text-slate-700 select-none">
       <a href="#licences" class="px-3 py-2 bg-slate-100 hover:bg-[#0B4F9C] hover:text-white rounded-lg transition-colors whitespace-nowrap flex items-center gap-1.5">
         <span>📜</span> Trading Licences &amp; Orders
       </a>
       <a href="#disclosures" class="px-3 py-2 bg-slate-100 hover:bg-[#0B4F9C] hover:text-white rounded-lg transition-colors whitespace-nowrap flex items-center gap-1.5">
-        <span>📊</span> Monthly Traded Volume (Reg 12)
+        <span>📊</span> Monthly Traded Volume Disclosures
       </a>
       <a href="#tenders" class="px-3 py-2 bg-slate-100 hover:bg-[#0B4F9C] hover:text-white rounded-lg transition-colors whitespace-nowrap flex items-center gap-1.5">
         <span>💼</span> Open Power Tenders &amp; EoIs
@@ -246,54 +327,72 @@ const getDocUrl = (url?: string) => {
           </div>
         </section>
 
-        <!-- SECTION: MONTHLY TRADED VOLUME DISCLOSURES (REG 12) -->
+        <!-- SECTION: MONTHLY TRADED VOLUME DISCLOSURES -->
         <section id="disclosures" class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
           <div class="flex items-center justify-between border-b border-slate-100 pb-3">
             <div class="flex items-center gap-2 text-[#0B4F9C]">
               <span class="text-xl">📊</span>
-              <h2 class="text-lg font-bold">Monthly Traded Volume Disclosures (As per Reg 12)</h2>
+              <h2 class="text-lg font-bold">Monthly Traded Volume Disclosures</h2>
             </div>
-            <span class="px-2.5 py-1 bg-amber-50 text-amber-800 text-[10px] font-extrabold uppercase rounded border border-amber-200">CERC Regulation 12</span>
+            <span class="px-2.5 py-1 bg-amber-50 text-amber-800 text-[10px] font-extrabold uppercase rounded border border-amber-200">Statutory Compliance</span>
           </div>
 
           <p class="text-xs text-slate-600 leading-relaxed">
-            In compliance with Regulation 12 of CERC (Procedure, Terms and Conditions for grant of trading licence and other related matters) Regulations, JKSPDCL publishes monthly disclosures of energy volume traded.
+            In compliance with CERC Trading Licence Regulations, JKSPDCL publishes monthly disclosures of energy volume traded. Select a Financial Year below to view and download monthly PDF disclosures:
           </p>
 
-          <div class="overflow-x-auto border border-slate-200 rounded-lg shadow-xs">
-            <table class="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr class="bg-slate-100 border-b border-slate-200 font-bold text-slate-700">
-                  <th class="p-3 w-12 text-center">#</th>
-                  <th class="p-3">Month Specified / Disclosure Period</th>
-                  <th class="p-3 text-right">Attached PDF Report</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-200">
-                {(powerDocs.length > 0 ? powerDocs : fallbackMonthlyDisclosures).map((disc: any, idx: number) => {
-                  const monthName = disc.month || disc.title || `Monthly Report ${idx + 1}`;
-                  const pdfUrl = getDocUrl(disc.fileUrl || disc.fileUrlPath || disc.documentUrl) || `#`;
-                  return (
-                    <tr key={idx} class="hover:bg-slate-50 transition-colors">
-                      <td class="p-3 text-center font-bold text-slate-400">{idx + 1}</td>
-                      <td class="p-3 font-bold text-[#0B4F9C] text-xs sm:text-sm">
-                        📄 {monthName}
-                      </td>
-                      <td class="p-3 text-right">
-                        <a 
-                          href={pdfUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0B4F9C] hover:bg-[#084A8F] text-white rounded text-xs font-bold transition-colors shadow-xs"
-                        >
-                          <Icon name="download" size={12} /> Open PDF Report
-                        </a>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+          <div class="space-y-3">
+            {fallbackYearlyDisclosures.map((yearGroup, yearIdx) => (
+              <details class="group border border-slate-200 rounded-xl overflow-hidden shadow-xs bg-slate-50/50" open={yearIdx === 0}>
+                <summary class="flex items-center justify-between p-4 bg-slate-100/90 hover:bg-blue-50/80 cursor-pointer select-none font-bold text-slate-800 transition-colors">
+                  <div class="flex items-center gap-2.5">
+                    <span class="text-lg">📁</span>
+                    <span class="text-sm font-extrabold text-[#0B4F9C]">Statutory Compliance : {yearGroup.yearBadge}</span>
+                    <span class="text-[11px] font-medium text-slate-500 hidden sm:inline">({yearGroup.year})</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="px-2 py-0.5 bg-blue-100 text-[#0B4F9C] text-[10px] font-bold rounded-full font-mono">{yearGroup.reports.length} Reports</span>
+                    <svg class="w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </summary>
+
+                <div class="p-4 bg-white border-t border-slate-200">
+                  <div class="overflow-x-auto border border-slate-200 rounded-lg shadow-xs">
+                    <table class="w-full text-left border-collapse text-xs">
+                      <thead>
+                        <tr class="bg-slate-100/80 border-b border-slate-200 font-bold text-slate-700">
+                          <th class="p-2.5 w-12 text-center">#</th>
+                          <th class="p-2.5">Month Specified</th>
+                          <th class="p-2.5 text-right">Attached PDF Report</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-slate-200">
+                        {yearGroup.reports.map((disc, idx) => (
+                          <tr key={idx} class="hover:bg-slate-50 transition-colors">
+                            <td class="p-2.5 text-center font-bold text-slate-400">{idx + 1}</td>
+                            <td class="p-2.5 font-bold text-[#0B4F9C] text-xs sm:text-sm">
+                              📄 {disc.month}
+                            </td>
+                            <td class="p-2.5 text-right">
+                              <a 
+                                href={disc.fileUrl} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                class="inline-flex items-center gap-1.5 px-3 py-1 bg-[#0B4F9C] hover:bg-[#084A8F] text-white rounded text-xs font-bold transition-colors shadow-xs"
+                              >
+                                <Icon name="download" size={12} /> Open PDF Report
+                              </a>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </details>
+            ))}
           </div>
         </section>
 
@@ -374,45 +473,48 @@ const getDocUrl = (url?: string) => {
               <span class="text-xl">🧮</span>
               <h2 class="text-lg font-bold">Audited Financial Ratios &amp; Net Worth Status</h2>
             </div>
-            <span class="px-2.5 py-1 bg-emerald-50 text-emerald-800 text-[10px] font-extrabold uppercase rounded border border-emerald-200">Statutory Certificate</span>
+            <span class="px-2.5 py-1 bg-emerald-50 text-emerald-800 text-[10px] font-extrabold uppercase rounded border border-emerald-200">Statutory Certificates</span>
           </div>
 
           <p class="text-xs text-slate-600 leading-relaxed">
-            Under CERC Trading Licence Regulations, Category-I Trading Licensees must maintain a minimum Net Worth of ₹50.00 Crore along with healthy capital adequacy and current ratios. Below is the audited net worth status of JKSPDCL.
+            Annual audited certificates of Net Worth and Financial Ratios of JKSPDCL issued by Statutory Chartered Accountants in compliance with CERC Trading Licence Regulations.
           </p>
 
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-blue-50/50 p-4 rounded-xl border border-blue-100">
-            <div class="bg-white p-3 rounded-lg border border-slate-200 text-center">
-              <span class="text-[10px] text-slate-400 font-bold uppercase block">Audited Net Worth</span>
-              <span class="text-base font-extrabold text-[#0B4F9C]">{fallbackNetWorth.statutoryNetWorth}</span>
-            </div>
-            <div class="bg-white p-3 rounded-lg border border-slate-200 text-center">
-              <span class="text-[10px] text-slate-400 font-bold uppercase block">Min Requirement</span>
-              <span class="text-xs font-bold text-slate-700">{fallbackNetWorth.minCategoryReq}</span>
-            </div>
-            <div class="bg-white p-3 rounded-lg border border-slate-200 text-center">
-              <span class="text-[10px] text-slate-400 font-bold uppercase block">Current Ratio</span>
-              <span class="text-base font-extrabold text-emerald-700">{fallbackNetWorth.currentRatio}</span>
-            </div>
-            <div class="bg-white p-3 rounded-lg border border-slate-200 text-center">
-              <span class="text-[10px] text-slate-400 font-bold uppercase block">Liquidity Ratio</span>
-              <span class="text-base font-extrabold text-emerald-700">{fallbackNetWorth.liquidityRatio}</span>
-            </div>
-          </div>
-
-          <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h4 class="text-xs font-bold text-slate-800">Statutory Auditor Net Worth Certificate ({fallbackNetWorth.reportingYear})</h4>
-              <p class="text-[11px] text-slate-500">Issued by: {fallbackNetWorth.auditorName} (Cert No: {fallbackNetWorth.auditorCertNo})</p>
-            </div>
-            <a 
-              href={fallbackNetWorth.certificateUrl} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              class="px-4 py-2 bg-[#0B4F9C] hover:bg-[#084A8F] text-white text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 transition-colors shadow-xs shrink-0"
-            >
-              <Icon name="download" size={13} /> View Net Worth Certificate (PDF)
-            </a>
+          <div class="overflow-x-auto border border-slate-200 rounded-lg shadow-xs">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-100 border-b border-slate-200 font-bold text-slate-700">
+                  <th class="p-3 w-12 text-center">#</th>
+                  <th class="p-3">Financial Year</th>
+                  <th class="p-3">Certificate Details &amp; Statutory Auditor</th>
+                  <th class="p-3 text-right">Audited PDF Certificate</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200">
+                {fallbackYearlyNetWorthCertificates.map((cert, idx) => (
+                  <tr key={idx} class="hover:bg-slate-50 transition-colors">
+                    <td class="p-3 text-center font-bold text-slate-400">{idx + 1}</td>
+                    <td class="p-3 font-bold text-[#0B4F9C] whitespace-nowrap text-xs sm:text-sm">
+                      📅 {cert.year}
+                    </td>
+                    <td class="p-3 space-y-0.5">
+                      <div class="font-bold text-slate-800">{cert.title}</div>
+                      <div class="text-[11px] text-slate-500">Issued by: {cert.auditor} ({cert.certNo})</div>
+                    </td>
+                    <td class="p-3 text-right whitespace-nowrap">
+                      <a 
+                        href={cert.fileUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0B4F9C] hover:bg-[#084A8F] text-white rounded text-xs font-bold transition-colors shadow-xs"
+                      >
+                        <Icon name="download" size={12} /> Open PDF Certificate
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </section>
 
@@ -425,16 +527,24 @@ const getDocUrl = (url?: string) => {
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <a 
               href="https://noar.in/" 
               target="_blank" 
               rel="noopener noreferrer" 
-              class="p-3.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-[#0B4F9C]/50 rounded-lg transition-all flex flex-col justify-between gap-2 shadow-xs group"
+              class="p-4 bg-slate-50 hover:bg-blue-50/60 border border-slate-200 hover:border-[#0B4F9C]/50 rounded-xl transition-all flex flex-col justify-between gap-3 shadow-xs group"
             >
-              <div class="flex items-center justify-between">
-                <span class="font-extrabold text-xs text-[#0B4F9C] group-hover:underline">NOAR Portal</span>
-                <span class="text-slate-400 group-hover:text-[#0B4F9C] text-xs">↗</span>
+              <div class="flex items-center justify-between gap-3">
+                <div class="w-12 h-12 rounded-lg bg-white p-1.5 border border-slate-200/80 shadow-xs flex items-center justify-center shrink-0">
+                  <img src="/logos/noar.png" alt="NOAR Logo" class="max-w-full max-h-full object-contain" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between">
+                    <span class="font-extrabold text-xs text-[#0B4F9C] group-hover:underline truncate">NOAR Portal</span>
+                    <span class="text-slate-400 group-hover:text-[#0B4F9C] text-xs shrink-0">↗</span>
+                  </div>
+                  <span class="text-[10px] font-bold text-slate-400 block">noar.in</span>
+                </div>
               </div>
               <p class="text-[11px] text-slate-500 leading-snug">National Open Access Registry for electronic scheduling of short-term open access.</p>
             </a>
@@ -443,11 +553,19 @@ const getDocUrl = (url?: string) => {
               href="https://pdd.jk.gov.in/" 
               target="_blank" 
               rel="noopener noreferrer" 
-              class="p-3.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-[#0B4F9C]/50 rounded-lg transition-all flex flex-col justify-between gap-2 shadow-xs group"
+              class="p-4 bg-slate-50 hover:bg-blue-50/60 border border-slate-200 hover:border-[#0B4F9C]/50 rounded-xl transition-all flex flex-col justify-between gap-3 shadow-xs group"
             >
-              <div class="flex items-center justify-between">
-                <span class="font-extrabold text-xs text-[#0B4F9C] group-hover:underline">J&amp;K SLDC</span>
-                <span class="text-slate-400 group-hover:text-[#0B4F9C] text-xs">↗</span>
+              <div class="flex items-center justify-between gap-3">
+                <div class="w-12 h-12 rounded-lg bg-white p-1.5 border border-slate-200/80 shadow-xs flex items-center justify-center shrink-0">
+                  <img src="/logos/pdd.svg" alt="J&K SLDC Logo" class="max-w-full max-h-full object-contain" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between">
+                    <span class="font-extrabold text-xs text-[#0B4F9C] group-hover:underline truncate">J&amp;K SLDC</span>
+                    <span class="text-slate-400 group-hover:text-[#0B4F9C] text-xs shrink-0">↗</span>
+                  </div>
+                  <span class="text-[10px] font-bold text-slate-400 block">pdd.jk.gov.in</span>
+                </div>
               </div>
               <p class="text-[11px] text-slate-500 leading-snug">J&amp;K State Load Despatch Centre for real-time grid operations &amp; scheduling.</p>
             </a>
@@ -456,11 +574,19 @@ const getDocUrl = (url?: string) => {
               href="https://jercjkl.jk.gov.in/" 
               target="_blank" 
               rel="noopener noreferrer" 
-              class="p-3.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-[#0B4F9C]/50 rounded-lg transition-all flex flex-col justify-between gap-2 shadow-xs group"
+              class="p-4 bg-slate-50 hover:bg-blue-50/60 border border-slate-200 hover:border-[#0B4F9C]/50 rounded-xl transition-all flex flex-col justify-between gap-3 shadow-xs group"
             >
-              <div class="flex items-center justify-between">
-                <span class="font-extrabold text-xs text-[#0B4F9C] group-hover:underline">JERC J&amp;K &amp; Ladakh</span>
-                <span class="text-slate-400 group-hover:text-[#0B4F9C] text-xs">↗</span>
+              <div class="flex items-center justify-between gap-3">
+                <div class="w-12 h-12 rounded-lg bg-white p-1.5 border border-slate-200/80 shadow-xs flex items-center justify-center shrink-0">
+                  <img src="/logos/jerc.png" alt="JERC Logo" class="max-w-full max-h-full object-contain" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between">
+                    <span class="font-extrabold text-xs text-[#0B4F9C] group-hover:underline truncate">JERC J&amp;K &amp; Ladakh</span>
+                    <span class="text-slate-400 group-hover:text-[#0B4F9C] text-xs shrink-0">↗</span>
+                  </div>
+                  <span class="text-[10px] font-bold text-slate-400 block">jercjkl.jk.gov.in</span>
+                </div>
               </div>
               <p class="text-[11px] text-slate-500 leading-snug">Joint Electricity Regulatory Commission for tariff orders &amp; trading norms.</p>
             </a>
@@ -469,11 +595,19 @@ const getDocUrl = (url?: string) => {
               href="https://cercind.gov.in/" 
               target="_blank" 
               rel="noopener noreferrer" 
-              class="p-3.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-[#0B4F9C]/50 rounded-lg transition-all flex flex-col justify-between gap-2 shadow-xs group"
+              class="p-4 bg-slate-50 hover:bg-blue-50/60 border border-slate-200 hover:border-[#0B4F9C]/50 rounded-xl transition-all flex flex-col justify-between gap-3 shadow-xs group"
             >
-              <div class="flex items-center justify-between">
-                <span class="font-extrabold text-xs text-[#0B4F9C] group-hover:underline">CERC India</span>
-                <span class="text-slate-400 group-hover:text-[#0B4F9C] text-xs">↗</span>
+              <div class="flex items-center justify-between gap-3">
+                <div class="w-12 h-12 rounded-lg bg-white p-1.5 border border-slate-200/80 shadow-xs flex items-center justify-center shrink-0">
+                  <img src="/logos/cea.webp" alt="CERC Logo" class="max-w-full max-h-full object-contain" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between">
+                    <span class="font-extrabold text-xs text-[#0B4F9C] group-hover:underline truncate">CERC India</span>
+                    <span class="text-slate-400 group-hover:text-[#0B4F9C] text-xs shrink-0">↗</span>
+                  </div>
+                  <span class="text-[10px] font-bold text-slate-400 block">cercind.gov.in</span>
+                </div>
               </div>
               <p class="text-[11px] text-slate-500 leading-snug">Central Electricity Regulatory Commission inter-state trading regulations.</p>
             </a>
@@ -482,24 +616,40 @@ const getDocUrl = (url?: string) => {
               href="https://www.iexindia.com/" 
               target="_blank" 
               rel="noopener noreferrer" 
-              class="p-3.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-[#0B4F9C]/50 rounded-lg transition-all flex flex-col justify-between gap-2 shadow-xs group"
+              class="p-4 bg-slate-50 hover:bg-blue-50/60 border border-slate-200 hover:border-[#0B4F9C]/50 rounded-xl transition-all flex flex-col justify-between gap-3 shadow-xs group"
             >
-              <div class="flex items-center justify-between">
-                <span class="font-extrabold text-xs text-[#0B4F9C] group-hover:underline">Indian Energy Exchange (IEX)</span>
-                <span class="text-slate-400 group-hover:text-[#0B4F9C] text-xs">↗</span>
+              <div class="flex items-center justify-between gap-3">
+                <div class="w-12 h-12 rounded-lg bg-white p-1.5 border border-slate-200/80 shadow-xs flex items-center justify-center shrink-0">
+                  <img src="/logos/iex.png" alt="IEX Logo" class="max-w-full max-h-full object-contain" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between">
+                    <span class="font-extrabold text-xs text-[#0B4F9C] group-hover:underline truncate">Indian Energy Exchange (IEX)</span>
+                    <span class="text-slate-400 group-hover:text-[#0B4F9C] text-xs shrink-0">↗</span>
+                  </div>
+                  <span class="text-[10px] font-bold text-slate-400 block">iexindia.com</span>
+                </div>
               </div>
               <p class="text-[11px] text-slate-500 leading-snug">Day-Ahead, Real-Time &amp; Green Term Ahead Electricity Trading Platform.</p>
             </a>
 
             <a 
-              href="https://www.pxil.in/" 
+              href="https://powerexindia.in/" 
               target="_blank" 
               rel="noopener noreferrer" 
-              class="p-3.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-[#0B4F9C]/50 rounded-lg transition-all flex flex-col justify-between gap-2 shadow-xs group"
+              class="p-4 bg-slate-50 hover:bg-blue-50/60 border border-slate-200 hover:border-[#0B4F9C]/50 rounded-xl transition-all flex flex-col justify-between gap-3 shadow-xs group"
             >
-              <div class="flex items-center justify-between">
-                <span class="font-extrabold text-xs text-[#0B4F9C] group-hover:underline">Power Exchange India (PXIL)</span>
-                <span class="text-slate-400 group-hover:text-[#0B4F9C] text-xs">↗</span>
+              <div class="flex items-center justify-between gap-3">
+                <div class="w-12 h-12 rounded-lg bg-white p-1.5 border border-slate-200/80 shadow-xs flex items-center justify-center shrink-0">
+                  <img src="/logos/pxil.png" alt="PXIL Logo" class="max-w-full max-h-full object-contain" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between">
+                    <span class="font-extrabold text-xs text-[#0B4F9C] group-hover:underline truncate">Power Exchange India (PXIL)</span>
+                    <span class="text-slate-400 group-hover:text-[#0B4F9C] text-xs shrink-0">↗</span>
+                  </div>
+                  <span class="text-[10px] font-bold text-slate-400 block">powerexindia.in</span>
+                </div>
               </div>
               <p class="text-[11px] text-slate-500 leading-snug">National level power exchange platform for electricity contract trading.</p>
             </a>
