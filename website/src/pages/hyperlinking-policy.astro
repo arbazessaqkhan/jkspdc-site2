@@ -1,0 +1,91 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="Hyperlinking Policy - JKSPDC"
+  description="Hyperlinking Policy for the official JKSPDC website. Guidelines for external links, linking to JKSPDC, and external link disclaimers."
+>
+  <div class="space-y-0">
+    <div class="page-header-band animate-fadeInUp">
+      <nav class="breadcrumb-trail" aria-label="breadcrumb">
+        <a href="/">Home</a>
+        <span class="separator" aria-hidden="true">/</span>
+        <span class="current">Hyperlinking Policy</span>
+      </nav>
+      <h1>Hyperlinking Policy</h1>
+      <p class="page-subtitle">Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL)</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <article class="lg:col-span-2 prose-gov space-y-5">
+
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-xs text-amber-800 font-semibold">
+          ⚠️ <strong>DRAFT — FOR JKSPDC LEGAL REVIEW AND FORMAL APPROVAL BEFORE PUBLICATION.</strong>
+        </div>
+
+        <div class="card-static">
+          <h2 class="font-bold text-[#0B4F9C] text-base mb-3 border-b border-gray-100 pb-2">1. Links from This Website to External Sites</h2>
+          <p>This website may contain hyperlinks to external websites that are operated by third parties, including Government departments, public sector organisations, industry bodies, and regulatory authorities. These links are provided for user convenience and information purposes only.</p>
+          <p class="mt-2"><strong>JKSPDCL does not endorse, verify, or take responsibility for:</strong></p>
+          <ul class="mt-1 space-y-1 text-sm">
+            <li>• The accuracy, completeness, or timeliness of content on external websites</li>
+            <li>• The privacy practices of external websites</li>
+            <li>• The accessibility standards of external websites</li>
+            <li>• Any transactions conducted through external websites</li>
+          </ul>
+          <p class="mt-2">All external links on this website are clearly identified with appropriate labels. Users are advised to read the terms, conditions, and privacy policies of any external website they visit.</p>
+        </div>
+
+        <div class="card-static">
+          <h2 class="font-bold text-[#0B4F9C] text-base mb-3 border-b border-gray-100 pb-2">2. Linking to This Website</h2>
+          <p>You are permitted to link to the homepage of this website (the root URL) for non-commercial purposes without prior written permission, provided:</p>
+          <ul class="mt-2 space-y-1 text-sm">
+            <li>✅ The link clearly identifies the destination as the official JKSPDC website</li>
+            <li>✅ The link opens in a new browser tab where technically feasible</li>
+            <li>✅ The linking page does not misrepresent JKSPDC or imply endorsement</li>
+          </ul>
+          <p class="mt-3"><strong>The following are not permitted:</strong></p>
+          <ul class="mt-1 space-y-1 text-sm">
+            <li>❌ Deep-linking to internal pages without permission</li>
+            <li>❌ Framing of JKSPDC web pages within another website</li>
+            <li>❌ Linking in a manner that implies JKSPDC endorsement of a product, service, or organisation</li>
+            <li>❌ Using JKSPDC's name, logo, or branding without written authorisation</li>
+          </ul>
+        </div>
+
+        <div class="card-static">
+          <h2 class="font-bold text-[#0B4F9C] text-base mb-3 border-b border-gray-100 pb-2">3. Broken or Outdated External Links</h2>
+          <p>JKSPDCL periodically reviews external links. If you encounter a broken or outdated external link on this website, please inform us via the <a href="/feedback" class="text-[#0B4F9C] hover:underline">Feedback Form</a> or email <a href="mailto:md-jkspdcl@jk.gov.in" class="text-[#0B4F9C] hover:underline">md-jkspdcl@jk.gov.in</a>.</p>
+        </div>
+
+        <div class="card-static">
+          <h2 class="font-bold text-[#0B4F9C] text-base mb-3 border-b border-gray-100 pb-2">4. Permission Requests</h2>
+          <p>For requests to link to internal pages, use JKSPDC content commercially, or embed JKSPDC content, please contact:</p>
+          <div class="mt-2 text-sm space-y-1">
+            <p><strong>Jammu &amp; Kashmir State Power Development Corporation Limited</strong></p>
+            <p>Email: <a href="mailto:md-jkspdcl@jk.gov.in" class="text-[#0B4F9C] hover:underline">md-jkspdcl@jk.gov.in</a></p>
+          </div>
+        </div>
+
+        <p class="text-xs text-gray-500 mt-4">
+          <strong>Effective Date:</strong> August 2026 | <strong>Last Reviewed:</strong> {new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long' })}
+        </p>
+
+      </article>
+
+      <aside class="space-y-5">
+        <div class="card-static">
+          <h3 class="sidebar-card-title">Legal &amp; Policies</h3>
+          <ul class="flex flex-col gap-2">
+            <li><a href="/terms-conditions" class="sidebar-link">Terms &amp; Conditions</a></li>
+            <li><a href="/privacy-policy" class="sidebar-link">Privacy Policy</a></li>
+            <li><a href="/disclaimer" class="sidebar-link">Disclaimer</a></li>
+            <li><a href="/copyright" class="sidebar-link">Copyright Policy</a></li>
+            <li><a href="/accessibility-statement" class="sidebar-link">Accessibility Statement</a></li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+</Layout>

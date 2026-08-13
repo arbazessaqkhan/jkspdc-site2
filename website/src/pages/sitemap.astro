@@ -9,9 +9,9 @@ import Layout from '../layouts/Layout.astro';
   <div class="space-y-0">
     <!-- Premium Page Header Band -->
     <div class="page-header-band animate-fadeInUp">
-      <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
+      <nav class="breadcrumb-trail" aria-label="breadcrumb">
         <a href="/">Home</a>
-        <span class="separator">/</span>
+        <span class="separator" aria-hidden="true">/</span>
         <span class="current">Sitemap</span>
       </nav>
       <h1>Website Sitemap</h1>
@@ -103,14 +103,28 @@ import Layout from '../layouts/Layout.astro';
         </ul>
       </section>
 
-      <!-- Quick Portals & Help -->
+      <!-- Quick Portals, Help & GIGW Mandatory Pages -->
       <section class="card-static space-y-3">
-        <h3 class="font-extrabold text-sm text-[#0B4F9C] border-b border-gray-100 pb-2">Quick Portals & Utilities</h3>
+        <h3 class="font-extrabold text-sm text-[#0B4F9C] border-b border-gray-100 pb-2">Quick Portals &amp; Utilities</h3>
         <ul class="space-y-1.5 text-xs text-gray-700">
           <li><a href="/about-us/explore/policies" class="hover:underline">&rarr; Corporate Policies Directory</a></li>
           <li><a href="/about-us/explore/rti" class="hover:underline">&rarr; RTI Disclosures</a></li>
-          <li><a href="/help" class="hover:underline">&rarr; Website Help & FAQs</a></li>
-          <li><a href="/admin/login" class="hover:underline">&rarr; Admin Portal Login</a></li>
+          <li><a href="/help" class="hover:underline">&rarr; Website Help &amp; FAQs</a></li>
+          <li><a href="/feedback" class="hover:underline">&rarr; Feedback</a></li>
+          <li><a href="/search" class="hover:underline">&rarr; Site Search</a></li>
+        </ul>
+      </section>
+
+      <!-- Website Policies (GIGW 3.0 Mandatory) -->
+      <section class="card-static space-y-3">
+        <h3 class="font-extrabold text-sm text-[#0B4F9C] border-b border-gray-100 pb-2">Website Policies</h3>
+        <ul class="space-y-1.5 text-xs text-gray-700">
+          <li><a href="/accessibility-statement" class="hover:underline">&rarr; Accessibility Statement</a></li>
+          <li><a href="/terms-conditions" class="hover:underline">&rarr; Terms &amp; Conditions</a></li>
+          <li><a href="/privacy-policy" class="hover:underline">&rarr; Privacy Policy</a></li>
+          <li><a href="/disclaimer" class="hover:underline">&rarr; Disclaimer</a></li>
+          <li><a href="/copyright" class="hover:underline">&rarr; Copyright Policy</a></li>
+          <li><a href="/hyperlinking-policy" class="hover:underline">&rarr; Hyperlinking Policy</a></li>
         </ul>
       </section>
 

@@ -93,6 +93,10 @@ if (tickerItems.length === 0) {
     <title>{title} | JKSPDC Official Portal</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    <!-- GIGW 3.0 — Last reviewed/updated meta -->
+    <meta name="last-modified" content={new Date().toISOString().split('T')[0]} />
+    <meta name="author" content="Jammu & Kashmir State Power Development Corporation Limited" />
+    <meta name="publisher" content="JKSPDC — Government of Jammu & Kashmir" />
     
     <!-- GIGW SEO & Browser Compatibility -->
     <meta name="robots" content="index, follow" />
@@ -140,6 +144,14 @@ if (tickerItems.length === 0) {
       }
       .animate-ticker:hover {
         animation-play-state: paused;
+      }
+      /* WCAG 2.1 SC 2.3.3 — stop ticker when user prefers reduced motion */
+      @media (prefers-reduced-motion: reduce) {
+        .animate-ticker {
+          animation: none !important;
+          white-space: normal;
+          display: block;
+        }
       }
 
       /* ── Slow pulse for status dots ────────────────────────────── */
@@ -342,6 +354,13 @@ if (tickerItems.length === 0) {
     <!-- Skip to Main Content Link (GIGW Mandatory) -->
     <a href="#main-content" class="skip-link">Skip to Main Content</a>
 
+    <!-- noscript fallback for JavaScript-dependent features (WCAG) -->
+    <noscript>
+      <div style="background:#f59e0b;color:#1e293b;text-align:center;padding:8px 16px;font-size:12px;font-weight:600;border-bottom:2px solid #d97706;" role="alert">
+        ⚠️ JavaScript is disabled. Some features (language translation, search autocomplete) require JavaScript. Core content remains accessible.
+      </div>
+    </noscript>
+
     <header class="bg-[#EAF4FF] border-b-2 border-[#0B4F9C] shadow-sm">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1 flex items-center justify-between">
         <!-- Left Logo -->
@@ -435,24 +454,35 @@ if (tickerItems.length === 0) {
         </div>
       </div>
 
-      <!-- Live News Ticker Bar (Placed between organization heading and navigation menu bar) -->
-      <div class="bg-[#08305C] text-white relative overflow-hidden border-t border-b border-[#0B4F9C]/30" aria-live="polite" aria-label="Live announcements">
-        <div class="flex items-stretch" style="max-width:100%;">
+      <!-- Live News Ticker Bar -->
+      <!-- WCAG: aria-hidden on animated region; static sr-only list for screen readers -->
+      <div class="bg-[#08305C] text-white relative overflow-hidden border-t border-b border-[#0B4F9C]/30">
+        <!-- Screen-reader-only summary of ticker items (accessible alternative to animation) -->
+        <div class="sr-only" aria-live="polite" aria-label="Latest announcements">
+          <p>Latest updates from JKSPDC:</p>
+          <ul>
+            {tickerItems.map((item: any) => (
+              <li>
+                <strong>{item.type}:</strong> {item.url ? <a href={item.url}>{item.text}</a> : item.text}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <!-- Visual animated ticker (hidden from screen readers) -->
+        <div class="flex items-stretch" style="max-width:100%;" aria-hidden="true">
           <div class="shrink-0 bg-[#1B3A6B] text-white text-xs font-bold px-4 flex items-center gap-2 uppercase tracking-wide z-20" style="white-space:nowrap;">
             <span class="w-2 h-2 rounded-full bg-slate-300" style="display:inline-block;flex-shrink:0;"></span>
             Updates
           </div>
           <div style="overflow:hidden; flex:1; position:relative;">
-            <!-- Fade-out overlays at both entry and exit edges -->
             <div class="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-[#08305C] to-transparent z-10 pointer-events-none"></div>
             <div class="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[#08305C] to-transparent z-10 pointer-events-none"></div>
-
             <div class="animate-ticker" style="gap: 3.5rem; padding: 0.5rem 0; font-size: 0.8rem; font-weight: 500;">
               {[...tickerItems, ...tickerItems].map((item: any) => (
                 <span style="padding-right:4rem;">
-                  › <strong class={`font-extrabold uppercase tracking-wider text-[10px] mr-1 px-1.5 py-0.5 rounded border ${item.colorClass}`}>{item.type}:</strong> 
+                  › <strong class={`font-extrabold uppercase tracking-wider text-[10px] mr-1 px-1.5 py-0.5 rounded border ${item.colorClass}`}>{item.type}:</strong>
                   {item.url ? (
-                    <a href={item.url} target="_blank" rel="noopener noreferrer" class="text-slate-100 hover:underline hover:text-white transition-colors">
+                    <a href={item.url} class="text-slate-100 hover:underline hover:text-white transition-colors">
                       {item.text}
                     </a>
                   ) : (
@@ -521,7 +551,7 @@ if (tickerItems.length === 0) {
               <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[240px]">
                 <ul class="flex flex-col gap-0.5 text-xs px-2">
                   <li><a href="/stakeholders/vendors/tender-bids" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Live Tenders &amp; Notices</a></li>
-                  <li><a href="https://jktenders.gov.in/nicgep/app" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">JK Tenders Portal</a></li>
+                  <li><a href="https://jktenders.gov.in/nicgep/app" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">JK Tenders Portal<span class="sr-only"> (opens in new tab)</span></a></li>
                 </ul>
               </div>
             </li>
@@ -576,13 +606,13 @@ if (tickerItems.length === 0) {
               </button>
               <div class="nav-dropdown-menu absolute right-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[220px]">
                 <ul class="flex flex-col gap-0.5 text-xs px-2">
-                  <li><a href="https://www.jkspdcl.com:2096/" target="_blank" rel="noopener" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Web Mail</a></li>
-                  <li><a href="https://saccess.nic.in/" target="_blank" rel="noopener" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Nic-e-File</a></li>
-                  <li><a href="https://eoffice.jk.gov.in/" target="_blank" rel="noopener" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">E-Office</a></li>
-                  <li><a href="https://hrms.jk.gov.in/" target="_blank" rel="noopener" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">JKHMRS</a></li>
-                  <li><a href="https://prs.jk.gov.in/" target="_blank" rel="noopener" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Property Return (GAD)</a></li>
-                  <li><a href="https://law.pmgatishakti.gov.in/EETMS/login" target="_blank" rel="noopener" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">EETMS</a></li>
-                  <li><a href="https://bg.jkspdc.in/" target="_blank" rel="noopener" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">BG Management</a></li>
+                  <li><a href="https://www.jkspdcl.com:2096/" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Web Mail<span class="sr-only"> (opens in new tab)</span></a></li>
+                  <li><a href="https://saccess.nic.in/" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Nic-e-File<span class="sr-only"> (opens in new tab)</span></a></li>
+                  <li><a href="https://eoffice.jk.gov.in/" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">E-Office<span class="sr-only"> (opens in new tab)</span></a></li>
+                  <li><a href="https://hrms.jk.gov.in/" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">JKHMRS<span class="sr-only"> (opens in new tab)</span></a></li>
+                  <li><a href="https://prs.jk.gov.in/" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Property Return (GAD)<span class="sr-only"> (opens in new tab)</span></a></li>
+                  <li><a href="https://law.pmgatishakti.gov.in/EETMS/login" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">EETMS<span class="sr-only"> (opens in new tab)</span></a></li>
+                  <li><a href="https://bg.jkspdc.in/" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">BG Management<span class="sr-only"> (opens in new tab)</span></a></li>
                 </ul>
               </div>
             </li>
@@ -615,6 +645,24 @@ if (tickerItems.length === 0) {
     <footer class="bg-[#083B73] text-slate-200 border-t-4 border-[#0B4F9C] pt-10 pb-6 text-sm">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
+        <!-- Government Portal Identity Bar (GIGW Mandatory) -->
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-600 pb-4 mb-6">
+          <div class="flex items-center gap-3">
+            <img src="/logo.png" alt="JKSPDCL Official Logo" class="h-10 w-auto object-contain" />
+            <div>
+              <p class="text-white font-bold text-xs leading-tight">Jammu &amp; Kashmir State Power Development Corporation Limited</p>
+              <p class="text-slate-400 text-[10px] mt-0.5">A Government of J&amp;K Undertaking | CIN: [CONTENT REQUIRED FROM JKSPDC]</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-4 text-[10px] text-slate-400">
+            <a href="https://india.gov.in" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1 hover:text-white transition-colors font-semibold">
+              <span>🇮🇳</span> National Portal of India<span class="sr-only"> (opens in new tab)</span>
+            </a>
+            <span class="text-slate-600">|</span>
+            <a href="https://jkgov.nic.in" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors font-semibold">J&amp;K Government<span class="sr-only"> (opens in new tab)</span></a>
+          </div>
+        </div>
+
         <!-- Footer Core Columns -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 border-b border-slate-700 pb-8 mb-6 items-start">
 
@@ -631,18 +679,39 @@ if (tickerItems.length === 0) {
             </a>
           </div>
 
-          <!-- Column 2: Site Utilities -->
+          <!-- Column 2: Site Utilities & GIGW Mandatory Links -->
           <div class="flex flex-col gap-1">
             <h2 class="font-bold text-white uppercase tracking-wider text-xs mb-4 pb-2 border-b border-slate-600">Site Utilities</h2>
             <div class="flex flex-col gap-2 text-xs text-slate-300">
               <a href="/about-us/explore/policies" class="hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
-                <span class="text-slate-500">›</span> Policies
+                <span class="text-slate-500" aria-hidden="true">›</span> Policies
               </a>
               <a href="/sitemap" class="hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
-                <span class="text-slate-500">›</span> Sitemap
+                <span class="text-slate-500" aria-hidden="true">›</span> Sitemap
               </a>
               <a href="/help" class="hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
-                <span class="text-slate-500">›</span> Help & FAQ
+                <span class="text-slate-500" aria-hidden="true">›</span> Help &amp; FAQ
+              </a>
+              <a href="/feedback" class="hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
+                <span class="text-slate-500" aria-hidden="true">›</span> Feedback
+              </a>
+              <a href="/accessibility-statement" class="hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
+                <span class="text-slate-500" aria-hidden="true">›</span> Accessibility Statement
+              </a>
+              <a href="/terms-conditions" class="hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
+                <span class="text-slate-500" aria-hidden="true">›</span> Terms &amp; Conditions
+              </a>
+              <a href="/privacy-policy" class="hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
+                <span class="text-slate-500" aria-hidden="true">›</span> Privacy Policy
+              </a>
+              <a href="/disclaimer" class="hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
+                <span class="text-slate-500" aria-hidden="true">›</span> Disclaimer
+              </a>
+              <a href="/copyright" class="hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
+                <span class="text-slate-500" aria-hidden="true">›</span> Copyright Policy
+              </a>
+              <a href="/hyperlinking-policy" class="hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
+                <span class="text-slate-500" aria-hidden="true">›</span> Hyperlinking Policy
               </a>
             </div>
           </div>
@@ -699,32 +768,30 @@ if (tickerItems.length === 0) {
                 md-jkspdcl@jk.gov.in
               </a>
             </div>
-            <!-- Social/Connect Row to balance column height -->
+            <!-- Social/Connect Row — GIGW NOTE: Update with official JKSPDC social handles when confirmed -->
             <div class="mt-4 pt-3 border-t border-slate-700">
-              <p class="font-semibold text-slate-300 text-[11px] mb-2">Follow &amp; Connect</p>
-              <div class="flex items-center gap-3">
-                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter" class="w-7 h-7 rounded-full bg-white/10 hover:bg-[#1DA1F2]/30 flex items-center justify-center transition-colors">
-                  <svg class="w-3.5 h-3.5 fill-current text-slate-300" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.63 5.905-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                </a>
-                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook" class="w-7 h-7 rounded-full bg-white/10 hover:bg-[#1877F2]/30 flex items-center justify-center transition-colors">
-                  <svg class="w-3.5 h-3.5 fill-current text-slate-300" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                </a>
-                <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube" class="w-7 h-7 rounded-full bg-white/10 hover:bg-[#FF0000]/30 flex items-center justify-center transition-colors">
-                  <svg class="w-3.5 h-3.5 fill-current text-slate-300" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-                </a>
-              </div>
+              <p class="font-semibold text-slate-300 text-[11px] mb-2">Official Social Media</p>
+              <p class="text-[10px] text-slate-500 italic">[OFFICIAL JKSPDC SOCIAL MEDIA HANDLES TO BE CONFIRMED AND UPDATED]</p>
             </div>
           </div>
 
+        </div>
+
+        <!-- WIM (Web Information Manager) — GIGW 3.0 Mandatory -->
+        <div class="border-t border-slate-700 pt-4 pb-3 text-[11px] text-slate-400">
+          <div class="flex flex-wrap gap-x-6 gap-y-1">
+            <span><strong class="text-slate-300">Web Information Manager:</strong> [WIM TO BE FORMALLY NOMINATED BY JKSPDC]</span>
+            <span><strong class="text-slate-300">Technical Team:</strong> IT Cell, JKSPDCL, Srinagar / Jammu</span>
+          </div>
         </div>
 
         <!-- Copyright and Compliance Info -->
         <div class="flex flex-col md:flex-row justify-between items-center gap-3 text-[11px] text-slate-400 border-t border-slate-700 pt-4">
           <p>&copy; {currentYear} Jammu &amp; Kashmir State Power Development Corporation Limited. All rights reserved.</p>
           <div class="flex items-center gap-3 flex-wrap justify-center md:justify-end">
-            <span>Designed and Developed by <span class="text-slate-300 font-semibold">IT Team JKSPDCL</span></span>
+            <span>Designed and Developed by <span class="text-slate-300 font-semibold">IT Cell, JKSPDCL</span></span>
             <span class="text-slate-600">|</span>
-            <span>Last Updated: {new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+            <span>Last Reviewed: {new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long' })}</span>
           </div>
         </div>
 

@@ -862,3 +862,139 @@ tbody tr:hover {
     grid-column: span 1 / span 1 !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   WCAG 2.1 SC 2.3.3 — PREFERS REDUCED MOTION
+   Disables all decorative animations when the user has enabled
+   "reduce motion" in their OS accessibility settings.
+   ═══════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Specifically stop the news ticker scroll animation */
+  .animate-ticker,
+  .animate-slow-pulse,
+  .animate-hydro-glow,
+  .animate-fadeInUp,
+  .animate-fadeIn,
+  .animate-slideInLeft {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GIGW 3.0 — PRINT STYLESHEET (A4)
+   Ensures key pages print cleanly on A4 paper.
+   Hides navigation, footer, and decorative elements.
+   Shows organisation identity and full content.
+   ═══════════════════════════════════════════════════════════════ */
+@media print {
+  /* Reset page margins for A4 */
+  @page {
+    size: A4 portrait;
+    margin: 20mm 15mm 20mm 15mm;
+  }
+
+  /* Hide non-printable UI elements */
+  header nav,
+  nav[aria-label="Primary Navigation"],
+  footer,
+  .skip-link,
+  #scroll-to-top-btn,
+  .animate-ticker,
+  #custom-language-selector,
+  #header-search-form,
+  aside,
+  .page-header-band .breadcrumb-trail,
+  [aria-label="Font Size Controls"],
+  [aria-label="Toggle High Contrast Mode"] {
+    display: none !important;
+  }
+
+  /* Ensure content is visible and well-formatted */
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11pt !important;
+    font-family: "Noto Sans", Arial, sans-serif !important;
+  }
+
+  /* Page header band — simplify for print */
+  .page-header-band {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border-bottom: 2pt solid #000000 !important;
+    padding: 0.5cm 0 !important;
+    margin: 0 0 0.5cm 0 !important;
+  }
+
+  .page-header-band h1 {
+    color: #000000 !important;
+    font-size: 16pt !important;
+  }
+
+  .page-header-band .page-subtitle {
+    color: #333333 !important;
+  }
+
+  /* Organisation identity header */
+  header {
+    display: block !important;
+    text-align: center;
+    border-bottom: 2pt solid #000000;
+    padding-bottom: 0.5cm;
+    margin-bottom: 0.5cm;
+  }
+
+  /* Card borders for print */
+  .card-static,
+  .card-interactive,
+  .glass-card {
+    border: 1pt solid #cccccc !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+
+  /* Tables — full width for print */
+  .table-wrapper {
+    overflow: visible !important;
+  }
+
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  th, td {
+    border: 1pt solid #cccccc !important;
+    padding: 4pt 6pt !important;
+    font-size: 9pt !important;
+  }
+
+  tr {
+    break-inside: avoid;
+  }
+
+  h1, h2, h3, h4 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  main {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .grid {
+    display: block !important;
+  }
+}

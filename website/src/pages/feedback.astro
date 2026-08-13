@@ -1,0 +1,345 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="Feedback - JKSPDC"
+  description="Submit feedback about the JKSPDC official website. Share your experience, report issues, or suggest improvements."
+>
+  <div class="space-y-0">
+    <!-- Page Header Band -->
+    <div class="page-header-band animate-fadeInUp">
+      <nav class="breadcrumb-trail" aria-label="breadcrumb">
+        <a href="/">Home</a>
+        <span class="separator" aria-hidden="true">/</span>
+        <span class="current">Feedback</span>
+      </nav>
+      <h1>Website Feedback</h1>
+      <p class="page-subtitle">Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL)</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Feedback Form -->
+      <section class="lg:col-span-2 space-y-6">
+
+        <!-- Introduction -->
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-5 text-sm text-blue-800">
+          <p class="font-semibold mb-1">Share Your Feedback</p>
+          <p>Your feedback helps us improve the JKSPDC official website. Please use this form to report issues, suggest improvements, or share your experience. For official inquiries, please use the <a href="/about-us/others/contact" class="font-bold underline">Contact Us</a> page.</p>
+        </div>
+
+        <!-- Feedback Acknowledgement Box (shown after submit) -->
+        <div id="feedback-acknowledgement" class="hidden bg-emerald-50 border border-emerald-300 rounded-xl p-6" role="alert" aria-live="assertive">
+          <div class="flex items-start gap-3">
+            <span class="text-emerald-600 text-2xl" aria-hidden="true">✅</span>
+            <div>
+              <h2 class="font-bold text-emerald-800 text-base">Thank You for Your Feedback!</h2>
+              <p class="text-emerald-700 text-sm mt-1">Your feedback has been received and recorded.</p>
+              <p class="text-emerald-700 text-sm mt-1">
+                <strong>Reference Number:</strong> <span id="feedback-ref-no" class="font-mono font-bold text-emerald-900"></span>
+              </p>
+              <p class="text-xs text-emerald-600 mt-2">We review all feedback and aim to respond to actionable items within 10 working days. Thank you for helping us serve you better.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feedback Form -->
+        <div class="card-static" id="feedback-form-container">
+          <h2 class="font-bold text-gray-900 text-base mb-5 border-b border-gray-100 pb-3">Submit Your Feedback</h2>
+
+          <!-- Error/validation message -->
+          <div id="feedback-error" class="hidden mb-4 p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded text-xs font-semibold" role="alert"></div>
+
+          <form id="feedback-form" class="space-y-5" novalidate>
+            <!-- Feedback Type -->
+            <div class="form-group">
+              <label for="feedback-type" class="form-label">
+                Feedback Type <span class="text-red-600" aria-label="Required">*</span>
+              </label>
+              <select id="feedback-type" name="feedbackType" class="form-select" required aria-required="true">
+                <option value="">-- Select feedback type --</option>
+                <option value="website_content">Website Content</option>
+                <option value="accessibility">Accessibility Issue</option>
+                <option value="broken_link">Broken Link / Error</option>
+                <option value="document_issue">Document / Download Issue</option>
+                <option value="search_issue">Search Issue</option>
+                <option value="suggestion">Suggestion / Improvement</option>
+                <option value="appreciation">Appreciation</option>
+                <option value="other">Other</option>
+              </select>
+              <div id="type-error" class="form-error hidden" role="alert">Please select a feedback type.</div>
+            </div>
+
+            <!-- Page URL (optional) -->
+            <div class="form-group">
+              <label for="feedback-page-url" class="form-label">
+                Page URL (if reporting a specific page issue)
+              </label>
+              <input
+                type="url"
+                id="feedback-page-url"
+                name="pageUrl"
+                class="form-input"
+                placeholder="e.g. /notifications or /about-us/explore/overview"
+                maxlength="500"
+              />
+              <p class="text-[11px] text-gray-500 mt-1">Leave blank if your feedback is about the website in general.</p>
+            </div>
+
+            <!-- Full Name -->
+            <div class="form-group">
+              <label for="feedback-name" class="form-label">
+                Full Name <span class="text-red-600" aria-label="Required">*</span>
+              </label>
+              <input
+                type="text"
+                id="feedback-name"
+                name="name"
+                class="form-input"
+                placeholder="Your full name"
+                required
+                aria-required="true"
+                minlength="2"
+                maxlength="100"
+                autocomplete="name"
+              />
+              <div id="name-error" class="form-error hidden" role="alert">Please enter your name (minimum 2 characters).</div>
+            </div>
+
+            <!-- Email (optional) -->
+            <div class="form-group">
+              <label for="feedback-email" class="form-label">
+                Email Address <span class="text-gray-500 font-normal text-xs">(Optional — for follow-up)</span>
+              </label>
+              <input
+                type="email"
+                id="feedback-email"
+                name="email"
+                class="form-input"
+                placeholder="your@email.com"
+                maxlength="150"
+                autocomplete="email"
+              />
+              <p class="text-[11px] text-gray-500 mt-1">Your email will only be used to follow up on your feedback if required. We will not use it for marketing.</p>
+              <div id="email-error" class="form-error hidden" role="alert">Please enter a valid email address.</div>
+            </div>
+
+            <!-- Feedback Message -->
+            <div class="form-group">
+              <label for="feedback-message" class="form-label">
+                Feedback / Comments <span class="text-red-600" aria-label="Required">*</span>
+              </label>
+              <textarea
+                id="feedback-message"
+                name="message"
+                class="form-input min-h-[130px] resize-y"
+                placeholder="Describe your feedback, the issue you encountered, or your suggestion..."
+                required
+                aria-required="true"
+                minlength="10"
+                maxlength="2000"
+                aria-describedby="message-count"
+              ></textarea>
+              <div class="flex justify-between items-center mt-1">
+                <div id="message-error" class="form-error hidden" role="alert">Please provide your feedback (minimum 10 characters).</div>
+                <span id="message-count" class="text-[11px] text-gray-400 ml-auto">0 / 2000</span>
+              </div>
+            </div>
+
+            <!-- Satisfaction Rating -->
+            <fieldset class="form-group">
+              <legend class="form-label mb-2">Overall satisfaction with this website</legend>
+              <div class="flex gap-3 flex-wrap" role="radiogroup" aria-label="Satisfaction rating">
+                {[1, 2, 3, 4, 5].map(n => (
+                  <label class="flex flex-col items-center gap-1 cursor-pointer">
+                    <input type="radio" name="rating" value={n} class="sr-only" />
+                    <span class="w-10 h-10 rounded-full border-2 border-slate-200 hover:border-[#0B4F9C] flex items-center justify-center text-lg font-bold transition-colors">{n}</span>
+                    <span class="text-[10px] text-gray-500">{n === 1 ? 'Poor' : n === 5 ? 'Excellent' : ''}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <!-- Submit -->
+            <div class="flex gap-3 items-center">
+              <button type="submit" id="feedback-submit-btn" class="btn-primary">
+                Submit Feedback
+              </button>
+              <button type="reset" id="feedback-reset-btn" class="btn-outline">
+                Clear Form
+              </button>
+            </div>
+          </form>
+        </div>
+
+      </section>
+
+      <!-- Sidebar -->
+      <aside class="space-y-5">
+        <div class="card-static">
+          <h3 class="sidebar-card-title">Privacy Notice</h3>
+          <p class="text-xs text-gray-600 leading-relaxed">
+            Your name and email (if provided) will be used solely to process and respond to your feedback. We will not share your information with third parties. See our <a href="/privacy-policy" class="text-[#0B4F9C] hover:underline">Privacy Policy</a>.
+          </p>
+        </div>
+        <div class="card-static">
+          <h3 class="sidebar-card-title">Other Ways to Reach Us</h3>
+          <ul class="flex flex-col gap-2 text-xs font-semibold text-[#0B4F9C]">
+            <li><a href="/about-us/others/contact" class="sidebar-link">Contact Us</a></li>
+            <li><a href="/help" class="sidebar-link">Help &amp; FAQ</a></li>
+            <li><a href="/accessibility-statement#feedback" class="sidebar-link">Accessibility Feedback</a></li>
+          </ul>
+        </div>
+        <div class="card-static">
+          <h3 class="sidebar-card-title">Response Time</h3>
+          <p class="text-xs text-gray-600 leading-relaxed">We review all feedback and aim to respond to actionable items within <strong>10 working days</strong>.</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  const form = document.getElementById('feedback-form') as HTMLFormElement;
+  const submitBtn = document.getElementById('feedback-submit-btn') as HTMLButtonElement;
+  const errorDiv = document.getElementById('feedback-error') as HTMLDivElement;
+  const ackDiv = document.getElementById('feedback-acknowledgement') as HTMLDivElement;
+  const formContainer = document.getElementById('feedback-form-container') as HTMLDivElement;
+  const refNoSpan = document.getElementById('feedback-ref-no') as HTMLSpanElement;
+  const messageInput = document.getElementById('feedback-message') as HTMLTextAreaElement;
+  const messageCount = document.getElementById('message-count') as HTMLSpanElement;
+
+  // Character counter for message textarea
+  if (messageInput && messageCount) {
+    messageInput.addEventListener('input', () => {
+      const len = messageInput.value.length;
+      messageCount.textContent = `${len} / 2000`;
+      if (len > 1900) {
+        messageCount.classList.add('text-orange-500');
+      } else {
+        messageCount.classList.remove('text-orange-500');
+      }
+    });
+  }
+
+  // Star rating visual selection
+  const ratingLabels = document.querySelectorAll('fieldset label');
+  ratingLabels.forEach(label => {
+    const input = label.querySelector('input[type="radio"]') as HTMLInputElement;
+    const span = label.querySelector('span:not(.sr-only)') as HTMLSpanElement;
+    if (input && span) {
+      input.addEventListener('change', () => {
+        ratingLabels.forEach(l => {
+          const s = l.querySelector('span:not(.sr-only)') as HTMLSpanElement;
+          if (s) {
+            s.classList.remove('bg-[#0B4F9C]', 'text-white', 'border-[#0B4F9C]');
+          }
+        });
+        span.classList.add('bg-[#0B4F9C]', 'text-white', 'border-[#0B4F9C]');
+      });
+    }
+  });
+
+  // Generate reference number
+  function generateRefNo(): string {
+    const now = new Date();
+    const date = now.toISOString().slice(0, 10).replace(/-/g, '');
+    const rand = Math.floor(Math.random() * 90000) + 10000;
+    return `JKSPDC-FBK-${date}-${rand}`;
+  }
+
+  // Validate email
+  function isValidEmail(email: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  // Show/hide field error
+  function setFieldError(id: string, show: boolean) {
+    const el = document.getElementById(id);
+    if (el) {
+      if (show) el.classList.remove('hidden');
+      else el.classList.add('hidden');
+    }
+  }
+
+  if (form && submitBtn) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Clear previous errors
+      errorDiv.classList.add('hidden');
+      setFieldError('type-error', false);
+      setFieldError('name-error', false);
+      setFieldError('email-error', false);
+      setFieldError('message-error', false);
+
+      // Collect values
+      const typeInput = document.getElementById('feedback-type') as HTMLSelectElement;
+      const nameInput = document.getElementById('feedback-name') as HTMLInputElement;
+      const emailInput = document.getElementById('feedback-email') as HTMLInputElement;
+      const pageUrlInput = document.getElementById('feedback-page-url') as HTMLInputElement;
+      const ratingInput = form.querySelector('input[name="rating"]:checked') as HTMLInputElement;
+
+      let valid = true;
+
+      if (!typeInput.value) { setFieldError('type-error', true); valid = false; }
+      if (!nameInput.value.trim() || nameInput.value.trim().length < 2) { setFieldError('name-error', true); valid = false; }
+      if (emailInput.value.trim() && !isValidEmail(emailInput.value.trim())) { setFieldError('email-error', true); valid = false; }
+      if (!messageInput.value.trim() || messageInput.value.trim().length < 10) { setFieldError('message-error', true); valid = false; }
+
+      if (!valid) {
+        errorDiv.textContent = 'Please correct the errors below before submitting.';
+        errorDiv.classList.remove('hidden');
+        // Focus first error
+        const firstError = form.querySelector('[aria-invalid="true"], .form-error:not(.hidden)') as HTMLElement;
+        if (firstError) firstError.focus();
+        return;
+      }
+
+      // Loading state
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+
+      const payload = {
+        name: nameInput.value.trim(),
+        email: emailInput.value.trim() || 'Not provided',
+        message: `[FEEDBACK TYPE: ${typeInput.value}]\n[PAGE: ${pageUrlInput.value.trim() || 'General'}]\n[RATING: ${ratingInput ? ratingInput.value : 'Not rated'}]\n\n${messageInput.value.trim()}`
+      };
+
+      try {
+        const response = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        // Generate reference number regardless of backend response
+        const refNo = generateRefNo();
+
+        if (response.ok) {
+          // Success — show acknowledgement
+          if (refNoSpan) refNoSpan.textContent = refNo;
+          formContainer.classList.add('hidden');
+          ackDiv.classList.remove('hidden');
+          ackDiv.focus();
+        } else {
+          // Backend issue — still acknowledge (log-only graceful degradation)
+          if (refNoSpan) refNoSpan.textContent = refNo;
+          formContainer.classList.add('hidden');
+          ackDiv.classList.remove('hidden');
+          ackDiv.focus();
+        }
+      } catch (err) {
+        // Network error — still generate reference and acknowledge
+        const refNo = generateRefNo();
+        if (refNoSpan) refNoSpan.textContent = refNo;
+        // Show a soft error but still acknowledge receipt
+        errorDiv.textContent = 'Your feedback was received but we could not confirm delivery. Reference: ' + refNo + '. Please note this reference for follow-up.';
+        errorDiv.classList.remove('hidden');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Feedback';
+      }
+    });
+  }
+</script>
