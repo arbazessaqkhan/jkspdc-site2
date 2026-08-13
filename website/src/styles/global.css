@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+/* ── Base font size — set to 17px as the default (user preferred size) ─────── */
+/* This ensures the page renders at 17px from first paint, before JS loads.     */
+/* The A (reset) button in the accessibility bar also returns to 17px.          */
+html {
+  font-size: 17px;
+}
+
+
+
 /* Ticker animation */
 @keyframes ticker {
   0% {

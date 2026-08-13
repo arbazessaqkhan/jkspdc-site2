@@ -194,14 +194,14 @@ if (tickerItems.length === 0) {
     <script is:inline>
       function adjustFontSize(action) {
         var html = document.documentElement;
-        var cur = parseFloat(window.getComputedStyle(html).fontSize) || 16;
+        var cur = parseFloat(window.getComputedStyle(html).fontSize) || 17;
         var nextSize = cur;
         if (action === 'inc') {
           if (cur < 24) nextSize = cur + 1;
         } else if (action === 'dec') {
           if (cur > 12) nextSize = cur - 1;
         } else {
-          nextSize = 16;
+          nextSize = 17;
         }
         var sizeStr = nextSize + 'px';
         html.style.fontSize = sizeStr;
