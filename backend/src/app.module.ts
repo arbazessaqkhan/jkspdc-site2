@@ -21,7 +21,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { GalleryModule } from './gallery/gallery.module';
 import { PoliciesModule } from './policies/policies.module';
 import { AgmModule } from './agm/agm.module';
-import { ChatModule } from './chat/chat.module';
+import { HydroModule } from './hydro/hydro.module';
 import { PageContentModule } from './page-content/page-content.module';
 import { DownloadsModule } from './downloads/downloads.module';
 import { FinancialsModule } from './financials/financials.module';
@@ -52,7 +52,7 @@ import { SiteSettingsModule } from './site-settings/site-settings.module';
     GalleryModule,
     PoliciesModule,
     AgmModule,
-    ChatModule,
+    HydroModule,
     PageContentModule,
     DownloadsModule,
     FinancialsModule,

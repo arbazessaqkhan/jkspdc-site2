@@ -219,3 +219,79 @@ model SiteSetting {
   key   String @unique
   value String
 }
+
+// ── HYDRO AI Knowledge Assistant ──────────────────────────────
+
+model HydroDocument {
+  id              String   @id @default(uuid())
+  sourceUrl       String?
+  sourceType      String   // "page", "pdf", "docx", "manual", "database"
+  title           String
+  documentType    String?  // "notice", "tender", "policy", "page", etc.
+  department      String?
+  category        String?
+  publicationDate DateTime?
+  lastUpdated     DateTime?
+  documentNumber  String?
+  language        String   @default("en")
+  contentHash     String   // SHA-256 of raw content for change detection
+  status          String   @default("active") // active, archived, superseded
+  authority       String?
+  version         Int      @default(1)
+  fileSizeBytes   Int?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  chunks          HydroChunk[]
+}
+
+model HydroChunk {
+  id            String   @id @default(uuid())
+  documentId    String
+  document      HydroDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  chunkIndex    Int
+  content       String
+  heading       String?
+  pageNumber    Int?
+  sectionRef    String?
+  metadata      String?  // JSON string — keywords, entities, etc.
+  embeddingId   String?  // Reference key in vector index
+  createdAt     DateTime @default(now())
+}
+
+model HydroAdminOverride {
+  id            String   @id @default(uuid())
+  question      String
+  answer        String
+  category      String?
+  priority      Int      @default(0)
+  isActive      Boolean  @default(true)
+  createdBy     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model HydroConversation {
+  id             String   @id @default(uuid())
+  sessionId      String
+  userMessage    String
+  botResponse    String
+  confidence     String?
+  category       String?
+  sourcesUsed    String?  // JSON array
+  latencyMs      Int?
+  feedbackRating Int?     // 1 = thumbs up, -1 = thumbs down
+  feedbackText   String?
+  currentPage    String?
+  createdAt      DateTime @default(now())
+}
+
+model HydroIngestionLog {
+  id             String   @id @default(uuid())
+  sourceUrl      String?
+  sourceType     String
+  status         String   // "success", "failed", "skipped"
+  chunksCreated  Int      @default(0)
+  errorMessage   String?
+  durationMs     Int?
+  createdAt      DateTime @default(now())
+}

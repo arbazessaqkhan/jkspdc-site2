@@ -75,7 +75,7 @@ function runProcess(name, dir, args, colorCode) {
 // Spawns the Astro dev server for frontend and NestJS start script for backend
 // Using Cyan (36) for Frontend and Magenta (35) for Backend
 const frontend = runProcess('Frontend', 'website', ['run', 'dev'], 36);
-const backend = runProcess('Backend', 'backend', ['run', 'start'], 35);
+const backend = runProcess('Backend', 'backend', ['run', 'start:dev'], 35);
 
 function cleanup() {
   console.log('\nStopping frontend and backend servers...');
