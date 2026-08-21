@@ -59,8 +59,8 @@ export class QueryService {
     const lower = normalized.toLowerCase();
 
     // Specific domain concept expansions
-    if (lower.includes('employee corner') || lower.includes('employee') || lower.includes('links')) {
-      expanded += ' Employees Corner Web Mail Nic-e-File E-Office JKHMRS Property Return GAD EETMS BG Management Asset Management';
+    if (lower.includes('employee corner') || lower.includes('employee') || lower.includes('links') || lower.includes('ras') || lower.includes('janparichay') || lower.includes('jkhrms') || lower.includes('hrms')) {
+      expanded += ' Employees Corner Web Mail Nic-e-File E-Office JKHRMS EETMS BG Management Asset Management JKSPDC RAS JanParichay MeriPehchaan';
     }
 
     if (lower.includes('potential') || lower.includes('capacity')) {

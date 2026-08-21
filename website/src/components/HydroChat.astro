@@ -1,5 +1,5 @@
 ---
-// HydroChat.astro — Official HYDRO AI Knowledge Assistant Widget
+// HydroChat.astro — Official HYDRO AI Knowledge Assistant Widget with Instant Live Autocomplete
 ---
 
 <div id="hydro-widget-container" class="fixed bottom-6 right-6 z-[9999] font-sans antialiased select-none print:hidden">
@@ -32,7 +32,7 @@
   <!-- Expandable Chat Panel -->
   <div
     id="hydro-chat-panel"
-    class="hidden fixed bottom-6 right-6 w-[92vw] sm:w-[420px] max-w-[440px] h-[600px] max-h-[85vh] bg-white text-slate-850 rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden transition-all duration-300 z-[10000] focus:outline-none"
+    class="hidden fixed bottom-6 right-6 w-[94vw] sm:w-[440px] max-w-[460px] h-[620px] max-h-[88vh] bg-white text-slate-850 rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden transition-all duration-300 z-[10000] focus:outline-none"
     role="dialog"
     aria-modal="true"
     aria-labelledby="hydro-dialog-title"
@@ -97,7 +97,7 @@
             Hello! I am <strong class="text-[#0B4F9C]">HYDRO</strong>, the official AI knowledge assistant for Jammu &amp; Kashmir State Power Development Corporation Limited.
           </p>
           <p class="text-slate-600 text-[11px]">
-            I answer exclusively from approved website content, power project portfolios, active tenders, corporate policies, and RTI disclosures.
+            Type any question or search keyword below to get instant website suggestions and accurate grounded answers.
           </p>
 
           <!-- Suggested Starters -->
@@ -108,13 +108,16 @@
                 ⚡ What is Baglihar HEP capacity?
               </button>
               <button type="button" class="hydro-suggest-btn text-[11px] bg-slate-100 hover:bg-[#EAF4FF] hover:text-[#0B4F9C] text-slate-700 px-2.5 py-1 rounded-full border border-slate-200 transition-colors text-left cursor-pointer">
+                🌊 What is J&K hydro potential?
+              </button>
+              <button type="button" class="hydro-suggest-btn text-[11px] bg-slate-100 hover:bg-[#EAF4FF] hover:text-[#0B4F9C] text-slate-700 px-2.5 py-1 rounded-full border border-slate-200 transition-colors text-left cursor-pointer">
+                💼 Employees Corner portals & links
+              </button>
+              <button type="button" class="hydro-suggest-btn text-[11px] bg-slate-100 hover:bg-[#EAF4FF] hover:text-[#0B4F9C] text-slate-700 px-2.5 py-1 rounded-full border border-slate-200 transition-colors text-left cursor-pointer">
                 📋 Show active tenders
               </button>
               <button type="button" class="hydro-suggest-btn text-[11px] bg-slate-100 hover:bg-[#EAF4FF] hover:text-[#0B4F9C] text-slate-700 px-2.5 py-1 rounded-full border border-slate-200 transition-colors text-left cursor-pointer">
                 🏢 What is JKSPDC GSTIN?
-              </button>
-              <button type="button" class="hydro-suggest-btn text-[11px] bg-slate-100 hover:bg-[#EAF4FF] hover:text-[#0B4F9C] text-slate-700 px-2.5 py-1 rounded-full border border-slate-200 transition-colors text-left cursor-pointer">
-                👥 Who are the Board of Directors?
               </button>
             </div>
           </div>
@@ -122,22 +125,35 @@
       </div>
     </div>
 
+    <!-- Live Autocomplete Suggestions Overlay -->
+    <div id="hydro-suggestions-panel" class="hidden max-h-60 overflow-y-auto bg-white border-t border-slate-200 shadow-lg p-2 space-y-1 text-xs select-none">
+      <div class="flex items-center justify-between px-2 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 mb-1">
+        <span>Website Quick Results</span>
+        <span class="text-slate-300">Click to view or press Enter</span>
+      </div>
+      <div id="hydro-suggestions-list" class="space-y-1">
+        <!-- Injected dynamically via JS -->
+      </div>
+    </div>
+
     <!-- Input Form -->
-    <div class="p-3 bg-white border-t border-slate-200 flex-shrink-0">
+    <div class="p-3 bg-white border-t border-slate-200 flex-shrink-0 relative">
       <form id="hydro-chat-form" class="flex items-center gap-2">
-        <label for="hydro-input" class="sr-only">Ask HYDRO a question</label>
-        <input
-          id="hydro-input"
-          type="text"
-          placeholder="Ask anything about JKSPDC..."
-          maxlength="2000"
-          autocomplete="off"
-          class="flex-1 text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B4F9C] focus:outline-none transition-colors placeholder:text-slate-400"
-        />
+        <label for="hydro-input" class="sr-only">Ask HYDRO a question or search website</label>
+        <div class="relative flex-1">
+          <input
+            id="hydro-input"
+            type="text"
+            placeholder="Ask anything about JKSPDC or search..."
+            maxlength="2000"
+            autocomplete="off"
+            class="w-full text-xs px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-[#0B4F9C] focus:outline-none transition-colors placeholder:text-slate-400"
+          />
+        </div>
         <button
           id="hydro-send-btn"
           type="submit"
-          class="bg-[#0B4F9C] hover:bg-[#073B75] text-white p-2.5 rounded-xl shadow-md transition-all duration-150 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center"
+          class="bg-[#0B4F9C] hover:bg-[#073B75] text-white p-2.5 rounded-xl shadow-md transition-all duration-150 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center flex-shrink-0"
           aria-label="Send message"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -146,8 +162,8 @@
         </button>
       </form>
       <div class="flex items-center justify-between text-[9px] text-slate-400 px-1 mt-1.5">
-        <span>Grounded on official JKSPDC knowledge</span>
-        <span>Version 2026.1</span>
+        <span>⚡ Live website search &amp; grounded answers</span>
+        <span>Version 2026.2</span>
       </div>
     </div>
   </div>
@@ -163,6 +179,8 @@
     const chatInput = document.getElementById('hydro-input');
     const messagesContainer = document.getElementById('hydro-messages');
     const sendBtn = document.getElementById('hydro-send-btn');
+    const suggestionsPanel = document.getElementById('hydro-suggestions-panel');
+    const suggestionsList = document.getElementById('hydro-suggestions-list');
 
     if (!launcherBtn || !chatPanel || !chatForm || !chatInput || !messagesContainer) return;
 
@@ -175,6 +193,7 @@
     }
 
     let isWaiting = false;
+    let suggestDebounceTimer = null;
 
     // Toggle Dialog
     function toggleChat(open) {
@@ -191,6 +210,7 @@
         launcherBtn.classList.remove('hidden');
         launcherBtn.setAttribute('aria-expanded', 'false');
         launcherBtn.focus();
+        hideSuggestions();
       }
     }
 
@@ -199,8 +219,12 @@
 
     // Close on Escape key
     window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !chatPanel.classList.contains('hidden')) {
-        toggleChat(false);
+      if (e.key === 'Escape') {
+        if (suggestionsPanel && !suggestionsPanel.classList.contains('hidden')) {
+          hideSuggestions();
+        } else if (!chatPanel.classList.contains('hidden')) {
+          toggleChat(false);
+        }
       }
     });
 
@@ -212,7 +236,7 @@
       attachSuggestionHandlers();
     });
 
-    // Format simple Markdown
+    // Format simple Markdown with robust URL handling
     function renderMarkdown(text) {
       if (!text) return '';
       return text
@@ -224,7 +248,7 @@
         .replace(/^# (.*$)/gim, '<h1 class="font-black text-base text-[#0B4F9C] mt-3 mb-1.5">$1</h1>')
         .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-slate-900">$1</strong>')
         .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-[#0B4F9C] font-semibold underline hover:text-[#073B75]">$1</a>')
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-[#0B4F9C] font-semibold underline hover:text-[#073B75]" target="_blank" rel="noopener noreferrer">$1</a>')
         .replace(/^\s*-\s+(.*$)/gim, '<li class="ml-4 list-disc">$1</li>')
         .replace(/\n\n/g, '<br/><br/>')
         .replace(/\n/g, '<br/>');
@@ -314,11 +338,92 @@
       if (ind) ind.remove();
     }
 
+    // ── Live Autocomplete Suggestions Engine ──────────────────────────────
+    function hideSuggestions() {
+      if (suggestionsPanel) {
+        suggestionsPanel.classList.add('hidden');
+      }
+    }
+
+    function showSuggestions(items) {
+      if (!suggestionsPanel || !suggestionsList) return;
+      if (!items || items.length === 0) {
+        hideSuggestions();
+        return;
+      }
+
+      suggestionsList.innerHTML = '';
+
+      items.forEach((item) => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between p-2 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer group text-slate-700';
+
+        let badgeColor = 'bg-slate-200 text-slate-700';
+        let icon = '📄';
+        if (item.type === 'station') { badgeColor = 'bg-cyan-100 text-[#0B4F9C]'; icon = '⚡'; }
+        else if (item.type === 'tender') { badgeColor = 'bg-amber-100 text-amber-800'; icon = '📋'; }
+        else if (item.type === 'portal') { badgeColor = 'bg-emerald-100 text-emerald-800'; icon = '🔗'; }
+
+        row.innerHTML = `
+          <div class="flex items-center gap-2 flex-1 min-w-0 pr-2">
+            <span class="text-sm">${icon}</span>
+            <div class="min-w-0">
+              <div class="font-semibold text-xs text-slate-800 truncate group-hover:text-[#0B4F9C]">${item.title}</div>
+              <div class="text-[10px] text-slate-400 truncate">${item.subtitle || item.category}</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 flex-shrink-0">
+            <span class="text-[9px] px-1.5 py-0.5 rounded font-medium ${badgeColor}">${item.category}</span>
+            <a href="${item.url}" class="p-1 text-slate-400 hover:text-[#0B4F9C] hover:bg-white rounded" title="Open Link" ${item.url.startsWith('http') ? 'target="_blank" rel="noopener noreferrer"' : ''}>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+          </div>
+        `;
+
+        row.addEventListener('click', (e) => {
+          if (e.target.closest('a')) return;
+          // If clicked row, ask HYDRO about this item
+          hideSuggestions();
+          sendMessage(`Tell me about ${item.title}`);
+        });
+
+        suggestionsList.appendChild(row);
+      });
+
+      suggestionsPanel.classList.remove('hidden');
+    }
+
+    // Live typing input listener with debounce
+    chatInput.addEventListener('input', () => {
+      const q = chatInput.value.trim();
+      if (suggestDebounceTimer) clearTimeout(suggestDebounceTimer);
+
+      if (q.length < 2) {
+        hideSuggestions();
+        return;
+      }
+
+      suggestDebounceTimer = setTimeout(async () => {
+        try {
+          const res = await fetch(`http://localhost:3000/api/hydro/suggest?q=${encodeURIComponent(q)}`);
+          if (res.ok) {
+            const data = await res.json();
+            showSuggestions(data);
+          }
+        } catch (e) {
+          hideSuggestions();
+        }
+      }, 150);
+    });
+
     // Send Message Handler
     async function sendMessage(text) {
       const query = (text || chatInput.value).trim();
       if (!query || isWaiting) return;
 
+      hideSuggestions();
       chatInput.value = '';
       appendMessage('user', query);
       isWaiting = true;

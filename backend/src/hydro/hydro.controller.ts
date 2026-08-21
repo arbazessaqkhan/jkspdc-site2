@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body } from '@nestjs/common';
+import { Controller, Post, Get, Body, Query } from '@nestjs/common';
 import { HydroService } from './services/hydro.service';
 import {
   HydroChatRequestDto,
@@ -24,6 +24,14 @@ export class HydroController {
   @Post('search')
   async search(@Body() dto: HydroSearchRequestDto) {
     return this.hydroService.handleSearch(dto);
+  }
+
+  /**
+   * Instant autocomplete search suggestions
+   */
+  @Get('suggest')
+  async suggest(@Body() _body: any, @Query('q') query?: string) {
+    return this.hydroService.handleSuggest(query || '');
   }
 
   /**

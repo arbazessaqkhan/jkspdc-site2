@@ -165,7 +165,7 @@ export class RetrievalService {
 
     try {
       // 0. Employees Corner Links & Portals
-      if (/\b(employee|employees|employee corner|employees corner|staff|cornor|link|links|webmail|nicefile|nic-e-file|eoffice|e-office|hrms|jkhrms|property return|gad|eetms|bg management|asset management)\b/i.test(lower)) {
+      if (/\b(employee|employees|employee corner|employees corner|staff|cornor|link|links|webmail|nicefile|nic-e-file|eoffice|e-office|hrms|jkhrms|eetms|bg management|asset management|ras|jkspdc ras|janparichay|pehchaan)\b/i.test(lower)) {
         results.push({
           chunkId: 'db-employee-corner',
           documentId: 'live-database',
@@ -174,11 +174,11 @@ export class RetrievalService {
             `1. **Web Mail:** Official departmental email login\n   - **Link:** https://www.jkspdcl.com:2096/\n` +
             `2. **Nic-e-File:** NIC electronic file movement system\n   - **Link:** https://saccess.nic.in/\n` +
             `3. **E-Office:** J&K Government electronic office file processing\n   - **Link:** https://eoffice.jk.gov.in/\n` +
-            `4. **JKHMRS:** Human Resource Management System (service book & leave portal)\n   - **Link:** https://hrms.jk.gov.in/\n` +
-            `5. **Property Return (GAD):** Annual immovable property returns portal\n   - **Link:** https://prs.jk.gov.in/\n` +
-            `6. **EETMS:** E-Efficiency Tracking & Legal Case Management System\n   - **Link:** https://law.pmgatishakti.gov.in/EETMS/login\n` +
-            `7. **BG Management:** Online Bank Guarantee tracking and verification portal\n   - **Link:** https://bg.jkspdc.in/\n` +
-            `8. **Asset Management:** Fixed assets and equipment inventory management\n   - **Link:** https://jkspdc.inrdeals.in/login\n\n` +
+            `4. **JKHRMS:** Human Resource Management System (service book & leave portal)\n   - **Link:** https://hrms.jk.gov.in/\n` +
+            `5. **EETMS:** E-Efficiency Tracking & Legal Case Management System\n   - **Link:** https://law.pmgatishakti.gov.in/EETMS/login\n` +
+            `6. **BG Management:** Online Bank Guarantee tracking and verification portal\n   - **Link:** https://bg.jkspdc.in/\n` +
+            `7. **Asset Management:** Fixed assets and equipment inventory management\n   - **Link:** https://jkspdc.inrdeals.in/login\n` +
+            `8. **JKSPDC RAS (JanParichay / MeriPehchaan):** Single sign-on authentication and employee service delivery\n   - **Link:** https://janparichay.meripehchaan.gov.in/v1/pehchaan/login.html?service=passive&active=true&rm_5=false&continue=https%3A%2F%2Fjan_com%2Fmail%2F&pp=1&scc=1&lmpl=default&ltmplcache=2&emr=1&osid=1&flowName=GlifWebSignIn&flowEntry=ServiceLogin&sid=JanSugamJK&v=2.0&lang=&urlid=82ae2068-ada6-4154-ae21-649b90598534\n\n` +
             `All links are directly accessible via the Employees Corner dropdown on the main website navigation bar.`,
           title: 'Employees Corner Portals & Links',
           sourceUrl: '/about-us/explore/overview',

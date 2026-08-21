@@ -47,7 +47,7 @@ export class ScopeService {
     /\b(press release|gallery|photo|event|award|honour|news)\b/i,
     /\b(website|portal|page|sitemap|navigate|help|links|menu|navigation|search)\b/i,
     /\b(employee|employees|employee corner|employees corner|staff|officers|corner|cornor)\b/i,
-    /\b(webmail|web mail|nic-e-file|nicefile|eoffice|e-office|hrms|jkhrms|property return|gad|eetms|bg management|asset management)\b/i,
+    /\b(webmail|web mail|nic-e-file|nicefile|eoffice|e-office|hrms|jkhrms|eetms|bg management|asset management|ras|jkspdc ras|janparichay|pehchaan)\b/i,
     /\b(agm|annual general meeting|mou|memorandum|aoa|moa)\b/i,
     /\b(clpm|labor|labour|payment)\b/i,
     /\b(esg|sustainability|brsr)\b/i,

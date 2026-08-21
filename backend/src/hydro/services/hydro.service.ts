@@ -23,6 +23,7 @@ import {
 import { PrismaService } from '../../prisma.service';
 import { VectorStoreService } from './vector-store.service';
 import { IngestionService } from '../ingestion/ingestion.service';
+import { PageCrawlerService } from '../ingestion/page-crawler.service';
 
 /**
  * Hydro Service — Master orchestrator for the HYDRO AI Knowledge Assistant platform.
@@ -43,6 +44,7 @@ export class HydroService {
     private readonly analyticsService: AnalyticsService,
     private readonly vectorStore: VectorStoreService,
     private readonly ingestionService: IngestionService,
+    private readonly pageCrawler: PageCrawlerService,
   ) {}
 
   /**
@@ -179,6 +181,113 @@ export class HydroService {
       date: c.publicationDate ? new Date(c.publicationDate).toISOString().split('T')[0] : undefined,
       relevanceScore: Math.round(c.score * 100),
     }));
+  }
+
+  /**
+   * Instant whole-website autocomplete search suggestions for live typing in HYDRO.
+   */
+  async handleSuggest(query: string): Promise<Array<{ title: string; url: string; category: string; type: string; subtitle?: string }>> {
+    const raw = (query || '').trim().toLowerCase();
+    if (!raw || raw.length < 2) return [];
+
+    const suggestions: Array<{ title: string; url: string; category: string; type: string; subtitle?: string }> = [];
+    const seen = new Set<string>();
+
+    const addSuggestion = (item: { title: string; url: string; category: string; type: string; subtitle?: string }) => {
+      const key = `${item.title}_${item.url}`;
+      if (!seen.has(key) && suggestions.length < 8) {
+        seen.add(key);
+        suggestions.push(item);
+      }
+    };
+
+    // 1. Check Employee Corner Links
+    const employeeLinks = [
+      { title: 'Web Mail Portal', url: 'https://www.jkspdcl.com:2096/', category: 'Employees Corner', subtitle: 'Official Departmental Email Login' },
+      { title: 'Nic-e-File', url: 'https://saccess.nic.in/', category: 'Employees Corner', subtitle: 'NIC Electronic File Movement System' },
+      { title: 'E-Office (J&K Govt)', url: 'https://eoffice.jk.gov.in/', category: 'Employees Corner', subtitle: 'Electronic Office & File Approvals' },
+      { title: 'JKHRMS Portal', url: 'https://hrms.jk.gov.in/', category: 'Employees Corner', subtitle: 'Human Resource Management & Leaves' },
+      { title: 'EETMS Legal Tracking', url: 'https://law.pmgatishakti.gov.in/EETMS/login', category: 'Employees Corner', subtitle: 'Legal Cases & Efficiency Tracking' },
+      { title: 'BG Management', url: 'https://bg.jkspdc.in/', category: 'Employees Corner', subtitle: 'Bank Guarantee Verification Portal' },
+      { title: 'Asset Management Portal', url: 'https://jkspdc.inrdeals.in/login', category: 'Employees Corner', subtitle: 'Fixed Asset & Inventory Login' },
+      { title: 'JKSPDC RAS Portal', url: 'https://janparichay.meripehchaan.gov.in/v1/pehchaan/login.html?service=passive&active=true&rm_5=false&continue=https%3A%2F%2Fjan_com%2Fmail%2F&pp=1&scc=1&lmpl=default&ltmplcache=2&emr=1&osid=1&flowName=GlifWebSignIn&flowEntry=ServiceLogin&sid=JanSugamJK&v=2.0&lang=&urlid=82ae2068-ada6-4154-ae21-649b90598534', category: 'Employees Corner', subtitle: 'JanParichay / MeriPehchaan Single Sign-On Portal' },
+    ];
+
+    if (raw.includes('employee') || raw.includes('cornor') || raw.includes('corner') || raw.includes('link') || raw.includes('portal') || raw.includes('mail') || raw.includes('hrms') || raw.includes('eoffice') || raw.includes('asset') || raw.includes('ras') || raw.includes('janparichay') || raw.includes('pehchaan')) {
+      for (const el of employeeLinks) {
+        if (el.title.toLowerCase().includes(raw) || el.subtitle.toLowerCase().includes(raw) || raw.includes('employee') || raw.includes('link')) {
+          addSuggestion({ ...el, type: 'portal' });
+        }
+      }
+    }
+
+    // 2. Search Static Website Pages & Modules
+    for (const page of this.pageCrawler.corePages) {
+      const matchTitle = page.title.toLowerCase().includes(raw);
+      const matchKeywords = page.keywords?.some((k: string) => k.toLowerCase().includes(raw) || raw.includes(k.toLowerCase()));
+      const matchCategory = page.category.toLowerCase().includes(raw);
+
+      if (matchTitle || matchKeywords || matchCategory) {
+        addSuggestion({
+          title: page.title,
+          url: page.url,
+          category: page.category,
+          type: 'page',
+          subtitle: `Explore ${page.category}`,
+        });
+      }
+    }
+
+    // 3. Search Power Stations (Live DB)
+    try {
+      const stations = await this.prisma.powerStation.findMany({
+        where: {
+          OR: [
+            { name: { contains: raw } },
+            { location: { contains: raw } },
+            { type: { contains: raw } },
+            { basin: { contains: raw } },
+          ],
+        },
+        take: 4,
+      });
+
+      for (const st of stations) {
+        addSuggestion({
+          title: `${st.name} (${st.capacityMw} MW)`,
+          url: `/our-business/power-station-details?id=${st.id}`,
+          category: 'Power Stations',
+          type: 'station',
+          subtitle: `${st.type} | ${st.location || 'J&K'} | ${st.status}`,
+        });
+      }
+    } catch (e) {}
+
+    // 4. Search Tenders (Live DB)
+    try {
+      const tenders = await this.prisma.tender.findMany({
+        where: {
+          OR: [
+            { title: { contains: raw } },
+            { referenceNo: { contains: raw } },
+            { workCategory: { contains: raw } },
+          ],
+        },
+        take: 3,
+      });
+
+      for (const t of tenders) {
+        addSuggestion({
+          title: `${t.referenceNo} — ${t.title}`,
+          url: `/stakeholders/vendors/tender-details?id=${t.id}`,
+          category: 'Tenders & Bids',
+          type: 'tender',
+          subtitle: `Status: ${t.status} | Closing: ${t.closingDate ? new Date(t.closingDate).toLocaleDateString('en-IN') : 'Active'}`,
+        });
+      }
+    } catch (e) {}
+
+    return suggestions;
   }
 
   /**
