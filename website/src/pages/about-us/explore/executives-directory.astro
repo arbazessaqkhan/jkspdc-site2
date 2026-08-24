@@ -1,5 +1,6 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
+import { formatEmail } from '../../../utils/formatEmail';
 
 let executivesList: any[] = [];
 
@@ -69,7 +70,7 @@ const displayExecutives = executivesList.length > 0 ? executivesList.map(ex => (
                   <td class="font-semibold text-gray-900">{ex.designation}</td>
                   <td>{ex.location}</td>
                   <td>{ex.phone}</td>
-                  <td><a href={`mailto:${ex.email}`} class="text-blue-600 hover:underline">{ex.email}</a></td>
+                  <td><a href={`mailto:${ex.email}`} class="text-blue-600 hover:underline">{formatEmail(ex.email)}</a></td>
                 </tr>
               ))}
             </tbody>
@@ -79,7 +80,7 @@ const displayExecutives = executivesList.length > 0 ? executivesList.map(ex => (
         <div class="alert-info" role="note">
           <span class="font-bold" aria-hidden="true">ℹ</span>
           <div>
-            <strong>General Correspondence:</strong> For general public grievances and commercial inquiries, please direct emails to the corporate office at <strong>contact@jkspdc.nic.in</strong>.
+            <strong>General Correspondence:</strong> For general public grievances and commercial inquiries, please direct emails to the corporate office at <strong>contact[at]jkspdc[dot]nic[dot]in</strong>.
           </div>
         </div>
       </article>

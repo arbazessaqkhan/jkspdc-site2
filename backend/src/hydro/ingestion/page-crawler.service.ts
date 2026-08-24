@@ -84,7 +84,7 @@ export class PageCrawlerService {
       title: 'Phone Directory of Senior Executives',
       category: 'About Us',
       keywords: ['phone directory', 'contacts', 'executives', 'phone numbers', 'email directory', 'chief engineer phone'],
-      content: `# Phone Directory of Senior Executives\n\nOfficial contact registry for public interface, headquarters, and project divisions in Srinagar and Jammu.\n- **Managing Director:** md-jkspdcl@jk.gov.in | Phone: +91 194 2451665 / +91 191 2430548\n- **Director Finance:** df-jkspdcl@jk.gov.in\n- **Executive Director (Civil / Electrical):** ed-jkspdcl@jk.gov.in\n- **Company Secretary & Public Information Officer (PIO):** Contact at Corporate HQ Srinagar / Jammu.`,
+      content: `# Phone Directory of Senior Executives\n\nOfficial contact registry for public interface, headquarters, and project divisions in Srinagar and Jammu.\n- **Managing Director:** md-jkspdcl[at]jk[dot]gov[dot]in | Phone: +91 194 2451665 / +91 191 2430548\n- **Director Finance:** df-jkspdcl[at]jk[dot]gov[dot]in\n- **Executive Director (Civil / Electrical):** ed-jkspdcl[at]jk[dot]gov[dot]in\n- **Company Secretary & Public Information Officer (PIO):** Contact at Corporate HQ Srinagar / Jammu.`,
     },
     {
       url: '/about-us/explore/ethics-code',
@@ -140,7 +140,7 @@ export class PageCrawlerService {
       title: 'Contact Corporate Offices & Helpline',
       category: 'About Us',
       keywords: ['contact', 'address', 'srinagar office', 'jammu office', 'phone', 'email', 'helpline'],
-      content: `# Contact Corporate Offices & Helpline\n\n## Srinagar Corporate Office\n- **Address:** Exhibition Ground, Jahangir Chowk, Srinagar, J&K — 190009\n- **Phone:** +91 194 2451665 | **Email:** md-jkspdcl@jk.gov.in\n\n## Jammu Corporate Office\n- **Address:** Ashok Nagar, Satwari, Jammu, J&K — 180004\n- **Phone:** +91 191 2430548 | **Email:** md-jkspdcl@jk.gov.in`,
+      content: `# Contact Corporate Offices & Helpline\n\n## Srinagar Corporate Office\n- **Address:** Exhibition Ground, Jahangir Chowk, Srinagar, J&K — 190009\n- **Phone:** +91 194 2451665 | **Email:** md-jkspdcl[at]jk[dot]gov[dot]in\n\n## Jammu Corporate Office\n- **Address:** Ashok Nagar, Satwari, Jammu, J&K — 180004\n- **Phone:** +91 191 2430548 | **Email:** md-jkspdcl[at]jk[dot]gov[dot]in`,
     },
 
     // ── Our Business & Power Stations ──────────────────────────────────────
