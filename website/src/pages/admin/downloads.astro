@@ -115,6 +115,11 @@ const categories = ['Forms', 'Reports', 'Circulars', 'Manuals', 'Guidelines', 'O
           <div>
             <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">Upload File</label>
             <input id="dl-file" type="file" class="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer" />
+            <span class="text-[10px] text-slate-400 mt-1 block">PDF, DOCX, XLSX (Max 20MB / 100MB if Important)</span>
+            <label class="flex items-center gap-2 p-1.5 bg-amber-50/70 border border-amber-200/80 rounded cursor-pointer hover:bg-amber-50 transition-colors select-none mt-2">
+              <input type="checkbox" id="dl-is-important-checkbox" class="w-3.5 h-3.5 rounded text-[#0B4F9C] border-slate-300 focus:ring-[#0B4F9C] cursor-pointer" />
+              <span class="text-[11px] font-bold text-amber-900 flex items-center gap-1">★ Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
+            </label>
             <p id="dl-current-file" class="text-[10px] text-slate-400 mt-1 hidden">Current: <span></span></p>
           </div>
           <div>
@@ -213,11 +218,35 @@ const categories = ['Forms', 'Reports', 'Circulars', 'Manuals', 'Guidelines', 'O
     }
 
     if (fileInput.files && fileInput.files.length > 0) {
+      var file = fileInput.files[0];
+      var isImportant = document.getElementById('dl-is-important-checkbox')?.checked || false;
+      var MAX_STANDARD = 20 * 1024 * 1024;
+      var MAX_IMPORTANT = 100 * 1024 * 1024;
+
+      if (!isImportant && file.size > MAX_STANDARD) {
+        var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        alert(`File size (${sizeMB} MB) exceeds the standard 20 MB limit.\n\nPlease check "Mark as Important" to allow uploading files up to 100 MB.`);
+        fileInput.value = '';
+        return;
+      }
+
+      if (file.size > MAX_IMPORTANT) {
+        var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        alert(`File size (${sizeMB} MB) exceeds the maximum allowed limit of 100 MB.`);
+        fileInput.value = '';
+        return;
+      }
+
       var fd = new FormData();
-      fd.append('file', fileInput.files[0]);
+      fd.append('file', file);
+      fd.append('isImportant', isImportant ? 'true' : 'false');
       fetch('http://localhost:3000/api/upload', { method: 'POST', headers: { Authorization: 'Bearer ' + token }, body: fd })
-        .then(function(r) { return r.json(); })
-        .then(function(data) { saveRecord(fileInput.files[0].name, data.url || data.filePath, fileInput.files[0].size); });
+        .then(function(r) {
+          if (!r.ok) return r.json().then(function(err) { throw new Error(err.message || 'Upload failed'); });
+          return r.json();
+        })
+        .then(function(data) { saveRecord(file.name, data.url || data.filePath, file.size); })
+        .catch(function(err) { alert('Upload error: ' + err.message); });
     } else if (editId) {
       // Update without changing file
       var body = { title: title, category: category, status: status };

@@ -83,6 +83,19 @@ const getDocUrl = (url?: string) => {
 };
 
 const tenderYears = Array.from(new Set(processedTenders.map((t: any) => new Date(t.publishDate).getFullYear()))).sort((a: any, b: any) => b - a);
+
+const defaultLocations = [
+  'HQ Srinagar',
+  'HQ Jammu',
+  'HEP Baglihar',
+  'HEP Lower Jhelum',
+  'HEP Sawalkote',
+  'Kirthai HEP Stage-1'
+];
+const allFilterLocations = Array.from(new Set([
+  ...processedTenders.map((t: any) => t.locationTag).filter(Boolean),
+  ...defaultLocations
+])).sort((a, b) => a.localeCompare(b));
 ---
 
 <Layout 
@@ -124,12 +137,10 @@ const tenderYears = Array.from(new Set(processedTenders.map((t: any) => new Date
           <label for="location-filter" class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">By Project / Location</label>
           <select id="location-filter" class="w-full form-select text-xs bg-white border border-slate-200 rounded-lg py-1.5 focus:ring-2 focus:ring-[#0B4F9C]">
             <option value="All">All Projects &amp; Locations</option>
-            <option value="HEP_KIRTHAI">Kirthai HEP Stage-1</option>
-            <option value="HEP_BAGLIHAR">Baglihar HEP</option>
-            <option value="HEP_LOWER_JHELUM">Lower Jhelum HEP</option>
-            <option value="HEP_SAWALKOTE">Sawalkote HEP</option>
-            <option value="HQ_SRINAGAR">HQ Srinagar</option>
-            <option value="HQ_JAMMU">HQ Jammu</option>
+            {allFilterLocations.map((loc: string) => {
+              const label = loc.replace(/^HQ_/i, 'HQ ').replace(/^HEP_/i, 'HEP ').replace(/_/g, ' ');
+              return <option value={loc}>{label}</option>;
+            })}
           </select>
         </div>
 

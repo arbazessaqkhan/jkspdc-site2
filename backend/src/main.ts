@@ -56,6 +56,9 @@ async function bootstrap() {
   // ── Disable X-Powered-By at Express level (belt-and-suspenders) ──────────
   app.getHttpAdapter().getInstance().disable('x-powered-by');
 
+  // Configure payload size limit for large uploads (up to 100MB + headers)
+  app.use(express.json({ limit: '110mb' }));
+  app.use(express.urlencoded({ limit: '110mb', extended: true }));
 
   // Set global prefix for API endpoints
   app.setGlobalPrefix('api');

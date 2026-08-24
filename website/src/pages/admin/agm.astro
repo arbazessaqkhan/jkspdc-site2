@@ -323,8 +323,13 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
           
           <input type="hidden" name="documentUrl" id="agm-documentUrl" required />
           
+          <label class="flex items-center gap-2 p-1.5 bg-amber-50/70 border border-amber-200/80 rounded cursor-pointer hover:bg-amber-50 transition-colors select-none mt-2">
+            <input type="checkbox" id="agm-is-important-checkbox" class="w-3.5 h-3.5 rounded text-[#0B4F9C] border-slate-300 focus:ring-[#0B4F9C] cursor-pointer" />
+            <span class="text-[11px] font-bold text-amber-900 flex items-center gap-1">★ Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
+          </label>
+          
           <span id="upload-status" class="text-[10px] text-slate-400 font-semibold mt-1 block">
-            PDF Document only (Max 10MB)
+            PDF Document (Max 20MB / 100MB if Important)
           </span>
         </div>
 
@@ -444,6 +449,26 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
         const file = event.target.files?.[0];
         if (!file) return;
 
+        const isImportant = document.getElementById('agm-is-important-checkbox')?.checked || false;
+        const MAX_STANDARD = 20 * 1024 * 1024;
+        const MAX_IMPORTANT = 100 * 1024 * 1024;
+
+        if (!isImportant && file.size > MAX_STANDARD) {
+          const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+          alert(`File size (${sizeMB} MB) exceeds the standard 20 MB limit.\n\nPlease check "Mark as Important" to allow uploading files up to 100 MB.`);
+          fileUploader.value = '';
+          fileLabel.textContent = 'No file chosen';
+          return;
+        }
+
+        if (file.size > MAX_IMPORTANT) {
+          const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+          alert(`File size (${sizeMB} MB) exceeds the maximum allowed limit of 100 MB.`);
+          fileUploader.value = '';
+          fileLabel.textContent = 'No file chosen';
+          return;
+        }
+
         fileLabel.textContent = `Uploading ${file.name}...`;
         fileLabel.classList.remove('text-emerald-700', 'font-bold');
         uploadStatus.textContent = 'Uploading to secure asset server...';
@@ -451,6 +476,7 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
 
         const formData = new FormData();
         formData.append('file', file);
+        formData.append('isImportant', isImportant ? 'true' : 'false');
 
         try {
           const response = await fetch('http://localhost:3000/api/upload', {

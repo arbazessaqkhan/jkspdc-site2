@@ -13,6 +13,62 @@ if (!sessionToken) {
 let errorMessage = '';
 const editId = Astro.url.searchParams.get('id')?.toString();
 
+// Fetch live projects from backend database
+let databaseProjects: any[] = [];
+try {
+  const pRes = await fetch('http://localhost:3000/api/projects');
+  if (pRes.ok) {
+    databaseProjects = await pRes.json();
+  }
+} catch (e) {
+  console.error('Error fetching projects from database for tenders form:', e);
+}
+
+// Group projects from database by status
+const operationalDbProjects = databaseProjects
+  .filter((p: any) => (p.status || '').toLowerCase() === 'operational')
+  .map((p: any) => ({
+    name: p.name,
+    label: `${p.name}${p.capacityMw ? ` (${p.capacityMw} MW)` : ''}${p.location ? ` - ${p.location}` : ''}`,
+  }));
+
+const upcomingDbProjects = databaseProjects
+  .filter((p: any) => (p.status || '').toLowerCase() !== 'operational')
+  .map((p: any) => ({
+    name: p.name,
+    label: `${p.name}${p.capacityMw ? ` (${p.capacityMw} MW - ${p.status || 'Project'})` : ''}${p.location ? ` - ${p.location}` : ''}`,
+  }));
+
+const projectCategories = [
+  {
+    category: 'Headquarters & Corporate Offices',
+    items: [
+      { name: 'HQ Srinagar', label: 'HQ Srinagar' },
+      { name: 'HQ Jammu', label: 'HQ Jammu' },
+    ]
+  },
+  ...(operationalDbProjects.length > 0 ? [{
+    category: 'Operational Projects (Database)',
+    items: operationalDbProjects
+  }] : []),
+  ...(upcomingDbProjects.length > 0 ? [{
+    category: 'Upcoming / Other Projects (Database)',
+    items: upcomingDbProjects
+  }] : [])
+];
+
+const allLocationOptions = Array.from(new Set([
+  'HQ Srinagar',
+  'HQ Jammu',
+  'HQ_SRINAGAR',
+  'HQ_JAMMU',
+  ...databaseProjects.map((p: any) => p.name),
+  ...operationalDbProjects.map((p: any) => p.name),
+  ...upcomingDbProjects.map((p: any) => p.name),
+  ...operationalDbProjects.map((p: any) => p.label),
+  ...upcomingDbProjects.map((p: any) => p.label),
+]));
+
 let tenderData = {
   id: '',
   referenceNo: '',
@@ -209,14 +265,48 @@ if (Astro.request.method === 'POST') {
           </div>
 
           <div class="form-group flex flex-col gap-1.5">
-            <label for="locationTag" class="text-xs font-bold text-slate-700">Geographical Location <span class="text-red-500">*</span></label>
-            <select name="locationTag" id="locationTag" class="form-select text-xs" required>
-              <option value="HQ_SRINAGAR" selected={tenderData.locationTag === 'HQ_SRINAGAR'}>HQ Srinagar</option>
-              <option value="HQ_JAMMU" selected={tenderData.locationTag === 'HQ_JAMMU'}>HQ Jammu</option>
-              <option value="HEP_BAGLIHAR" selected={tenderData.locationTag === 'HEP_BAGLIHAR'}>HEP Baglihar</option>
-              <option value="HEP_LOWER_JHELUM" selected={tenderData.locationTag === 'HEP_LOWER_JHELUM'}>HEP Lower Jhelum</option>
-              <option value="HEP_SAWALKOTE" selected={tenderData.locationTag === 'HEP_SAWALKOTE'}>HEP Sawalkote</option>
-            </select>
+            <div class="flex items-center justify-between">
+              <label for="locationTag" class="text-xs font-bold text-slate-700">
+                Geographical Location / Project <span class="text-red-500">*</span>
+              </label>
+              <span class="text-[10px] text-slate-400 font-semibold">Select or write manually</span>
+            </div>
+
+            <div class="space-y-1.5">
+              <!-- Quick Select from Database Projects -->
+              <select id="quick-location-select" class="form-select text-xs bg-slate-50 border-slate-300 font-semibold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer">
+                <option value="">-- Quick Select from Database Projects ({databaseProjects.length} projects + HQ) --</option>
+                {projectCategories.map((cat) => (
+                  <optgroup label={cat.category}>
+                    {cat.items.map((item) => (
+                      <option value={item.name} selected={tenderData.locationTag === item.name}>{item.label}</option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+
+              <!-- Manual Text Input with Datalist Autocomplete -->
+              <div class="relative">
+                <input 
+                  type="text" 
+                  name="locationTag" 
+                  id="locationTag" 
+                  value={tenderData.locationTag} 
+                  list="locations-datalist" 
+                  class="form-input text-xs font-medium w-full bg-white" 
+                  placeholder="e.g. BHEP I, Kirthai HEP Stage-1, HQ Srinagar, or type custom location..." 
+                  required 
+                />
+                <datalist id="locations-datalist">
+                  {allLocationOptions.map((opt) => (
+                    <option value={opt} />
+                  ))}
+                </datalist>
+              </div>
+            </div>
+            <p class="text-[10px] text-slate-400">
+              💡 Choose from database projects above or type any custom project/office location manually.
+            </p>
           </div>
 
           <div class="form-group flex flex-col gap-1.5">
@@ -244,8 +334,13 @@ if (Astro.request.method === 'POST') {
               <input type="file" id="file-uploader" class="absolute inset-0 opacity-0 cursor-pointer" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" />
               <Icon name="upload" size={24} class="text-slate-400" />
               <span class="text-xs text-slate-600 font-semibold" id="upload-status-text">Click to choose or drag document file here</span>
-              <span class="text-[10px] text-slate-400">PDF, JPG, PNG, DOCX, XLSX (Max 10MB)</span>
+              <span class="text-[10px] text-slate-400">PDF, JPG, PNG, DOCX, XLSX (Max 20MB / 100MB if Important)</span>
             </div>
+
+            <label class="flex items-center gap-2 p-2 bg-amber-50/70 border border-amber-200/80 rounded-lg cursor-pointer hover:bg-amber-50 transition-colors select-none mt-1">
+              <input type="checkbox" id="is-important-checkbox" class="w-4 h-4 rounded text-[#0B4F9C] border-slate-300 focus:ring-[#0B4F9C] cursor-pointer" />
+              <span class="text-xs font-bold text-amber-900 flex items-center gap-1">★ Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
+            </label>
             
             <!-- Attached file details -->
             <div id="attached-file-info" class={`p-3 bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 rounded flex items-center justify-between gap-2 mt-2 ${tenderData.documentUrl ? '' : 'hidden'}`}>
@@ -317,7 +412,12 @@ if (Astro.request.method === 'POST') {
                 <input type="file" id="corr-file-uploader" class="absolute inset-0 opacity-0 cursor-pointer" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" />
                 <Icon name="upload" size={16} class="text-slate-400" />
                 <span class="text-xs text-slate-500 font-semibold" id="corr-upload-status-text">Click to choose corrigendum file</span>
+                <span class="text-[10px] text-slate-400">PDF, JPG, PNG, DOCX, XLSX (Max 20MB / 100MB if Important)</span>
               </div>
+              <label class="flex items-center gap-2 p-1.5 bg-amber-50/70 border border-amber-200/80 rounded cursor-pointer hover:bg-amber-50 transition-colors select-none">
+                <input type="checkbox" id="corr-is-important-checkbox" class="w-3.5 h-3.5 rounded text-[#0B4F9C] border-slate-300 focus:ring-[#0B4F9C] cursor-pointer" />
+                <span class="text-[11px] font-bold text-amber-900 flex items-center gap-1">★ Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
+              </label>
               <input type="hidden" id="corr-file-url" />
               <input type="hidden" id="corr-file-size" />
             </div>
@@ -345,6 +445,18 @@ if (Astro.request.method === 'POST') {
   </div>
 
   <script define:vars={{ sessionToken }}>
+    // Quick Location Selector Sync
+    const quickLocationSelect = document.getElementById('quick-location-select');
+    const locationTagInput = document.getElementById('locationTag');
+    if (quickLocationSelect && locationTagInput) {
+      quickLocationSelect.addEventListener('change', (e) => {
+        if (e.target.value) {
+          locationTagInput.value = e.target.value;
+          locationTagInput.focus();
+        }
+      });
+    }
+
     const fileUploader = document.getElementById('file-uploader');
     const uploadStatusText = document.getElementById('upload-status-text');
     const attachedFileInfo = document.getElementById('attached-file-info');
@@ -484,11 +596,30 @@ if (Astro.request.method === 'POST') {
       const file = event.target?.files?.[0];
       if (!file) return;
 
+      const isImportant = document.getElementById('corr-is-important-checkbox')?.checked || false;
+      const MAX_STANDARD = 20 * 1024 * 1024;
+      const MAX_IMPORTANT = 100 * 1024 * 1024;
+
+      if (!isImportant && file.size > MAX_STANDARD) {
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        alert(`Corrigendum file size (${sizeMB} MB) exceeds the standard 20 MB limit.\n\nPlease check "Mark as Important" to allow uploading files up to 100 MB.`);
+        corrFileUploader.value = '';
+        return;
+      }
+
+      if (file.size > MAX_IMPORTANT) {
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        alert(`Corrigendum file size (${sizeMB} MB) exceeds the maximum allowed limit of 100 MB.`);
+        corrFileUploader.value = '';
+        return;
+      }
+
       if (corrUploadStatusText) corrUploadStatusText.textContent = `Uploading ${file.name}...`;
       if (corrUploadContainer) corrUploadContainer.classList.add('opacity-60', 'pointer-events-none');
 
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('isImportant', isImportant ? 'true' : 'false');
 
       try {
         const response = await fetch('http://localhost:3000/api/upload', {
@@ -512,6 +643,7 @@ if (Astro.request.method === 'POST') {
       } catch (error) {
         alert(`Upload error: ${error.message}`);
         if (corrUploadStatusText) corrUploadStatusText.textContent = 'Click to choose corrigendum file';
+        if (corrFileUploader) corrFileUploader.value = '';
       } finally {
         if (corrUploadContainer) corrUploadContainer.classList.remove('opacity-60', 'pointer-events-none');
       }
@@ -555,6 +687,24 @@ if (Astro.request.method === 'POST') {
       const file = event.target?.files?.[0];
       if (!file) return;
 
+      const isImportant = document.getElementById('is-important-checkbox')?.checked || false;
+      const MAX_STANDARD = 20 * 1024 * 1024;
+      const MAX_IMPORTANT = 100 * 1024 * 1024;
+
+      if (!isImportant && file.size > MAX_STANDARD) {
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        showUploadError(`File size (${sizeMB} MB) exceeds the standard 20 MB limit. Please check "Mark as Important" to allow uploading files up to 100 MB.`);
+        fileUploader.value = '';
+        return;
+      }
+
+      if (file.size > MAX_IMPORTANT) {
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        showUploadError(`File size (${sizeMB} MB) exceeds the maximum allowed limit of 100 MB.`);
+        fileUploader.value = '';
+        return;
+      }
+
       clearUploadError();
       isUploading = true;
       if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Uploading…'; }
@@ -563,6 +713,7 @@ if (Astro.request.method === 'POST') {
 
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('isImportant', isImportant ? 'true' : 'false');
 
       try {
         const response = await fetch('http://localhost:3000/api/upload', {
@@ -606,6 +757,7 @@ if (Astro.request.method === 'POST') {
         showUploadError(`Upload failed: ${error.message}. Please try again.`);
         if (uploadStatusText) uploadStatusText.textContent = 'Click to choose or drag document file here';
         if (documentUrlInput) documentUrlInput.value = '';
+        if (fileUploader) fileUploader.value = '';
       } finally {
         isUploading = false;
         if (submitBtn) {
