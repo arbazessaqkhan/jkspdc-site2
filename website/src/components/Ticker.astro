@@ -72,12 +72,12 @@ if (tickerItems.length === 0) {
       <span class="w-2 h-2 rounded-full bg-slate-300 animate-slow-pulse shrink-0"></span>
       Updates
     </div>
-    <div class="flex-1 overflow-hidden relative h-full flex items-center">
+    <div class="flex-1 overflow-hidden relative h-full flex items-center" id="component-ticker-container">
       <!-- Fade-out overlays -->
       <div class="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-[#08305C] to-transparent z-10 pointer-events-none"></div>
       <div class="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[#08305C] to-transparent z-10 pointer-events-none"></div>
 
-      <div class="animate-ticker flex items-center whitespace-nowrap w-max shrink-0" style="gap: 3.5rem; font-size: 0.8rem; font-weight: 500;">
+      <div id="component-ticker-track" class="flex items-center whitespace-nowrap w-max shrink-0 cursor-pointer" style="gap: 3.5rem; font-size: 0.8rem; font-weight: 500; will-change: transform;">
         {[...tickerItems, ...tickerItems].map((item) => (
           <span class="inline-flex items-center whitespace-nowrap shrink-0" style="padding-right:4rem;">
             › <strong class={`font-extrabold uppercase tracking-wider text-[10px] mr-1.5 px-1.5 py-0.5 rounded border whitespace-nowrap shrink-0 ${item.colorClass}`}>{item.type}:</strong> 
@@ -94,3 +94,31 @@ if (tickerItems.length === 0) {
     </div>
   </div>
 </div>
+
+<script is:inline>
+  (function() {
+    var track = document.getElementById('component-ticker-track');
+    var container = document.getElementById('component-ticker-container');
+    if (!track || !container) return;
+    
+    var pos = 0;
+    var speed = 0.75;
+    var isPaused = false;
+
+    container.addEventListener('mouseenter', function() { isPaused = true; });
+    container.addEventListener('mouseleave', function() { isPaused = false; });
+
+    function step() {
+      if (!isPaused) {
+        pos += speed;
+        var halfWidth = track.scrollWidth / 2;
+        if (halfWidth > 0 && pos >= halfWidth) {
+          pos = pos - halfWidth;
+        }
+        track.style.transform = 'translate3d(-' + pos.toFixed(2) + 'px, 0, 0)';
+      }
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  })();
+</script>
