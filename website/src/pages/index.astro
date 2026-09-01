@@ -1118,13 +1118,13 @@ const displayTenders = mergedTenderItems.length > 0 ? mergedTenderItems : fallba
 })();
 </script>
 
-<style>
+<style is:global>
   @keyframes marquee-vertical {
     0% {
-      transform: translateY(0);
+      transform: translate3d(0, 0, 0);
     }
     100% {
-      transform: translateY(-50%);
+      transform: translate3d(0, -50%, 0);
     }
   }
 
@@ -1132,31 +1132,34 @@ const displayTenders = mergedTenderItems.length > 0 ? mergedTenderItems : fallba
     display: flex;
     flex-direction: column;
     gap: 12px;
-    animation: marquee-vertical var(--marquee-duration, 25s) linear infinite;
+    animation: marquee-vertical var(--marquee-duration, 25s) linear infinite !important;
+    will-change: transform;
   }
 
   .scroll-track:hover {
-    animation-play-state: paused;
+    animation-play-state: paused !important;
   }
 
   @keyframes marquee-horizontal {
     0% {
-      transform: translateX(0);
+      transform: translate3d(0, 0, 0);
     }
     100% {
-      transform: translateX(-50%);
+      transform: translate3d(-50%, 0, 0);
     }
   }
 
   .marquee-track {
-    display: flex;
-    width: max-content;
+    display: inline-flex !important;
+    width: max-content !important;
+    white-space: nowrap !important;
     gap: 0;
-    animation: marquee-horizontal 25s linear infinite;
+    animation: marquee-horizontal 25s linear infinite !important;
+    will-change: transform;
   }
 
   .marquee-track:hover {
-    animation-play-state: paused;
+    animation-play-state: paused !important;
   }
 
 </style>
