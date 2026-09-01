@@ -1,5 +1,35 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
+import { formatEmail } from '../../../utils/formatEmail';
+
+let executivesList: any[] = [];
+
+try {
+  const res = await fetch('http://localhost:3000/api/executives');
+  if (res.ok) {
+    executivesList = await res.json();
+  }
+} catch (e) {
+  console.error('Error fetching executives:', e);
+}
+
+const defaultExecutives = [
+  { designation: 'Managing Director', location: 'Srinagar / Jammu', phone: '[Content Pending Approval]', email: 'md@jkspdc.nic.in' },
+  { designation: 'Executive Director (Technical)', location: 'Srinagar / Jammu', phone: '[Content Pending Approval]', email: 'edtech@jkspdc.nic.in' },
+  { designation: 'Executive Director (Electric)', location: 'Jammu', phone: '[Content Pending Approval]', email: 'edelect@jkspdc.nic.in' },
+  { designation: 'Director Finance', location: 'Srinagar / Jammu', phone: '[Content Pending Approval]', email: 'dirfin@jkspdc.nic.in' },
+  { designation: 'Chief Engineer, CI&D Wing', location: 'Srinagar', phone: '[Content Pending Approval]', email: 'cecidkashmir@jkspdc.nic.in' },
+  { designation: 'Chief Engineer, Generation Wing', location: 'Kashmir', phone: '[Content Pending Approval]', email: 'cegenkashmir@jkspdc.nic.in' },
+  { designation: 'Chief Engineer, Generation Wing', location: 'Jammu', phone: '[Content Pending Approval]', email: 'cegenjammu@jkspdc.nic.in' },
+  { designation: 'Company Secretary', location: 'Srinagar / Jammu', phone: '[Content Pending Approval]', email: 'cs@jkspdc.nic.in' },
+];
+
+const displayExecutives = executivesList.length > 0 ? executivesList.map(ex => ({
+  designation: ex.name ? `${ex.name} (${ex.designation})` : ex.designation,
+  location: ex.officeAddress || ex.department || 'Srinagar / Jammu',
+  phone: ex.phone || '[Content Pending Approval]',
+  email: ex.email || 'info@jkspdc.nic.in',
+})) : defaultExecutives;
 ---
 
 <Layout 
@@ -35,30 +65,14 @@ import Layout from '../../../layouts/Layout.astro';
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td class="font-semibold text-gray-900">Managing Director</td>
-                <td>Srinagar / Jammu</td>
-                <td>[Content Pending Approval]</td>
-                <td>md@jkspdc.nic.in</td>
-              </tr>
-              <tr>
-                <td class="font-semibold text-gray-900">Executive Director (Technical)</td>
-                <td>Srinagar</td>
-                <td>[Content Pending Approval]</td>
-                <td>edtech@jkspdc.nic.in</td>
-              </tr>
-              <tr>
-                <td class="font-semibold text-gray-900">Executive Director (Finance)</td>
-                <td>Jammu</td>
-                <td>[Content Pending Approval]</td>
-                <td>edfin@jkspdc.nic.in</td>
-              </tr>
-              <tr>
-                <td class="font-semibold text-gray-900">Company Secretary</td>
-                <td>Srinagar</td>
-                <td>[Content Pending Approval]</td>
-                <td>cs@jkspdc.nic.in</td>
-              </tr>
+              {displayExecutives.map((ex) => (
+                <tr>
+                  <td class="font-semibold text-gray-900">{ex.designation}</td>
+                  <td>{ex.location}</td>
+                  <td>{ex.phone}</td>
+                  <td><a href={`mailto:${ex.email}`} class="text-blue-600 hover:underline">{formatEmail(ex.email)}</a></td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -66,7 +80,7 @@ import Layout from '../../../layouts/Layout.astro';
         <div class="alert-info" role="note">
           <span class="font-bold" aria-hidden="true">ℹ</span>
           <div>
-            <strong>General Correspondence:</strong> For general public grievances and commercial inquiries, please direct emails to the corporate office at <strong>contact@jkspdc.nic.in</strong>.
+            <strong>General Correspondence:</strong> For general public grievances and commercial inquiries, please direct emails to the corporate office at <strong>contact[at]jkspdc[dot]nic[dot]in</strong>.
           </div>
         </div>
       </article>

@@ -215,8 +215,13 @@ if (Astro.request.method === 'POST') {
               <input type="file" id="file-uploader" class="absolute inset-0 opacity-0 cursor-pointer" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" />
               <Icon name="upload" size={24} class="text-slate-400" />
               <span class="text-xs text-slate-600 font-semibold" id="upload-status-text">Click to choose or drag document file here</span>
-              <span class="text-[10px] text-slate-400">PDF, JPG, PNG, DOCX, XLSX (Max 10MB)</span>
+              <span class="text-[10px] text-slate-400">PDF, JPG, PNG, DOCX, XLSX (Max 20MB / 100MB if Important)</span>
             </div>
+
+            <label class="flex items-center gap-2 p-2 bg-amber-50/70 border border-amber-200/80 rounded-lg cursor-pointer hover:bg-amber-50 transition-colors select-none mt-1">
+              <input type="checkbox" id="is-important-checkbox" class="w-4 h-4 rounded text-[#0B4F9C] border-slate-300 focus:ring-[#0B4F9C] cursor-pointer" />
+              <span class="text-xs font-bold text-amber-900 flex items-center gap-1">★ Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
+            </label>
             
             <!-- Attached file details -->
             <div id="attached-file-info" class={`p-3 bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 rounded flex items-center justify-between gap-2 mt-2 ${projectData.documentUrl ? '' : 'hidden'}`}>
@@ -277,11 +282,30 @@ if (Astro.request.method === 'POST') {
       const file = event.target?.files?.[0];
       if (!file) return;
 
+      const isImportant = document.getElementById('is-important-checkbox')?.checked || false;
+      const MAX_STANDARD = 20 * 1024 * 1024;
+      const MAX_IMPORTANT = 100 * 1024 * 1024;
+
+      if (!isImportant && file.size > MAX_STANDARD) {
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        alert(`File size (${sizeMB} MB) exceeds the standard 20 MB limit.\n\nPlease check "Mark as Important" to allow uploading files up to 100 MB.`);
+        fileUploader.value = '';
+        return;
+      }
+
+      if (file.size > MAX_IMPORTANT) {
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        alert(`File size (${sizeMB} MB) exceeds the maximum allowed limit of 100 MB.`);
+        fileUploader.value = '';
+        return;
+      }
+
       uploadStatusText.textContent = `Uploading ${file.name}...`;
       uploadContainer.classList.add('opacity-60', 'pointer-events-none');
 
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('isImportant', isImportant ? 'true' : 'false');
 
       try {
         const response = await fetch('http://localhost:3000/api/upload', {

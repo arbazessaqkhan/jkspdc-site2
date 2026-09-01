@@ -2,22 +2,42 @@
 import Layout from '../../layouts/Layout.astro';
 import Icon from '../../components/Icon.astro';
 
-let downloads = [];
+let downloads = [
+  {
+    id: "static-dl-1",
+    title: "NIT Upload Request Form",
+    description: "Official form and instructions required for submitting NIT, e-NIT Gist, Quotations, or Corrigenda for upload to the web portal via webupdates[at]jkspdcl[dot]com.",
+    documentUrl: "/NIT Upload Request Form.pdf",
+    category: "Official Forms",
+    status: "Active"
+  },
+  {
+    id: "static-dl-2",
+    title: "User Creation",
+    description: "Requisite details form and instructions for generating user credentials and mapping digital signature certificates on jktenders.gov.in website.",
+    documentUrl: "/User Creation.pdf",
+    category: "E-Tendering Forms",
+    status: "Active"
+  }
+];
 
 try {
-  const res = await fetch('http://localhost:3000/api/policies?category=Downloads');
+  const res = await fetch('http://localhost:3000/api/downloads');
   if (res.ok) {
     const data = await res.json();
-    downloads = data.filter(d => d.status === 'Active');
+    const activeBackendDocs = data.filter((d: any) => d.status === 'Active');
+    if (activeBackendDocs.length > 0) {
+      downloads = [...activeBackendDocs, ...downloads];
+    }
   }
 } catch (e) {
-  console.error('Error fetching downloads:', e);
+  console.error('Error fetching downloads from backend:', e);
 }
 ---
 
 <Layout 
   title="Downloads - Media" 
-  description="Corporate brochures, booklets, and publications of JKSPDC."
+  description="Corporate brochures, booklets, official request forms, and publications of JKSPDC."
 >
   <div class="space-y-0">
     <!-- Premium Page Header Band -->
@@ -33,44 +53,33 @@ try {
 
     <!-- Content -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fadeInUp delay-200">
-      <!-- Main Text -->
-      <article class="lg:col-span-2 prose-gov">
-        {downloads.length === 0 ? (
-          <!-- Safety content placeholder -->
-          <div class="bg-gray-50 border border-gray-200 text-gray-700 rounded-lg p-6 text-center text-sm shadow-sm">
-            <p class="font-semibold text-gray-800 mb-1">Corporate Booklet & Document Downloads Pending Official Approval</p>
-            <p class="text-xs text-gray-500">Official media kits and booklet files are currently undergoing review.</p>
-            <div class="mt-3 inline-block bg-neutral-200 text-neutral-800 px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider">
-              [Content Pending Approval]
+      <!-- Main List -->
+      <article class="lg:col-span-2 prose-gov space-y-4">
+        {downloads.map((doc) => (
+          <div class="bg-white border border-gray-200 hover:border-[#9BC2E6] rounded-xl p-5 shadow-sm transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="space-y-1.5 max-w-xl">
+              <span class="text-[9px] uppercase tracking-wider font-extrabold text-[#0B4F9C] bg-[#0B4F9C]/5 px-2 py-0.5 rounded">
+                {doc.category || "Downloads"}
+              </span>
+              <h3 class="font-bold text-gray-900 text-base mt-1.5 leading-snug">
+                {doc.title}
+              </h3>
+              <p class="text-xs text-slate-500 leading-relaxed mt-1">
+                {doc.description || "Official corporate booklets, brochures, and administrative publication attachments."}
+              </p>
+            </div>
+            <div class="shrink-0 flex items-center">
+              <a 
+                href={doc.documentUrl} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                class="w-full md:w-auto inline-flex items-center justify-center gap-2 bg-[#0B4F9C] hover:bg-[#084A8F] text-white font-bold text-xs px-5 py-2.5 rounded transition-all duration-150 shadow-sm cursor-pointer"
+              >
+                <Icon name="search" size={13} strokeWidth={2.5} /> View PDF
+              </a>
             </div>
           </div>
-        ) : (
-          downloads.map((doc) => (
-            <div class="bg-white border border-gray-200 hover:border-[#9BC2E6] rounded-xl p-5 shadow-sm transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div class="space-y-1.5 max-w-xl">
-                <span class="text-[9px] uppercase tracking-wider font-extrabold text-[#0B4F9C] bg-[#0B4F9C]/5 px-2 py-0.5 rounded">
-                  Downloads
-                </span>
-                <h3 class="font-bold text-gray-900 text-base mt-1.5">
-                  {doc.title}
-                </h3>
-                <p class="text-xs text-slate-500 leading-relaxed mt-1">
-                  {doc.description || "Official corporate booklets, brochures, and administrative publication attachments."}
-                </p>
-              </div>
-              <div class="shrink-0 flex items-center">
-                <a 
-                  href={doc.documentUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  class="w-full md:w-auto inline-flex items-center justify-center gap-2 bg-[#0B4F9C] hover:bg-[#084A8F] text-white font-bold text-xs px-5 py-2.5 rounded transition-all duration-150 shadow-sm cursor-pointer"
-                >
-                  <Icon name="search" size={13} strokeWidth={2.5} /> View / Download PDF
-                </a>
-              </div>
-            </div>
-          ))
-        )}
+        ))}
       </article>
 
       <!-- Sidebar -->

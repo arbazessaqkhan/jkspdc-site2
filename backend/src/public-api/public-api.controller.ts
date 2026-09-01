@@ -29,4 +29,9 @@ export class PublicApiController {
   async getNotifications() {
     return this.publicApiService.getNotifications();
   }
+
+  @Get('agm')
+  async getAgmDocuments() {
+    return this.publicApiService.getAgmDocuments();
+  }
 }

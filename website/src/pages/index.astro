@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Icon from '../components/Icon.astro';
+import { formatProjectName } from '../utils/projectFormatter';
 
 let directors = [];
 let tenders = [];
@@ -20,10 +21,10 @@ let gallery = [
     partition: 'Corporate',
   },
   {
-    id: 'gallery-seed-3',
-    title: 'Hydroelectric Project Site View',
-    imageUrl: '/gallery/projects_gallery.jpg',
-    partition: 'Projects',
+    id: 'gallery-seed-5',
+    title: 'Corporate HQ and Administrative Building',
+    imageUrl: '/slider2.jpg',
+    partition: 'Corporate',
   },
 ];
 
@@ -75,9 +76,9 @@ function getImageUrl(url: string) {
   return url;
 }
 
-// 1. Office & Corporate Events (Office Happenings, Retirements, Awards, MoUs)
+// 1. Office & Corporate Events (Only gallery pictures uploaded by admin in galary section)
 const officePhotos = gallery.filter((item: any) => 
-  !item.partition || item.partition.toLowerCase() !== 'projects'
+  !item.partition || (item.partition.toLowerCase() !== 'projects' && item.partition.toLowerCase() !== 'project')
 );
 
 const fallbackOfficePhotos = [
@@ -94,10 +95,16 @@ const fallbackOfficePhotos = [
     partition: 'Retirements & Honors',
   },
   {
-    id: 'office-seed-3',
-    title: 'Corporate Headquarters Review Meeting & Awards Announcement',
-    imageUrl: '/gallery/reference_tenders.png',
-    partition: 'Office Happenings & Awards',
+    id: 'office-seed-5',
+    title: 'Corporate Headquarters Review Meeting',
+    imageUrl: '/slider2.jpg',
+    partition: 'Corporate',
+  },
+  {
+    id: 'office-seed-6',
+    title: 'Official Executive Board Meeting',
+    imageUrl: '/slider3.jpg',
+    partition: 'Official Events',
   },
 ];
 
@@ -228,13 +235,14 @@ const quickLinks = [
   { icon: "factory", label: "Projects", desc: "Explore power stations", href: "/our-business/power-stations" },
   { icon: "file-text", label: "Tender Portal", desc: "Live tenders & bids", href: "/stakeholders/vendors/tender-bids" },
   { icon: "briefcase", label: "Careers", desc: "Open positions", href: "/stakeholders/career-seekers/current-openings" },
-  { icon: "scroll-text", label: "RTI", desc: "Right to Information", href: "/about-us/explore/overview" },
-  { icon: "landmark", label: "Investors", desc: "Financial reports", href: "/commercial/overview" },
-  { icon: "leaf", label: "CSR", desc: "Community initiatives", href: "/sustainability/environment/preamble" },
+  { icon: "scroll-text", label: "RTI", desc: "Right to Information", href: "/about-us/explore/rti" },
+  { icon: "landmark", label: "Investors", desc: "Financial reports", href: "/stakeholders/investors/financial-results" },
+  { icon: "leaf", label: "CSR Policy", desc: "Community initiatives", href: "/sustainability/csr/policy" },
   { icon: "newspaper", label: "Media Centre", desc: "Press & announcements", href: "/media/press-releases" },
-  { icon: "download", label: "Downloads", desc: "Documents & forms", href: "/stakeholders/vendors/tender-bids" },
-  { icon: "eye", label: "Vigilance", desc: "Integrity & compliance", href: "/about-us/explore/ethics-code" },
+  { icon: "download", label: "Downloads", desc: "Documents & forms", href: "/media/downloads" },
+  { icon: "eye", label: "Vigilance", desc: "Integrity & compliance", href: "/about-us/explore/policies" },
 ];
+
 
 const corpStats = [
   { label: "Authorised Capital", value: "Rs. 5,000 Cr" },
@@ -247,27 +255,27 @@ const fallbackNotifications = [
   {
     title: "Cancellation notice of NIT no. 03 of 2026 dated 20.05.2026 and 05 of 2026 dated 16.06.2026",
     publishDate: "2026-07-01",
-    documentUrl: "/stakeholders/investors/announcement"
+    documentUrl: "/notifications"
   },
   {
     title: "NOTICE FOR PUBLIC HEARING - Proposed 20MW Solar Power Installation in Samba district",
     publishDate: "2026-06-29",
-    documentUrl: "/stakeholders/investors/announcement"
+    documentUrl: "/notifications"
   },
   {
     title: "Corrigendum-II: Extension of Bid Submission Date for Design, Engineering & Commissioning of Pahalgam HEP",
     publishDate: "2026-06-25",
-    documentUrl: "/stakeholders/investors/announcement"
+    documentUrl: "/notifications"
   },
   {
     title: "Appointment of Senior Consultants for Environmental Impact Assessment of upcoming Hydro Projects",
     publishDate: "2026-06-20",
-    documentUrl: "/stakeholders/investors/announcement"
+    documentUrl: "/notifications"
   },
   {
     title: "Public Notice: Schedule of Board of Directors Meeting on Corporate Capital Restructuring",
     publishDate: "2026-06-15",
-    documentUrl: "/stakeholders/investors/announcement"
+    documentUrl: "/notifications"
   }
 ];
 
@@ -340,8 +348,37 @@ const getDocUrl = (url?: string) => {
   return url;
 };
 
+const mergedTenderItems: any[] = [];
+if (tenders.length > 0) {
+  tenders.forEach((t: any) => {
+    mergedTenderItems.push({
+      id: t.id,
+      title: t.title,
+      referenceNo: t.referenceNo,
+      publishDate: t.publishDate,
+      documentUrl: t.documentUrl,
+      isCorrigendum: false,
+    });
+
+    const corrs = t.corrigendums && Array.isArray(t.corrigendums) ? t.corrigendums : [];
+    corrs.forEach((c: any) => {
+      mergedTenderItems.push({
+        id: c.id || t.id,
+        parentTenderId: t.id,
+        title: c.title,
+        parentTitle: t.title,
+        referenceNo: t.referenceNo,
+        publishDate: c.publishDate || t.publishDate,
+        documentUrl: c.documentUrl || t.documentUrl,
+        isCorrigendum: true,
+      });
+    });
+  });
+  mergedTenderItems.sort((a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+}
+
 const displayNotifications = notifications.length > 0 ? notifications : fallbackNotifications;
-const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
+const displayTenders = mergedTenderItems.length > 0 ? mergedTenderItems : fallbackTenders;
 ---
 
 <Layout title="Home | JKSPDC Official Portal" description="Official enterprise portal of Jammu and Kashmir State Power Development Corporation Ltd. Powering the future of J&K through clean, sustainable, and reliable energy generation." isHome={true}>
@@ -454,13 +491,6 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
 
         <!-- Welcome Card Container with Office Gallery Carousel -->
         <div class="bg-white border border-[#BDD7EE]/60 rounded-2xl p-4 flex flex-col justify-between flex-grow h-[320px] shadow-sm overflow-hidden relative">
-          <!-- Text Paragraph -->
-          <div class="mb-2">
-            <p class="text-slate-600 text-xs leading-relaxed text-left line-clamp-2">
-              Electricity is an essential source of commercial energy. It is vital for sustained economic growth, modernization, and industrialization across J&K.
-            </p>
-          </div>
-
           <!-- Office Events, Retirements & Awards Carousel -->
           <div class="relative w-full flex-grow rounded-xl overflow-hidden shadow-xs border border-slate-200 bg-slate-900 group" id="office-carousel-container">
             <div class="absolute inset-0" id="office-slides">
@@ -526,30 +556,42 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
 
             <div class="scroll-track animate-marquee-vertical flex flex-col gap-2.5" style={`--marquee-duration: ${displayTenders.length * 8}s`}>
               {displayTenders.map((tender: any) => {
-                const docUrl = getDocUrl(tender.documentUrl) || `/stakeholders/vendors/tender-details?id=${tender.id}`;
+                const isCorr = tender.isCorrigendum;
+                const docUrl = getDocUrl(tender.documentUrl) || `/stakeholders/vendors/tender-details?id=${tender.parentTenderId || tender.id}`;
                 return (
                   <a href={docUrl} target="_blank" rel="noopener noreferrer" class="block p-3 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/35 rounded-lg shadow-xs text-left transition-all duration-150">
-                    <div class="text-[10px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
+                    <div class="text-[10px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1.5 flex-wrap">
                       <span>📅</span>
                       <span>{formatRefDate(tender.publishDate)}</span>
+                      {isCorr && (
+                        <span class="px-1.5 py-0.2 rounded bg-amber-100 text-amber-900 font-extrabold uppercase text-[9px] border border-amber-300">
+                          Corrigendum
+                        </span>
+                      )}
                     </div>
                     <h4 class="font-bold text-slate-800 text-xs leading-snug line-clamp-2">
-                      {tender.title}
+                      {isCorr ? `Corrigendum: ${tender.title} — ${tender.parentTitle || ''}` : tender.title}
                     </h4>
                   </a>
                 );
               })}
               {/* Duplicate for marquee */}
               {displayTenders.map((tender: any) => {
-                const docUrl = getDocUrl(tender.documentUrl) || `/stakeholders/vendors/tender-details?id=${tender.id}`;
+                const isCorr = tender.isCorrigendum;
+                const docUrl = getDocUrl(tender.documentUrl) || `/stakeholders/vendors/tender-details?id=${tender.parentTenderId || tender.id}`;
                 return (
                   <a href={docUrl} target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true" class="block p-3 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/35 rounded-lg shadow-xs text-left transition-all duration-150">
-                    <div class="text-[10px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
+                    <div class="text-[10px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1.5 flex-wrap">
                       <span>📅</span>
                       <span>{formatRefDate(tender.publishDate)}</span>
+                      {isCorr && (
+                        <span class="px-1.5 py-0.2 rounded bg-amber-100 text-amber-900 font-extrabold uppercase text-[9px] border border-amber-300">
+                          Corrigendum
+                        </span>
+                      )}
                     </div>
                     <h4 class="font-bold text-slate-800 text-xs leading-snug line-clamp-2">
-                      {tender.title}
+                      {isCorr ? `Corrigendum: ${tender.title} — ${tender.parentTitle || ''}` : tender.title}
                     </h4>
                   </a>
                 );
@@ -579,7 +621,7 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
 
             <div class="scroll-track animate-marquee-vertical flex flex-col gap-2.5" style={`--marquee-duration: ${displayNotifications.length * 7}s`}>
               {displayNotifications.map((notif: any) => {
-                const docUrl = getDocUrl(notif.documentUrl) || `/stakeholders/investors/announcement`;
+                const docUrl = getDocUrl(notif.documentUrl) || `/notifications`;
                 return (
                   <a href={docUrl} target="_blank" rel="noopener noreferrer" class="block p-3 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/35 rounded-lg shadow-xs text-left transition-all duration-150">
                     <div class="text-[10px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
@@ -594,7 +636,7 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
               })}
               {/* Duplicate for marquee */}
               {displayNotifications.map((notif: any) => {
-                const docUrl = getDocUrl(notif.documentUrl) || `/stakeholders/investors/announcement`;
+                const docUrl = getDocUrl(notif.documentUrl) || `/notifications`;
                 return (
                   <a href={docUrl} target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true" class="block p-3 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/35 rounded-lg shadow-xs text-left transition-all duration-150">
                     <div class="text-[10px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
@@ -610,7 +652,7 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
             </div>
           </div>
           <div class="bg-slate-100/70 border-t border-slate-200/50 py-2.5 text-center text-xs font-bold flex-shrink-0">
-            <a href="/stakeholders/investors/announcement" class="text-[#0B4F9C] hover:underline">View All Notifications &rarr;</a>
+            <a href="/notifications" class="text-[#0B4F9C] hover:underline">View All Notifications &rarr;</a>
           </div>
         </div>
       </div>
@@ -822,10 +864,10 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
       <div class="px-8 md:px-12 pt-6 pb-3">
         <div id="projects-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {projects.map((p) => (
-            <div class="project-card bg-white rounded-xl border border-slate-200 p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-250" data-status={p.status} data-type={p.type} data-name={p.name.toLowerCase()}>
+            <a href={`/our-business/power-station-details?id=${p.id}`} class="project-card block bg-white rounded-xl border border-slate-200 p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-250 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C] group" data-status={p.status} data-type={p.type} data-name={p.name.toLowerCase()}>
               <div class="flex items-start justify-between mb-4">
                 <div class="flex-1 min-w-0 pr-3">
-                  <div class="font-bold text-slate-900 text-sm leading-snug">{p.name}</div>
+                  <div class="font-bold text-slate-900 text-sm leading-snug group-hover:text-[#0B4F9C] transition-colors">{formatProjectName(p.name)}</div>
                   {(p.location || p.basin) && (
                     <div class="text-xs text-slate-400 mt-1">{p.location}{p.location && p.basin ? ' — ' : ''}{p.basin ? `${p.basin} Basin` : ''}</div>
                   )}
@@ -842,9 +884,9 @@ const displayTenders = tenders.length > 0 ? tenders : fallbackTenders;
                   {p.type}
                 </span>
                 <span class="text-slate-400">Est. {p.yearOfCommissioning || '—'}</span>
-                <a href={`/our-business/power-station-details?id=${p.id}`} class="text-[#0B4F9C] hover:underline font-semibold">Details &rarr;</a>
+                <span class="text-[#0B4F9C] font-semibold group-hover:underline">Details &rarr;</span>
               </div>
-            </div>
+            </a>
           ))}
         </div>
       </div>

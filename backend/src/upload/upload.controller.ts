@@ -1,9 +1,12 @@
-import { Controller, Post, Get, Delete, Param, UseGuards, UseInterceptors, UploadedFile, BadRequestException, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Param, Body, UseGuards, UseInterceptors, UploadedFile, BadRequestException, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import * as path from 'path';
 import * as fs from 'fs';
 import { AuthGuard } from '../auth/auth.guard';
+
+const MAX_STANDARD_BYTES = 20 * 1024 * 1024; // 20 MB standard limit
+const MAX_IMPORTANT_BYTES = 100 * 1024 * 1024; // 100 MB critical/important limit
 
 @Controller('upload')
 @UseGuards(AuthGuard)
@@ -69,7 +72,7 @@ export class UploadController {
         },
       }),
       limits: {
-        fileSize: 10 * 1024 * 1024, // 10MB limit
+        fileSize: MAX_IMPORTANT_BYTES, // Multer hard limit (100MB)
       },
       fileFilter: (_req: any, file: any, cb: any) => {
         // Allowed extensions: pdf, jpg, jpeg, png, doc, docx, xls, xlsx
@@ -83,16 +86,43 @@ export class UploadController {
       },
     }),
   )
-  uploadFile(@UploadedFile() file: any) {
+  uploadFile(@UploadedFile() file: any, @Body() body: any) {
     if (!file) {
       throw new BadRequestException('No file uploaded or file rejected by validation.');
     }
+
+    const isImportant = body?.isImportant === 'true' || body?.isImportant === true || body?.isImportant === '1';
+    const filePath = path.join(process.cwd(), 'uploads', file.filename);
+
+    // If file exceeds 20MB and not flagged as Important, reject and delete
+    if (file.size > MAX_STANDARD_BYTES && !isImportant) {
+      try {
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      } catch (e) {}
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      throw new BadRequestException(
+        `File size (${sizeMB} MB) exceeds the standard 20 MB limit. Please check the "Important" box to allow uploads up to 100 MB.`
+      );
+    }
+
+    // If file exceeds 100MB limit, reject and delete
+    if (file.size > MAX_IMPORTANT_BYTES) {
+      try {
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      } catch (e) {}
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      throw new BadRequestException(
+        `File size (${sizeMB} MB) exceeds the maximum permissible limit of 100 MB.`
+      );
+    }
+
     // Return relative URL for static hosting
     const relativeUrl = `/uploads/${file.filename}`;
     return {
       url: relativeUrl,
       filename: file.originalname,
       sizeBytes: file.size,
+      isImportant,
     };
   }
 }

@@ -20,6 +20,14 @@ import { UploadModule } from './upload/upload.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { GalleryModule } from './gallery/gallery.module';
 import { PoliciesModule } from './policies/policies.module';
+import { AgmModule } from './agm/agm.module';
+import { HydroModule } from './hydro/hydro.module';
+import { PageContentModule } from './page-content/page-content.module';
+import { DownloadsModule } from './downloads/downloads.module';
+import { FinancialsModule } from './financials/financials.module';
+import { ExecutivesModule } from './executives/executives.module';
+import { HeroSlidesModule } from './hero-slides/hero-slides.module';
+import { SiteSettingsModule } from './site-settings/site-settings.module';
 
 @Module({
   imports: [
@@ -43,6 +51,14 @@ import { PoliciesModule } from './policies/policies.module';
     NotificationsModule,
     GalleryModule,
     PoliciesModule,
+    AgmModule,
+    HydroModule,
+    PageContentModule,
+    DownloadsModule,
+    FinancialsModule,
+    ExecutivesModule,
+    HeroSlidesModule,
+    SiteSettingsModule,
   ],
   controllers: [
     ContactController,

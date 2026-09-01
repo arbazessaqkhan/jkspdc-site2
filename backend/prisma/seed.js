@@ -35,30 +35,40 @@ async function main() {
   // 2. Create Board of Directors (BOD)
   const directors = [
     {
-      name: 'Sh. Satish Chandra, IAS',
-      position: 'Chairman',
-      role: 'Non-Executive Director',
+      id: 'dir-manoj-sinha',
+      name: 'Shri Manoj Sinha',
+      position: 'Lieutenant Governor, UT of Jammu and Kashmir',
+      role: 'Honorable Lieutenant Governor',
       sNo: 1,
     },
     {
-      name: 'Sh. Vikrant Gupta',
-      position: 'Managing Director',
-      role: 'Executive Director',
+      id: 'dir-omar-abdullah',
+      name: 'Shri Omar Abdullah',
+      position: 'Chief Minister, UT of Jammu and Kashmir (Minister Incharge Power Development Department)',
+      role: 'Honorable Chief Minister',
       sNo: 2,
     },
     {
-      name: 'Smt. Anjali Dev',
-      position: 'Director Finance',
-      role: 'Executive Director',
+      id: 'dir-ashwani-kumar',
+      name: 'Shri Ashwani Kumar (IAS)',
+      position: 'Financial Commissioner (Additional Chief Secretary, Power Development Department)',
+      role: 'Chairman',
       sNo: 3,
     },
+    {
+      id: 'dir-rahul-yadav',
+      name: 'Shri Rahul Yadav (IAS)',
+      position: 'Managing Director, JKSPDC',
+      role: 'Managing Director',
+      sNo: 4,
+    }
   ];
 
   for (const dir of directors) {
     await prisma.director.upsert({
-      where: { id: `dir-seed-${dir.sNo}` },
+      where: { id: dir.id },
       create: {
-        id: `dir-seed-${dir.sNo}`,
+        id: dir.id,
         name: dir.name,
         position: dir.position,
         role: dir.role,
@@ -77,34 +87,26 @@ async function main() {
   // 3. Create Power Stations (Operational & Under Construction)
   const stations = [
     {
-      id: 'station-seed-1',
-      name: 'Baghliar Hydroelectric Project',
-      type: 'Run-of-River',
-      capacityMw: 900.0,
-      status: 'Operational',
-      location: 'Ramban',
-      configuration: '3x150MW (Stage I) & 3x150MW (Stage II)',
-      designEnergy: 2600.0,
-      yearOfCommissioning: 2008,
+      id: 'station-seed-upcoming-1',
+      name: 'Kirthai HEP Stage-1',
+      type: 'Hydro',
+      capacityMw: 390.0,
+      status: 'Upcoming',
+      location: 'Kishtwar',
+      description: 'Kirthai HEP Stage-1 is a run-of-river scheme on river Chenab located at Gulabgarh, Padder in district Kishtwar of J & K and is about 66km from Kishtwar town.',
       sector: 'State',
       basin: 'Chenab',
-      salientFeatures: '<p>Baglihar Hydroelectric Project is built on the Chenab River in the Ramban district. It is a run-of-the-river power project with an installed capacity of 900 MW.</p>',
-      description: 'One of the flagship operational projects of JKSPDCL.',
-    },
-    {
-      id: 'station-seed-2',
-      name: 'Lower Jhelum Hydel Project',
-      type: 'Run-of-River',
-      capacityMw: 105.0,
-      status: 'Operational',
-      location: 'Baramulla',
-      configuration: '3x35MW',
-      designEnergy: 450.0,
-      yearOfCommissioning: 1979,
-      sector: 'State',
-      basin: 'Jhelum',
-      salientFeatures: '<p>Located near Gantamulla in Baramulla district. Uses water from Jhelum river.</p>',
-      description: 'An older but vital source of energy in the Jhelum basin.',
+      salientFeatures: `<p class="mb-4">Kirthai HEP Stage-1 is a run-of-river scheme on river Chenab located at Gulabgarh, Padder in district Kishtwar of J & K and is about 66km from Kishtwar town.</p>
+<p class="mb-4"><strong>Salient features:</strong></p>
+<ul class="list-disc list-inside space-y-2 mb-4">
+  <li><strong>Installed capacity:</strong> 390 MW</li>
+  <li><strong>Height of Dam:</strong> 119.50m (above river bed level)</li>
+  <li><strong>Length of dam at top:</strong> 252.45 m</li>
+  <li><strong>Reservoir stretch:</strong> 9.50 km</li>
+  <li><strong>Power House:</strong> Underground (133.5 x 20.0 x 43.5) m</li>
+  <li><strong>Gross Head:</strong> 108.5 m</li>
+</ul>
+<p class="mb-4">The DPR of the above project was under appraisal at Central Electricity Authority (CEA) / Central Water Commission (CWC) for obtaining Techno-Economic Clearance.</p>`,
     },
   ];
 
@@ -117,7 +119,7 @@ async function main() {
   }
   console.log('Power stations seeded.');
 
-  // 4. Create Gallery Items
+  // 4. Create Gallery Items (Official Events, Corporate & Admin Gallery photos)
   const galleryItems = [
     {
       id: 'gallery-seed-1',
@@ -130,18 +132,6 @@ async function main() {
       title: 'Retirement Ceremony of Executive Director Civil, JKSPDC',
       imageUrl: '/gallery/retirement_ed_civil.png',
       partition: 'Corporate',
-    },
-    {
-      id: 'gallery-seed-3',
-      title: 'Hydroelectric Project Site View',
-      imageUrl: '/gallery/projects_gallery.jpg',
-      partition: 'Projects',
-    },
-    {
-      id: 'gallery-seed-4',
-      title: 'Baglihar Hydroelectric Dam Construction',
-      imageUrl: '/slider1.jpg',
-      partition: 'Projects',
     },
     {
       id: 'gallery-seed-5',
@@ -164,7 +154,60 @@ async function main() {
       update: item,
     });
   }
-  console.log('Gallery items seeded.');
+  // 5. Create Sample Active Tenders
+  const tenders = [
+    {
+      id: 'tender-seed-1',
+      referenceNo: 'JKSPDCL/eNIT/2026/CIVIL/01',
+      title: 'Construction & Slope Stabilization Works for Kirthai HEP Stage-1 Access Road',
+      description: 'Comprehensive civil execution for access road network and tunnel portal slope protection at Gulabgarh, Padder.',
+      documentType: 'NIT',
+      workCategory: 'Civil',
+      locationTag: 'HQ_SRINAGAR',
+      publishDate: new Date('2026-07-15'),
+      closingDate: new Date('2026-08-30'),
+      documentUrl: '/uploads/tenders/nit_kirthai_civil_01.pdf',
+      fileSizeBytes: 2450000,
+      status: 'Active',
+    },
+    {
+      id: 'tender-seed-2',
+      referenceNo: 'JKSPDCL/eNIT/2026/EM/04',
+      title: 'Supply and Installation of 132kV Switchyard Equipment at USHP II Kangan',
+      description: 'Electro-mechanical retrofitting and circuit breaker replacement for Upper Sindh Hydel Project Stage II.',
+      documentType: 'NIT',
+      workCategory: 'Electro-Mechanical',
+      locationTag: 'HEP_LOWER_JHELUM',
+      publishDate: new Date('2026-07-20'),
+      closingDate: new Date('2026-09-15'),
+      documentUrl: '/uploads/tenders/nit_ushp_em_04.pdf',
+      fileSizeBytes: 1850000,
+      status: 'Active',
+    },
+    {
+      id: 'tender-seed-3',
+      referenceNo: 'JKSPDCL/eNIT/2026/IT/09',
+      title: 'Development of SCADA Integration & Real-time Telemetry Data Portal',
+      description: 'IT and telemetry integration across operational hydroelectric power houses in J&K.',
+      documentType: 'NIT',
+      workCategory: 'IT',
+      locationTag: 'HQ_JAMMU',
+      publishDate: new Date('2026-07-25'),
+      closingDate: new Date('2026-09-01'),
+      documentUrl: '/uploads/tenders/nit_it_scada_09.pdf',
+      fileSizeBytes: 1200000,
+      status: 'Active',
+    }
+  ];
+
+  for (const t of tenders) {
+    await prisma.tender.upsert({
+      where: { referenceNo: t.referenceNo },
+      create: t,
+      update: t,
+    });
+  }
+  console.log('Sample tenders seeded.');
 
   console.log('Seeding completed successfully!');
 }

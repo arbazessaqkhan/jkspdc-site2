@@ -115,14 +115,27 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
           </a>
         </div>
 
-        <!-- SECTION: PORTAL CONTENT -->
+        <!-- SECTION: WEBSITE CONTENT -->
         <div class="flex flex-col gap-1">
-          <p class="text-[10px] font-bold text-slate-500 uppercase px-3 tracking-widest mb-1.5 select-none">Portal Content</p>
+          <p class="text-[10px] font-bold text-slate-500 uppercase px-3 tracking-widest mb-1.5 select-none">Website Content</p>
           
-          <a href="/admin/board-of-directors" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'directors' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-            <Icon name="users" size={14} /> Board of Directors (BOD)
+          <a href="/admin/page-editor" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'page-editor' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+            <Icon name="file-text" size={14} /> Page Editor
           </a>
 
+          <a href="/admin/hero-slides" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'hero-slides' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+            <Icon name="image" size={14} /> Hero Slider
+          </a>
+
+          <a href="/admin/site-settings" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'site-settings' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+            <Icon name="settings" size={14} /> Site Settings
+          </a>
+        </div>
+
+        <!-- SECTION: PROJECTS & INFRASTRUCTURE -->
+        <div class="flex flex-col gap-1">
+          <p class="text-[10px] font-bold text-slate-500 uppercase px-3 tracking-widest mb-1.5 select-none">Projects &amp; Infrastructure</p>
+          
           <a href="/admin/operational-projects" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'operational' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
             <Icon name="zap" size={14} /> Operational Projects
           </a>
@@ -134,7 +147,12 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
           <a href="/admin/upcoming-projects" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'upcoming' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
             <Icon name="rocket" size={14} /> Projects Under Development
           </a>
+        </div>
 
+        <!-- SECTION: TENDERS & CAREERS -->
+        <div class="flex flex-col gap-1">
+          <p class="text-[10px] font-bold text-slate-500 uppercase px-3 tracking-widest mb-1.5 select-none">Tenders &amp; Careers</p>
+          
           <a href="/admin/tenders" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'tenders' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
             <Icon name="file-text" size={14} /> Tenders &amp; Bids
           </a>
@@ -142,11 +160,37 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
           <a href="/admin/careers" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'careers' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
             <Icon name="briefcase" size={14} /> Careers &amp; Vacancies
           </a>
+        </div>
+
+        <!-- SECTION: CORPORATE GOVERNANCE -->
+        <div class="flex flex-col gap-1">
+          <p class="text-[10px] font-bold text-slate-500 uppercase px-3 tracking-widest mb-1.5 select-none">Corporate Governance</p>
+          
+          <a href="/admin/board-of-directors" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'directors' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+            <Icon name="users" size={14} /> Board of Directors
+          </a>
+
+          <a href="/admin/executives" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'executives' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+            <Icon name="user-check" size={14} /> Executives Directory
+          </a>
+
+          <a href="/admin/agm" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'agm' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+            <Icon name="scroll-text" size={14} /> AGM Documents
+          </a>
+
+          <a href="/admin/financials" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'financials' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+            <Icon name="landmark" size={14} /> Financial Documents
+          </a>
 
           <a href="/admin/notifications" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'notifications' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
             <Icon name="bell" size={14} /> Notifications
           </a>
+        </div>
 
+        <!-- SECTION: MEDIA & PUBLICATIONS -->
+        <div class="flex flex-col gap-1">
+          <p class="text-[10px] font-bold text-slate-500 uppercase px-3 tracking-widest mb-1.5 select-none">Media &amp; Publications</p>
+          
           <a href="/admin/press-releases" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'press' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
             <Icon name="newspaper" size={14} /> Press Releases &amp; News
           </a>
@@ -155,12 +199,16 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
             <Icon name="image" size={14} /> Media Gallery
           </a>
 
+          <a href="/admin/downloads" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'downloads' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+            <Icon name="download" size={14} /> Downloads Manager
+          </a>
+
           <a href="/admin/media-manager" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'media-manager' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
             <Icon name="folder" size={14} /> Media &amp; Documents
           </a>
 
           <a href="/admin/policies" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'policies' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-            <Icon name="file-text" size={14} /> Corporate &amp; CSR Policies
+            <Icon name="file-text" size={14} /> Policies &amp; CSR Docs
           </a>
         </div>
 

@@ -1,0 +1,264 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/Icon.astro';
+
+let downloads: any[] = [];
+let errorMessage = '';
+const sessionToken = Astro.cookies.get('admin_session')?.value || '';
+
+try {
+  const res = await fetch('http://localhost:3000/api/downloads');
+  if (res.ok) downloads = await res.json();
+} catch (e) {
+  errorMessage = 'Could not load downloads. Ensure backend is running.';
+}
+
+const categories = ['Forms', 'Reports', 'Circulars', 'Manuals', 'Guidelines', 'Office Orders', 'Templates', 'Other'];
+---
+
+<AdminLayout title="Downloads Manager" description="Manage downloadable documents and forms" activeTab="downloads">
+  <div class="flex flex-col gap-6">
+    <div class="flex items-center justify-between border-b border-slate-200 pb-5">
+      <div>
+        <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Downloads Manager</h1>
+        <p class="text-xs text-slate-600 font-medium mt-1">Manage downloadable documents, forms, and files available on the public website.</p>
+      </div>
+      <button id="add-download-btn" class="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 shadow-md transition-colors cursor-pointer">
+        <Icon name="plus" size={14} /> Add Download
+      </button>
+    </div>
+
+    {errorMessage && (
+      <div class="p-4 bg-amber-50 border-l-4 border-amber-500 rounded text-xs text-amber-800 font-semibold" role="alert">
+        <Icon name="info" size={14} class="inline text-amber-600 mr-1" /> {errorMessage}
+      </div>
+    )}
+
+    <!-- Category Filter Tabs -->
+    <div class="flex flex-wrap gap-2" id="category-filters">
+      <button class="cat-filter-btn active px-3 py-1.5 text-[11px] font-bold rounded-full border border-blue-200 bg-blue-50 text-blue-700 cursor-pointer transition-colors" data-cat="all">All ({downloads.length})</button>
+      {categories.map((cat) => {
+        const count = downloads.filter((d: any) => d.category === cat).length;
+        return count > 0 ? (
+          <button class="cat-filter-btn px-3 py-1.5 text-[11px] font-bold rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50 cursor-pointer transition-colors" data-cat={cat}>{cat} ({count})</button>
+        ) : null;
+      })}
+    </div>
+
+    <!-- Downloads Table -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <table class="w-full text-xs">
+        <thead class="bg-slate-50 border-b border-slate-200">
+          <tr>
+            <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">Title</th>
+            <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">Category</th>
+            <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">File</th>
+            <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">Status</th>
+            <th class="px-5 py-3 text-right text-[10px] font-bold text-slate-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100" id="downloads-tbody">
+          {downloads.length === 0 ? (
+            <tr><td colspan="5" class="px-5 py-8 text-center text-slate-400 italic font-medium">No downloads found. Click "Add Download" to create one.</td></tr>
+          ) : (
+            downloads.map((d: any) => (
+              <tr class="download-row hover:bg-slate-50/50 transition-colors" data-cat={d.category}>
+                <td class="px-5 py-3 font-semibold text-slate-800">{d.title}</td>
+                <td class="px-5 py-3">
+                  <span class="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full text-[10px] font-bold">{d.category}</span>
+                </td>
+                <td class="px-5 py-3 text-slate-500 font-mono text-[10px]">{d.fileName}</td>
+                <td class="px-5 py-3">
+                  <span class={`px-2 py-0.5 rounded-full text-[10px] font-bold ${d.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>{d.status}</span>
+                </td>
+                <td class="px-5 py-3 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <a href={d.documentUrl} target="_blank" rel="noopener" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors" title="View File">
+                      <Icon name="eye" size={13} />
+                    </a>
+                    <button class="edit-download-btn p-1.5 text-amber-600 hover:bg-amber-50 rounded transition-colors cursor-pointer" title="Edit" data-id={d.id} data-title={d.title} data-category={d.category} data-filename={d.fileName} data-url={d.documentUrl} data-status={d.status}>
+                      <Icon name="pencil" size={13} />
+                    </button>
+                    <button class="delete-download-btn p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer" title="Delete" data-id={d.id} data-title={d.title}>
+                      <Icon name="trash-2" size={13} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div id="download-modal" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+          <h3 id="dl-modal-title" class="text-sm font-extrabold text-slate-900">Add Download</h3>
+          <button id="dl-modal-close" class="p-2 text-slate-400 hover:text-red-600 rounded-lg transition-colors cursor-pointer">
+            <Icon name="x" size={18} />
+          </button>
+        </div>
+        <div class="p-6 flex flex-col gap-4">
+          <input type="hidden" id="dl-edit-id" value="" />
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">Title *</label>
+            <input id="dl-title" type="text" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Document title..." />
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">Category *</label>
+            <select id="dl-category" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              {categories.map((cat) => <option value={cat}>{cat}</option>)}
+            </select>
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">Upload File</label>
+            <input id="dl-file" type="file" class="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer" />
+            <span class="text-[10px] text-slate-400 mt-1 block">PDF, DOCX, XLSX (Max 20MB / 100MB if Important)</span>
+            <label class="flex items-center gap-2 p-1.5 bg-amber-50/70 border border-amber-200/80 rounded cursor-pointer hover:bg-amber-50 transition-colors select-none mt-2">
+              <input type="checkbox" id="dl-is-important-checkbox" class="w-3.5 h-3.5 rounded text-[#0B4F9C] border-slate-300 focus:ring-[#0B4F9C] cursor-pointer" />
+              <span class="text-[11px] font-bold text-amber-900 flex items-center gap-1">★ Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
+            </label>
+            <p id="dl-current-file" class="text-[10px] text-slate-400 mt-1 hidden">Current: <span></span></p>
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">Status</label>
+            <select id="dl-status" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="Active">Active</option>
+              <option value="Archived">Archived</option>
+            </select>
+          </div>
+        </div>
+        <div class="px-6 py-4 border-t border-slate-200 flex justify-end gap-3 bg-slate-50">
+          <button id="dl-modal-cancel" class="px-4 py-2 text-xs font-bold text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-100 cursor-pointer">Cancel</button>
+          <button id="dl-modal-save" class="px-6 py-2 text-xs font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-md cursor-pointer">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</AdminLayout>
+
+<script is:inline>
+(function() {
+  var modal = document.getElementById('download-modal');
+  function getToken() { var m = document.cookie.match(/admin_session=([^;]+)/); return m ? m[1] : ''; }
+  function closeModal() { modal.classList.add('hidden'); }
+
+  // Category filter
+  document.querySelectorAll('.cat-filter-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.cat-filter-btn').forEach(function(b) {
+        b.classList.remove('active', 'bg-blue-50', 'text-blue-700', 'border-blue-200');
+        b.classList.add('text-slate-500', 'border-slate-200');
+      });
+      btn.classList.add('active', 'bg-blue-50', 'text-blue-700', 'border-blue-200');
+      btn.classList.remove('text-slate-500', 'border-slate-200');
+      var cat = btn.dataset.cat;
+      document.querySelectorAll('.download-row').forEach(function(row) {
+        row.style.display = (cat === 'all' || row.dataset.cat === cat) ? '' : 'none';
+      });
+    });
+  });
+
+  // Add download
+  document.getElementById('add-download-btn').addEventListener('click', function() {
+    document.getElementById('dl-modal-title').textContent = 'Add Download';
+    document.getElementById('dl-edit-id').value = '';
+    document.getElementById('dl-title').value = '';
+    document.getElementById('dl-category').value = 'Forms';
+    document.getElementById('dl-status').value = 'Active';
+    document.getElementById('dl-file').value = '';
+    document.getElementById('dl-current-file').classList.add('hidden');
+    modal.classList.remove('hidden');
+  });
+
+  // Edit download
+  document.querySelectorAll('.edit-download-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.getElementById('dl-modal-title').textContent = 'Edit Download';
+      document.getElementById('dl-edit-id').value = btn.dataset.id;
+      document.getElementById('dl-title').value = btn.dataset.title;
+      document.getElementById('dl-category').value = btn.dataset.category;
+      document.getElementById('dl-status').value = btn.dataset.status;
+      document.getElementById('dl-file').value = '';
+      var cf = document.getElementById('dl-current-file');
+      cf.classList.remove('hidden');
+      cf.querySelector('span').textContent = btn.dataset.filename;
+      modal.classList.remove('hidden');
+    });
+  });
+
+  // Delete download
+  document.querySelectorAll('.delete-download-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      if (!confirm('Delete "' + btn.dataset.title + '"?')) return;
+      fetch('http://localhost:3000/api/downloads/' + btn.dataset.id, {
+        method: 'DELETE', headers: { Authorization: 'Bearer ' + getToken() },
+      }).then(function(r) { if (r.ok) window.location.reload(); else alert('Delete failed.'); });
+    });
+  });
+
+  // Save download
+  document.getElementById('dl-modal-save').addEventListener('click', function() {
+    var token = getToken();
+    if (!token) { alert('Not authenticated.'); return; }
+    var editId = document.getElementById('dl-edit-id').value;
+    var fileInput = document.getElementById('dl-file');
+    var title = document.getElementById('dl-title').value;
+    var category = document.getElementById('dl-category').value;
+    var status = document.getElementById('dl-status').value;
+
+    function saveRecord(fileName, documentUrl, fileSizeBytes) {
+      var body = { title: title, category: category, status: status, fileName: fileName, documentUrl: documentUrl, fileSizeBytes: fileSizeBytes || 0 };
+      var url = editId ? 'http://localhost:3000/api/downloads/' + editId : 'http://localhost:3000/api/downloads';
+      var method = editId ? 'PUT' : 'POST';
+      fetch(url, { method: method, headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(body) })
+        .then(function(r) { if (r.ok) { alert('Saved!'); window.location.reload(); } else alert('Save failed.'); });
+    }
+
+    if (fileInput.files && fileInput.files.length > 0) {
+      var file = fileInput.files[0];
+      var isImportant = document.getElementById('dl-is-important-checkbox')?.checked || false;
+      var MAX_STANDARD = 20 * 1024 * 1024;
+      var MAX_IMPORTANT = 100 * 1024 * 1024;
+
+      if (!isImportant && file.size > MAX_STANDARD) {
+        var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        alert(`File size (${sizeMB} MB) exceeds the standard 20 MB limit.\n\nPlease check "Mark as Important" to allow uploading files up to 100 MB.`);
+        fileInput.value = '';
+        return;
+      }
+
+      if (file.size > MAX_IMPORTANT) {
+        var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        alert(`File size (${sizeMB} MB) exceeds the maximum allowed limit of 100 MB.`);
+        fileInput.value = '';
+        return;
+      }
+
+      var fd = new FormData();
+      fd.append('file', file);
+      fd.append('isImportant', isImportant ? 'true' : 'false');
+      fetch('http://localhost:3000/api/upload', { method: 'POST', headers: { Authorization: 'Bearer ' + token }, body: fd })
+        .then(function(r) {
+          if (!r.ok) return r.json().then(function(err) { throw new Error(err.message || 'Upload failed'); });
+          return r.json();
+        })
+        .then(function(data) { saveRecord(file.name, data.url || data.filePath, file.size); })
+        .catch(function(err) { alert('Upload error: ' + err.message); });
+    } else if (editId) {
+      // Update without changing file
+      var body = { title: title, category: category, status: status };
+      fetch('http://localhost:3000/api/downloads/' + editId, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(body) })
+        .then(function(r) { if (r.ok) { alert('Updated!'); window.location.reload(); } else alert('Update failed.'); });
+    } else {
+      alert('Please select a file to upload.');
+    }
+  });
+
+  document.getElementById('dl-modal-close').addEventListener('click', closeModal);
+  document.getElementById('dl-modal-cancel').addEventListener('click', closeModal);
+  modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
+})();
+</script>

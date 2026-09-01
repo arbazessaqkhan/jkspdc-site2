@@ -9,9 +9,9 @@ import Layout from '../layouts/Layout.astro';
   <div class="space-y-0">
     <!-- Premium Page Header Band -->
     <div class="page-header-band animate-fadeInUp">
-      <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
+      <nav class="breadcrumb-trail" aria-label="breadcrumb">
         <a href="/">Home</a>
-        <span class="separator">/</span>
+        <span class="separator" aria-hidden="true">/</span>
         <span class="current">Sitemap</span>
       </nav>
       <h1>Website Sitemap</h1>
@@ -33,7 +33,6 @@ import Layout from '../layouts/Layout.astro';
           <li><a href="/about-us/explore/organization-chart" class="hover:underline">&rarr; Organization Chart</a></li>
           <li><a href="/about-us/explore/roles-responsibility" class="hover:underline">&rarr; Roles & Responsibilities</a></li>
           <li><a href="/about-us/explore/executives-directory" class="hover:underline">&rarr; Senior Executives Directory</a></li>
-          <li><a href="/about-us/explore/ethics-code" class="hover:underline">&rarr; Code of Ethics</a></li>
           <li><a href="/about-us/explore/association-memorandum" class="hover:underline">&rarr; Memorandums of Association</a></li>
           <li><a href="/about-us/management/board" class="hover:underline">&rarr; Board of Directors</a></li>
           <li><a href="/about-us/management/committees" class="hover:underline">&rarr; Committees of Directors</a></li>
@@ -62,7 +61,7 @@ import Layout from '../layouts/Layout.astro';
         <ul class="space-y-1.5 text-xs text-gray-700 font-semibold text-[#0B4F9C]">
           <li><a href="/stakeholders/investors/chairman-statement" class="hover:underline">&rarr; Chairman's Statement</a></li>
           <li><a href="/stakeholders/investors/financial-results" class="hover:underline">&rarr; Financial Results</a></li>
-          <li><a href="/stakeholders/investors/announcement" class="hover:underline">&rarr; Announcements</a></li>
+          <li><a href="/notifications" class="hover:underline">&rarr; Notifications &amp; Circulars</a></li>
           <li><a href="/stakeholders/investors/annual-reports" class="hover:underline">&rarr; Annual Reports</a></li>
           <li><a href="/stakeholders/investors/mou-mop" class="hover:underline">&rarr; MoUs with MoP</a></li>
           <li><a href="/stakeholders/vendors/msme-corner" class="hover:underline">&rarr; Startups/MSME Corner</a></li>
@@ -76,46 +75,56 @@ import Layout from '../layouts/Layout.astro';
         </ul>
       </section>
 
-      <!-- Commercial -->
+      <!-- Power Trading Cell -->
       <section class="card-static space-y-3">
-        <h3 class="font-extrabold text-sm text-[#0B4F9C] border-b border-gray-100 pb-2">Commercial</h3>
+        <h3 class="font-extrabold text-sm text-[#0B4F9C] border-b border-gray-100 pb-2">Power Trading Cell</h3>
         <ul class="space-y-1.5 text-xs text-gray-700">
-          <li><a href="/commercial/overview" class="hover:underline">&rarr; Operations Overview</a></li>
-          <li><a href="/commercial/power-trading" class="hover:underline">&rarr; Power Trading Cell</a></li>
-          <li><a href="/commercial/contact" class="hover:underline">&rarr; Commercial Wing Contacts</a></li>
-          <li><a href="/commercial/laws-regulations" class="hover:underline">&rarr; Laws and Regulation</a></li>
-          <li><a href="/commercial/beneficiaries" class="hover:underline">&rarr; Power Beneficiaries</a></li>
-          <li><a href="/commercial/revenue-realisation" class="hover:underline">&rarr; Revenue Realisation</a></li>
-          <li><a href="/commercial/operating-stations" class="hover:underline">&rarr; Operating Stations</a></li>
-          <li><a href="/commercial/tariff" class="hover:underline">&rarr; Tariffs</a></li>
-          <li><a href="/commercial/billing" class="hover:underline">&rarr; Billing details</a></li>
-          <li><a href="/commercial/tariff-petitions" class="hover:underline">&rarr; Tariff Petitions</a></li>
-          <li><a href="/commercial/commercial-notices" class="hover:underline">&rarr; Commercial Notices</a></li>
+          <li><a href="/power-trading" class="hover:underline">&rarr; Power Trading Cell Disclosures &amp; Tenders</a></li>
         </ul>
       </section>
 
-      <!-- Sustainability -->
+      <!-- Sustainability & Governance -->
       <section class="card-static space-y-3">
-        <h3 class="font-extrabold text-sm text-[#0B4F9C] border-b border-gray-100 pb-2">Sustainability</h3>
+        <h3 class="font-extrabold text-sm text-[#0B4F9C] border-b border-gray-100 pb-2">Sustainability & Governance</h3>
         <ul class="space-y-1.5 text-xs text-gray-700">
           <li><a href="/sustainability/environment/preamble" class="hover:underline">&rarr; Environmental Preamble</a></li>
-          <li><a href="/sustainability/environment/key-areas" class="hover:underline">&rarr; Key focus Areas</a></li>
-          <li><a href="/sustainability/environment/six-monthly-reports" class="hover:underline">&rarr; Six Monthly Reports</a></li>
+          <li><a href="/sustainability/environment/key-areas" class="hover:underline">&rarr; Key Focus Areas</a></li>
+          <li><a href="/sustainability/environment/six-monthly-reports" class="hover:underline">&rarr; Compliance Reports</a></li>
           <li><a href="/sustainability/environment/rr-initiatives" class="hover:underline">&rarr; R&R Initiatives</a></li>
           <li><a href="/sustainability/environment/events" class="hover:underline">&rarr; Environmental Events</a></li>
           <li><a href="/sustainability/environment/clearance" class="hover:underline">&rarr; Environmental Clearances</a></li>
           <li><a href="/sustainability/environment/policy" class="hover:underline">&rarr; Environment Policy</a></li>
           <li><a href="/sustainability/csr/overview" class="hover:underline">&rarr; CSR Overview</a></li>
           <li><a href="/sustainability/csr/policy" class="hover:underline">&rarr; CSR Policy</a></li>
-          <li><a href="/sustainability/csr/communication-policy" class="hover:underline">&rarr; CSR Communication Policy</a></li>
-          <li><a href="/sustainability/csr/project-selection" class="hover:underline">&rarr; CSR Project Selection</a></li>
-          <li><a href="/sustainability/csr/guidelines" class="hover:underline">&rarr; CSR Guidelines</a></li>
-          <li><a href="/sustainability/csr/plans" class="hover:underline">&rarr; CSR Action Plans</a></li>
-          <li><a href="/sustainability/csr/reports" class="hover:underline">&rarr; CSR Activities Reports</a></li>
-          <li><a href="/sustainability/csr/awards" class="hover:underline">&rarr; CSR Honours & Awards</a></li>
-          <li><a href="/sustainability/csr/formats" class="hover:underline">&rarr; CSR Forms & Formats</a></li>
+          <li><a href="/sustainability/csr/plans" class="hover:underline">&rarr; CSR Plans</a></li>
+          <li><a href="/sustainability/csr/reports" class="hover:underline">&rarr; CSR Reports</a></li>
           <li><a href="/sustainability/esg/policies" class="hover:underline">&rarr; ESG Policies</a></li>
           <li><a href="/sustainability/esg/sustainability-report" class="hover:underline">&rarr; Sustainability Report</a></li>
+        </ul>
+      </section>
+
+      <!-- Quick Portals, Help & GIGW Mandatory Pages -->
+      <section class="card-static space-y-3">
+        <h3 class="font-extrabold text-sm text-[#0B4F9C] border-b border-gray-100 pb-2">Quick Portals &amp; Utilities</h3>
+        <ul class="space-y-1.5 text-xs text-gray-700">
+          <li><a href="/about-us/explore/policies" class="hover:underline">&rarr; Corporate Policies Directory</a></li>
+          <li><a href="/about-us/explore/rti" class="hover:underline">&rarr; RTI Disclosures</a></li>
+          <li><a href="/help" class="hover:underline">&rarr; Website Help &amp; FAQs</a></li>
+          <li><a href="/feedback" class="hover:underline">&rarr; Feedback</a></li>
+          <li><a href="/search" class="hover:underline">&rarr; Site Search</a></li>
+        </ul>
+      </section>
+
+      <!-- Website Policies (GIGW 3.0 Mandatory) -->
+      <section class="card-static space-y-3">
+        <h3 class="font-extrabold text-sm text-[#0B4F9C] border-b border-gray-100 pb-2">Website Policies</h3>
+        <ul class="space-y-1.5 text-xs text-gray-700">
+          <li><a href="/accessibility-statement" class="hover:underline">&rarr; Accessibility Statement</a></li>
+          <li><a href="/terms-conditions" class="hover:underline">&rarr; Terms &amp; Conditions</a></li>
+          <li><a href="/privacy-policy" class="hover:underline">&rarr; Privacy Policy</a></li>
+          <li><a href="/disclaimer" class="hover:underline">&rarr; Disclaimer</a></li>
+          <li><a href="/copyright" class="hover:underline">&rarr; Copyright Policy</a></li>
+          <li><a href="/hyperlinking-policy" class="hover:underline">&rarr; Hyperlinking Policy</a></li>
         </ul>
       </section>
 

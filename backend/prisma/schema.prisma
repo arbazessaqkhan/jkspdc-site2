@@ -141,3 +141,157 @@ model PolicyDocument {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model AgmDocument {
+  id          String   @id @default(uuid())
+  title       String
+  meetingDate DateTime
+  fileName    String
+  documentUrl String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PageContent {
+  id        String   @id @default(uuid())
+  pageSlug  String   @unique
+  title     String
+  content   String
+  metaDesc  String?
+  imageUrl  String?
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model Download {
+  id            String   @id @default(uuid())
+  title         String
+  category      String
+  fileName      String
+  documentUrl   String
+  fileSizeBytes Int      @default(0)
+  publishDate   DateTime @default(now())
+  status        String   @default("Active")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model FinancialDocument {
+  id          String   @id @default(uuid())
+  title       String
+  category    String
+  fiscalYear  String?
+  documentUrl String
+  fileName    String
+  publishDate DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Executive {
+  id            String   @id @default(uuid())
+  name          String
+  designation   String
+  department    String?
+  phone         String?
+  email         String?
+  officeAddress String?
+  sNo           Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model HeroSlide {
+  id        String   @id @default(uuid())
+  title     String
+  subtitle  String?
+  imageUrl  String
+  ctaText   String?
+  ctaHref   String?
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SiteSetting {
+  id    String @id @default(uuid())
+  key   String @unique
+  value String
+}
+
+// ── HYDRO AI Knowledge Assistant ──────────────────────────────
+
+model HydroDocument {
+  id              String   @id @default(uuid())
+  sourceUrl       String?
+  sourceType      String   // "page", "pdf", "docx", "manual", "database"
+  title           String
+  documentType    String?  // "notice", "tender", "policy", "page", etc.
+  department      String?
+  category        String?
+  publicationDate DateTime?
+  lastUpdated     DateTime?
+  documentNumber  String?
+  language        String   @default("en")
+  contentHash     String   // SHA-256 of raw content for change detection
+  status          String   @default("active") // active, archived, superseded
+  authority       String?
+  version         Int      @default(1)
+  fileSizeBytes   Int?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  chunks          HydroChunk[]
+}
+
+model HydroChunk {
+  id            String   @id @default(uuid())
+  documentId    String
+  document      HydroDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  chunkIndex    Int
+  content       String
+  heading       String?
+  pageNumber    Int?
+  sectionRef    String?
+  metadata      String?  // JSON string — keywords, entities, etc.
+  embeddingId   String?  // Reference key in vector index
+  createdAt     DateTime @default(now())
+}
+
+model HydroAdminOverride {
+  id            String   @id @default(uuid())
+  question      String
+  answer        String
+  category      String?
+  priority      Int      @default(0)
+  isActive      Boolean  @default(true)
+  createdBy     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model HydroConversation {
+  id             String   @id @default(uuid())
+  sessionId      String
+  userMessage    String
+  botResponse    String
+  confidence     String?
+  category       String?
+  sourcesUsed    String?  // JSON array
+  latencyMs      Int?
+  feedbackRating Int?     // 1 = thumbs up, -1 = thumbs down
+  feedbackText   String?
+  currentPage    String?
+  createdAt      DateTime @default(now())
+}
+
+model HydroIngestionLog {
+  id             String   @id @default(uuid())
+  sourceUrl      String?
+  sourceType     String
+  status         String   // "success", "failed", "skipped"
+  chunksCreated  Int      @default(0)
+  errorMessage   String?
+  durationMs     Int?
+  createdAt      DateTime @default(now())
+}

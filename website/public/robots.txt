@@ -1,5 +1,15 @@
+# robots.txt — JKSPDC Official Portal
+# GIGW 3.0 compliant: blocks admin, API and internal paths from search engine crawlers.
+# Production domain must replace [YOUR-DOMAIN] before deployment.
+
 User-agent: *
 Allow: /
-Disallow: /api/
 
-Sitemap: http://localhost:4321/sitemap.xml
+# Block admin interface and API from search engine crawlers
+Disallow: /admin/
+Disallow: /api/
+Disallow: /search?
+Disallow: /design-system
+
+# Sitemap location — update [YOUR-DOMAIN] to the official production domain before deployment
+Sitemap: https://[YOUR-DOMAIN]/sitemap.xml

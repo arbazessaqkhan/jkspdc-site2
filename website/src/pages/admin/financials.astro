@@ -1,0 +1,226 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/Icon.astro';
+
+let financials: any[] = [];
+let errorMessage = '';
+const sessionToken = Astro.cookies.get('admin_session')?.value || '';
+
+try {
+  const res = await fetch('http://localhost:3000/api/financials');
+  if (res.ok) financials = await res.json();
+} catch (e) {
+  errorMessage = 'Could not load financial documents.';
+}
+
+const docCategories = ['Financial Results', 'Annual Reports', 'Chairman Statement', 'MoU-MoP'];
+---
+
+<AdminLayout title="Financial Documents" description="Manage financial reports and investor documents" activeTab="financials">
+  <div class="flex flex-col gap-6">
+    <div class="flex items-center justify-between border-b border-slate-200 pb-5">
+      <div>
+        <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Financial Documents</h1>
+        <p class="text-xs text-slate-600 font-medium mt-1">Manage annual reports, financial results, chairman statements, and MoU documents.</p>
+      </div>
+      <button id="add-fin-btn" class="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 shadow-md transition-colors cursor-pointer">
+        <Icon name="plus" size={14} /> Add Document
+      </button>
+    </div>
+
+    {errorMessage && (
+      <div class="p-4 bg-amber-50 border-l-4 border-amber-500 rounded text-xs text-amber-800 font-semibold" role="alert">
+        <Icon name="info" size={14} class="inline text-amber-600 mr-1" /> {errorMessage}
+      </div>
+    )}
+
+    <!-- Category Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {docCategories.map((cat) => {
+        const count = financials.filter((f: any) => f.category === cat).length;
+        return (
+          <div class="bg-white rounded-xl border border-slate-200 p-4 flex flex-col gap-1">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{cat}</span>
+            <span class="text-2xl font-black text-slate-800">{count}</span>
+          </div>
+        );
+      })}
+    </div>
+
+    <!-- Documents Table -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <table class="w-full text-xs">
+        <thead class="bg-slate-50 border-b border-slate-200">
+          <tr>
+            <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">Title</th>
+            <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">Category</th>
+            <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">Fiscal Year</th>
+            <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider">File</th>
+            <th class="px-5 py-3 text-right text-[10px] font-bold text-slate-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {financials.length === 0 ? (
+            <tr><td colspan="5" class="px-5 py-8 text-center text-slate-400 italic">No financial documents found.</td></tr>
+          ) : (
+            financials.map((f: any) => (
+              <tr class="hover:bg-slate-50/50 transition-colors">
+                <td class="px-5 py-3 font-semibold text-slate-800">{f.title}</td>
+                <td class="px-5 py-3"><span class="px-2.5 py-1 bg-violet-50 text-violet-700 rounded-full text-[10px] font-bold">{f.category}</span></td>
+                <td class="px-5 py-3 text-slate-500">{f.fiscalYear || '—'}</td>
+                <td class="px-5 py-3 text-slate-500 font-mono text-[10px]">{f.fileName}</td>
+                <td class="px-5 py-3 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <a href={f.documentUrl} target="_blank" rel="noopener" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors" title="View">
+                      <Icon name="eye" size={13} />
+                    </a>
+                    <button class="edit-fin-btn p-1.5 text-amber-600 hover:bg-amber-50 rounded transition-colors cursor-pointer" data-id={f.id} data-title={f.title} data-category={f.category} data-year={f.fiscalYear || ''} data-filename={f.fileName} data-url={f.documentUrl}>
+                      <Icon name="pencil" size={13} />
+                    </button>
+                    <button class="delete-fin-btn p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer" data-id={f.id} data-title={f.title}>
+                      <Icon name="trash-2" size={13} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Modal -->
+    <div id="fin-modal" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+          <h3 id="fin-modal-title" class="text-sm font-extrabold text-slate-900">Add Document</h3>
+          <button id="fin-modal-close" class="p-2 text-slate-400 hover:text-red-600 rounded-lg cursor-pointer"><Icon name="x" size={18} /></button>
+        </div>
+        <div class="p-6 flex flex-col gap-4">
+          <input type="hidden" id="fin-edit-id" />
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">Title *</label>
+            <input id="fin-title" type="text" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">Category *</label>
+              <select id="fin-category" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                {docCategories.map((c) => <option value={c}>{c}</option>)}
+              </select>
+            </div>
+            <div>
+              <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">Fiscal Year</label>
+              <input id="fin-year" type="text" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="e.g. 2023-24" />
+            </div>
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">Upload File</label>
+            <input id="fin-file" type="file" class="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 cursor-pointer" />
+            <span class="text-[10px] text-slate-400 mt-1 block">PDF, DOCX, XLSX (Max 20MB / 100MB if Important)</span>
+            <label class="flex items-center gap-2 p-1.5 bg-amber-50/70 border border-amber-200/80 rounded cursor-pointer hover:bg-amber-50 transition-colors select-none mt-2">
+              <input type="checkbox" id="fin-is-important-checkbox" class="w-3.5 h-3.5 rounded text-[#0B4F9C] border-slate-300 focus:ring-[#0B4F9C] cursor-pointer" />
+              <span class="text-[11px] font-bold text-amber-900 flex items-center gap-1">★ Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
+            </label>
+          </div>
+        </div>
+        <div class="px-6 py-4 border-t border-slate-200 flex justify-end gap-3 bg-slate-50">
+          <button id="fin-modal-cancel" class="px-4 py-2 text-xs font-bold text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-100 cursor-pointer">Cancel</button>
+          <button id="fin-modal-save" class="px-6 py-2 text-xs font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-md cursor-pointer">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</AdminLayout>
+
+<script is:inline>
+(function() {
+  var modal = document.getElementById('fin-modal');
+  function getToken() { var m = document.cookie.match(/admin_session=([^;]+)/); return m ? m[1] : ''; }
+  function closeModal() { modal.classList.add('hidden'); }
+
+  document.getElementById('add-fin-btn').addEventListener('click', function() {
+    document.getElementById('fin-modal-title').textContent = 'Add Financial Document';
+    document.getElementById('fin-edit-id').value = '';
+    document.getElementById('fin-title').value = '';
+    document.getElementById('fin-year').value = '';
+    document.getElementById('fin-file').value = '';
+    modal.classList.remove('hidden');
+  });
+
+  document.querySelectorAll('.edit-fin-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.getElementById('fin-modal-title').textContent = 'Edit Financial Document';
+      document.getElementById('fin-edit-id').value = btn.dataset.id;
+      document.getElementById('fin-title').value = btn.dataset.title;
+      document.getElementById('fin-category').value = btn.dataset.category;
+      document.getElementById('fin-year').value = btn.dataset.year;
+      document.getElementById('fin-file').value = '';
+      modal.classList.remove('hidden');
+    });
+  });
+
+  document.querySelectorAll('.delete-fin-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      if (!confirm('Delete "' + btn.dataset.title + '"?')) return;
+      fetch('http://localhost:3000/api/financials/' + btn.dataset.id, { method: 'DELETE', headers: { Authorization: 'Bearer ' + getToken() } })
+        .then(function(r) { if (r.ok) window.location.reload(); else alert('Delete failed.'); });
+    });
+  });
+
+  document.getElementById('fin-modal-save').addEventListener('click', function() {
+    var token = getToken();
+    var editId = document.getElementById('fin-edit-id').value;
+    var fileInput = document.getElementById('fin-file');
+    var title = document.getElementById('fin-title').value;
+    var category = document.getElementById('fin-category').value;
+    var fiscalYear = document.getElementById('fin-year').value;
+
+    function saveRecord(fileName, documentUrl) {
+      var body = { title: title, category: category, fiscalYear: fiscalYear, fileName: fileName, documentUrl: documentUrl };
+      var url = editId ? 'http://localhost:3000/api/financials/' + editId : 'http://localhost:3000/api/financials';
+      fetch(url, { method: editId ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(body) })
+        .then(function(r) { if (r.ok) { alert('Saved!'); window.location.reload(); } else alert('Save failed.'); });
+    }
+
+    if (fileInput.files && fileInput.files.length > 0) {
+      var file = fileInput.files[0];
+      var isImportant = document.getElementById('fin-is-important-checkbox')?.checked || false;
+      var MAX_STANDARD = 20 * 1024 * 1024;
+      var MAX_IMPORTANT = 100 * 1024 * 1024;
+
+      if (!isImportant && file.size > MAX_STANDARD) {
+        var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        alert(`File size (${sizeMB} MB) exceeds the standard 20 MB limit.\n\nPlease check "Mark as Important" to allow uploading files up to 100 MB.`);
+        fileInput.value = '';
+        return;
+      }
+
+      if (file.size > MAX_IMPORTANT) {
+        var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        alert(`File size (${sizeMB} MB) exceeds the maximum allowed limit of 100 MB.`);
+        fileInput.value = '';
+        return;
+      }
+
+      var fd = new FormData();
+      fd.append('file', file);
+      fd.append('isImportant', isImportant ? 'true' : 'false');
+      fetch('http://localhost:3000/api/upload', { method: 'POST', headers: { Authorization: 'Bearer ' + token }, body: fd })
+        .then(function(r) {
+          if (!r.ok) return r.json().then(function(err) { throw new Error(err.message || 'Upload failed'); });
+          return r.json();
+        })
+        .then(function(d) { saveRecord(file.name, d.url || d.filePath); })
+        .catch(function(err) { alert('Upload error: ' + err.message); });
+    } else if (editId) {
+      fetch('http://localhost:3000/api/financials/' + editId, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify({ title: title, category: category, fiscalYear: fiscalYear }) })
+        .then(function(r) { if (r.ok) { alert('Updated!'); window.location.reload(); } else alert('Update failed.'); });
+    } else { alert('Please select a file.'); }
+  });
+
+  document.getElementById('fin-modal-close').addEventListener('click', closeModal);
+  document.getElementById('fin-modal-cancel').addEventListener('click', closeModal);
+  modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
+})();
+</script>

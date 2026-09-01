@@ -5,10 +5,60 @@ import { AppModule } from './app.module';
 import * as express from 'express';
 import * as path from 'path';
 import * as fs from 'fs';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
+
+  // ── GIGW/OWASP: HTTP Security Headers via Helmet ──────────────────────────
+  // Must be first middleware so headers appear on ALL responses including errors.
+  app.use(
+    helmet({
+      // X-Content-Type-Options: nosniff — prevents MIME-sniffing attacks
+      xContentTypeOptions: true,
+      // X-Frame-Options: SAMEORIGIN — prevents clickjacking
+      frameguard: { action: 'sameorigin' },
+      // X-XSS-Protection (legacy IE compatibility)
+      xXssProtection: true,
+      // Referrer-Policy — limits referrer info sent to third parties
+      referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+      // Disable X-Powered-By to hide server technology
+      hidePoweredBy: true,
+      // HSTS — only enforce over HTTPS; in development this is a no-op over HTTP
+      hsts: {
+        maxAge: 31536000, // 1 year
+        includeSubDomains: true,
+        preload: true,
+      },
+      // Content-Security-Policy — permissive policy for government SSR site
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'", "'unsafe-inline'"], // Inline scripts used in Astro SSR
+          styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+          fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+          imgSrc: ["'self'", 'data:', 'blob:'],
+          connectSrc: [
+            "'self'",
+            'https://translation-plugin.bhashini.co.in', // Bhashini translation API
+            'http://localhost:3000',  // Backend API (dev — update for production)
+          ],
+          frameSrc: ["'none'"],
+          objectSrc: ["'none'"],
+          baseUri: ["'self'"],
+          formAction: ["'self'"],
+        },
+      },
+    }),
+  );
+
+  // ── Disable X-Powered-By at Express level (belt-and-suspenders) ──────────
+  app.getHttpAdapter().getInstance().disable('x-powered-by');
+
+  // Configure payload size limit for large uploads (up to 100MB + headers)
+  app.use(express.json({ limit: '110mb' }));
+  app.use(express.urlencoded({ limit: '110mb', extended: true }));
 
   // Set global prefix for API endpoints
   app.setGlobalPrefix('api');

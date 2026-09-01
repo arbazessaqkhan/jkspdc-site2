@@ -22,69 +22,173 @@ const faqs = [
 ];
 ---
 
-<Layout 
-  title="Help & FAQ - JKSPDC Portal" 
-  description="Help guide and Frequently Asked Questions (FAQ) for navigating the JKSPDC portal, viewing tenders, and contacting offices."
+<Layout
+  title="Help & Support - JKSPDC"
+  description="Help and FAQ guide for the JKSPDC official website. Learn how to find tenders, notifications, documents, and use the accessibility features."
 >
   <div class="space-y-0">
-    <!-- Premium Page Header Band -->
+    <!-- Page Header Band -->
     <div class="page-header-band animate-fadeInUp">
-      <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
+      <nav class="breadcrumb-trail" aria-label="breadcrumb">
         <a href="/">Home</a>
-        <span class="separator">/</span>
+        <span class="separator" aria-hidden="true">/</span>
         <span class="current">Help</span>
       </nav>
-      <h1>Help & Support</h1>
+      <h1>Help &amp; Support</h1>
       <p class="page-subtitle">Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL)</p>
     </div>
 
-    <!-- Content -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fadeInUp delay-200">
-      <!-- Main Text -->
-      <article class="lg:col-span-2 space-y-6">
-        <section class="card-static space-y-4">
-          <h2 class="text-xl font-bold text-[#0B4F9C] border-b border-gray-100 pb-2">Frequently Asked Questions</h2>
-          <div class="space-y-4">
-            {faqs.map((faq, index) => (
-              <div class="border-b border-gray-100 pb-4 last:border-0 last:pb-0 space-y-1">
-                <h3 class="font-bold text-gray-900 text-sm flex items-start gap-2">
-                  <span class="text-[#0B4F9C] font-extrabold">Q{index + 1}.</span> {faq.q}
-                </h3>
-                <p class="text-xs text-gray-600 pl-6 leading-relaxed">
-                  {faq.a}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
 
-        <section class="card-static space-y-4">
-          <h2 class="text-xl font-bold text-[#0B4F9C] border-b border-gray-100 pb-2">Viewing Official Documents</h2>
-          <p class="text-xs text-gray-700 leading-relaxed">
-            Most downloadable documents (such as Tenders, Tariff Orders, and Corporate Policies) on this site are in <strong>Portable Document Format (PDF)</strong>. To view these files, you will need a PDF reader such as Adobe Acrobat Reader (free download) or any modern browser with PDF rendering enabled.
-          </p>
-        </section>
+      <!-- Main Content -->
+      <article class="lg:col-span-2 space-y-5">
+
+        <!-- Introduction -->
+        <div class="card-static">
+          <h2 class="font-bold text-[#0B4F9C] text-base mb-3 border-b border-gray-100 pb-2">About This Website</h2>
+          <p>This is the official website of Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL). This guide will help you find information, use features, and navigate the portal effectively.</p>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="card-static">
+          <h2 class="font-bold text-[#0B4F9C] text-base mb-4 border-b border-gray-100 pb-2">Frequently Asked Questions (FAQ)</h2>
+          <div class="space-y-4" id="faq-accordion">
+
+            <details class="border border-gray-200 rounded-lg overflow-hidden">
+              <summary class="p-4 font-semibold text-sm text-gray-800 cursor-pointer hover:bg-gray-50 flex justify-between items-center list-none">
+                How do I find current tenders and notices?
+                <span aria-hidden="true" class="text-[#0B4F9C] font-bold text-lg leading-none">+</span>
+              </summary>
+              <div class="p-4 pt-2 text-sm text-gray-700 border-t border-gray-100">
+                <p>Current tenders and procurement notices are available at:</p>
+                <ul class="mt-2 space-y-1">
+                  <li>• <a href="/stakeholders/vendors/tender-bids" class="text-[#0B4F9C] hover:underline">Tenders &amp; Bids</a> — Live tender list with search and filters</li>
+                  <li>• <a href="https://jktenders.gov.in" target="_blank" rel="noopener noreferrer" class="text-[#0B4F9C] hover:underline">JK Tenders Portal<span class="sr-only"> (opens in new tab)</span></a> — Official J&amp;K Government tender portal</li>
+                </ul>
+              </div>
+            </details>
+
+            <details class="border border-gray-200 rounded-lg overflow-hidden">
+              <summary class="p-4 font-semibold text-sm text-gray-800 cursor-pointer hover:bg-gray-50 flex justify-between items-center list-none">
+                Where can I find notifications and official orders?
+                <span aria-hidden="true" class="text-[#0B4F9C] font-bold text-lg leading-none">+</span>
+              </summary>
+              <div class="p-4 pt-2 text-sm text-gray-700 border-t border-gray-100">
+                <p>Official notifications, circulars, and office orders are published at <a href="/notifications" class="text-[#0B4F9C] hover:underline">Notifications &amp; Circulars</a>. You can filter by project/topic, year, and search by keyword or document title.</p>
+              </div>
+            </details>
+
+            <details class="border border-gray-200 rounded-lg overflow-hidden">
+              <summary class="p-4 font-semibold text-sm text-gray-800 cursor-pointer hover:bg-gray-50 flex justify-between items-center list-none">
+                How do I download documents and reports?
+                <span aria-hidden="true" class="text-[#0B4F9C] font-bold text-lg leading-none">+</span>
+              </summary>
+              <div class="p-4 pt-2 text-sm text-gray-700 border-t border-gray-100">
+                <p>Documents, annual reports, and policy PDFs are available in the <a href="/media/downloads" class="text-[#0B4F9C] hover:underline">Downloads</a> section. Most documents are in PDF format and require a PDF viewer. If you cannot open a PDF, download <a href="https://get.adobe.com/reader/" target="_blank" rel="noopener noreferrer" class="text-[#0B4F9C] hover:underline">Adobe Acrobat Reader<span class="sr-only"> (opens in new tab)</span></a> (free).</p>
+              </div>
+            </details>
+
+            <details class="border border-gray-200 rounded-lg overflow-hidden">
+              <summary class="p-4 font-semibold text-sm text-gray-800 cursor-pointer hover:bg-gray-50 flex justify-between items-center list-none">
+                How do I use the search feature?
+                <span aria-hidden="true" class="text-[#0B4F9C] font-bold text-lg leading-none">+</span>
+              </summary>
+              <div class="p-4 pt-2 text-sm text-gray-700 border-t border-gray-100">
+                <p>The search box is available in the header on all pages. Type a keyword and press Enter or click the search button. Search covers projects, tenders, notifications, and general content. For a specific document type, use the dedicated section (e.g., <a href="/stakeholders/vendors/tender-bids" class="text-[#0B4F9C] hover:underline">Tenders</a> or <a href="/notifications" class="text-[#0B4F9C] hover:underline">Notifications</a>) which have their own advanced filters.</p>
+              </div>
+            </details>
+
+            <details class="border border-gray-200 rounded-lg overflow-hidden">
+              <summary class="p-4 font-semibold text-sm text-gray-800 cursor-pointer hover:bg-gray-50 flex justify-between items-center list-none">
+                How do I contact JKSPDC?
+                <span aria-hidden="true" class="text-[#0B4F9C] font-bold text-lg leading-none">+</span>
+              </summary>
+              <div class="p-4 pt-2 text-sm text-gray-700 border-t border-gray-100">
+                <p>Visit the <a href="/about-us/others/contact" class="text-[#0B4F9C] hover:underline">Contact Us</a> page for the full directory of offices, phone numbers, and email addresses. You can also use the online enquiry form on that page to send a message directly.</p>
+              </div>
+            </details>
+
+            <details class="border border-gray-200 rounded-lg overflow-hidden">
+              <summary class="p-4 font-semibold text-sm text-gray-800 cursor-pointer hover:bg-gray-50 flex justify-between items-center list-none">
+                How do I access RTI (Right to Information) information?
+                <span aria-hidden="true" class="text-[#0B4F9C] font-bold text-lg leading-none">+</span>
+              </summary>
+              <div class="p-4 pt-2 text-sm text-gray-700 border-t border-gray-100">
+                <p>RTI disclosures under Section 4 of the RTI Act are available at <a href="/about-us/explore/rti" class="text-[#0B4F9C] hover:underline">RTI Disclosures</a>. For filing RTI applications, please contact the Public Information Officer (PIO) whose details are provided on that page.</p>
+              </div>
+            </details>
+
+            <details class="border border-gray-200 rounded-lg overflow-hidden">
+              <summary class="p-4 font-semibold text-sm text-gray-800 cursor-pointer hover:bg-gray-50 flex justify-between items-center list-none">
+                How do I report a problem or give feedback?
+                <span aria-hidden="true" class="text-[#0B4F9C] font-bold text-lg leading-none">+</span>
+              </summary>
+              <div class="p-4 pt-2 text-sm text-gray-700 border-t border-gray-100">
+                <p>Use the <a href="/feedback" class="text-[#0B4F9C] hover:underline">Feedback Form</a> to report broken links, content errors, accessibility issues, or to suggest improvements. You will receive a reference number to track your submission.</p>
+              </div>
+            </details>
+
+          </div>
+        </div>
+
+        <!-- Accessibility Features Guide -->
+        <div class="card-static">
+          <h2 class="font-bold text-[#0B4F9C] text-base mb-3 border-b border-gray-100 pb-2">Using Accessibility Features</h2>
+          <div class="space-y-3 text-sm">
+            <div>
+              <h3 class="font-semibold text-gray-800 mb-1">Font Size</h3>
+              <p>Use the <strong>A-</strong> / <strong>A</strong> / <strong>A+</strong> buttons in the accessibility bar at the top of every page to decrease, reset, or increase text size.</p>
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-800 mb-1">High Contrast Mode</h3>
+              <p>Click the <strong>High Contrast</strong> toggle in the accessibility bar to switch to a high contrast display suitable for users with low vision.</p>
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-800 mb-1">Language</h3>
+              <p>Select your preferred language from the language dropdown at the top right. Available languages: English, हिन्दी (Hindi), اردو (Urdu), कॉशुर (Kashmiri), डोगरी (Dogri).</p>
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-800 mb-1">Keyboard Navigation</h3>
+              <p>This website supports full keyboard navigation. Use <kbd class="bg-gray-100 border border-gray-300 rounded px-1.5 py-0.5 text-xs font-mono">Tab</kbd> to navigate, <kbd class="bg-gray-100 border border-gray-300 rounded px-1.5 py-0.5 text-xs font-mono">Enter</kbd> to activate links and buttons, <kbd class="bg-gray-100 border border-gray-300 rounded px-1.5 py-0.5 text-xs font-mono">Escape</kbd> to close menus, and <kbd class="bg-gray-100 border border-gray-300 rounded px-1.5 py-0.5 text-xs font-mono">Skip to Main Content</kbd> (first link) to bypass navigation.</p>
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-800 mb-1">Screen Readers</h3>
+              <p>This website is designed to work with screen readers including NVDA, JAWS, and VoiceOver. All images have descriptive alt text; all form fields have labels; all navigation menus are keyboard-accessible.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Browser Compatibility -->
+        <div class="card-static">
+          <h2 class="font-bold text-[#0B4F9C] text-base mb-3 border-b border-gray-100 pb-2">Browser Compatibility</h2>
+          <p class="text-sm">This website is designed to work with modern web browsers. Recommended browsers:</p>
+          <ul class="mt-2 space-y-1 text-sm">
+            <li>✅ Google Chrome (latest version)</li>
+            <li>✅ Mozilla Firefox (latest version)</li>
+            <li>✅ Microsoft Edge (latest version)</li>
+            <li>✅ Safari (latest version on macOS / iOS)</li>
+          </ul>
+          <p class="mt-2 text-sm text-gray-600">Enable JavaScript for full functionality including language translation and search autocomplete.</p>
+        </div>
+
       </article>
 
       <!-- Sidebar -->
       <aside class="space-y-5 animate-fadeIn delay-300">
         <div class="card-static">
-          <h3 class="sidebar-card-title">Support Links</h3>
+          <h3 class="sidebar-card-title">Quick Links</h3>
           <ul class="flex flex-col gap-2 text-xs font-semibold text-[#0B4F9C]">
             <li><a href="/sitemap" class="sidebar-link">Sitemap</a></li>
             <li><a href="/about-us/others/contact" class="sidebar-link">Contact Directory</a></li>
+            <li><a href="/feedback" class="sidebar-link">Submit Feedback</a></li>
+            <li><a href="/accessibility-statement" class="sidebar-link">Accessibility Statement</a></li>
+            <li><a href="/about-us/explore/rti" class="sidebar-link">RTI Disclosures</a></li>
           </ul>
         </div>
-
         <div class="card-static">
-          <h3 class="sidebar-card-title">Mandatory Policies</h3>
-          <ul class="flex flex-col gap-2 text-xs font-semibold text-[#0B4F9C]">
-            <li><a href="/policies/accessibility" class="sidebar-link">Accessibility Statement</a></li>
-            <li><a href="/policies/privacy" class="sidebar-link">Privacy Policy</a></li>
-            <li><a href="/policies/terms" class="sidebar-link">Terms of Use</a></li>
-            <li><a href="/policies/hyperlinking" class="sidebar-link">Hyperlinking Policy</a></li>
-            <li><a href="/policies/copyright" class="sidebar-link">Copyright Policy</a></li>
-          </ul>
+          <h3 class="sidebar-card-title">Need More Help?</h3>
+          <p class="text-xs text-gray-600 mb-2">If you cannot find what you need, please contact us directly.</p>
+          <a href="/about-us/others/contact" class="btn-primary text-xs w-full text-center">Contact Us</a>
         </div>
       </aside>
     </div>

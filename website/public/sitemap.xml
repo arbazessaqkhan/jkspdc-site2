@@ -1,43 +1,222 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- GIGW 3.0 Compliant XML Sitemap for JKSPDC Official Portal -->
+<!-- IMPORTANT: Replace [YOUR-DOMAIN] with the official production domain (e.g., jkspdc.nic.in) before deployment -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Core Pages -->
   <url>
-    <loc>http://localhost:4321/</loc>
+    <loc>https://[YOUR-DOMAIN]/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>http://localhost:4321/sitemap</loc>
+    <loc>https://[YOUR-DOMAIN]/sitemap</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://localhost:4321/help</loc>
+    <loc>https://[YOUR-DOMAIN]/search</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://[YOUR-DOMAIN]/help</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>http://localhost:4321/about-us/explore/overview</loc>
+    <loc>https://[YOUR-DOMAIN]/notifications</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Policy & Legal Pages (GIGW Mandatory) -->
+  <url>
+    <loc>https://[YOUR-DOMAIN]/accessibility-statement</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://[YOUR-DOMAIN]/terms-conditions</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://[YOUR-DOMAIN]/privacy-policy</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://[YOUR-DOMAIN]/disclaimer</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://[YOUR-DOMAIN]/copyright</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://[YOUR-DOMAIN]/hyperlinking-policy</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://[YOUR-DOMAIN]/feedback</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- About Us -->
+  <url>
+    <loc>https://[YOUR-DOMAIN]/about-us/explore/overview</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://[YOUR-DOMAIN]/about-us/explore/vision</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://[YOUR-DOMAIN]/about-us/explore/mission</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://[YOUR-DOMAIN]/about-us/explore/profile</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>http://localhost:4321/our-business/power-stations</loc>
+    <loc>https://[YOUR-DOMAIN]/about-us/explore/objectives</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://[YOUR-DOMAIN]/about-us/explore/organization-chart</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://[YOUR-DOMAIN]/about-us/explore/executives-directory</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://[YOUR-DOMAIN]/about-us/explore/association-memorandum</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://[YOUR-DOMAIN]/about-us/explore/gstin-registration</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://[YOUR-DOMAIN]/about-us/explore/policies</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://[YOUR-DOMAIN]/about-us/explore/rti</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://[YOUR-DOMAIN]/about-us/management/board</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://[YOUR-DOMAIN]/about-us/others/contact</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://[YOUR-DOMAIN]/about-us/others/awards</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Our Business / Projects -->
+  <url>
+    <loc>https://[YOUR-DOMAIN]/our-business/power-stations</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>http://localhost:4321/stakeholders/vendors/tender-bids</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>http://localhost:4321/commercial/overview</loc>
+    <loc>https://[YOUR-DOMAIN]/our-business/construction</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://localhost:4321/sustainability/environment/preamble</loc>
+    <loc>https://[YOUR-DOMAIN]/our-business/under-development</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+  <url>
+    <loc>https://[YOUR-DOMAIN]/power-trading</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Tenders & Stakeholders -->
+  <url>
+    <loc>https://[YOUR-DOMAIN]/stakeholders/vendors/tender-bids</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://[YOUR-DOMAIN]/stakeholders/investors/agm</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://[YOUR-DOMAIN]/stakeholders/investors/ipp-projects</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Media -->
+  <url>
+    <loc>https://[YOUR-DOMAIN]/media/gallery</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://[YOUR-DOMAIN]/media/downloads</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://[YOUR-DOMAIN]/media/press-releases</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Sustainability -->
+  <url>
+    <loc>https://[YOUR-DOMAIN]/sustainability/environment/preamble</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://[YOUR-DOMAIN]/sustainability/csr/overview</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://[YOUR-DOMAIN]/sustainability/csr/policy</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Commercial -->
+  <url>
+    <loc>https://[YOUR-DOMAIN]/commercial/overview</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
 </urlset>
