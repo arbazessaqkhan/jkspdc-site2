@@ -167,8 +167,9 @@ const existingPages = new Map(pages.map((p: any) => [p.pageSlug, p]));
             <input id="edit-meta" type="text" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Brief SEO description..." />
           </div>
           <div class="flex-1">
-            <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">Page Content (HTML)</label>
-            <textarea id="edit-content" class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[300px] resize-y" placeholder="Enter HTML content..." rows="15"></textarea>
+            <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">Page Content (Rich Text Editor)</label>
+            <input type="hidden" id="edit-content" value="" />
+            <div data-rich-editor="edit-content" data-placeholder="Enter page body content (supports headings, bold, lists, quotes)..." class="bg-white rounded-lg border border-slate-300 min-h-[280px] text-sm"></div>
           </div>
         </div>
         <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-between bg-slate-50">
@@ -186,7 +187,7 @@ const existingPages = new Map(pages.map((p: any) => [p.pageSlug, p]));
 </AdminLayout>
 
 <script is:inline>
-(function() {
+function initPageEditor() {
   var modal = document.getElementById('page-edit-modal');
   var titleInput = document.getElementById('edit-title');
   var metaInput = document.getElementById('edit-meta');
@@ -202,69 +203,79 @@ const existingPages = new Map(pages.map((p: any) => [p.pageSlug, p]));
 
   // Open modal
   document.querySelectorAll('.page-edit-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
+    btn.onclick = function() {
       currentSlug = btn.dataset.slug;
-      modalTitle.textContent = 'Edit: ' + btn.dataset.label;
-      modalSlug.textContent = 'Slug: ' + currentSlug;
-      titleInput.value = btn.dataset.title || btn.dataset.label;
-      metaInput.value = btn.dataset.meta || '';
-      contentInput.value = btn.dataset.content || '';
-      modal.classList.remove('hidden');
-    });
+      if (modalTitle) modalTitle.textContent = 'Edit: ' + btn.dataset.label;
+      if (modalSlug) modalSlug.textContent = 'Slug: ' + currentSlug;
+      if (titleInput) titleInput.value = btn.dataset.title || btn.dataset.label;
+      if (metaInput) metaInput.value = btn.dataset.meta || '';
+      if (contentInput) contentInput.value = btn.dataset.content || '';
+      if (modal) modal.classList.remove('hidden');
+      if (window.initQuillRichEditors) setTimeout(window.initQuillRichEditors, 50);
+    };
   });
 
   // Close modal
-  document.getElementById('modal-close').addEventListener('click', function() {
-    modal.classList.add('hidden');
-  });
-  document.getElementById('modal-cancel').addEventListener('click', function() {
-    modal.classList.add('hidden');
-  });
-  modal.addEventListener('click', function(e) {
-    if (e.target === modal) modal.classList.add('hidden');
-  });
+  var closeBtn = document.getElementById('modal-close');
+  var cancelBtn = document.getElementById('modal-cancel');
+  if (closeBtn) closeBtn.onclick = function() { if (modal) modal.classList.add('hidden'); };
+  if (cancelBtn) cancelBtn.onclick = function() { if (modal) modal.classList.add('hidden'); };
+  if (modal) {
+    modal.onclick = function(e) {
+      if (e.target === modal) modal.classList.add('hidden');
+    };
+  }
 
   // Save
-  document.getElementById('modal-save').addEventListener('click', function() {
-    var token = getToken();
-    if (!token) { alert('Not authenticated. Please log in.'); return; }
-    fetch('http://localhost:3000/api/page-content/' + currentSlug, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-      body: JSON.stringify({
-        title: titleInput.value,
-        content: contentInput.value,
-        metaDesc: metaInput.value,
-      }),
-    })
-    .then(function(res) {
-      if (res.ok) {
-        alert('Page saved successfully!');
-        window.location.reload();
-      } else {
-        alert('Failed to save. Please try again.');
-      }
-    })
-    .catch(function() { alert('Network error. Please try again.'); });
-  });
+  var saveBtn = document.getElementById('modal-save');
+  if (saveBtn) {
+    saveBtn.onclick = function() {
+      var token = getToken();
+      if (!token) { alert('Not authenticated. Please log in.'); return; }
+      fetch('http://localhost:3000/api/page-content/' + currentSlug, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body: JSON.stringify({
+          title: titleInput ? titleInput.value : '',
+          content: contentInput ? contentInput.value : '',
+          metaDesc: metaInput ? metaInput.value : '',
+        }),
+      })
+      .then(function(res) {
+        if (res.ok) {
+          alert('Page saved successfully!');
+          window.location.reload();
+        } else {
+          alert('Failed to save. Please try again.');
+        }
+      })
+      .catch(function() { alert('Network error. Please try again.'); });
+    };
+  }
 
   // Reset
-  document.getElementById('modal-reset').addEventListener('click', function() {
-    if (!confirm('Reset this page to default content? This will delete any custom content.')) return;
-    var token = getToken();
-    fetch('http://localhost:3000/api/page-content/' + currentSlug, {
-      method: 'DELETE',
-      headers: { Authorization: 'Bearer ' + token },
-    })
-    .then(function(res) {
-      if (res.ok) {
-        alert('Page reset to default.');
-        window.location.reload();
-      } else {
-        alert('Failed to reset. Page may already be using default content.');
-      }
-    })
-    .catch(function() { alert('Network error.'); });
-  });
-})();
+  var resetBtn = document.getElementById('modal-reset');
+  if (resetBtn) {
+    resetBtn.onclick = function() {
+      if (!confirm('Reset this page to default content? This will delete any custom content.')) return;
+      var token = getToken();
+      fetch('http://localhost:3000/api/page-content/' + currentSlug, {
+        method: 'DELETE',
+        headers: { Authorization: 'Bearer ' + token },
+      })
+      .then(function(res) {
+        if (res.ok) {
+          alert('Page reset to default.');
+          window.location.reload();
+        } else {
+          alert('Failed to reset. Page may already be using default content.');
+        }
+      })
+      .catch(function() { alert('Network error.'); });
+    };
+  }
+}
+
+document.addEventListener('astro:page-load', initPageEditor);
+initPageEditor();
 </script>

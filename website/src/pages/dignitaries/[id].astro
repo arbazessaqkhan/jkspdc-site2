@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import { sanitizeHtml } from '../../utils/sanitizer';
 
 const { id } = Astro.params;
 let dignitary: any = null;
@@ -39,6 +40,9 @@ const officeLocation = dignitary?.officeLocation || '—';
 const imageUrl = dignitary?.imageUrl || '/logo.png';
 const description = dignitary?.description || 'No biography details available.';
 const keyResponsibilities = dignitary?.keyResponsibilities || '';
+
+const cleanDescription = sanitizeHtml(description);
+const cleanResponsibilities = sanitizeHtml(keyResponsibilities);
 
 const initials = name
   ? name
@@ -136,28 +140,14 @@ const initials = name
             <!-- Section 1: Biography -->
             <section class="space-y-3">
               <h3 class="text-sm font-bold text-[#0B4F9C] uppercase tracking-wider border-b border-slate-100 pb-1.5">Biography</h3>
-              {description.split('\n\n').map((para: string) => (
-                <p class="text-sm text-slate-600 leading-relaxed text-pretty">
-                  {para}
-                </p>
-              ))}
+              <div class="prose-gov text-sm text-slate-600 leading-relaxed space-y-3" set:html={cleanDescription} />
             </section>
 
             <!-- Section 2: Key Responsibilities -->
             {keyResponsibilities && (
               <section class="space-y-3">
                 <h3 class="text-sm font-bold text-[#0B4F9C] uppercase tracking-wider border-b border-slate-100 pb-1.5">Key Responsibilities</h3>
-                {keyResponsibilities.includes('\n') ? (
-                  <ul class="list-disc pl-5 text-sm text-slate-600 space-y-1 text-pretty">
-                    {keyResponsibilities.split('\n').map((item: string) => (
-                      item.trim() ? <li>{item.replace(/^[•\-*]\s*/, '')}</li> : null
-                    ))}
-                  </ul>
-                ) : (
-                  <p class="text-sm text-slate-600 leading-relaxed text-pretty">
-                    {keyResponsibilities}
-                  </p>
-                )}
+                <div class="prose-gov text-sm text-slate-600 leading-relaxed space-y-2" set:html={cleanResponsibilities} />
               </section>
             )}
 
