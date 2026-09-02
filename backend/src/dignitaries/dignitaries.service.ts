@@ -36,8 +36,8 @@ export class DignitariesService {
       keyResponsibilities
     } = data;
     
-    if (!name || !position || !role || sNo === undefined) {
-      throw new Error('Missing required fields: name, position, role, sNo');
+    if (!name || !position || sNo === undefined) {
+      throw new Error('Missing required fields: name, position, sNo');
     }
 
     return this.prisma.dignitary.create({
@@ -45,7 +45,7 @@ export class DignitariesService {
         name,
         position,
         subTitle: subTitle || null,
-        role,
+        role: role || position || 'OFFICIAL DIGNITARY',
         sNo: parseInt(sNo, 10),
         imageUrl: imageUrl || null,
         iasBatch: iasBatch || null,
@@ -66,7 +66,7 @@ export class DignitariesService {
         name: data.name,
         position: data.position,
         subTitle: data.subTitle !== undefined ? data.subTitle : undefined,
-        role: data.role,
+        role: data.role !== undefined ? (data.role || data.position) : undefined,
         sNo: data.sNo !== undefined ? parseInt(data.sNo, 10) : undefined,
         imageUrl: data.imageUrl !== undefined ? data.imageUrl : undefined,
         iasBatch: data.iasBatch !== undefined ? data.iasBatch : undefined,

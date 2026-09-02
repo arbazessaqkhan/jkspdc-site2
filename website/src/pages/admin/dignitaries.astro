@@ -33,14 +33,14 @@ if (Astro.request.method === 'POST') {
       const description = formData.get('description')?.toString();
       const keyResponsibilities = formData.get('keyResponsibilities')?.toString();
 
-      if (!name || !position || !role || !sNo) {
-        errorMessage = 'Name, Designation, Role, and S No. are required.';
+      if (!name || !position || !sNo) {
+        errorMessage = 'Name, Designation, and S No. are required.';
       } else {
         const body = {
           name,
           position,
           subTitle: subTitle || null,
-          role,
+          role: role || position || 'OFFICIAL DIGNITARY',
           sNo: parseInt(sNo, 10),
           imageUrl: imageUrl || null,
           iasBatch: iasBatch || null,
@@ -72,7 +72,7 @@ if (Astro.request.method === 'POST') {
         }
 
         if (res.ok) {
-          successMessage = `Dignitary successfully ${action === 'create' ? 'added' : 'updated'}.`;
+          successMessage = `Dignitary profile successfully ${action === 'create' ? 'added' : 'updated'}.`;
         } else {
           const errData = await res.json().catch(() => ({}));
           errorMessage = errData.message || 'Failed to save dignitary.';
@@ -118,22 +118,7 @@ try {
 ---
 
 <AdminLayout title="Dignitaries Management" description="Manage JKSPDCL state dignitaries and corporate leadership profiles." activeTab="dignitaries">
-  <div class="flex flex-col gap-6">
-    
-    <!-- Header banner -->
-    <div class="bg-white rounded-lg border border-slate-200/85 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-      <div>
-        <h2 class="text-xl font-bold text-[#0B4F9C]">JKSPDCL Dignitaries Management</h2>
-        <p class="text-xs text-slate-500">Add, edit, or remove state dignitaries. Configured profiles automatically generate public profile pages.</p>
-      </div>
-      <button 
-        id="open-add-modal" 
-        class="btn-primary flex items-center gap-1.5 self-start md:self-auto cursor-pointer"
-        aria-haspopup="dialog"
-      >
-        <Icon name="plus" size={14} /> Add New Dignitary
-      </button>
-    </div>
+  <div class="flex flex-col gap-6 max-w-6xl mx-auto w-full">
 
     <!-- Feedback messages -->
     {errorMessage && (
@@ -147,129 +132,160 @@ try {
       </div>
     )}
 
-    <!-- Table -->
-    <div class="bg-white rounded-xl border border-slate-200/85 shadow-md overflow-hidden max-w-6xl mx-auto w-full">
-      <div class="table-wrapper">
-        <table class="table-data min-w-full divide-y divide-slate-200/60">
-          <thead>
-            <tr class="bg-slate-50">
-              <th scope="col" class="w-14 text-center py-3.5 text-xs font-bold uppercase tracking-wider text-slate-500">#</th>
-              <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Dignitary Photo &amp; Name</th>
-              <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Designation &amp; Subtitle</th>
-              <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Classification Badge</th>
-              <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Service &amp; Qualifications</th>
-              <th scope="col" class="px-4 py-3.5 text-center text-xs font-bold uppercase tracking-wider text-slate-500 w-36">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-100 bg-white">
-            {dignitaries.length === 0 ? (
-              <tr>
-                <td colspan="6" class="px-6 py-12 text-center text-slate-400 text-xs italic">
-                  No dignitaries found in database. Click "Add New Dignitary" to add one.
-                </td>
-              </tr>
-            ) : (
-              dignitaries.map((dig: any) => {
-                const initials = dig.name
-                  ? dig.name
-                      .replace(/Shri\s*|Smt\s*|Dr\s*|Er\s*|\(IAS\)/gi, '')
-                      .trim()
-                      .split(' ')
-                      .map((n: string) => n[0])
-                      .join('')
-                      .toUpperCase()
-                      .slice(0, 2)
-                  : 'DG';
-
-                return (
-                  <tr class="hover:bg-slate-50/80 transition-colors">
-                    <td class="py-4 text-center text-xs font-bold text-slate-600">{dig.sNo}</td>
-                    <td class="px-4 py-4">
-                      <div class="flex items-center gap-3">
-                        {dig.imageUrl ? (
-                          <img src={dig.imageUrl} alt={dig.name} class="w-10 h-10 rounded-full object-cover object-top border border-slate-200 shrink-0" />
-                        ) : (
-                          <div class="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-xs font-extrabold text-[#0B4F9C] shrink-0">
-                            {initials}
-                          </div>
-                        )}
-                        <div>
-                          <p class="font-bold text-slate-800 text-xs">{dig.name}</p>
-                          <p class="text-[10px] text-slate-400 mt-0.5">S.No: {dig.sNo}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="px-4 py-4 max-w-xs">
-                      <p class="text-xs text-slate-700 leading-snug font-bold">{dig.position}</p>
-                      {dig.subTitle && <p class="text-[11px] text-slate-500 mt-0.5 font-medium">{dig.subTitle}</p>}
-                    </td>
-                    <td class="px-4 py-4">
-                      <span class="inline-block px-2.5 py-1 text-[10px] font-extrabold tracking-wide uppercase rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        {dig.role}
-                      </span>
-                    </td>
-                    <td class="px-4 py-4 text-xs text-slate-600">
-                      <p class="font-semibold text-slate-700">{dig.iasBatch || '—'}</p>
-                      <p class="text-[10px] text-slate-400">{dig.education || '—'}</p>
-                    </td>
-                    <td class="px-4 py-4 text-center">
-                      <div class="flex items-center justify-center gap-2">
-                        <button
-                          type="button"
-                          class="btn-edit cursor-pointer edit-dignitary-btn px-2.5 py-1 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded border border-slate-300"
-                          data-id={dig.id}
-                          data-name={dig.name}
-                          data-position={dig.position}
-                          data-subtitle={dig.subTitle || ''}
-                          data-role={dig.role}
-                          data-sno={dig.sNo}
-                          data-imageurl={dig.imageUrl || ''}
-                          data-iasbatch={dig.iasBatch || ''}
-                          data-education={dig.education || ''}
-                          data-officelocation={dig.officeLocation || ''}
-                          data-description={dig.description || ''}
-                          data-keyresponsibilities={dig.keyResponsibilities || ''}
-                        >
-                          Edit
-                        </button>
-                        <form method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this dignitary?');">
-                          <input type="hidden" name="_action" value="delete" />
-                          <input type="hidden" name="id" value={dig.id} />
-                          <button
-                            type="submit"
-                            class="btn-delete cursor-pointer px-2.5 py-1 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded border border-red-200"
-                          >
-                            Delete
-                          </button>
-                        </form>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+    <!-- VIEW 1: TABLE VIEW -->
+    <div id="dignitaries-table-view" class="flex flex-col gap-6">
+      
+      <!-- Header banner -->
+      <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-[#0B4F9C]">JKSPDCL Dignitaries Management</h2>
+          <p class="text-xs text-slate-500 mt-1">Add, edit, or remove state dignitaries. Configured profiles automatically generate public profile pages.</p>
+        </div>
+        <button 
+          id="open-add-form-btn" 
+          type="button"
+          class="btn-primary flex items-center gap-2 self-start md:self-auto cursor-pointer px-4 py-2.5 text-xs font-bold text-white bg-[#0B4F9C] hover:bg-[#1B3A6B] rounded-lg shadow-sm transition-all"
+        >
+          <Icon name="plus" size={14} /> Add New Dignitary
+        </button>
       </div>
+
+      <!-- Table Card -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-md overflow-hidden w-full">
+        <div class="table-wrapper">
+          <table class="table-data min-w-full divide-y divide-slate-200">
+            <thead>
+              <tr class="bg-slate-50">
+                <th scope="col" class="w-14 text-center py-3.5 text-xs font-bold uppercase tracking-wider text-slate-500">S.No</th>
+                <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Dignitary Photo &amp; Name</th>
+                <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Designation &amp; Subtitle</th>
+                <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Classification Badge</th>
+                <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Service &amp; Qualifications</th>
+                <th scope="col" class="px-4 py-3.5 text-center text-xs font-bold uppercase tracking-wider text-slate-500 w-36">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 bg-white">
+              {dignitaries.length === 0 ? (
+                <tr>
+                  <td colspan="6" class="px-6 py-12 text-center text-slate-400 text-xs italic">
+                    No dignitaries found in database. Click "Add New Dignitary" to add one.
+                  </td>
+                </tr>
+              ) : (
+                dignitaries.map((dig: any) => {
+                  const initials = dig.name
+                    ? dig.name
+                        .replace(/Shri\s*|Smt\s*|Dr\s*|Er\s*|\(IAS\)/gi, '')
+                        .trim()
+                        .split(' ')
+                        .map((n: string) => n[0])
+                        .join('')
+                        .toUpperCase()
+                        .slice(0, 2)
+                    : 'DG';
+
+                  return (
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                      <td class="py-4 text-center text-xs font-bold text-slate-600">{dig.sNo}</td>
+                      <td class="px-4 py-4">
+                        <div class="flex items-center gap-3">
+                          {dig.imageUrl ? (
+                            <img src={dig.imageUrl} alt={dig.name} class="w-10 h-10 rounded-full object-cover object-top border border-slate-200 shrink-0" />
+                          ) : (
+                            <div class="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-xs font-extrabold text-[#0B4F9C] shrink-0">
+                              {initials}
+                            </div>
+                          )}
+                          <div>
+                            <p class="font-bold text-slate-800 text-xs">{dig.name}</p>
+                            <p class="text-[10px] text-slate-400 mt-0.5">S.No: {dig.sNo}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-4 py-4 max-w-xs">
+                        <p class="text-xs text-slate-700 leading-snug font-bold">{dig.position}</p>
+                        {dig.subTitle && <p class="text-[11px] text-slate-500 mt-0.5 font-medium">{dig.subTitle}</p>}
+                      </td>
+                      <td class="px-4 py-4">
+                        <span class="inline-block px-2.5 py-1 text-[10px] font-extrabold tracking-wide uppercase rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          {dig.role || dig.position}
+                        </span>
+                      </td>
+                      <td class="px-4 py-4 text-xs text-slate-600">
+                        <p class="font-semibold text-slate-700">{dig.iasBatch || '—'}</p>
+                        <p class="text-[10px] text-slate-400">{dig.education || '—'}</p>
+                      </td>
+                      <td class="px-4 py-4 text-center">
+                        <div class="flex items-center justify-center gap-2">
+                          <button
+                            type="button"
+                            class="edit-dignitary-btn cursor-pointer px-2.5 py-1 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded border border-slate-300"
+                            data-id={dig.id}
+                            data-name={dig.name}
+                            data-position={dig.position}
+                            data-subtitle={dig.subTitle || ''}
+                            data-role={dig.role || ''}
+                            data-sno={dig.sNo}
+                            data-imageurl={dig.imageUrl || ''}
+                            data-iasbatch={dig.iasBatch || ''}
+                            data-education={dig.education || ''}
+                            data-officelocation={dig.officeLocation || ''}
+                            data-description={dig.description || ''}
+                            data-keyresponsibilities={dig.keyResponsibilities || ''}
+                          >
+                            Edit
+                          </button>
+                          <form method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this dignitary?');">
+                            <input type="hidden" name="_action" value="delete" />
+                            <input type="hidden" name="id" value={dig.id} />
+                            <button
+                              type="submit"
+                              class="cursor-pointer px-2.5 py-1 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded border border-red-200"
+                            >
+                              Delete
+                            </button>
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
 
-    <!-- Modal for Add / Edit Dignitary -->
-    <div id="dignitary-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
-      <div class="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-2xl overflow-hidden animate-fadeInUp my-6 max-h-[90vh] flex flex-col">
-        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80 shrink-0">
-          <h3 id="modal-title" class="font-bold text-slate-800 text-sm">Add New Dignitary</h3>
-          <button type="button" id="close-modal" class="text-slate-400 hover:text-slate-600 p-1 text-base font-bold">
-            &times;
-          </button>
+    <!-- VIEW 2: DEDICATED IN-PAGE FORM VIEW (Hidden by default) -->
+    <div id="dignitary-form-view" class="hidden flex-col gap-6">
+      
+      <!-- Back Navigation Bar -->
+      <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-xs flex items-center justify-between gap-4">
+        <div>
+          <h2 id="form-view-title" class="text-xl font-bold text-[#0B4F9C]">Add New Dignitary Profile</h2>
+          <p class="text-xs text-slate-500 mt-1">Fill in official details below. Fields marked with (<span class="text-red-500 font-bold">*</span>) are required.</p>
         </div>
-        
-        <form method="POST" class="p-6 space-y-4 overflow-y-auto flex-1">
-          <input type="hidden" name="_action" id="modal-action" value="create" />
-          <input type="hidden" name="id" id="modal-id" value="" />
+        <button 
+          id="back-to-list-btn" 
+          type="button"
+          class="flex items-center gap-2 cursor-pointer px-4 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg border border-slate-300 transition-colors"
+        >
+          &larr; Back to Dignitaries List
+        </button>
+      </div>
 
-          <div class="grid grid-cols-3 gap-4">
+      <!-- Main Form Card -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-md p-8">
+        <form method="POST" class="space-y-6">
+          <input type="hidden" name="_action" id="form-action" value="create" />
+          <input type="hidden" name="id" id="form-id" value="" />
+
+          <!-- Row 1: The ONLY 3 Required Fields -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-6 p-4 bg-blue-50/40 rounded-xl border border-blue-100">
             <div>
-              <label for="sNo" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label for="field-sNo" class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
                 Serial Order (S.No) <span class="text-red-500">*</span>
               </label>
               <input 
@@ -279,11 +295,11 @@ try {
                 required 
                 min="1" 
                 value="1" 
-                class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                class="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none font-bold"
               />
             </div>
-            <div class="col-span-2">
-              <label for="name" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <div class="md:col-span-2">
+              <label for="field-name" class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
                 Dignitary Full Name <span class="text-red-500">*</span>
               </label>
               <input 
@@ -292,14 +308,11 @@ try {
                 id="field-name" 
                 required 
                 placeholder="e.g. Shri Ashwani Kumar (IAS)" 
-                class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                class="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none font-semibold"
               />
             </div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-4">
             <div>
-              <label for="position" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label for="field-position" class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
                 Designation / Title <span class="text-red-500">*</span>
               </label>
               <input 
@@ -308,123 +321,156 @@ try {
                 id="field-position" 
                 required 
                 placeholder="e.g. Financial Commissioner (ACS)" 
-                class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                class="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none font-semibold"
               />
             </div>
+          </div>
+
+          <!-- Row 2: Optional Department & Badge -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label for="subTitle" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                Department / Sub-title
+              <label for="field-subTitle" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                Department / Sub-title (Optional)
               </label>
               <input 
                 type="text" 
                 name="subTitle" 
                 id="field-subTitle" 
                 placeholder="e.g. Power Development Department, J&K" 
-                class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                class="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-4">
             <div>
-              <label for="role" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                Classification Badge <span class="text-red-500">*</span>
+              <label for="field-role" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                Classification Badge (Optional)
               </label>
               <input 
                 type="text" 
                 name="role" 
                 id="field-role" 
-                required 
                 placeholder="e.g. CHAIRMAN / HONORABLE LIEUTENANT GOVERNOR" 
-                class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              />
-            </div>
-            <div>
-              <label for="imageUrl" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                Photo URL / Asset Path
-              </label>
-              <input 
-                type="text" 
-                name="imageUrl" 
-                id="field-imageUrl" 
-                placeholder="e.g. /dignitaries/ashwani_kumar.png" 
-                class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                class="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </div>
           </div>
 
-          <div class="grid grid-cols-3 gap-4">
+          <!-- Row 3: Photo Link & Live Image Preview -->
+          <div class="p-5 bg-slate-50/80 rounded-xl border border-slate-200">
+            <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
+              Dignitary Photo (URL Link &amp; Real-time Preview)
+            </label>
+            <div class="flex flex-col sm:flex-row items-center gap-6">
+              <!-- Live Image Avatar Preview -->
+              <div class="shrink-0 flex flex-col items-center gap-1.5">
+                <div class="w-24 h-24 rounded-full overflow-hidden bg-white border-2 border-slate-300 shadow-xs relative flex items-center justify-center">
+                  <img id="image-preview-img" src="/logo.png" alt="Preview" class="w-full h-full object-cover object-top" />
+                  <div id="image-preview-fallback" class="w-full h-full bg-[#1B3A6B] text-white font-extrabold text-xl flex items-center justify-center hidden">
+                    DG
+                  </div>
+                </div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Live Preview</span>
+              </div>
+
+              <!-- URL Input & File Chooser -->
+              <div class="flex-1 w-full space-y-3">
+                <div>
+                  <span class="text-[11px] font-semibold text-slate-600 mb-1 block">Photo Asset Path / Direct Image URL:</span>
+                  <input 
+                    type="text" 
+                    name="imageUrl" 
+                    id="field-imageUrl" 
+                    placeholder="e.g. /dignitaries/ashwani_kumar.png or https://example.com/photo.jpg" 
+                    class="w-full px-3.5 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none font-mono"
+                  />
+                </div>
+                <div class="flex items-center gap-3">
+                  <label for="field-imageFile" class="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
+                    <Icon name="upload" size={12} /> Choose Image File from Device
+                  </label>
+                  <input type="file" id="field-imageFile" accept="image/*" class="hidden" />
+                  <span id="file-chosen-text" class="text-[11px] text-slate-400 italic">No local file selected</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 4: Service Credentials -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <label for="iasBatch" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                IAS Batch / Cadre
+              <label for="field-iasBatch" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                IAS Batch / Cadre (Optional)
               </label>
               <input 
                 type="text" 
                 name="iasBatch" 
                 id="field-iasBatch" 
                 placeholder="e.g. 1992 (AGMUT Cadre)" 
-                class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                class="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </div>
             <div>
-              <label for="education" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                Education
+              <label for="field-education" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                Education (Optional)
               </label>
               <input 
                 type="text" 
                 name="education" 
                 id="field-education" 
                 placeholder="e.g. B.E. (Elec.), M.A. (Duke)" 
-                class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                class="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </div>
             <div>
-              <label for="officeLocation" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                Office Location
+              <label for="field-officeLocation" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                Office Location (Optional)
               </label>
               <input 
                 type="text" 
                 name="officeLocation" 
                 id="field-officeLocation" 
                 placeholder="e.g. Civil Secretariat, J&K" 
-                class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                class="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </div>
           </div>
 
-          <div>
-            <label for="description" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+          <!-- Row 5: Rich Text Biography -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
               Biography / Official Description (Rich Text Editor)
             </label>
             <input type="hidden" name="description" id="field-description" value="" />
-            <div data-rich-editor="field-description" data-placeholder="Detailed biographical paragraphs (supports bold, lists, headings)..." class="bg-white rounded-md border border-slate-300 min-h-[140px] text-xs"></div>
+            <div data-rich-editor="field-description" data-placeholder="Detailed biographical paragraphs (supports bold, headings, bullet lists)..." class="bg-white rounded-lg border border-slate-300 min-h-[160px] text-xs"></div>
           </div>
 
-          <div>
-            <label for="keyResponsibilities" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+          <!-- Row 6: Rich Text Key Responsibilities -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
               Key Responsibilities &amp; Portfolio (Rich Text Editor)
             </label>
             <input type="hidden" name="keyResponsibilities" id="field-keyResponsibilities" value="" />
-            <div data-rich-editor="field-keyResponsibilities" data-placeholder="Key responsibilities and bullet points..." class="bg-white rounded-md border border-slate-300 min-h-[120px] text-xs"></div>
+            <div data-rich-editor="field-keyResponsibilities" data-placeholder="Key responsibilities and bullet points..." class="bg-white rounded-lg border border-slate-300 min-h-[140px] text-xs"></div>
           </div>
 
-          <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-2 shrink-0">
+          <!-- Form Buttons -->
+          <div class="pt-6 border-t border-slate-200 flex items-center justify-end gap-3">
             <button 
               type="button" 
-              id="cancel-modal" 
-              class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-md transition-colors"
+              id="cancel-form-btn" 
+              class="px-5 py-2.5 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button 
               type="submit" 
-              class="px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-sm transition-colors"
+              class="px-6 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-md transition-colors cursor-pointer"
             >
               Save Dignitary Profile
             </button>
           </div>
         </form>
       </div>
+
     </div>
 
   </div>
@@ -434,16 +480,21 @@ try {
   (function() {
     function getElements() {
       return {
-        modal: document.getElementById('dignitary-modal'),
-        modalTitle: document.getElementById('modal-title'),
-        modalAction: document.getElementById('modal-action'),
-        modalId: document.getElementById('modal-id'),
+        tableView: document.getElementById('dignitaries-table-view'),
+        formView: document.getElementById('dignitary-form-view'),
+        formTitle: document.getElementById('form-view-title'),
+        formAction: document.getElementById('form-action'),
+        formId: document.getElementById('form-id'),
         fieldName: document.getElementById('field-name'),
         fieldPosition: document.getElementById('field-position'),
         fieldSubTitle: document.getElementById('field-subTitle'),
         fieldRole: document.getElementById('field-role'),
         fieldSNo: document.getElementById('field-sNo'),
         fieldImageUrl: document.getElementById('field-imageUrl'),
+        fieldImageFile: document.getElementById('field-imageFile'),
+        fileChosenText: document.getElementById('file-chosen-text'),
+        previewImg: document.getElementById('image-preview-img'),
+        previewFallback: document.getElementById('image-preview-fallback'),
         fieldIasBatch: document.getElementById('field-iasBatch'),
         fieldEducation: document.getElementById('field-education'),
         fieldOfficeLocation: document.getElementById('field-officeLocation'),
@@ -452,14 +503,28 @@ try {
       };
     }
 
-    function showModal(isEdit, data) {
+    function updateLivePreview(url) {
       var els = getElements();
-      if (!els.modal) return;
+      if (!els.previewImg || !els.previewFallback) return;
+      if (url && url.trim().length > 0) {
+        els.previewImg.src = url.trim();
+        els.previewImg.classList.remove('hidden');
+        els.previewFallback.classList.add('hidden');
+      } else {
+        els.previewImg.src = '/logo.png';
+        els.previewImg.classList.remove('hidden');
+        els.previewFallback.classList.add('hidden');
+      }
+    }
+
+    function openFormView(isEdit, data) {
+      var els = getElements();
+      if (!els.tableView || !els.formView) return;
 
       if (isEdit && data) {
-        if (els.modalTitle) els.modalTitle.textContent = 'Edit Dignitary Profile';
-        if (els.modalAction) els.modalAction.value = 'update';
-        if (els.modalId) els.modalId.value = data.id || '';
+        if (els.formTitle) els.formTitle.textContent = 'Edit Dignitary Profile';
+        if (els.formAction) els.formAction.value = 'update';
+        if (els.formId) els.formId.value = data.id || '';
         if (els.fieldName) els.fieldName.value = data.name || '';
         if (els.fieldPosition) els.fieldPosition.value = data.position || '';
         if (els.fieldSubTitle) els.fieldSubTitle.value = data.subtitle || '';
@@ -471,10 +536,11 @@ try {
         if (els.fieldOfficeLocation) els.fieldOfficeLocation.value = data.officelocation || '';
         if (els.fieldDescription) els.fieldDescription.value = data.description || '';
         if (els.fieldKeyResponsibilities) els.fieldKeyResponsibilities.value = data.keyresponsibilities || '';
+        updateLivePreview(data.imageurl);
       } else {
-        if (els.modalTitle) els.modalTitle.textContent = 'Add New Dignitary Profile';
-        if (els.modalAction) els.modalAction.value = 'create';
-        if (els.modalId) els.modalId.value = '';
+        if (els.formTitle) els.formTitle.textContent = 'Add New Dignitary Profile';
+        if (els.formAction) els.formAction.value = 'create';
+        if (els.formId) els.formId.value = '';
         if (els.fieldName) els.fieldName.value = '';
         if (els.fieldPosition) els.fieldPosition.value = '';
         if (els.fieldSubTitle) els.fieldSubTitle.value = '';
@@ -486,22 +552,30 @@ try {
         if (els.fieldOfficeLocation) els.fieldOfficeLocation.value = '';
         if (els.fieldDescription) els.fieldDescription.value = '';
         if (els.fieldKeyResponsibilities) els.fieldKeyResponsibilities.value = '';
+        updateLivePreview('');
       }
 
-      els.modal.classList.remove('hidden');
-      if (window.initQuillRichEditors) setTimeout(window.initQuillRichEditors, 50);
+      els.tableView.classList.add('hidden');
+      els.formView.classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (window.initQuillRichEditors) {
+        setTimeout(window.initQuillRichEditors, 50);
+      }
     }
 
-    function hideModal() {
-      var modal = document.getElementById('dignitary-modal');
-      if (modal) modal.classList.add('hidden');
+    function closeFormView() {
+      var els = getElements();
+      if (els.formView) els.formView.classList.add('hidden');
+      if (els.tableView) els.tableView.classList.remove('hidden');
     }
 
+    // Global Click Event Delegation
     document.addEventListener('click', function(e) {
-      var addBtn = e.target.closest('#open-add-modal');
+      var addBtn = e.target.closest('#open-add-form-btn');
       if (addBtn) {
         e.preventDefault();
-        showModal(false);
+        openFormView(false);
         return;
       }
 
@@ -522,21 +596,41 @@ try {
           description: editBtn.dataset.description,
           keyresponsibilities: editBtn.dataset.keyresponsibilities
         };
-        showModal(true, data);
+        openFormView(true, data);
         return;
       }
 
-      var closeBtn = e.target.closest('#close-modal, #cancel-modal');
-      if (closeBtn) {
+      var backBtn = e.target.closest('#back-to-list-btn, #cancel-form-btn');
+      if (backBtn) {
         e.preventDefault();
-        hideModal();
+        closeFormView();
         return;
-      }
-
-      var modal = document.getElementById('dignitary-modal');
-      if (modal && e.target === modal) {
-        hideModal();
       }
     });
+
+    // Real-time Image URL preview input listener
+    document.addEventListener('input', function(e) {
+      if (e.target && e.target.id === 'field-imageUrl') {
+        updateLivePreview(e.target.value);
+      }
+    });
+
+    // File input listener for image preview
+    document.addEventListener('change', function(e) {
+      if (e.target && e.target.id === 'field-imageFile') {
+        var file = e.target.files[0];
+        var els = getElements();
+        if (file) {
+          if (els.fileChosenText) els.fileChosenText.textContent = file.name;
+          var reader = new FileReader();
+          reader.onload = function(evt) {
+            if (els.fieldImageUrl) els.fieldImageUrl.value = evt.target.result;
+            updateLivePreview(evt.target.result);
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+    });
+
   })();
 </script>
