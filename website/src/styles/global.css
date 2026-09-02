@@ -1006,4 +1006,63 @@ tbody tr:hover {
   .grid {
     display: block !important;
   }
-}
+}
+
+/* ── Government Rich Text Content Styling (.prose-gov) ─────────────────────── */
+.prose-gov a {
+  color: #0B4F9C !important;
+  text-decoration: underline !important;
+  font-weight: 600 !important;
+  transition: color 0.2s ease;
+}
+
+.prose-gov a:hover {
+  color: #D8681B !important;
+  text-decoration: underline !important;
+}
+
+.prose-gov ul {
+  list-style-type: disc !important;
+  padding-left: 1.25rem !important;
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.prose-gov ol {
+  list-style-type: decimal !important;
+  padding-left: 1.25rem !important;
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.prose-gov li {
+  margin-top: 0.25rem !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.prose-gov p {
+  margin-bottom: 0.75rem !important;
+}
+
+.prose-gov p:last-child {
+  margin-bottom: 0 !important;
+}
+
+.prose-gov h2,
+.prose-gov h3,
+.prose-gov h4 {
+  font-weight: 800 !important;
+  color: #0B4F9C !important;
+  margin-top: 1rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.prose-gov blockquote {
+  border-left: 4px solid #0B4F9C !important;
+  padding-left: 1rem !important;
+  font-style: italic !important;
+  color: #475569 !important;
+  margin-top: 0.75rem !important;
+  margin-bottom: 0.75rem !important;
+}
+
