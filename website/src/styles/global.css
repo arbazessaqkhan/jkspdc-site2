@@ -1100,4 +1100,18 @@ tbody tr:hover {
   box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.5) !important;
 }
 
-
+/* ── Admin Portal: Globally consistent thin focus border for ALL inputs ──────
+   Overrides browser native outline, Tailwind ring utilities, and any inline
+   focus classes so every input/select/textarea in the admin portal looks
+   identical when focused — a single thin #60A5FA ring, same as the Quill editor.
+   Only applies to .admin-page (AdminLayout body class). ─────────────────────── */
+.admin-page input:focus,
+.admin-page input:focus-visible,
+.admin-page select:focus,
+.admin-page select:focus-visible,
+.admin-page textarea:focus,
+.admin-page textarea:focus-visible {
+  outline: none !important;
+  border-color: #60A5FA !important;
+  box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.5) !important;
+}
