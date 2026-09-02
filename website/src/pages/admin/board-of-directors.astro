@@ -325,7 +325,6 @@ try {
     var fieldPosition = document.getElementById('field-position');
     var fieldRole = document.getElementById('field-role');
     var fieldSNo = document.getElementById('field-sNo');
-    var fieldDescription = document.getElementById('field-description');
 
     function showModal(isEdit, data) {
       if (!modal) return;
@@ -337,7 +336,6 @@ try {
         fieldPosition.value = data.position || '';
         fieldRole.value = data.role || '';
         fieldSNo.value = data.sno || 1;
-        fieldDescription.value = data.description || '';
       } else {
         modalTitle.textContent = 'Add New Board Director';
         modalAction.value = 'create';
@@ -346,7 +344,6 @@ try {
         fieldPosition.value = '';
         fieldRole.value = '';
         fieldSNo.value = 1;
-        fieldDescription.value = '';
       }
       modal.classList.remove('hidden');
     }
