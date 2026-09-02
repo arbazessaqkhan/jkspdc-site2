@@ -1009,25 +1009,26 @@ tbody tr:hover {
 }
 
 /* ── Government Rich Text Content Styling (.prose-gov) ─────────────────────── */
-.prose-gov a:not(.btn-primary):not(.btn-secondary):not([class*="btn-"]) {
+.prose-gov a:not(.btn-primary):not(.btn-secondary):not([class*="btn-"]):not([class*="bg-"]) {
   color: #0B4F9C !important;
   text-decoration: underline !important;
   font-weight: 600 !important;
   transition: color 0.2s ease;
 }
 
-.prose-gov a:not(.btn-primary):not(.btn-secondary):not([class*="btn-"]):hover {
+.prose-gov a:not(.btn-primary):not(.btn-secondary):not([class*="btn-"]):not([class*="bg-"]):hover {
   color: #D8681B !important;
   text-decoration: underline !important;
 }
 
-/* Ensure button links inside prose-gov keep their original button styles */
+/* Ensure button links inside prose-gov keep their original button styles —
+   covers btn-primary, btn-secondary, and any inline-styled button anchors
+   that have their own background colour (e.g. bg-[#0B4F9C], bg-blue-600). */
 .prose-gov .btn-primary,
 .prose-gov .btn-secondary,
 .prose-gov a.btn-primary,
 .prose-gov a.btn-secondary,
-.prose-gov a.policy-doc-btn,
-.prose-gov a[class*="bg-[#"] {
+.prose-gov a[class*="bg-"] {
   color: #ffffff !important;
   text-decoration: none !important;
   font-weight: 700 !important;
