@@ -95,7 +95,7 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
     <a href="#main-admin-content" class="skip-link">Skip to Main Content</a>
 
     <!-- Sidebar Navigation -->
-    <aside id="admin-sidebar" transition:persist class="w-64 shrink-0 bg-slate-900 border-r border-slate-800 text-slate-300 flex flex-col h-full z-45 transform -translate-x-full md:translate-x-0 md:static fixed top-0 left-0 transition-transform duration-200 ease-in-out">
+    <aside id="admin-sidebar" class="w-64 shrink-0 bg-slate-900 border-r border-slate-800 text-slate-300 flex flex-col h-full z-45 transform -translate-x-full md:translate-x-0 md:static fixed top-0 left-0 transition-transform duration-200 ease-in-out">
       
       <!-- Brand Logo / Title -->
       <div class="h-16 flex items-center px-6 border-b border-slate-800 gap-3 shrink-0">
@@ -327,6 +327,23 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
 
       toggleBtn?.addEventListener('click', toggleSidebar);
       overlay?.addEventListener('click', toggleSidebar);
+
+      // Synchronize sidebar active tab highlighting with current route on client SPA navigation
+      function syncAdminSidebarActive() {
+        var currentPath = window.location.pathname.replace(/\/$/, '');
+        var sidebarLinks = document.querySelectorAll('#admin-sidebar nav a[href]');
+        sidebarLinks.forEach(function(a) {
+          var href = (a.getAttribute('href') || '').replace(/\/$/, '');
+          if (href && (currentPath === href || (href !== '/admin/dashboard' && href !== '/admin' && currentPath.startsWith(href)))) {
+            a.className = 'flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all bg-blue-600 text-white shadow-md';
+          } else {
+            a.className = 'flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all text-slate-400 hover:bg-slate-800 hover:text-white';
+          }
+        });
+      }
+
+      document.addEventListener('astro:page-load', syncAdminSidebarActive);
+      syncAdminSidebarActive();
     </script>
   </body>
 </html>
