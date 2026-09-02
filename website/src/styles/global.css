@@ -1087,6 +1087,8 @@ tbody tr:hover {
   outline: none !important;
   box-shadow: none !important;
   min-height: 120px;
+  max-height: 200px;
+  overflow-y: auto !important;
 }
 
 .ql-editor:focus {
