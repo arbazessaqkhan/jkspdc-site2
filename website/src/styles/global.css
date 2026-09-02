@@ -1021,18 +1021,21 @@ tbody tr:hover {
   text-decoration: underline !important;
 }
 
-/* Ensure button links inside prose-gov keep their original button styles —
-   covers btn-primary, btn-secondary, and any inline-styled button anchors
-   that have their own background colour (e.g. bg-[#0B4F9C], bg-blue-600). */
-.prose-gov .btn-primary,
-.prose-gov .btn-secondary,
-.prose-gov a.btn-primary,
-.prose-gov a.btn-secondary,
-.prose-gov a[class*="bg-"] {
-  color: #ffffff !important;
+/* Table links should not have permanent underline, only on hover */
+.table-data a,
+.table-wrapper a,
+.prose-gov .table-data a,
+.prose-gov .table-wrapper a {
   text-decoration: none !important;
-  font-weight: 700 !important;
 }
+
+.table-data a:hover,
+.table-wrapper a:hover,
+.prose-gov .table-data a:hover,
+.prose-gov .table-wrapper a:hover {
+  text-decoration: underline !important;
+}
+
 
 .prose-gov ul {
   list-style-type: disc !important;
