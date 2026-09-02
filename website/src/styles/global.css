@@ -1009,16 +1009,26 @@ tbody tr:hover {
 }
 
 /* ── Government Rich Text Content Styling (.prose-gov) ─────────────────────── */
-.prose-gov a {
+.prose-gov a:not(.btn-primary):not(.btn-secondary):not([class*="btn-"]) {
   color: #0B4F9C !important;
   text-decoration: underline !important;
   font-weight: 600 !important;
   transition: color 0.2s ease;
 }
 
-.prose-gov a:hover {
+.prose-gov a:not(.btn-primary):not(.btn-secondary):not([class*="btn-"]):hover {
   color: #D8681B !important;
   text-decoration: underline !important;
+}
+
+/* Ensure button links inside prose-gov keep their original button styles */
+.prose-gov .btn-primary,
+.prose-gov .btn-secondary,
+.prose-gov a.btn-primary,
+.prose-gov a.btn-secondary {
+  color: #ffffff !important;
+  text-decoration: none !important;
+  font-weight: 700 !important;
 }
 
 .prose-gov ul {
