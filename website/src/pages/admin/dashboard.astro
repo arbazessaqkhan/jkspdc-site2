@@ -82,36 +82,42 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
 const statCards = [
   {
     label: 'Operational',
+    badge: 'Live',
     count: stats.operationalCount,
     href: '/admin/operational-projects',
     icon: 'zap',
   },
   {
     label: 'Construction',
+    badge: 'Active',
     count: stats.constructionCount,
     href: '/admin/under-construction',
     icon: 'hardhat',
   },
   {
     label: 'Board Members',
+    badge: 'Official',
     count: stats.directorsCount,
     href: '/admin/board-of-directors',
     icon: 'users',
   },
   {
     label: 'Active Tenders',
+    badge: 'Bids',
     count: stats.tendersCount,
     href: '/admin/tenders',
     icon: 'file-text',
   },
   {
     label: 'Careers Open',
+    badge: 'Open',
     count: stats.careersCount,
     href: '/admin/careers',
     icon: 'briefcase',
   },
   {
     label: 'Press Articles',
+    badge: 'News',
     count: stats.pressCount,
     href: '/admin/press-releases',
     icon: 'newspaper',
@@ -157,43 +163,63 @@ const quickActions = [
       </div>
     )}
 
-    <!-- Professional Executive Metric Cards (No garish rainbow gradients) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+    <!-- Creative, Uniform & Proportional Executive Metric Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
       {statCards.map((card) => (
-        <div class="bg-white rounded-xl border border-slate-200/90 p-4 shadow-xs hover:shadow-md hover:border-[#0B4F9C]/40 transition-all duration-200 flex flex-col justify-between gap-3 group">
-          <div class="flex items-start justify-between gap-2">
-            <div class="flex flex-col gap-0.5">
-              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">{card.label}</span>
-              <span class="text-2xl font-black text-slate-800 tracking-tight mt-0.5">{card.count}</span>
-            </div>
-            <div class="w-9 h-9 rounded-lg bg-slate-100 border border-slate-200/70 text-[#0B4F9C] flex items-center justify-center group-hover:bg-[#0B4F9C] group-hover:text-white transition-colors duration-200 shrink-0">
+        <a 
+          href={card.href} 
+          class="group bg-white rounded-xl border border-slate-200/90 hover:border-[#0B4F9C] p-4 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between min-h-[148px] relative overflow-hidden"
+        >
+          <!-- Top Accent Bar -->
+          <div class="absolute top-0 inset-x-0 h-1 bg-slate-100 group-hover:bg-[#0B4F9C] transition-colors duration-200"></div>
+
+          <!-- Top Row: Icon Badge & Category Tag -->
+          <div class="flex items-center justify-between gap-2">
+            <div class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200/80 text-[#0B4F9C] flex items-center justify-center group-hover:bg-[#0B4F9C] group-hover:text-white transition-all duration-200 shadow-2xs shrink-0">
               <Icon name={card.icon} size={18} />
             </div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#0B4F9C] transition-colors bg-slate-50 group-hover:bg-blue-50 px-2 py-0.5 rounded-md border border-slate-200/60 group-hover:border-blue-200">
+              {card.badge}
+            </span>
           </div>
-          <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
-            <a href={card.href} class="text-[11px] font-bold text-[#0B4F9C] hover:text-[#084A8F] inline-flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
-              Manage <Icon name="arrow-right" size={11} />
-            </a>
+
+          <!-- Middle Row: Big Metric Count & Full-Width Label -->
+          <div class="my-2">
+            <div class="text-2xl font-black text-slate-800 tracking-tight leading-none group-hover:text-[#0B4F9C] transition-colors">
+              {card.count}
+            </div>
+            <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mt-1 truncate" title={card.label}>
+              {card.label}
+            </div>
           </div>
-        </div>
+
+          <!-- Bottom Row: Clean Action Bar -->
+          <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-slate-400 group-hover:text-[#0B4F9C] transition-colors">
+            <span>Manage</span>
+            <Icon name="arrow-right" size={11} class="group-hover:translate-x-1 transition-transform duration-200" />
+          </div>
+        </a>
       ))}
     </div>
 
     <!-- Administrative Quick Actions (Unified Corporate Design) -->
     <div class="bg-white rounded-xl border border-slate-200/90 shadow-xs p-6 flex flex-col gap-4">
-      <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider border-b border-slate-100 pb-3 flex items-center gap-2">
-        <Icon name="zap" size={14} class="text-[#0B4F9C]" /> Administrative Quick Actions
-      </h3>
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
+          <Icon name="zap" size={14} class="text-[#0B4F9C]" /> Administrative Quick Actions
+        </h3>
+        <span class="text-[11px] text-slate-400 font-medium hidden sm:inline">Frequent portal operations</span>
+      </div>
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {quickActions.map((action) => (
           <a 
             href={action.href} 
-            class="border border-slate-200/90 hover:border-[#0B4F9C] rounded-xl p-4 flex flex-col items-center justify-center text-center gap-2.5 group transition-all bg-white hover:bg-[#EAF4FF]/40 hover:shadow-xs"
+            class="group border border-slate-200/90 hover:border-[#0B4F9C] rounded-xl p-4 flex flex-col items-center justify-center text-center gap-2.5 transition-all duration-200 bg-white hover:bg-[#EAF4FF]/30 hover:shadow-xs min-h-[110px]"
           >
-            <div class="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 text-[#0B4F9C] flex items-center justify-center group-hover:bg-[#0B4F9C] group-hover:text-white group-hover:scale-105 transition-all duration-200">
-              <Icon name={action.icon} size={18} />
+            <div class="w-11 h-11 rounded-xl bg-slate-50 border border-slate-200/80 text-[#0B4F9C] flex items-center justify-center group-hover:bg-[#0B4F9C] group-hover:text-white group-hover:scale-105 transition-all duration-200 shadow-2xs">
+              <Icon name={action.icon} size={19} />
             </div>
-            <span class="text-xs font-bold text-slate-700 group-hover:text-[#0B4F9C] transition-colors">{action.label}</span>
+            <span class="text-xs font-bold text-slate-700 group-hover:text-[#0B4F9C] transition-colors leading-snug">{action.label}</span>
           </a>
         ))}
       </div>
