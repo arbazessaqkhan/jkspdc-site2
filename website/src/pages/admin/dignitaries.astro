@@ -354,41 +354,44 @@ try {
             </div>
           </div>
 
-          <!-- Row 3: Photo Link & Live Image Preview -->
+          <!-- Row 3: Photo Upload from System & Real-Time Preview -->
           <div class="p-5 bg-slate-50/80 rounded-xl border border-slate-200">
-            <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
-              Dignitary Photo (URL Link &amp; Real-time Preview)
+            <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-3">
+              Dignitary Photo (System Upload &amp; Real-time Preview)
             </label>
             <div class="flex flex-col sm:flex-row items-center gap-6">
               <!-- Live Image Avatar Preview -->
               <div class="shrink-0 flex flex-col items-center gap-1.5">
-                <div class="w-24 h-24 rounded-full overflow-hidden bg-white border-2 border-slate-300 shadow-xs relative flex items-center justify-center">
+                <div class="w-28 h-28 rounded-full overflow-hidden bg-white border-4 border-[#BDD7EE] shadow-sm relative flex items-center justify-center">
                   <img id="image-preview-img" src="/logo.png" alt="Preview" class="w-full h-full object-cover object-top" />
-                  <div id="image-preview-fallback" class="w-full h-full bg-[#1B3A6B] text-white font-extrabold text-xl flex items-center justify-center hidden">
+                  <div id="image-preview-fallback" class="w-full h-full bg-[#1B3A6B] text-white font-extrabold text-2xl flex items-center justify-center hidden">
                     DG
                   </div>
                 </div>
                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Live Preview</span>
               </div>
 
-              <!-- URL Input & File Chooser -->
+              <!-- System File Chooser Controller -->
               <div class="flex-1 w-full space-y-3">
-                <div>
-                  <span class="text-[11px] font-semibold text-slate-600 mb-1 block">Photo Asset Path / Direct Image URL:</span>
-                  <input 
-                    type="text" 
-                    name="imageUrl" 
-                    id="field-imageUrl" 
-                    placeholder="e.g. /dignitaries/ashwani_kumar.png or https://example.com/photo.jpg" 
-                    class="w-full px-3.5 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none font-mono"
-                  />
-                </div>
-                <div class="flex items-center gap-3">
-                  <label for="field-imageFile" class="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
-                    <Icon name="upload" size={12} /> Choose Image File from Device
+                <input type="hidden" name="imageUrl" id="field-imageUrl" value="" />
+                
+                <div class="flex flex-wrap items-center gap-3">
+                  <label for="field-imageFile" class="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-[#0B4F9C] bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 shadow-2xs transition-all">
+                    <Icon name="upload" size={14} /> Choose Image File from Device
                   </label>
                   <input type="file" id="field-imageFile" accept="image/*" class="hidden" />
-                  <span id="file-chosen-text" class="text-[11px] text-slate-400 italic">No local file selected</span>
+                  
+                  <button 
+                    type="button" 
+                    id="clear-photo-btn" 
+                    class="px-3 py-2 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg border border-red-200 transition-colors hidden"
+                  >
+                    Remove Photo
+                  </button>
+                </div>
+
+                <div id="file-info-box" class="text-xs text-slate-500 font-medium">
+                  <span id="file-chosen-text" class="text-slate-600 italic">No image file selected. Click above to upload a photo from your computer.</span>
                 </div>
               </div>
             </div>
@@ -493,6 +496,7 @@ try {
         fieldImageUrl: document.getElementById('field-imageUrl'),
         fieldImageFile: document.getElementById('field-imageFile'),
         fileChosenText: document.getElementById('file-chosen-text'),
+        clearPhotoBtn: document.getElementById('clear-photo-btn'),
         previewImg: document.getElementById('image-preview-img'),
         previewFallback: document.getElementById('image-preview-fallback'),
         fieldIasBatch: document.getElementById('field-iasBatch'),
@@ -510,10 +514,12 @@ try {
         els.previewImg.src = url.trim();
         els.previewImg.classList.remove('hidden');
         els.previewFallback.classList.add('hidden');
+        if (els.clearPhotoBtn) els.clearPhotoBtn.classList.remove('hidden');
       } else {
         els.previewImg.src = '/logo.png';
         els.previewImg.classList.remove('hidden');
         els.previewFallback.classList.add('hidden');
+        if (els.clearPhotoBtn) els.clearPhotoBtn.classList.add('hidden');
       }
     }
 
@@ -536,6 +542,10 @@ try {
         if (els.fieldOfficeLocation) els.fieldOfficeLocation.value = data.officelocation || '';
         if (els.fieldDescription) els.fieldDescription.value = data.description || '';
         if (els.fieldKeyResponsibilities) els.fieldKeyResponsibilities.value = data.keyresponsibilities || '';
+        
+        if (els.fileChosenText) {
+          els.fileChosenText.textContent = data.imageurl ? 'Photo loaded' : 'No photo uploaded.';
+        }
         updateLivePreview(data.imageurl);
       } else {
         if (els.formTitle) els.formTitle.textContent = 'Add New Dignitary Profile';
@@ -552,6 +562,10 @@ try {
         if (els.fieldOfficeLocation) els.fieldOfficeLocation.value = '';
         if (els.fieldDescription) els.fieldDescription.value = '';
         if (els.fieldKeyResponsibilities) els.fieldKeyResponsibilities.value = '';
+        
+        if (els.fileChosenText) {
+          els.fileChosenText.textContent = 'No image file selected. Click above to upload a photo from your computer.';
+        }
         updateLivePreview('');
       }
 
@@ -606,16 +620,20 @@ try {
         closeFormView();
         return;
       }
-    });
 
-    // Real-time Image URL preview input listener
-    document.addEventListener('input', function(e) {
-      if (e.target && e.target.id === 'field-imageUrl') {
-        updateLivePreview(e.target.value);
+      var clearBtn = e.target.closest('#clear-photo-btn');
+      if (clearBtn) {
+        e.preventDefault();
+        var els = getElements();
+        if (els.fieldImageUrl) els.fieldImageUrl.value = '';
+        if (els.fieldImageFile) els.fieldImageFile.value = '';
+        if (els.fileChosenText) els.fileChosenText.textContent = 'Photo removed.';
+        updateLivePreview('');
+        return;
       }
     });
 
-    // File input listener for image preview
+    // File input listener for image upload & base64 conversion
     document.addEventListener('change', function(e) {
       if (e.target && e.target.id === 'field-imageFile') {
         var file = e.target.files[0];
