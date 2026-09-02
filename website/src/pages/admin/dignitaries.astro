@@ -431,93 +431,112 @@ try {
 </AdminLayout>
 
 <script is:inline>
-  function initDignitaries() {
-    var modal = document.getElementById('dignitary-modal');
-    var openBtn = document.getElementById('open-add-modal');
-    var closeBtn = document.getElementById('close-modal');
-    var cancelBtn = document.getElementById('cancel-modal');
-    
-    var modalTitle = document.getElementById('modal-title');
-    var modalAction = document.getElementById('modal-action');
-    var modalId = document.getElementById('modal-id');
-
-    var fieldName = document.getElementById('field-name');
-    var fieldPosition = document.getElementById('field-position');
-    var fieldSubTitle = document.getElementById('field-subTitle');
-    var fieldRole = document.getElementById('field-role');
-    var fieldSNo = document.getElementById('field-sNo');
-    var fieldImageUrl = document.getElementById('field-imageUrl');
-    var fieldIasBatch = document.getElementById('field-iasBatch');
-    var fieldEducation = document.getElementById('field-education');
-    var fieldOfficeLocation = document.getElementById('field-officeLocation');
-    var fieldDescription = document.getElementById('field-description');
-    var fieldKeyResponsibilities = document.getElementById('field-keyResponsibilities');
+  (function() {
+    function getElements() {
+      return {
+        modal: document.getElementById('dignitary-modal'),
+        modalTitle: document.getElementById('modal-title'),
+        modalAction: document.getElementById('modal-action'),
+        modalId: document.getElementById('modal-id'),
+        fieldName: document.getElementById('field-name'),
+        fieldPosition: document.getElementById('field-position'),
+        fieldSubTitle: document.getElementById('field-subTitle'),
+        fieldRole: document.getElementById('field-role'),
+        fieldSNo: document.getElementById('field-sNo'),
+        fieldImageUrl: document.getElementById('field-imageUrl'),
+        fieldIasBatch: document.getElementById('field-iasBatch'),
+        fieldEducation: document.getElementById('field-education'),
+        fieldOfficeLocation: document.getElementById('field-officeLocation'),
+        fieldDescription: document.getElementById('field-description'),
+        fieldKeyResponsibilities: document.getElementById('field-keyResponsibilities')
+      };
+    }
 
     function showModal(isEdit, data) {
-      if (!modal) return;
+      var els = getElements();
+      if (!els.modal) return;
+
       if (isEdit && data) {
-        modalTitle.textContent = 'Edit Dignitary Profile';
-        modalAction.value = 'update';
-        modalId.value = data.id || '';
-        fieldName.value = data.name || '';
-        fieldPosition.value = data.position || '';
-        if (fieldSubTitle) fieldSubTitle.value = data.subtitle || '';
-        fieldRole.value = data.role || '';
-        fieldSNo.value = data.sno || 1;
-        if (fieldImageUrl) fieldImageUrl.value = data.imageurl || '';
-        if (fieldIasBatch) fieldIasBatch.value = data.iasbatch || '';
-        if (fieldEducation) fieldEducation.value = data.education || '';
-        if (fieldOfficeLocation) fieldOfficeLocation.value = data.officelocation || '';
-        fieldDescription.value = data.description || '';
-        if (fieldKeyResponsibilities) fieldKeyResponsibilities.value = data.keyresponsibilities || '';
+        if (els.modalTitle) els.modalTitle.textContent = 'Edit Dignitary Profile';
+        if (els.modalAction) els.modalAction.value = 'update';
+        if (els.modalId) els.modalId.value = data.id || '';
+        if (els.fieldName) els.fieldName.value = data.name || '';
+        if (els.fieldPosition) els.fieldPosition.value = data.position || '';
+        if (els.fieldSubTitle) els.fieldSubTitle.value = data.subtitle || '';
+        if (els.fieldRole) els.fieldRole.value = data.role || '';
+        if (els.fieldSNo) els.fieldSNo.value = data.sno || 1;
+        if (els.fieldImageUrl) els.fieldImageUrl.value = data.imageurl || '';
+        if (els.fieldIasBatch) els.fieldIasBatch.value = data.iasbatch || '';
+        if (els.fieldEducation) els.fieldEducation.value = data.education || '';
+        if (els.fieldOfficeLocation) els.fieldOfficeLocation.value = data.officelocation || '';
+        if (els.fieldDescription) els.fieldDescription.value = data.description || '';
+        if (els.fieldKeyResponsibilities) els.fieldKeyResponsibilities.value = data.keyresponsibilities || '';
       } else {
-        modalTitle.textContent = 'Add New Dignitary Profile';
-        modalAction.value = 'create';
-        modalId.value = '';
-        fieldName.value = '';
-        fieldPosition.value = '';
-        if (fieldSubTitle) fieldSubTitle.value = '';
-        fieldRole.value = '';
-        fieldSNo.value = 1;
-        if (fieldImageUrl) fieldImageUrl.value = '';
-        if (fieldIasBatch) fieldIasBatch.value = '';
-        if (fieldEducation) fieldEducation.value = '';
-        if (fieldOfficeLocation) fieldOfficeLocation.value = '';
-        fieldDescription.value = '';
-        if (fieldKeyResponsibilities) fieldKeyResponsibilities.value = '';
-      modal.classList.remove('hidden');
+        if (els.modalTitle) els.modalTitle.textContent = 'Add New Dignitary Profile';
+        if (els.modalAction) els.modalAction.value = 'create';
+        if (els.modalId) els.modalId.value = '';
+        if (els.fieldName) els.fieldName.value = '';
+        if (els.fieldPosition) els.fieldPosition.value = '';
+        if (els.fieldSubTitle) els.fieldSubTitle.value = '';
+        if (els.fieldRole) els.fieldRole.value = '';
+        if (els.fieldSNo) els.fieldSNo.value = 1;
+        if (els.fieldImageUrl) els.fieldImageUrl.value = '';
+        if (els.fieldIasBatch) els.fieldIasBatch.value = '';
+        if (els.fieldEducation) els.fieldEducation.value = '';
+        if (els.fieldOfficeLocation) els.fieldOfficeLocation.value = '';
+        if (els.fieldDescription) els.fieldDescription.value = '';
+        if (els.fieldKeyResponsibilities) els.fieldKeyResponsibilities.value = '';
+      }
+
+      els.modal.classList.remove('hidden');
       if (window.initQuillRichEditors) setTimeout(window.initQuillRichEditors, 50);
     }
 
     function hideModal() {
+      var modal = document.getElementById('dignitary-modal');
       if (modal) modal.classList.add('hidden');
     }
 
-    if (openBtn) openBtn.onclick = function() { showModal(false); };
-    if (closeBtn) closeBtn.onclick = hideModal;
-    if (cancelBtn) cancelBtn.onclick = hideModal;
+    document.addEventListener('click', function(e) {
+      var addBtn = e.target.closest('#open-add-modal');
+      if (addBtn) {
+        e.preventDefault();
+        showModal(false);
+        return;
+      }
 
-    document.querySelectorAll('.edit-dignitary-btn').forEach(function(btn) {
-      btn.onclick = function() {
+      var editBtn = e.target.closest('.edit-dignitary-btn');
+      if (editBtn) {
+        e.preventDefault();
         var data = {
-          id: btn.dataset.id,
-          name: btn.dataset.name,
-          position: btn.dataset.position,
-          subtitle: btn.dataset.subtitle,
-          role: btn.dataset.role,
-          sno: btn.dataset.sno,
-          imageurl: btn.dataset.imageurl,
-          iasbatch: btn.dataset.iasbatch,
-          education: btn.dataset.education,
-          officelocation: btn.dataset.officelocation,
-          description: btn.dataset.description,
-          keyresponsibilities: btn.dataset.keyresponsibilities
+          id: editBtn.dataset.id,
+          name: editBtn.dataset.name,
+          position: editBtn.dataset.position,
+          subtitle: editBtn.dataset.subtitle,
+          role: editBtn.dataset.role,
+          sno: editBtn.dataset.sno,
+          imageurl: editBtn.dataset.imageurl,
+          iasbatch: editBtn.dataset.iasbatch,
+          education: editBtn.dataset.education,
+          officelocation: editBtn.dataset.officelocation,
+          description: editBtn.dataset.description,
+          keyresponsibilities: editBtn.dataset.keyresponsibilities
         };
         showModal(true, data);
-      };
-    });
-  }
+        return;
+      }
 
-  document.addEventListener('astro:page-load', initDignitaries);
-  initDignitaries();
+      var closeBtn = e.target.closest('#close-modal, #cancel-modal');
+      if (closeBtn) {
+        e.preventDefault();
+        hideModal();
+        return;
+      }
+
+      var modal = document.getElementById('dignitary-modal');
+      if (modal && e.target === modal) {
+        hideModal();
+      }
+    });
+  })();
 </script>
