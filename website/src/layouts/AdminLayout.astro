@@ -98,144 +98,144 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
     <a href="#main-admin-content" class="skip-link">Skip to Main Content</a>
 
     <!-- Sidebar Navigation -->
-    <aside id="admin-sidebar" transition:persist="admin-sidebar" class="w-64 shrink-0 bg-slate-900 border-r border-slate-800 text-slate-300 flex flex-col h-full z-45 transform -translate-x-full md:translate-x-0 md:static fixed top-0 left-0 transition-transform duration-200 ease-in-out">
+    <aside id="admin-sidebar" transition:persist="admin-sidebar" class="w-64 shrink-0 bg-white border-r border-slate-200 text-slate-700 flex flex-col h-full z-45 transform -translate-x-full md:translate-x-0 md:static fixed top-0 left-0 transition-transform duration-200 ease-in-out shadow-xs">
       
       <!-- Brand Logo / Title -->
-      <div class="h-16 flex items-center px-6 border-b border-slate-800 gap-3 shrink-0">
-        <img src="/logo.png" alt="JKSPDCL Logo" class="h-8 w-auto object-contain bg-white rounded p-0.5" />
+      <div class="h-16 flex items-center px-5 border-b border-slate-200 bg-[#EAF4FF]/40 gap-3 shrink-0">
+        <img src="/logo.png" alt="JKSPDCL Logo" class="h-9 w-auto object-contain" />
         <div class="flex flex-col">
-          <span class="text-sm font-extrabold text-white tracking-wide uppercase">JKSPDC</span>
-          <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Management Console</span>
+          <span class="text-sm font-black text-[#0B4F9C] tracking-tight uppercase">JKSPDC</span>
+          <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Management Console</span>
         </div>
       </div>
 
       <!-- Navigation Links -->
-      <nav id="admin-nav-container" transition:persist="admin-nav" transition:persist-scroll class="flex-grow py-6 px-4 overflow-y-auto flex flex-col gap-5" aria-label="Admin Navigation">
+      <nav id="admin-nav-container" transition:persist="admin-nav" transition:persist-scroll class="flex-grow py-5 px-3 overflow-y-auto flex flex-col gap-4" aria-label="Admin Navigation">
         
         <!-- SECTION: OVERVIEW -->
-        <div class="flex flex-col gap-1">
-          <p class="text-[10px] font-bold text-slate-500 uppercase px-3 tracking-widest mb-1.5 select-none">Overview</p>
-          <a href="/admin/dashboard" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'dashboard' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+        <div class="flex flex-col gap-0.5">
+          <p class="text-[10px] font-extrabold text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Overview</p>
+          <a href="/admin/dashboard" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'dashboard' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
             <Icon name="bar-chart" size={14} /> Dashboard Overview
           </a>
         </div>
 
         <!-- SECTION: WEBSITE CONTENT -->
-        <div class="flex flex-col gap-1">
-          <p class="text-[10px] font-bold text-slate-500 uppercase px-3 tracking-widest mb-1.5 select-none">Website Content</p>
+        <div class="flex flex-col gap-0.5">
+          <p class="text-[10px] font-extrabold text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Website Content</p>
           
-          <a href="/admin/page-editor" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'page-editor' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+          <a href="/admin/page-editor" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'page-editor' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
             <Icon name="file-text" size={14} /> Page Editor
           </a>
 
-          <a href="/admin/hero-slides" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'hero-slides' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+          <a href="/admin/hero-slides" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'hero-slides' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
             <Icon name="image" size={14} /> Hero Slider
           </a>
 
-          <a href="/admin/site-settings" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'site-settings' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+          <a href="/admin/site-settings" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'site-settings' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
             <Icon name="settings" size={14} /> Site Settings
           </a>
         </div>
 
         <!-- SECTION: PROJECTS & INFRASTRUCTURE -->
-        <div class="flex flex-col gap-1">
-          <p class="text-[10px] font-bold text-slate-500 uppercase px-3 tracking-widest mb-1.5 select-none">Projects &amp; Infrastructure</p>
+        <div class="flex flex-col gap-0.5">
+          <p class="text-[10px] font-extrabold text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Projects &amp; Infrastructure</p>
           
-          <a href="/admin/operational-projects" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'operational' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+          <a href="/admin/operational-projects" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'operational' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
             <Icon name="zap" size={14} /> Operational Projects
           </a>
 
-          <a href="/admin/under-construction" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'construction' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+          <a href="/admin/under-construction" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'construction' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
             <Icon name="hardhat" size={14} /> Under Construction
           </a>
 
-          <a href="/admin/upcoming-projects" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'upcoming' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+          <a href="/admin/upcoming-projects" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'upcoming' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
             <Icon name="rocket" size={14} /> Projects Under Development
           </a>
         </div>
 
         <!-- SECTION: TENDERS & CAREERS -->
-        <div class="flex flex-col gap-1">
-          <p class="text-[10px] font-bold text-slate-500 uppercase px-3 tracking-widest mb-1.5 select-none">Tenders &amp; Careers</p>
+        <div class="flex flex-col gap-0.5">
+          <p class="text-[10px] font-extrabold text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Tenders &amp; Careers</p>
           
-          <a href="/admin/tenders" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'tenders' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+          <a href="/admin/tenders" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'tenders' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
             <Icon name="file-text" size={14} /> Tenders &amp; Bids
           </a>
 
-          <a href="/admin/careers" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'careers' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+          <a href="/admin/careers" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'careers' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
             <Icon name="briefcase" size={14} /> Careers &amp; Vacancies
           </a>
         </div>
 
         <!-- SECTION: CORPORATE GOVERNANCE -->
-        <div class="flex flex-col gap-1">
-          <p class="text-[10px] font-bold text-slate-500 uppercase px-3 tracking-widest mb-1.5 select-none">Corporate Governance</p>
+        <div class="flex flex-col gap-0.5">
+          <p class="text-[10px] font-extrabold text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Corporate Governance</p>
           
-          <a href="/admin/dignitaries" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'dignitaries' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+          <a href="/admin/dignitaries" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'dignitaries' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
             <Icon name="award" size={14} /> Dignitaries
           </a>
 
-          <a href="/admin/board-of-directors" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'directors' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+          <a href="/admin/board-of-directors" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'directors' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
             <Icon name="users" size={14} /> Board of Directors
           </a>
 
-          <a href="/admin/executives" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'executives' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+          <a href="/admin/executives" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'executives' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
             <Icon name="user-check" size={14} /> Executives Directory
           </a>
 
-          <a href="/admin/agm" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'agm' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+          <a href="/admin/agm" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'agm' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
             <Icon name="scroll-text" size={14} /> AGM Documents
           </a>
 
-          <a href="/admin/financials" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'financials' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+          <a href="/admin/financials" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'financials' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
             <Icon name="landmark" size={14} /> Financial Documents
           </a>
 
-          <a href="/admin/notifications" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'notifications' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+          <a href="/admin/notifications" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'notifications' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
             <Icon name="bell" size={14} /> Notifications
           </a>
         </div>
 
         <!-- SECTION: MEDIA & PUBLICATIONS -->
-        <div class="flex flex-col gap-1">
-          <p class="text-[10px] font-bold text-slate-500 uppercase px-3 tracking-widest mb-1.5 select-none">Media &amp; Publications</p>
+        <div class="flex flex-col gap-0.5">
+          <p class="text-[10px] font-extrabold text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Media &amp; Publications</p>
           
-          <a href="/admin/press-releases" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'press' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+          <a href="/admin/press-releases" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'press' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
             <Icon name="newspaper" size={14} /> Press Releases &amp; News
           </a>
 
-          <a href="/admin/gallery" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'gallery' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+          <a href="/admin/gallery" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'gallery' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
             <Icon name="image" size={14} /> Media Gallery
           </a>
 
-          <a href="/admin/downloads" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'downloads' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+          <a href="/admin/downloads" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'downloads' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
             <Icon name="download" size={14} /> Downloads Manager
           </a>
 
-          <a href="/admin/media-manager" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'media-manager' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+          <a href="/admin/media-manager" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'media-manager' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
             <Icon name="folder" size={14} /> Media &amp; Documents
           </a>
 
-          <a href="/admin/policies" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'policies' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+          <a href="/admin/policies" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'policies' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
             <Icon name="file-text" size={14} /> Policies &amp; CSR Docs
           </a>
         </div>
 
         <!-- SECTION: INQUIRIES -->
-        <div class="flex flex-col gap-1">
-          <p class="text-[10px] font-bold text-slate-500 uppercase px-3 tracking-widest mb-1.5 select-none">Inquiries</p>
-          <a href="/admin/contacts" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'contacts' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+        <div class="flex flex-col gap-0.5">
+          <p class="text-[10px] font-extrabold text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Inquiries</p>
+          <a href="/admin/contacts" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'contacts' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
             <Icon name="mail" size={14} /> Contact Submissions
           </a>
         </div>
 
         <!-- SECTION: SECURITY & LOGS -->
-        <div class="flex flex-col gap-1">
-          <p class="text-[10px] font-bold text-slate-500 uppercase px-3 tracking-widest mb-1.5 select-none">Security &amp; Logs</p>
-          <a href="/admin/users" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'users' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+        <div class="flex flex-col gap-0.5">
+          <p class="text-[10px] font-extrabold text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Security &amp; Logs</p>
+          <a href="/admin/users" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'users' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
             <Icon name="shield-check" size={14} /> User Accounts
           </a>
-          <a href="/admin/audit-logs" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'audit-logs' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+          <a href="/admin/audit-logs" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'audit-logs' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
             <Icon name="scroll-text" size={14} /> Audit Logs Feed
           </a>
         </div>
@@ -243,9 +243,9 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
       </nav>
 
       <!-- Sidebar Footer / Simple copyright -->
-      <div class="p-4 border-t border-slate-800 text-[10px] text-slate-500 shrink-0 select-none">
-        <p>&copy; {currentYear} JKSPDCL Admin.</p>
-        <p class="mt-0.5">Auditing Standard: GIGW 3.0</p>
+      <div class="p-4 border-t border-slate-200 bg-slate-50/70 text-[10px] text-slate-500 shrink-0 select-none">
+        <p class="font-bold text-slate-600">&copy; {currentYear} JKSPDCL Admin.</p>
+        <p class="mt-0.5 text-slate-400">Auditing Standard: GIGW 3.0</p>
       </div>
     </aside>
 
@@ -255,8 +255,11 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
     <!-- Main Content Panel -->
     <div class="flex-grow flex flex-col min-w-0 h-full overflow-hidden">
       
+      <!-- Top Brand Accent Line (matching main website header) -->
+      <div class="h-1 bg-gradient-to-r from-[#D8681B] via-[#0B4F9C] to-[#1B3A6B] shrink-0"></div>
+
       <!-- Top Action Bar -->
-      <header class="h-16 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between shrink-0 select-none">
+      <header class="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0 select-none shadow-2xs">
         
         <!-- Toggle button on mobile -->
         <button id="toggle-sidebar-btn" class="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded focus:outline-none" aria-label="Toggle Navigation Sidebar">
@@ -264,33 +267,33 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
         </button>
 
         <!-- Dynamic Page Title / Breadcrumb (desktop) -->
-        <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest hidden md:block">
-          JKSPDCL Admin / <span class="text-slate-800">{title}</span>
+        <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider hidden md:block">
+          JKSPDCL Admin / <span class="text-[#0B4F9C] font-extrabold">{title}</span>
         </h2>
 
         <!-- Right Utilities & Profile Session -->
         <div class="flex items-center gap-4 ml-auto">
           
           <!-- Accessibility Adjustments -->
-          <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded" aria-label="Font Controls" role="group">
-            <button class="px-2 py-0.5 bg-white hover:bg-slate-100 rounded text-xs font-bold text-slate-700 shadow-sm border border-slate-200 transition-colors cursor-pointer" onclick="adjustFontSize('dec')" aria-label="Decrease Font Size" title="Decrease Font">A-</button>
-            <button class="px-2.5 py-0.5 bg-white hover:bg-slate-100 rounded text-xs font-bold text-slate-700 shadow-sm border border-slate-200 transition-colors cursor-pointer" onclick="adjustFontSize('reset')" aria-label="Reset Font Size" title="Reset Font">A</button>
-            <button class="px-2 py-0.5 bg-white hover:bg-slate-100 rounded text-xs font-bold text-slate-700 shadow-sm border border-slate-200 transition-colors cursor-pointer" onclick="adjustFontSize('inc')" aria-label="Increase Font Size" title="Increase Font">A+</button>
+          <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg border border-slate-200" aria-label="Font Controls" role="group">
+            <button class="px-2 py-0.5 bg-white hover:bg-slate-100 rounded text-xs font-bold text-slate-700 shadow-xs border border-slate-200 transition-colors cursor-pointer" onclick="adjustFontSize('dec')" aria-label="Decrease Font Size" title="Decrease Font">A-</button>
+            <button class="px-2.5 py-0.5 bg-white hover:bg-slate-100 rounded text-xs font-bold text-slate-700 shadow-xs border border-slate-200 transition-colors cursor-pointer" onclick="adjustFontSize('reset')" aria-label="Reset Font Size" title="Reset Font">A</button>
+            <button class="px-2 py-0.5 bg-white hover:bg-slate-100 rounded text-xs font-bold text-slate-700 shadow-xs border border-slate-200 transition-colors cursor-pointer" onclick="adjustFontSize('inc')" aria-label="Increase Font Size" title="Increase Font">A+</button>
           </div>
 
-          <button class="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-semibold cursor-pointer transition-colors" onclick="toggleHighContrast()" aria-label="Toggle Contrast Mode">
-            <Icon name="contrast" size={11} strokeWidth={2} /> Contrast
+          <button class="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold cursor-pointer transition-colors border border-slate-200" onclick="toggleHighContrast()" aria-label="Toggle Contrast Mode">
+            <Icon name="contrast" size={12} strokeWidth={2} /> Contrast
           </button>
           
-          <span class="text-slate-400">|</span>
+          <span class="text-slate-300">|</span>
 
           <!-- Profile Badge -->
-          <span class="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full border border-blue-100 text-[11px] font-bold flex items-center gap-1.5 select-none">
-            <span class="h-2 w-2 bg-green-500 rounded-full animate-pulse"></span>
+          <span class="bg-[#EAF4FF] text-[#0B4F9C] px-3 py-1.5 rounded-full border border-[#BDD7EE] text-[11px] font-bold flex items-center gap-1.5 select-none">
+            <span class="h-2 w-2 bg-emerald-500 rounded-full ring-2 ring-emerald-200 animate-pulse"></span>
             {adminUserName}
           </span>
 
-          <button id="admin-logout-btn" class="flex items-center gap-1.5 px-3 py-1.5 border border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 rounded text-xs font-semibold cursor-pointer transition-colors">
+          <button id="admin-logout-btn" class="flex items-center gap-1.5 px-3 py-1.5 border border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg text-xs font-semibold cursor-pointer transition-colors">
             <Icon name="x" size={13} strokeWidth={2.5} /> Sign Out
           </button>
         </div>
