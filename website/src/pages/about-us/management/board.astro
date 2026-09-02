@@ -8,7 +8,8 @@ try {
   const res = await fetch('http://localhost:3000/api/directors');
   if (res.ok) {
     directors = await res.json();
-    directors.sort((a, b) => a.sNo - b.sNo);
+    // Sort by sNo, then by name within the same sNo group
+    directors.sort((a, b) => a.sNo !== b.sNo ? a.sNo - b.sNo : a.name.localeCompare(b.name));
   } else {
     errorMessage = 'Failed to load board of directors details.';
   }
@@ -38,42 +39,65 @@ try {
     <!-- Content -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fadeInUp delay-200">
       <!-- Board Listings -->
-      <article class="lg:col-span-2 prose-gov">
-        
-        <!-- Safety placeholder alert -->
-        <div class="alert-info" role="note">
+      <article class="lg:col-span-2">
+
+        <!-- Info Notice -->
+        <div class="alert-info mb-6" role="note">
           <span class="font-bold" aria-hidden="true">ℹ</span>
           <div>
-            <strong>Board Appointments:</strong> The list of directors is updated dynamically post-appointive orders from the Government of Jammu & Kashmir.
+            <strong>Board Appointments:</strong> The list of directors is updated dynamically post-appointive orders from the Government of Jammu &amp; Kashmir.
           </div>
         </div>
 
-        <!-- Directors Grid -->
+        <!-- Error -->
         {errorMessage && (
-          <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 text-xs font-semibold">
+          <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 text-xs font-semibold mb-4">
             {errorMessage}
           </div>
         )}
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {directors.length === 0 && !errorMessage ? (
-            <div class="col-span-2 text-center py-10 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 text-sm font-medium">
-              No Board of Directors listed at the moment.
-            </div>
-          ) : (
-            directors.map((dir) => (
-              <div class="group bg-white rounded-xl border border-slate-200 p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-all duration-200">
-                <div>
-                  <span class="text-[10px] text-[#0B4F9C] font-bold uppercase tracking-wider bg-[#EAF4FF] px-2 py-0.5 rounded border border-[#BDD7EE]/50 inline-block mb-2">
-                    {dir.role}
-                  </span>
-                  <h3 class="font-extrabold text-[#0B4F9C] text-base mt-1 group-hover:text-[#084A8F] transition-colors">{dir.name}</h3>
-                  <p class="text-xs text-slate-650 mt-1.5 leading-relaxed font-medium">{dir.position}</p>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
+
+        <!-- Directors Table -->
+        {directors.length === 0 && !errorMessage ? (
+          <div class="text-center py-16 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 text-sm font-medium">
+            No Board of Directors listed at the moment.
+          </div>
+        ) : (
+          <div class="board-table-wrapper">
+            <table class="board-table" role="table" aria-label="Board of Directors">
+              <thead>
+                <tr>
+                  <th scope="col" class="col-no">#</th>
+                  <th scope="col" class="col-name">Name</th>
+                  <th scope="col" class="col-position">Official Position</th>
+                  <th scope="col" class="col-role">Designation / Role</th>
+                </tr>
+              </thead>
+              <tbody>
+                {directors.map((dir, idx) => (
+                  <tr class="board-row">
+                    <td class="col-no" aria-label={`Serial number ${idx + 1}`}>
+                      <span class="serial-badge">{idx + 1}</span>
+                    </td>
+                    <td class="col-name">
+                      <span class="director-name">{dir.name}</span>
+                    </td>
+                    <td class="col-position">
+                      <span class="director-position">{dir.position}</span>
+                    </td>
+                    <td class="col-role">
+                      <span class="role-badge">{dir.role}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        <!-- Footer note -->
+        <p class="mt-4 text-[11px] text-slate-400 font-medium text-right">
+          Total Members: <strong class="text-slate-600">{directors.length}</strong>
+        </p>
       </article>
 
       <!-- Sidebar -->
@@ -86,7 +110,183 @@ try {
             <li><a href="/about-us/explore/executives-directory" class="sidebar-link">Senior Executives Directory</a></li>
           </ul>
         </div>
+
+        <div class="card-static">
+          <h3 class="sidebar-card-title">Related Links</h3>
+          <ul class="flex flex-col gap-2 text-xs font-semibold text-[#0B4F9C]">
+            <li><a href="/corporate-governance/agm-documents" class="sidebar-link">AGM Documents</a></li>
+            <li><a href="/corporate-governance/financial-documents" class="sidebar-link">Financial Documents</a></li>
+          </ul>
+        </div>
       </aside>
     </div>
   </div>
 </Layout>
+
+<style>
+  /* ── Board of Directors Table ─────────────────────────────────────────────── */
+  .board-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 0.75rem;
+    border: 1px solid #D1D9E6;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  .board-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+  }
+
+  /* Header */
+  .board-table thead {
+    background: linear-gradient(90deg, #0B4F9C 0%, #1565C0 100%);
+  }
+
+  .board-table thead th {
+    color: #ffffff;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border: none;
+    white-space: nowrap;
+  }
+
+  .board-table thead th.col-no {
+    text-align: center;
+    width: 3rem;
+  }
+
+  /* Body rows */
+  .board-row {
+    border-bottom: 1px solid #E9EEF5;
+    transition: background-color 0.15s ease;
+  }
+
+  .board-row:last-child {
+    border-bottom: none;
+  }
+
+  .board-row:nth-child(even) {
+    background-color: #F7FAFF;
+  }
+
+  .board-row:nth-child(odd) {
+    background-color: #ffffff;
+  }
+
+  .board-row:hover {
+    background-color: #EAF4FF !important;
+  }
+
+  .board-table td {
+    padding: 0.85rem 1rem;
+    vertical-align: middle;
+    color: #374151;
+  }
+
+  .board-table td.col-no {
+    text-align: center;
+    width: 3rem;
+  }
+
+  /* Serial number badge */
+  .serial-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    background-color: #E8F0FE;
+    color: #0B4F9C;
+    font-weight: 800;
+    font-size: 0.65rem;
+  }
+
+  /* Name */
+  .director-name {
+    font-weight: 700;
+    color: #0B4F9C;
+    font-size: 0.8rem;
+    display: block;
+  }
+
+  /* Position */
+  .director-position {
+    color: #4B5563;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.45;
+  }
+
+  /* Role badge */
+  .role-badge {
+    display: inline-block;
+    padding: 0.2rem 0.55rem;
+    border-radius: 9999px;
+    background-color: #EAF4FF;
+    color: #0B4F9C;
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border: 1px solid #BDD7EE;
+    white-space: normal;
+    line-height: 1.4;
+  }
+
+  /* Column widths */
+  .col-name    { width: 22%; min-width: 140px; }
+  .col-position { width: 40%; }
+  .col-role    { width: 32%; }
+
+  /* Responsive: stack on small screens */
+  @media (max-width: 640px) {
+    .board-table thead {
+      display: none;
+    }
+
+    .board-table, .board-table tbody, .board-table tr, .board-table td {
+      display: block;
+      width: 100%;
+    }
+
+    .board-row {
+      padding: 0.75rem 1rem;
+      border-bottom: 2px solid #D1D9E6;
+      position: relative;
+    }
+
+    .board-table td {
+      padding: 0.25rem 0;
+      border: none;
+    }
+
+    .board-table td.col-no {
+      position: absolute;
+      top: 0.75rem;
+      left: 1rem;
+      text-align: left;
+    }
+
+    .board-table td.col-name {
+      padding-left: 2.25rem;
+      padding-top: 0;
+    }
+
+    .board-table td.col-position {
+      padding-left: 2.25rem;
+      padding-bottom: 0.25rem;
+    }
+
+    .board-table td.col-role {
+      padding-left: 2.25rem;
+      padding-bottom: 0.5rem;
+    }
+  }
+</style>
