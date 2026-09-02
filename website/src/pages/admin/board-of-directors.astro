@@ -323,7 +323,7 @@ try {
 </AdminLayout>
 
 <script is:inline>
-  (function() {
+  function initDirectors() {
     var modal = document.getElementById('director-modal');
     var openBtn = document.getElementById('open-add-modal');
     var closeBtn = document.getElementById('close-modal');
@@ -367,12 +367,12 @@ try {
       if (modal) modal.classList.add('hidden');
     }
 
-    if (openBtn) openBtn.addEventListener('click', function() { showModal(false); });
-    if (closeBtn) closeBtn.addEventListener('click', hideModal);
-    if (cancelBtn) cancelBtn.addEventListener('click', hideModal);
+    if (openBtn) openBtn.onclick = function() { showModal(false); };
+    if (closeBtn) closeBtn.onclick = hideModal;
+    if (cancelBtn) cancelBtn.onclick = hideModal;
 
     document.querySelectorAll('.edit-director-btn').forEach(function(btn) {
-      btn.addEventListener('click', function() {
+      btn.onclick = function() {
         var data = {
           id: btn.dataset.id,
           name: btn.dataset.name,
@@ -382,7 +382,10 @@ try {
           description: btn.dataset.description
         };
         showModal(true, data);
-      });
+      };
     });
-  })();
+  }
+
+  document.addEventListener('astro:page-load', initDirectors);
+  initDirectors();
 </script>

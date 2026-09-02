@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import Icon from '../components/Icon.astro';
 import type { AdminTab } from '../pages/admin/types';
+import { ClientRouter } from 'astro:transitions';
 
 interface Props {
   title: string;
@@ -27,6 +28,7 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;850&family=Noto+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <ClientRouter />
 
     <style is:global>
       .high-contrast,
@@ -93,7 +95,7 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
     <a href="#main-admin-content" class="skip-link">Skip to Main Content</a>
 
     <!-- Sidebar Navigation -->
-    <aside id="admin-sidebar" class="w-64 shrink-0 bg-slate-900 border-r border-slate-800 text-slate-300 flex flex-col h-full z-45 transform -translate-x-full md:translate-x-0 md:static fixed top-0 left-0 transition-transform duration-200 ease-in-out">
+    <aside id="admin-sidebar" transition:persist class="w-64 shrink-0 bg-slate-900 border-r border-slate-800 text-slate-300 flex flex-col h-full z-45 transform -translate-x-full md:translate-x-0 md:static fixed top-0 left-0 transition-transform duration-200 ease-in-out">
       
       <!-- Brand Logo / Title -->
       <div class="h-16 flex items-center px-6 border-b border-slate-800 gap-3 shrink-0">
@@ -292,7 +294,7 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
       </header>
 
       <!-- Main Slot Content -->
-      <main id="main-admin-content" class="flex-1 min-w-0 overflow-y-auto p-6 md:p-8 bg-slate-50 focus:outline-none" tabindex="-1">
+      <main id="main-admin-content" transition:animate="fade" class="flex-1 min-w-0 overflow-y-auto p-6 md:p-8 bg-slate-50 focus:outline-none" tabindex="-1">
         <slot />
       </main>
 
