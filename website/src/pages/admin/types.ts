@@ -42,4 +42,4 @@ export interface AuditLogDto {
   details?: unknown;
 }
 
-export type AdminTab = 'dashboard' | 'construction' | 'directors' | 'operational' | 'tenders' | 'careers' | 'press' | 'contacts' | 'users' | 'audit-logs' | 'media-manager' | 'policies' | 'upcoming' | 'agm' | 'gallery' | 'notifications' | 'page-editor' | 'downloads' | 'financials' | 'executives' | 'hero-slides' | 'site-settings';
+export type AdminTab = 'dashboard' | 'construction' | 'directors' | 'dignitaries' | 'operational' | 'tenders' | 'careers' | 'press' | 'contacts' | 'users' | 'audit-logs' | 'media-manager' | 'policies' | 'upcoming' | 'agm' | 'gallery' | 'notifications' | 'page-editor' | 'downloads' | 'financials' | 'executives' | 'hero-slides' | 'site-settings';

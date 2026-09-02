@@ -166,6 +166,10 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
         <div class="flex flex-col gap-1">
           <p class="text-[10px] font-bold text-slate-500 uppercase px-3 tracking-widest mb-1.5 select-none">Corporate Governance</p>
           
+          <a href="/admin/dignitaries" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'dignitaries' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+            <Icon name="award" size={14} /> Dignitaries
+          </a>
+
           <a href="/admin/board-of-directors" class={`flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all ${activeTab === 'directors' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
             <Icon name="users" size={14} /> Board of Directors
           </a>

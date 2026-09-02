@@ -28,6 +28,7 @@ import { FinancialsModule } from './financials/financials.module';
 import { ExecutivesModule } from './executives/executives.module';
 import { HeroSlidesModule } from './hero-slides/hero-slides.module';
 import { SiteSettingsModule } from './site-settings/site-settings.module';
+import { DignitariesModule } from './dignitaries/dignitaries.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { SiteSettingsModule } from './site-settings/site-settings.module';
     AuthModule,
     ProjectsModule,
     DirectorsModule,
+    DignitariesModule,
     AuditLogsModule,
     TendersModule,
     CareersModule,

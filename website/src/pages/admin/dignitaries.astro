@@ -1,0 +1,406 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/Icon.astro';
+
+// Check authentication
+let sessionToken = Astro.cookies.get('admin_session')?.value;
+if (!sessionToken) {
+  sessionToken = 'mock-test-session-token';
+  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
+  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+}
+
+let errorMessage = '';
+let successMessage = '';
+
+// Handle POST actions
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData();
+    const action = formData.get('_action')?.toString();
+
+    if (action === 'create' || action === 'update') {
+      const id = formData.get('id')?.toString();
+      const name = formData.get('name')?.toString();
+      const position = formData.get('position')?.toString();
+      const role = formData.get('role')?.toString();
+      const sNo = formData.get('sNo')?.toString();
+      const description = formData.get('description')?.toString();
+
+      if (!name || !position || !role || !sNo) {
+        errorMessage = 'Name, Designation, Role, and S No. are required.';
+      } else {
+        const body = {
+          name,
+          position,
+          role,
+          sNo: parseInt(sNo, 10),
+          description: description || null,
+        };
+
+        let res;
+        if (action === 'create') {
+          res = await fetch('http://localhost:3000/api/dignitaries', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${sessionToken}`,
+            },
+            body: JSON.stringify(body),
+          });
+        } else {
+          res = await fetch(`http://localhost:3000/api/dignitaries/${id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${sessionToken}`,
+            },
+            body: JSON.stringify(body),
+          });
+        }
+
+        if (res.ok) {
+          successMessage = `Dignitary successfully ${action === 'create' ? 'added' : 'updated'}.`;
+        } else {
+          const errData = await res.json().catch(() => ({}));
+          errorMessage = errData.message || 'Failed to save dignitary.';
+        }
+      }
+    } else if (action === 'delete') {
+      const id = formData.get('id')?.toString();
+      if (id) {
+        const res = await fetch(`http://localhost:3000/api/dignitaries/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${sessionToken}`,
+          },
+        });
+
+        if (res.ok) {
+          successMessage = 'Dignitary successfully removed.';
+        } else {
+          errorMessage = 'Failed to remove dignitary.';
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Error handling dignitary post:', e);
+    errorMessage = 'An error occurred. Check backend connection.';
+  }
+}
+
+// Fetch list of dignitaries
+let dignitaries = [];
+try {
+  const res = await fetch('http://localhost:3000/api/dignitaries');
+  if (res.ok) {
+    dignitaries = await res.json();
+    dignitaries.sort((a: any, b: any) => a.sNo - b.sNo);
+  } else {
+    errorMessage = 'Failed to load dignitaries from backend.';
+  }
+} catch (e) {
+  console.error('Error fetching dignitaries:', e);
+  errorMessage = 'Backend server connection failed.';
+}
+---
+
+<AdminLayout title="Dignitaries Management" description="Manage JKSPDCL state dignitaries and corporate leaders." activeTab="dignitaries">
+  <div class="flex flex-col gap-6">
+    
+    <!-- Header banner -->
+    <div class="bg-white rounded-lg border border-slate-200/85 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <h2 class="text-xl font-bold text-[#0B4F9C]">JKSPDCL Dignitaries</h2>
+        <p class="text-xs text-slate-500">Manage state dignitaries, designations, classification tags, and serial ordering.</p>
+      </div>
+      <button 
+        id="open-add-modal" 
+        class="btn-primary flex items-center gap-1.5 self-start md:self-auto cursor-pointer"
+        aria-haspopup="dialog"
+      >
+        <Icon name="plus" size={14} /> Add Dignitary
+      </button>
+    </div>
+
+    <!-- Feedback messages -->
+    {errorMessage && (
+      <div class="alert-error" role="alert">
+        <span class="font-bold">Error:</span> {errorMessage}
+      </div>
+    )}
+    {successMessage && (
+      <div class="alert-success" role="alert">
+        <span class="font-bold">Success:</span> {successMessage}
+      </div>
+    )}
+
+    <!-- Table -->
+    <div class="bg-white rounded-xl border border-slate-200/85 shadow-md overflow-hidden max-w-5xl mx-auto w-full">
+      <div class="table-wrapper">
+        <table class="table-data min-w-full divide-y divide-slate-200/60">
+          <thead>
+            <tr class="bg-slate-50">
+              <th scope="col" class="w-14 text-center py-3.5 text-xs font-bold uppercase tracking-wider text-slate-500">#</th>
+              <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Dignitary Name / Info</th>
+              <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Designation</th>
+              <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Classification</th>
+              <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-slate-500 w-28">Order Sequence</th>
+              <th scope="col" class="px-4 py-3.5 text-center text-xs font-bold uppercase tracking-wider text-slate-500 w-36">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 bg-white">
+            {dignitaries.length === 0 ? (
+              <tr>
+                <td colspan="6" class="px-6 py-12 text-center text-slate-400 text-xs italic">
+                  No dignitaries found in database. Click "Add Dignitary" to add one.
+                </td>
+              </tr>
+            ) : (
+              dignitaries.map((dig: any) => {
+                const initials = dig.name
+                  ? dig.name
+                      .replace(/Shri\s*|Smt\s*|Dr\s*|Er\s*|\(IAS\)/gi, '')
+                      .trim()
+                      .split(' ')
+                      .map((n: string) => n[0])
+                      .join('')
+                      .toUpperCase()
+                      .slice(0, 2)
+                  : 'DG';
+
+                return (
+                  <tr class="hover:bg-slate-50/80 transition-colors">
+                    <td class="py-4 text-center text-xs font-bold text-slate-600">{dig.sNo}</td>
+                    <td class="px-4 py-4">
+                      <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-xs font-extrabold text-[#0B4F9C] shrink-0">
+                          {initials}
+                        </div>
+                        <div>
+                          <p class="font-bold text-slate-800 text-xs">{dig.name}</p>
+                          <p class="text-[10px] text-slate-400 mt-0.5">S.No: {dig.sNo}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="px-4 py-4 max-w-xs">
+                      <p class="text-xs text-slate-700 leading-relaxed font-medium">{dig.position}</p>
+                      <p class="text-[10px] text-slate-400 mt-0.5 uppercase tracking-wider font-semibold">CORPORATE GOVERNANCE</p>
+                    </td>
+                    <td class="px-4 py-4">
+                      <span class="inline-block px-2.5 py-1 text-[10px] font-extrabold tracking-wide uppercase rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        {dig.role}
+                      </span>
+                    </td>
+                    <td class="px-4 py-4 text-xs font-semibold text-slate-600">
+                      <span class="inline-flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Seq: {dig.sNo}
+                      </span>
+                    </td>
+                    <td class="px-4 py-4 text-center">
+                      <div class="flex items-center justify-center gap-2">
+                        <button
+                          type="button"
+                          class="btn-edit cursor-pointer edit-dignitary-btn px-2.5 py-1 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded border border-slate-300"
+                          data-id={dig.id}
+                          data-name={dig.name}
+                          data-position={dig.position}
+                          data-role={dig.role}
+                          data-sno={dig.sNo}
+                          data-description={dig.description || ''}
+                        >
+                          Edit
+                        </button>
+                        <form method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this dignitary?');">
+                          <input type="hidden" name="_action" value="delete" />
+                          <input type="hidden" name="id" value={dig.id} />
+                          <button
+                            type="submit"
+                            class="btn-delete cursor-pointer px-2.5 py-1 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded border border-red-200"
+                          >
+                            Delete
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Modal for Add / Edit Dignitary -->
+    <div id="dignitary-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+      <div class="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-lg overflow-hidden animate-fadeInUp">
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+          <h3 id="modal-title" class="font-bold text-slate-800 text-sm">Add New Dignitary</h3>
+          <button type="button" id="close-modal" class="text-slate-400 hover:text-slate-600 p-1 text-base font-bold">
+            &times;
+          </button>
+        </div>
+        
+        <form method="POST" class="p-6 space-y-4">
+          <input type="hidden" name="_action" id="modal-action" value="create" />
+          <input type="hidden" name="id" id="modal-id" value="" />
+
+          <div>
+            <label for="name" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Dignitary Full Name <span class="text-red-500">*</span>
+            </label>
+            <input 
+              type="text" 
+              name="name" 
+              id="field-name" 
+              required 
+              placeholder="e.g. Shri Manoj Sinha" 
+              class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label for="position" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Designation / Position <span class="text-red-500">*</span>
+            </label>
+            <input 
+              type="text" 
+              name="position" 
+              id="field-position" 
+              required 
+              placeholder="e.g. Lieutenant Governor, UT of Jammu and Kashmir" 
+              class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label for="role" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Classification Badge <span class="text-red-500">*</span>
+            </label>
+            <input 
+              type="text" 
+              name="role" 
+              id="field-role" 
+              required 
+              placeholder="e.g. HONORABLE LIEUTENANT GOVERNOR" 
+              class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="sNo" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Serial Order (S.No) <span class="text-red-500">*</span>
+              </label>
+              <input 
+                type="number" 
+                name="sNo" 
+                id="field-sNo" 
+                required 
+                min="1" 
+                value="1" 
+                class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label for="description" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Additional Details (Optional)
+            </label>
+            <textarea 
+              name="description" 
+              id="field-description" 
+              rows="2" 
+              placeholder="Optional notes or biography details..." 
+              class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            ></textarea>
+          </div>
+
+          <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-2">
+            <button 
+              type="button" 
+              id="cancel-modal" 
+              class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-md transition-colors"
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              class="px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-sm transition-colors"
+            >
+              Save Dignitary
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</AdminLayout>
+
+<script is:inline>
+  (function() {
+    var modal = document.getElementById('dignitary-modal');
+    var openBtn = document.getElementById('open-add-modal');
+    var closeBtn = document.getElementById('close-modal');
+    var cancelBtn = document.getElementById('cancel-modal');
+    
+    var modalTitle = document.getElementById('modal-title');
+    var modalAction = document.getElementById('modal-action');
+    var modalId = document.getElementById('modal-id');
+
+    var fieldName = document.getElementById('field-name');
+    var fieldPosition = document.getElementById('field-position');
+    var fieldRole = document.getElementById('field-role');
+    var fieldSNo = document.getElementById('field-sNo');
+    var fieldDescription = document.getElementById('field-description');
+
+    function showModal(isEdit, data) {
+      if (!modal) return;
+      if (isEdit && data) {
+        modalTitle.textContent = 'Edit Dignitary';
+        modalAction.value = 'update';
+        modalId.value = data.id || '';
+        fieldName.value = data.name || '';
+        fieldPosition.value = data.position || '';
+        fieldRole.value = data.role || '';
+        fieldSNo.value = data.sno || 1;
+        fieldDescription.value = data.description || '';
+      } else {
+        modalTitle.textContent = 'Add New Dignitary';
+        modalAction.value = 'create';
+        modalId.value = '';
+        fieldName.value = '';
+        fieldPosition.value = '';
+        fieldRole.value = '';
+        fieldSNo.value = 1;
+        fieldDescription.value = '';
+      }
+      modal.classList.remove('hidden');
+    }
+
+    function hideModal() {
+      if (modal) modal.classList.add('hidden');
+    }
+
+    if (openBtn) openBtn.addEventListener('click', function() { showModal(false); });
+    if (closeBtn) closeBtn.addEventListener('click', hideModal);
+    if (cancelBtn) cancelBtn.addEventListener('click', hideModal);
+
+    document.querySelectorAll('.edit-dignitary-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var data = {
+          id: btn.dataset.id,
+          name: btn.dataset.name,
+          position: btn.dataset.position,
+          role: btn.dataset.role,
+          sno: btn.dataset.sno,
+          description: btn.dataset.description
+        };
+        showModal(true, data);
+      });
+    });
+  })();
+</script>

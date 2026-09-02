@@ -32,34 +32,85 @@ async function main() {
     console.log('Admin user already exists.');
   }
 
-  // 2. Create Board of Directors (BOD)
-  const directors = [
+  // 2. Create Dignitaries & Board of Directors (BOD)
+  const dignitaries = [
     {
-      id: 'dir-manoj-sinha',
+      id: 'dig-manoj-sinha',
       name: 'Shri Manoj Sinha',
       position: 'Lieutenant Governor, UT of Jammu and Kashmir',
       role: 'Honorable Lieutenant Governor',
       sNo: 1,
     },
     {
-      id: 'dir-omar-abdullah',
+      id: 'dig-omar-abdullah',
       name: 'Shri Omar Abdullah',
       position: 'Chief Minister, UT of Jammu and Kashmir (Minister Incharge Power Development Department)',
       role: 'Honorable Chief Minister',
       sNo: 2,
     },
     {
-      id: 'dir-ashwani-kumar',
+      id: 'dig-ashwani-kumar',
       name: 'Shri Ashwani Kumar (IAS)',
       position: 'Financial Commissioner (Additional Chief Secretary, Power Development Department)',
       role: 'Chairman',
       sNo: 3,
     },
     {
-      id: 'dir-rahul-yadav',
+      id: 'dig-rahul-yadav',
       name: 'Shri Rahul Yadav (IAS)',
       position: 'Managing Director, JKSPDC',
       role: 'Managing Director',
+      sNo: 4,
+    }
+  ];
+
+  for (const dig of dignitaries) {
+    await prisma.dignitary.upsert({
+      where: { id: dig.id },
+      create: {
+        id: dig.id,
+        name: dig.name,
+        position: dig.position,
+        role: dig.role,
+        sNo: dig.sNo,
+      },
+      update: {
+        name: dig.name,
+        position: dig.position,
+        role: dig.role,
+        sNo: dig.sNo,
+      },
+    });
+  }
+  console.log('Dignitaries seeded.');
+
+  const directors = [
+    {
+      id: 'dir-ashwani-kumar',
+      name: 'Shri Ashwani Kumar (IAS)',
+      position: 'Chairman',
+      role: 'Additional Chief Secretary, Power Development Department',
+      sNo: 1,
+    },
+    {
+      id: 'dir-rahul-yadav',
+      name: 'Shri Rahul Yadav (IAS)',
+      position: 'Managing Director',
+      role: 'Managing Director, JKSPDC',
+      sNo: 2,
+    },
+    {
+      id: 'dir-pankaj-mangotra',
+      name: 'Er. Pankaj Mangotra',
+      position: 'Executive Director (Technical)',
+      role: 'Director Technical, JKSPDC',
+      sNo: 3,
+    },
+    {
+      id: 'dir-sk-gupta',
+      name: 'Shri S. K. Gupta',
+      position: 'Executive Director (Finance)',
+      role: 'Director Finance, JKSPDC',
       sNo: 4,
     }
   ];

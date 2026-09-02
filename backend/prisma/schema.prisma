@@ -112,6 +112,17 @@ model Director {
   updatedAt   DateTime @updatedAt
 }
 
+model Dignitary {
+  id          String   @id @default(uuid())
+  name        String
+  position    String
+  role        String
+  sNo         Int      @default(0)
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 model Notification {
   id          String   @id @default(uuid())
   title       String
