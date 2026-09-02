@@ -112,28 +112,30 @@ const centralGroup = sectorGroups.find(g => g.name === 'Central') || { name: 'Ce
                   <span class="text-[#0B4F9C]">{basin.totalCapacity} MW</span>
                 </h4>
                 <div class="table-wrapper">
-                  <table class="table-data min-w-full">
+                  <table class="table-data" role="table" aria-label={`Operating Power Stations - ${basin.name}`}>
                     <thead>
                       <tr>
-                        <th scope="col" class="text-left">Name of Power House</th>
-                        <th scope="col" class="text-left">Configuration</th>
-                        <th scope="col" class="text-left">Installed Capacity</th>
-                        <th scope="col" class="text-left">Design Energy (MU)</th>
-                        <th scope="col" class="text-left">Year of Commissioning</th>
+                        <th scope="col" class="text-center w-12">#</th>
+                        <th scope="col">Name of Power House</th>
+                        <th scope="col">Configuration</th>
+                        <th scope="col">Installed Capacity</th>
+                        <th scope="col">Design Energy</th>
+                        <th scope="col">Commissioning</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {basin.projects.map((p) => (
-                        <tr class="hover:bg-slate-100/70 transition-colors cursor-pointer" onclick={`window.location.href='/our-business/power-station-details?id=${p.id}'`}>
-                          <td class="font-bold text-left text-xs">
+                      {basin.projects.map((p, idx) => (
+                        <tr class="cursor-pointer" onclick={`window.location.href='/our-business/power-station-details?id=${p.id}'`}>
+                          <td class="text-center font-bold text-slate-500">{idx + 1}</td>
+                          <td class="font-bold text-[#0B4F9C]">
                             <a href={`/our-business/power-station-details?id=${p.id}`} class="text-[#0B4F9C] hover:underline" onclick="event.stopPropagation();">
                               {formatProjectName(p.name)}
                             </a>
                           </td>
-                          <td class="text-left text-xs">{p.configuration || '—'}</td>
-                          <td class="font-semibold text-slate-700 text-left text-xs">{p.capacityMw} MW</td>
-                          <td class="text-left text-xs">{p.designEnergy || '—'}</td>
-                          <td class="text-left text-xs">{p.yearOfCommissioning || '—'}</td>
+                          <td class="text-slate-600">{p.configuration || '—'}</td>
+                          <td class="font-bold text-slate-700">{p.capacityMw} MW</td>
+                          <td class="text-slate-600">{p.designEnergy ? `${p.designEnergy} MU` : '—'}</td>
+                          <td class="text-slate-600">{p.yearOfCommissioning || '—'}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -165,28 +167,30 @@ const centralGroup = sectorGroups.find(g => g.name === 'Central') || { name: 'Ce
                   <span class="text-[#0B4F9C]">{basin.totalCapacity} MW</span>
                 </h4>
                 <div class="table-wrapper">
-                  <table class="table-data min-w-full">
+                  <table class="table-data" role="table" aria-label={`Operating Power Stations - ${basin.name}`}>
                     <thead>
                       <tr>
-                        <th scope="col" class="text-left">Name of Power House</th>
-                        <th scope="col" class="text-left">Configuration</th>
-                        <th scope="col" class="text-left">Installed Capacity</th>
-                        <th scope="col" class="text-left">Design Energy (MU)</th>
-                        <th scope="col" class="text-left">Year of Commissioning</th>
+                        <th scope="col" class="text-center w-12">#</th>
+                        <th scope="col">Name of Power House</th>
+                        <th scope="col">Configuration</th>
+                        <th scope="col">Installed Capacity</th>
+                        <th scope="col">Design Energy</th>
+                        <th scope="col">Commissioning</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {basin.projects.map((p) => (
-                        <tr class="hover:bg-slate-100/70 transition-colors cursor-pointer" onclick={`window.location.href='/our-business/power-station-details?id=${p.id}'`}>
-                          <td class="font-bold text-left text-xs">
+                      {basin.projects.map((p, idx) => (
+                        <tr class="cursor-pointer" onclick={`window.location.href='/our-business/power-station-details?id=${p.id}'`}>
+                          <td class="text-center font-bold text-slate-500">{idx + 1}</td>
+                          <td class="font-bold text-[#0B4F9C]">
                             <a href={`/our-business/power-station-details?id=${p.id}`} class="text-[#0B4F9C] hover:underline" onclick="event.stopPropagation();">
                               {formatProjectName(p.name)}
                             </a>
                           </td>
-                          <td class="text-left text-xs">{p.configuration || '—'}</td>
-                          <td class="font-semibold text-slate-700 text-left text-xs">{p.capacityMw} MW</td>
-                          <td class="text-left text-xs">{p.designEnergy || '—'}</td>
-                          <td class="text-left text-xs">{p.yearOfCommissioning || '—'}</td>
+                          <td class="text-slate-600">{p.configuration || '—'}</td>
+                          <td class="font-bold text-slate-700">{p.capacityMw} MW</td>
+                          <td class="text-slate-600">{p.designEnergy ? `${p.designEnergy} MU` : '—'}</td>
+                          <td class="text-slate-600">{p.yearOfCommissioning || '—'}</td>
                         </tr>
                       ))}
                     </tbody>
