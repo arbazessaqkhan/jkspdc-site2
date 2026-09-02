@@ -1065,4 +1065,39 @@ tbody tr:hover {
   margin-top: 0.75rem !important;
   margin-bottom: 0.75rem !important;
 }
+
+/* ── Quill Rich Text Editor Custom Styling ───────────────────────────────── */
+.ql-toolbar.ql-snow {
+  border-top-left-radius: 0.5rem !important;
+  border-top-right-radius: 0.5rem !important;
+  border-color: #CBD5E1 !important;
+  background-color: #F8FAFC !important;
+}
+
+.ql-container.ql-snow {
+  border-bottom-left-radius: 0.5rem !important;
+  border-bottom-right-radius: 0.5rem !important;
+  border-color: #CBD5E1 !important;
+  font-family: inherit !important;
+  font-size: 0.875rem !important;
+  outline: none !important;
+}
+
+.ql-editor {
+  outline: none !important;
+  box-shadow: none !important;
+  min-height: 120px;
+}
+
+.ql-editor:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.ql-container.ql-snow.ql-focus,
+.ql-toolbar.ql-snow + .ql-container.ql-snow:focus-within {
+  border-color: #3B82F6 !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15) !important;
+}
+
 

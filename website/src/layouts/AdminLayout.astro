@@ -435,6 +435,18 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
         });
       };
       setTimeout(function() { if (window.initQuillRichEditors) window.initQuillRichEditors(); }, 100);
+
+      // Blur Quill editors when clicking anywhere outside
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('.ql-container, .ql-toolbar')) {
+          var activeQuills = document.querySelectorAll('[data-rich-editor]');
+          activeQuills.forEach(function(c) {
+            if (c.__quill) {
+              c.__quill.blur();
+            }
+          });
+        }
+      });
     </script>
   </body>
 </html>
