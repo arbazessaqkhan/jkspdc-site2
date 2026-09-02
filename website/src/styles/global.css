@@ -1025,7 +1025,9 @@ tbody tr:hover {
 .prose-gov .btn-primary,
 .prose-gov .btn-secondary,
 .prose-gov a.btn-primary,
-.prose-gov a.btn-secondary {
+.prose-gov a.btn-secondary,
+.prose-gov a.policy-doc-btn,
+.prose-gov a[class*="bg-[#"] {
   color: #ffffff !important;
   text-decoration: none !important;
   font-weight: 700 !important;
