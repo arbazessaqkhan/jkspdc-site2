@@ -1,0 +1,169 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const { id } = Astro.params;
+let dignitary: any = null;
+let errorMessage = '';
+
+try {
+  // Try fetching by ID first
+  const res = await fetch(`http://localhost:3000/api/dignitaries/${id}`);
+  if (res.ok) {
+    dignitary = await res.json();
+  } else {
+    // If not found by ID, try fetching all dignitaries and matching slug or name
+    const allRes = await fetch('http://localhost:3000/api/dignitaries');
+    if (allRes.ok) {
+      const all: any[] = await allRes.json();
+      dignitary = all.find((d: any) => {
+        const slug = d.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        return d.id === id || slug === id || d.name.toLowerCase().includes(id?.replace(/-/g, ' ') || '');
+      });
+    }
+  }
+} catch (e) {
+  errorMessage = 'Failed to connect to the backend server.';
+}
+
+if (!dignitary && !errorMessage) {
+  errorMessage = 'Dignitary profile not found.';
+}
+
+const name = dignitary?.name || 'Dignitary Profile';
+const position = dignitary?.position || 'Government Official';
+const subTitle = dignitary?.subTitle || 'Government of Jammu & Kashmir';
+const role = dignitary?.role || 'OFFICIAL DIGNITARY';
+const iasBatch = dignitary?.iasBatch || '—';
+const education = dignitary?.education || '—';
+const officeLocation = dignitary?.officeLocation || '—';
+const imageUrl = dignitary?.imageUrl || '/logo.png';
+const description = dignitary?.description || 'No biography details available.';
+const keyResponsibilities = dignitary?.keyResponsibilities || '';
+
+const initials = name
+  ? name
+      .replace(/Shri\s*|Smt\s*|Dr\s*|Er\s*|\(IAS\)/gi, '')
+      .trim()
+      .split(' ')
+      .map((n: string) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2)
+  : 'DG';
+---
+
+<Layout 
+  title={`Profile - ${name}`} 
+  description={`Official profile of ${name}, ${position} in Jammu and Kashmir.`}
+>
+  <div class="space-y-0">
+    <!-- Premium Page Header Band -->
+    <div class="page-header-band animate-fadeInUp">
+      <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
+        <a href="/">Home</a>
+        <span class="separator">/</span>
+        <a href="/#dignitaries-heading">Key Dignitaries</a>
+        <span class="separator">/</span>
+        <span class="current">{name}</span>
+      </nav>
+      <h1>Official Profile</h1>
+      <p class="page-subtitle">Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL)</p>
+    </div>
+
+    {errorMessage && !dignitary ? (
+      <div class="bg-red-50 border border-red-200 text-red-800 rounded-xl p-6 text-center text-sm font-semibold max-w-2xl mx-auto my-8">
+        {errorMessage}
+      </div>
+    ) : (
+      <!-- Main Container -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fadeInUp delay-200">
+        
+        <!-- Left Column: Portrait Card & Stats -->
+        <div class="space-y-6">
+          <div class="bg-white rounded-2xl border border-[#BDD7EE] p-6 shadow-sm text-center">
+            <div class="w-36 h-36 rounded-full overflow-hidden bg-white mx-auto border-4 border-[#BDD7EE]/50 shadow-sm relative flex items-center justify-center">
+              {imageUrl ? (
+                <img 
+                  src={imageUrl} 
+                  alt={name} 
+                  width="144" 
+                  height="144" 
+                  class="w-full h-full object-cover object-top"
+                />
+              ) : (
+                <div class="w-full h-full bg-[#1B3A6B] flex items-center justify-center text-white text-3xl font-extrabold">
+                  {initials}
+                </div>
+              )}
+            </div>
+            <h2 class="text-xl font-extrabold text-[#0B4F9C] mt-4 text-balance">{name}</h2>
+            <div class="mt-2">
+              <span class="inline-block text-[10px] text-[#0B4F9C] font-bold uppercase tracking-wider bg-[#EAF4FF] px-2.5 py-1 rounded border border-[#BDD7EE]/50">
+                {position}
+              </span>
+            </div>
+            <p class="text-[10px] text-slate-500 font-semibold uppercase tracking-widest mt-2">{subTitle}</p>
+            
+            <div class="w-12 h-0.5 bg-[#D8681B] mx-auto mt-4 rounded-full"></div>
+            
+            <div class="mt-4 text-left text-xs space-y-2.5 bg-[#EAF4FF]/40 p-4 rounded-xl border border-[#BDD7EE]/30 text-slate-700">
+              <div class="flex justify-between gap-2">
+                <span class="text-slate-500 font-semibold shrink-0">IAS / Cadre</span>
+                <span class="font-bold text-slate-800 text-right">{iasBatch}</span>
+              </div>
+              <div class="flex justify-between gap-2">
+                <span class="text-slate-500 font-semibold shrink-0">Education</span>
+                <span class="font-bold text-slate-800 text-right">{education}</span>
+              </div>
+              <div class="flex justify-between gap-2">
+                <span class="text-slate-500 font-semibold shrink-0">Office Location</span>
+                <span class="font-bold text-slate-800 text-right">{officeLocation}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Biography & Career details -->
+        <div class="lg:col-span-2 space-y-6">
+          <div class="bg-white rounded-2xl border border-[#BDD7EE] p-6 md:p-8 shadow-sm space-y-6">
+            
+            <!-- Heading Section -->
+            <div>
+              <h1 class="text-2xl font-extrabold text-[#0B4F9C] text-balance">Official Profile</h1>
+              <p class="text-xs text-gray-500 mt-1">Administrative credentials and biographical details of the {position}.</p>
+            </div>
+
+            <!-- Section 1: Biography -->
+            <section class="space-y-3">
+              <h3 class="text-sm font-bold text-[#0B4F9C] uppercase tracking-wider border-b border-slate-100 pb-1.5">Biography</h3>
+              {description.split('\n\n').map((para: string) => (
+                <p class="text-sm text-slate-600 leading-relaxed text-pretty">
+                  {para}
+                </p>
+              ))}
+            </section>
+
+            <!-- Section 2: Key Responsibilities -->
+            {keyResponsibilities && (
+              <section class="space-y-3">
+                <h3 class="text-sm font-bold text-[#0B4F9C] uppercase tracking-wider border-b border-slate-100 pb-1.5">Key Responsibilities</h3>
+                {keyResponsibilities.includes('\n') ? (
+                  <ul class="list-disc pl-5 text-sm text-slate-600 space-y-1 text-pretty">
+                    {keyResponsibilities.split('\n').map((item: string) => (
+                      item.trim() ? <li>{item.replace(/^[•\-*]\s*/, '')}</li> : null
+                    ))}
+                  </ul>
+                ) : (
+                  <p class="text-sm text-slate-600 leading-relaxed text-pretty">
+                    {keyResponsibilities}
+                  </p>
+                )}
+              </section>
+            )}
+
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
+</Layout>

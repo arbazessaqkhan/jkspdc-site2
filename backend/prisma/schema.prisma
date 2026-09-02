@@ -113,14 +113,20 @@ model Director {
 }
 
 model Dignitary {
-  id          String   @id @default(uuid())
-  name        String
-  position    String
-  role        String
-  sNo         Int      @default(0)
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                  String   @id @default(uuid())
+  name                String
+  position            String
+  subTitle            String?
+  role                String
+  sNo                 Int      @default(0)
+  imageUrl            String?
+  iasBatch            String?
+  education           String?
+  officeLocation      String?
+  description         String?
+  keyResponsibilities String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 }
 
 model Notification {

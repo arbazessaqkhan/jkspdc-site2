@@ -23,9 +23,15 @@ if (Astro.request.method === 'POST') {
       const id = formData.get('id')?.toString();
       const name = formData.get('name')?.toString();
       const position = formData.get('position')?.toString();
+      const subTitle = formData.get('subTitle')?.toString();
       const role = formData.get('role')?.toString();
       const sNo = formData.get('sNo')?.toString();
+      const imageUrl = formData.get('imageUrl')?.toString();
+      const iasBatch = formData.get('iasBatch')?.toString();
+      const education = formData.get('education')?.toString();
+      const officeLocation = formData.get('officeLocation')?.toString();
       const description = formData.get('description')?.toString();
+      const keyResponsibilities = formData.get('keyResponsibilities')?.toString();
 
       if (!name || !position || !role || !sNo) {
         errorMessage = 'Name, Designation, Role, and S No. are required.';
@@ -33,9 +39,15 @@ if (Astro.request.method === 'POST') {
         const body = {
           name,
           position,
+          subTitle: subTitle || null,
           role,
           sNo: parseInt(sNo, 10),
+          imageUrl: imageUrl || null,
+          iasBatch: iasBatch || null,
+          education: education || null,
+          officeLocation: officeLocation || null,
           description: description || null,
+          keyResponsibilities: keyResponsibilities || null,
         };
 
         let res;
@@ -105,21 +117,21 @@ try {
 }
 ---
 
-<AdminLayout title="Dignitaries Management" description="Manage JKSPDCL state dignitaries and corporate leaders." activeTab="dignitaries">
+<AdminLayout title="Dignitaries Management" description="Manage JKSPDCL state dignitaries and corporate leadership profiles." activeTab="dignitaries">
   <div class="flex flex-col gap-6">
     
     <!-- Header banner -->
     <div class="bg-white rounded-lg border border-slate-200/85 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
-        <h2 class="text-xl font-bold text-[#0B4F9C]">JKSPDCL Dignitaries</h2>
-        <p class="text-xs text-slate-500">Manage state dignitaries, designations, classification tags, and serial ordering.</p>
+        <h2 class="text-xl font-bold text-[#0B4F9C]">JKSPDCL Dignitaries Management</h2>
+        <p class="text-xs text-slate-500">Add, edit, or remove state dignitaries. Configured profiles automatically generate public profile pages.</p>
       </div>
       <button 
         id="open-add-modal" 
         class="btn-primary flex items-center gap-1.5 self-start md:self-auto cursor-pointer"
         aria-haspopup="dialog"
       >
-        <Icon name="plus" size={14} /> Add Dignitary
+        <Icon name="plus" size={14} /> Add New Dignitary
       </button>
     </div>
 
@@ -136,16 +148,16 @@ try {
     )}
 
     <!-- Table -->
-    <div class="bg-white rounded-xl border border-slate-200/85 shadow-md overflow-hidden max-w-5xl mx-auto w-full">
+    <div class="bg-white rounded-xl border border-slate-200/85 shadow-md overflow-hidden max-w-6xl mx-auto w-full">
       <div class="table-wrapper">
         <table class="table-data min-w-full divide-y divide-slate-200/60">
           <thead>
             <tr class="bg-slate-50">
               <th scope="col" class="w-14 text-center py-3.5 text-xs font-bold uppercase tracking-wider text-slate-500">#</th>
-              <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Dignitary Name / Info</th>
-              <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Designation</th>
-              <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Classification</th>
-              <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-slate-500 w-28">Order Sequence</th>
+              <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Dignitary Photo &amp; Name</th>
+              <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Designation &amp; Subtitle</th>
+              <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Classification Badge</th>
+              <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Service &amp; Qualifications</th>
               <th scope="col" class="px-4 py-3.5 text-center text-xs font-bold uppercase tracking-wider text-slate-500 w-36">Actions</th>
             </tr>
           </thead>
@@ -153,7 +165,7 @@ try {
             {dignitaries.length === 0 ? (
               <tr>
                 <td colspan="6" class="px-6 py-12 text-center text-slate-400 text-xs italic">
-                  No dignitaries found in database. Click "Add Dignitary" to add one.
+                  No dignitaries found in database. Click "Add New Dignitary" to add one.
                 </td>
               </tr>
             ) : (
@@ -174,9 +186,13 @@ try {
                     <td class="py-4 text-center text-xs font-bold text-slate-600">{dig.sNo}</td>
                     <td class="px-4 py-4">
                       <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-xs font-extrabold text-[#0B4F9C] shrink-0">
-                          {initials}
-                        </div>
+                        {dig.imageUrl ? (
+                          <img src={dig.imageUrl} alt={dig.name} class="w-10 h-10 rounded-full object-cover object-top border border-slate-200 shrink-0" />
+                        ) : (
+                          <div class="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-xs font-extrabold text-[#0B4F9C] shrink-0">
+                            {initials}
+                          </div>
+                        )}
                         <div>
                           <p class="font-bold text-slate-800 text-xs">{dig.name}</p>
                           <p class="text-[10px] text-slate-400 mt-0.5">S.No: {dig.sNo}</p>
@@ -184,18 +200,17 @@ try {
                       </div>
                     </td>
                     <td class="px-4 py-4 max-w-xs">
-                      <p class="text-xs text-slate-700 leading-relaxed font-medium">{dig.position}</p>
-                      <p class="text-[10px] text-slate-400 mt-0.5 uppercase tracking-wider font-semibold">CORPORATE GOVERNANCE</p>
+                      <p class="text-xs text-slate-700 leading-snug font-bold">{dig.position}</p>
+                      {dig.subTitle && <p class="text-[11px] text-slate-500 mt-0.5 font-medium">{dig.subTitle}</p>}
                     </td>
                     <td class="px-4 py-4">
                       <span class="inline-block px-2.5 py-1 text-[10px] font-extrabold tracking-wide uppercase rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                         {dig.role}
                       </span>
                     </td>
-                    <td class="px-4 py-4 text-xs font-semibold text-slate-600">
-                      <span class="inline-flex items-center gap-1">
-                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Seq: {dig.sNo}
-                      </span>
+                    <td class="px-4 py-4 text-xs text-slate-600">
+                      <p class="font-semibold text-slate-700">{dig.iasBatch || '—'}</p>
+                      <p class="text-[10px] text-slate-400">{dig.education || '—'}</p>
                     </td>
                     <td class="px-4 py-4 text-center">
                       <div class="flex items-center justify-center gap-2">
@@ -205,9 +220,15 @@ try {
                           data-id={dig.id}
                           data-name={dig.name}
                           data-position={dig.position}
+                          data-subtitle={dig.subTitle || ''}
                           data-role={dig.role}
                           data-sno={dig.sNo}
+                          data-imageurl={dig.imageUrl || ''}
+                          data-iasbatch={dig.iasBatch || ''}
+                          data-education={dig.education || ''}
+                          data-officelocation={dig.officeLocation || ''}
                           data-description={dig.description || ''}
+                          data-keyresponsibilities={dig.keyResponsibilities || ''}
                         >
                           Edit
                         </button>
@@ -234,61 +255,19 @@ try {
 
     <!-- Modal for Add / Edit Dignitary -->
     <div id="dignitary-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
-      <div class="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-lg overflow-hidden animate-fadeInUp">
-        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+      <div class="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-2xl overflow-hidden animate-fadeInUp my-6 max-h-[90vh] flex flex-col">
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80 shrink-0">
           <h3 id="modal-title" class="font-bold text-slate-800 text-sm">Add New Dignitary</h3>
           <button type="button" id="close-modal" class="text-slate-400 hover:text-slate-600 p-1 text-base font-bold">
             &times;
           </button>
         </div>
         
-        <form method="POST" class="p-6 space-y-4">
+        <form method="POST" class="p-6 space-y-4 overflow-y-auto flex-1">
           <input type="hidden" name="_action" id="modal-action" value="create" />
           <input type="hidden" name="id" id="modal-id" value="" />
 
-          <div>
-            <label for="name" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-              Dignitary Full Name <span class="text-red-500">*</span>
-            </label>
-            <input 
-              type="text" 
-              name="name" 
-              id="field-name" 
-              required 
-              placeholder="e.g. Shri Manoj Sinha" 
-              class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label for="position" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-              Designation / Position <span class="text-red-500">*</span>
-            </label>
-            <input 
-              type="text" 
-              name="position" 
-              id="field-position" 
-              required 
-              placeholder="e.g. Lieutenant Governor, UT of Jammu and Kashmir" 
-              class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label for="role" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-              Classification Badge <span class="text-red-500">*</span>
-            </label>
-            <input 
-              type="text" 
-              name="role" 
-              id="field-role" 
-              required 
-              placeholder="e.g. HONORABLE LIEUTENANT GOVERNOR" 
-              class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-          </div>
-
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-3 gap-4">
             <div>
               <label for="sNo" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
                 Serial Order (S.No) <span class="text-red-500">*</span>
@@ -303,22 +282,143 @@ try {
                 class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </div>
+            <div class="col-span-2">
+              <label for="name" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Dignitary Full Name <span class="text-red-500">*</span>
+              </label>
+              <input 
+                type="text" 
+                name="name" 
+                id="field-name" 
+                required 
+                placeholder="e.g. Shri Ashwani Kumar (IAS)" 
+                class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="position" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Designation / Title <span class="text-red-500">*</span>
+              </label>
+              <input 
+                type="text" 
+                name="position" 
+                id="field-position" 
+                required 
+                placeholder="e.g. Financial Commissioner (ACS)" 
+                class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label for="subTitle" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Department / Sub-title
+              </label>
+              <input 
+                type="text" 
+                name="subTitle" 
+                id="field-subTitle" 
+                placeholder="e.g. Power Development Department, J&K" 
+                class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="role" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Classification Badge <span class="text-red-500">*</span>
+              </label>
+              <input 
+                type="text" 
+                name="role" 
+                id="field-role" 
+                required 
+                placeholder="e.g. CHAIRMAN / HONORABLE LIEUTENANT GOVERNOR" 
+                class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label for="imageUrl" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Photo URL / Asset Path
+              </label>
+              <input 
+                type="text" 
+                name="imageUrl" 
+                id="field-imageUrl" 
+                placeholder="e.g. /dignitaries/ashwani_kumar.png" 
+                class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-4">
+            <div>
+              <label for="iasBatch" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                IAS Batch / Cadre
+              </label>
+              <input 
+                type="text" 
+                name="iasBatch" 
+                id="field-iasBatch" 
+                placeholder="e.g. 1992 (AGMUT Cadre)" 
+                class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label for="education" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Education
+              </label>
+              <input 
+                type="text" 
+                name="education" 
+                id="field-education" 
+                placeholder="e.g. B.E. (Elec.), M.A. (Duke)" 
+                class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label for="officeLocation" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Office Location
+              </label>
+              <input 
+                type="text" 
+                name="officeLocation" 
+                id="field-officeLocation" 
+                placeholder="e.g. Civil Secretariat, J&K" 
+                class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+            </div>
           </div>
 
           <div>
             <label for="description" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-              Additional Details (Optional)
+              Biography / Official Description
             </label>
             <textarea 
               name="description" 
               id="field-description" 
-              rows="2" 
-              placeholder="Optional notes or biography details..." 
+              rows="3" 
+              placeholder="Detailed biographical paragraphs..." 
               class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
             ></textarea>
           </div>
 
-          <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-2">
+          <div>
+            <label for="keyResponsibilities" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              Key Responsibilities &amp; Portfolio
+            </label>
+            <textarea 
+              name="keyResponsibilities" 
+              id="field-keyResponsibilities" 
+              rows="2" 
+              placeholder="Key responsibilities and charges..." 
+              class="w-full px-3 py-2 text-xs border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            ></textarea>
+          </div>
+
+          <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-2 shrink-0">
             <button 
               type="button" 
               id="cancel-modal" 
@@ -330,7 +430,7 @@ try {
               type="submit" 
               class="px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-sm transition-colors"
             >
-              Save Dignitary
+              Save Dignitary Profile
             </button>
           </div>
         </form>
@@ -353,30 +453,48 @@ try {
 
     var fieldName = document.getElementById('field-name');
     var fieldPosition = document.getElementById('field-position');
+    var fieldSubTitle = document.getElementById('field-subTitle');
     var fieldRole = document.getElementById('field-role');
     var fieldSNo = document.getElementById('field-sNo');
+    var fieldImageUrl = document.getElementById('field-imageUrl');
+    var fieldIasBatch = document.getElementById('field-iasBatch');
+    var fieldEducation = document.getElementById('field-education');
+    var fieldOfficeLocation = document.getElementById('field-officeLocation');
     var fieldDescription = document.getElementById('field-description');
+    var fieldKeyResponsibilities = document.getElementById('field-keyResponsibilities');
 
     function showModal(isEdit, data) {
       if (!modal) return;
       if (isEdit && data) {
-        modalTitle.textContent = 'Edit Dignitary';
+        modalTitle.textContent = 'Edit Dignitary Profile';
         modalAction.value = 'update';
         modalId.value = data.id || '';
         fieldName.value = data.name || '';
         fieldPosition.value = data.position || '';
+        if (fieldSubTitle) fieldSubTitle.value = data.subtitle || '';
         fieldRole.value = data.role || '';
         fieldSNo.value = data.sno || 1;
+        if (fieldImageUrl) fieldImageUrl.value = data.imageurl || '';
+        if (fieldIasBatch) fieldIasBatch.value = data.iasbatch || '';
+        if (fieldEducation) fieldEducation.value = data.education || '';
+        if (fieldOfficeLocation) fieldOfficeLocation.value = data.officelocation || '';
         fieldDescription.value = data.description || '';
+        if (fieldKeyResponsibilities) fieldKeyResponsibilities.value = data.keyresponsibilities || '';
       } else {
-        modalTitle.textContent = 'Add New Dignitary';
+        modalTitle.textContent = 'Add New Dignitary Profile';
         modalAction.value = 'create';
         modalId.value = '';
         fieldName.value = '';
         fieldPosition.value = '';
+        if (fieldSubTitle) fieldSubTitle.value = '';
         fieldRole.value = '';
         fieldSNo.value = 1;
+        if (fieldImageUrl) fieldImageUrl.value = '';
+        if (fieldIasBatch) fieldIasBatch.value = '';
+        if (fieldEducation) fieldEducation.value = '';
+        if (fieldOfficeLocation) fieldOfficeLocation.value = '';
         fieldDescription.value = '';
+        if (fieldKeyResponsibilities) fieldKeyResponsibilities.value = '';
       }
       modal.classList.remove('hidden');
     }
@@ -395,9 +513,15 @@ try {
           id: btn.dataset.id,
           name: btn.dataset.name,
           position: btn.dataset.position,
+          subtitle: btn.dataset.subtitle,
           role: btn.dataset.role,
           sno: btn.dataset.sno,
-          description: btn.dataset.description
+          imageurl: btn.dataset.imageurl,
+          iasbatch: btn.dataset.iasbatch,
+          education: btn.dataset.education,
+          officelocation: btn.dataset.officelocation,
+          description: btn.dataset.description,
+          keyresponsibilities: btn.dataset.keyresponsibilities
         };
         showModal(true, data);
       };

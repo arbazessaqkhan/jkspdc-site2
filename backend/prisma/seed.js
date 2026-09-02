@@ -38,48 +38,65 @@ async function main() {
       id: 'dig-manoj-sinha',
       name: 'Shri Manoj Sinha',
       position: 'Lieutenant Governor, UT of Jammu and Kashmir',
+      subTitle: 'Government of Jammu & Kashmir',
       role: 'Honorable Lieutenant Governor',
       sNo: 1,
+      imageUrl: '/dignitaries/manoj_sinha.png',
+      iasBatch: 'Hon\'ble Lt. Governor',
+      education: 'M.Tech (Civil Engineering), IIT BHU',
+      officeLocation: 'Raj Bhavan, J&K',
+      description: 'Shri Manoj Sinha assumed office as the Lieutenant Governor of Jammu and Kashmir on August 7, 2020. Prior to this, he served as Minister of State (Independent Charge) for Communications and Minister of State for Railways in the Government of India. He is an alumnus of IIT (BHU) Varanasi.',
+      keyResponsibilities: 'Oversees overall administration, strategic state governance, law and order, and major developmental initiatives across Jammu & Kashmir.'
     },
     {
       id: 'dig-omar-abdullah',
       name: 'Shri Omar Abdullah',
-      position: 'Chief Minister, UT of Jammu and Kashmir (Minister Incharge Power Development Department)',
+      position: 'Chief Minister, UT of Jammu and Kashmir',
+      subTitle: 'Minister Incharge Power Development Department',
       role: 'Honorable Chief Minister',
       sNo: 2,
+      imageUrl: '/dignitaries/omar_abdullah.png',
+      iasBatch: 'Chief Minister',
+      education: 'B.Com (Sydenham), MBA (Strathclyde)',
+      officeLocation: 'Civil Secretariat, J&K',
+      description: 'Shri Omar Abdullah is the Chief Minister of Jammu & Kashmir and holds the charge of the Power Development Department. He leads key socio-economic, industrial, and infrastructure development policies across the Union Territory.',
+      keyResponsibilities: 'Directs policy formulation for the energy sector, power generation projects, strategic infrastructure expansion, and executive state governance.'
     },
     {
       id: 'dig-ashwani-kumar',
       name: 'Shri Ashwani Kumar (IAS)',
-      position: 'Financial Commissioner (Additional Chief Secretary, Power Development Department)',
+      position: 'Financial Commissioner (ACS)',
+      subTitle: 'Power Development Department, J&K',
       role: 'Chairman',
       sNo: 3,
+      imageUrl: '/dignitaries/ashwani_kumar.png',
+      iasBatch: '1992 (AGMUT Cadre)',
+      education: 'B.E. (Elec.), M.A. (Duke)',
+      officeLocation: 'Civil Secretariat, J&K',
+      description: 'Shri Ashwani Kumar is a senior officer of the Indian Administrative Service (IAS) belonging to the 1992 batch (AGMUT cadre). He assumed charge as the Financial Commissioner (Additional Chief Secretary) of the Power Development Department, Government of Jammu and Kashmir.\n\nShri Kumar holds a Bachelor of Engineering (B.E.) in Electrical Engineering and a Master of Arts (M.A.) in International Development from Duke University, USA. His engineering credentials combined with administrative training enable him to drive strategic power sector improvements.',
+      keyResponsibilities: 'Supervises the transmission, distribution, and overall generation framework within Jammu & Kashmir.\nDirects financial and administrative policies for JKSPDCL.'
     },
     {
       id: 'dig-rahul-yadav',
       name: 'Shri Rahul Yadav (IAS)',
       position: 'Managing Director, JKSPDC',
+      subTitle: 'Power Development Corporation',
       role: 'Managing Director',
       sNo: 4,
+      imageUrl: '/dignitaries/rahul_yadav.jpg',
+      iasBatch: '2014 (AGMUT Cadre)',
+      education: 'B.Tech, IIT Delhi',
+      officeLocation: 'Exhibition Ground, Srinagar / Ashok Nagar, Jammu',
+      description: 'Shri Rahul Yadav (IAS) serves as the Managing Director of JKSPDC. An alumnus of IIT Delhi, he guides executive management, project implementation, and corporate operations of the corporation.',
+      keyResponsibilities: 'Executes corporate strategy, oversees construction and operation of hydroelectric projects, and manages joint venture investments.'
     }
   ];
 
   for (const dig of dignitaries) {
     await prisma.dignitary.upsert({
       where: { id: dig.id },
-      create: {
-        id: dig.id,
-        name: dig.name,
-        position: dig.position,
-        role: dig.role,
-        sNo: dig.sNo,
-      },
-      update: {
-        name: dig.name,
-        position: dig.position,
-        role: dig.role,
-        sNo: dig.sNo,
-      },
+      create: dig,
+      update: dig,
     });
   }
   console.log('Dignitaries seeded.');

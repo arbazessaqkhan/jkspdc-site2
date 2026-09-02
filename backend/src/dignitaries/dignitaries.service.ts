@@ -22,18 +22,37 @@ export class DignitariesService {
   }
 
   async create(data: any) {
-    const { name, position, role, sNo, description } = data;
+    const { 
+      name, 
+      position, 
+      subTitle,
+      role, 
+      sNo, 
+      imageUrl,
+      iasBatch,
+      education,
+      officeLocation,
+      description,
+      keyResponsibilities
+    } = data;
+    
     if (!name || !position || !role || sNo === undefined) {
-      throw new Error('Missing required fields');
+      throw new Error('Missing required fields: name, position, role, sNo');
     }
 
     return this.prisma.dignitary.create({
       data: {
         name,
         position,
+        subTitle: subTitle || null,
         role,
         sNo: parseInt(sNo, 10),
+        imageUrl: imageUrl || null,
+        iasBatch: iasBatch || null,
+        education: education || null,
+        officeLocation: officeLocation || null,
         description: description || null,
+        keyResponsibilities: keyResponsibilities || null,
       },
     });
   }
@@ -46,9 +65,15 @@ export class DignitariesService {
       data: {
         name: data.name,
         position: data.position,
+        subTitle: data.subTitle !== undefined ? data.subTitle : undefined,
         role: data.role,
         sNo: data.sNo !== undefined ? parseInt(data.sNo, 10) : undefined,
+        imageUrl: data.imageUrl !== undefined ? data.imageUrl : undefined,
+        iasBatch: data.iasBatch !== undefined ? data.iasBatch : undefined,
+        education: data.education !== undefined ? data.education : undefined,
+        officeLocation: data.officeLocation !== undefined ? data.officeLocation : undefined,
         description: data.description !== undefined ? data.description : undefined,
+        keyResponsibilities: data.keyResponsibilities !== undefined ? data.keyResponsibilities : undefined,
       },
     });
   }
