@@ -148,13 +148,27 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
       body.sidebar-collapsed .sidebar-nav-link,
       html.sidebar-collapsed-preload .sidebar-nav-link {
         justify-content: center !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
+        padding: 0 !important;
         width: 44px !important;
         height: 42px !important;
+        min-height: 42px !important;
+        max-height: 42px !important;
         margin-left: auto !important;
         margin-right: auto !important;
         gap: 0 !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+        outline: none !important;
+      }
+
+      #admin-sidebar nav a:focus,
+      #admin-sidebar nav a:focus-visible {
+        outline: none !important;
+      }
+
+      #admin-nav-container {
+        overflow-anchor: none !important;
+        scroll-behavior: auto !important;
       }
 
       #admin-sidebar.collapsed #collapse-icon-expanded,
@@ -253,12 +267,12 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
       </div>
 
       <!-- Navigation Links -->
-      <nav id="admin-nav-container" transition:persist="admin-nav" transition:persist-scroll class="flex-grow py-5 px-3 overflow-y-auto flex flex-col gap-4" aria-label="Admin Navigation">
+      <nav id="admin-nav-container" class="flex-grow py-5 px-3 overflow-y-auto flex flex-col gap-4" aria-label="Admin Navigation">
         
         <!-- SECTION: OVERVIEW -->
         <div class="flex flex-col gap-0.5">
           <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Overview</p>
-          <a href="/admin/dashboard" title="Dashboard Overview" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'dashboard' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+          <a href="/admin/dashboard" title="Dashboard Overview" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'dashboard' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="bar-chart" size={15} class={activeTab === 'dashboard' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
             <span class="sidebar-label">Dashboard Overview</span>
           </a>
@@ -268,17 +282,17 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
         <div class="flex flex-col gap-0.5">
           <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Projects &amp; Infrastructure</p>
           
-          <a href="/admin/operational-projects" title="Operational Projects" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'operational' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+          <a href="/admin/operational-projects" title="Operational Projects" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'operational' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="zap" size={15} class={activeTab === 'operational' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
             <span class="sidebar-label">Operational Projects</span>
           </a>
 
-          <a href="/admin/under-construction" title="Under Construction" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'construction' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+          <a href="/admin/under-construction" title="Under Construction" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'construction' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="hardhat" size={15} class={activeTab === 'construction' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
             <span class="sidebar-label">Under Construction</span>
           </a>
 
-          <a href="/admin/upcoming-projects" title="Projects Under Development" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'upcoming' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+          <a href="/admin/upcoming-projects" title="Projects Under Development" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'upcoming' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="rocket" size={15} class={activeTab === 'upcoming' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
             <span class="sidebar-label">Projects Under Development</span>
           </a>
@@ -288,12 +302,12 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
         <div class="flex flex-col gap-0.5">
           <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Tenders &amp; Careers</p>
           
-          <a href="/admin/tenders" title="Tenders & Bids" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'tenders' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+          <a href="/admin/tenders" title="Tenders & Bids" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'tenders' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="file-text" size={15} class={activeTab === 'tenders' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
             <span class="sidebar-label">Tenders &amp; Bids</span>
           </a>
 
-          <a href="/admin/careers" title="Careers & Vacancies" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'careers' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+          <a href="/admin/careers" title="Careers & Vacancies" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'careers' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="briefcase" size={15} class={activeTab === 'careers' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
             <span class="sidebar-label">Careers &amp; Vacancies</span>
           </a>
@@ -303,32 +317,32 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
         <div class="flex flex-col gap-0.5">
           <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Corporate Governance</p>
           
-          <a href="/admin/dignitaries" title="Dignitaries" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'dignitaries' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+          <a href="/admin/dignitaries" title="Dignitaries" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'dignitaries' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="award" size={15} class={activeTab === 'dignitaries' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
             <span class="sidebar-label">Dignitaries</span>
           </a>
 
-          <a href="/admin/board-of-directors" title="Board of Directors" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'directors' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+          <a href="/admin/board-of-directors" title="Board of Directors" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'directors' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="users" size={15} class={activeTab === 'directors' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
             <span class="sidebar-label">Board of Directors</span>
           </a>
 
-          <a href="/admin/executives" title="Executives Directory" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'executives' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+          <a href="/admin/executives" title="Executives Directory" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'executives' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="user-check" size={15} class={activeTab === 'executives' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
             <span class="sidebar-label">Executives Directory</span>
           </a>
 
-          <a href="/admin/agm" title="AGM Documents" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'agm' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+          <a href="/admin/agm" title="AGM Documents" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'agm' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="scroll-text" size={15} class={activeTab === 'agm' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
             <span class="sidebar-label">AGM Documents</span>
           </a>
 
-          <a href="/admin/financials" title="Financial Documents" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'financials' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+          <a href="/admin/financials" title="Financial Documents" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'financials' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="landmark" size={15} class={activeTab === 'financials' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
             <span class="sidebar-label">Financial Documents</span>
           </a>
 
-          <a href="/admin/notifications" title="Notifications" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'notifications' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+          <a href="/admin/notifications" title="Notifications" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'notifications' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="bell" size={15} class={activeTab === 'notifications' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
             <span class="sidebar-label">Notifications</span>
           </a>
@@ -338,27 +352,27 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
         <div class="flex flex-col gap-0.5">
           <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Media &amp; Publications</p>
           
-          <a href="/admin/press-releases" title="Press Releases & News" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'press' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+          <a href="/admin/press-releases" title="Press Releases & News" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'press' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="newspaper" size={15} class={activeTab === 'press' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
             <span class="sidebar-label">Press Releases &amp; News</span>
           </a>
 
-          <a href="/admin/gallery" title="Media Gallery" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'gallery' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+          <a href="/admin/gallery" title="Media Gallery" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'gallery' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="image" size={15} class={activeTab === 'gallery' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
             <span class="sidebar-label">Media Gallery</span>
           </a>
 
-          <a href="/admin/downloads" title="Downloads Manager" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'downloads' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+          <a href="/admin/downloads" title="Downloads Manager" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'downloads' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="download" size={15} class={activeTab === 'downloads' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
             <span class="sidebar-label">Downloads Manager</span>
           </a>
 
-          <a href="/admin/media-manager" title="Media & Documents" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'media-manager' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+          <a href="/admin/media-manager" title="Media & Documents" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'media-manager' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="folder" size={15} class={activeTab === 'media-manager' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
             <span class="sidebar-label">Media &amp; Documents</span>
           </a>
 
-          <a href="/admin/policies" title="Policies & CSR Docs" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'policies' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+          <a href="/admin/policies" title="Policies & CSR Docs" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'policies' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="file-text" size={15} class={activeTab === 'policies' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
             <span class="sidebar-label">Policies &amp; CSR Docs</span>
           </a>
@@ -367,7 +381,7 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
         <!-- SECTION: INQUIRIES -->
         <div class="flex flex-col gap-0.5">
           <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Inquiries</p>
-          <a href="/admin/contacts" title="Contact Submissions" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'contacts' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+          <a href="/admin/contacts" title="Contact Submissions" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'contacts' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="mail" size={15} class={activeTab === 'contacts' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
             <span class="sidebar-label">Contact Submissions</span>
           </a>
@@ -376,15 +390,15 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
         <!-- SECTION: SECURITY & LOGS -->
         <div class="flex flex-col gap-0.5">
           <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Security &amp; Logs</p>
-          <a href="/admin/users" title="User Accounts" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'users' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+          <a href="/admin/users" title="User Accounts" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'users' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="shield-check" size={15} class={activeTab === 'users' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
             <span class="sidebar-label">User Accounts</span>
           </a>
-          <a href="/admin/audit-logs" title="Audit Logs Feed" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'audit-logs' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+          <a href="/admin/audit-logs" title="Audit Logs Feed" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'audit-logs' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="scroll-text" size={15} class={activeTab === 'audit-logs' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
             <span class="sidebar-label">Audit Logs Feed</span>
           </a>
-          <a href="/admin/site-settings" title="Site Settings" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'site-settings' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+          <a href="/admin/site-settings" title="Site Settings" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'site-settings' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="settings" size={15} class={activeTab === 'site-settings' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
             <span class="sidebar-label">Site Settings</span>
           </a>
@@ -561,9 +575,9 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
           }
           if (isActive) {
             a.classList.remove('text-slate-900', 'hover:text-[#0B4F9C]', 'hover:bg-[#EAF4FF]');
-            a.classList.add('admin-nav-active', 'bg-[#0B4F9C]', 'text-white', 'shadow-xs');
+            a.classList.add('admin-nav-active', 'bg-[#0B4F9C]', 'text-white');
           } else {
-            a.classList.remove('admin-nav-active', 'bg-[#0B4F9C]', 'text-white', 'shadow-xs');
+            a.classList.remove('admin-nav-active', 'bg-[#0B4F9C]', 'text-white');
             a.classList.add('text-slate-900', 'hover:text-[#0B4F9C]', 'hover:bg-[#EAF4FF]');
           }
         });
@@ -581,7 +595,10 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
         var container = document.getElementById('admin-nav-container');
         var savedPos = sessionStorage.getItem('admin_sidebar_scroll_pos');
         if (container && savedPos !== null) {
-          container.scrollTop = parseInt(savedPos, 10);
+          var target = parseInt(savedPos, 10);
+          if (Math.abs(container.scrollTop - target) > 3) {
+            container.scrollTop = target;
+          }
         }
       }
 
@@ -592,11 +609,11 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
           saveSidebarScroll();
           var allLinks = document.querySelectorAll('#admin-sidebar nav a[href]');
           allLinks.forEach(function(a) {
-            a.classList.remove('admin-nav-active', 'bg-[#0B4F9C]', 'text-white', 'shadow-xs');
+            a.classList.remove('admin-nav-active', 'bg-[#0B4F9C]', 'text-white');
             a.classList.add('text-slate-900');
           });
           link.classList.remove('text-slate-900');
-          link.classList.add('admin-nav-active', 'bg-[#0B4F9C]', 'text-white', 'shadow-xs');
+          link.classList.add('admin-nav-active', 'bg-[#0B4F9C]', 'text-white');
           updateSidebarLinkIcons();
         }
       });
