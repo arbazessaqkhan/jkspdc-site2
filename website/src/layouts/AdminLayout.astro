@@ -112,14 +112,19 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
 
       /* Collapsible Sidebar Styles */
       #admin-sidebar {
-        transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       }
 
+      #admin-sidebar.collapsed,
       body.sidebar-collapsed #admin-sidebar,
       html.sidebar-collapsed-preload #admin-sidebar {
         width: 70px !important;
       }
 
+      #admin-sidebar.collapsed .sidebar-text,
+      #admin-sidebar.collapsed .sidebar-section-title,
+      #admin-sidebar.collapsed .sidebar-label,
+      #admin-sidebar.collapsed .sidebar-footer,
       body.sidebar-collapsed .sidebar-text,
       body.sidebar-collapsed .sidebar-section-title,
       body.sidebar-collapsed .sidebar-label,
@@ -131,6 +136,7 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
         display: none !important;
       }
 
+      #admin-sidebar.collapsed .sidebar-brand-container,
       body.sidebar-collapsed .sidebar-brand-container,
       html.sidebar-collapsed-preload .sidebar-brand-container {
         padding-left: 0.5rem !important;
@@ -138,6 +144,7 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
         justify-content: center !important;
       }
 
+      #admin-sidebar.collapsed .sidebar-nav-link,
       body.sidebar-collapsed .sidebar-nav-link,
       html.sidebar-collapsed-preload .sidebar-nav-link {
         justify-content: center !important;
@@ -150,16 +157,19 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
         gap: 0 !important;
       }
 
+      #admin-sidebar.collapsed #collapse-icon-expanded,
       body.sidebar-collapsed #collapse-icon-expanded,
       html.sidebar-collapsed-preload #collapse-icon-expanded {
         display: none !important;
       }
 
+      #admin-sidebar.collapsed #collapse-icon-collapsed,
       body.sidebar-collapsed #collapse-icon-collapsed,
       html.sidebar-collapsed-preload #collapse-icon-collapsed {
         display: flex !important;
       }
 
+      #admin-sidebar.collapsed #admin-nav-container,
       body.sidebar-collapsed #admin-nav-container,
       html.sidebar-collapsed-preload #admin-nav-container {
         padding-left: 0.35rem !important;
@@ -478,7 +488,9 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
       var INACTIVE_SIDEBAR_CLASS = 'sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs font-bold rounded-lg transition-all text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF]';
 
       function toggleSidebarCollapse() {
+        var sidebar = document.getElementById('admin-sidebar');
         var isCollapsed = document.body.classList.toggle('sidebar-collapsed');
+        if (sidebar) sidebar.classList.toggle('collapsed', isCollapsed);
         if (isCollapsed) {
           document.documentElement.classList.add('sidebar-collapsed-preload');
         } else {
@@ -489,15 +501,22 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
         } catch (e) {}
       }
 
-      function syncSidebarCollapseState() {
+      function syncSidebarCollapseState(doc) {
+        doc = doc || document;
         try {
           var saved = localStorage.getItem('admin-sidebar-collapsed');
-          if (saved === 'true') {
-            document.body.classList.add('sidebar-collapsed');
-            document.documentElement.classList.add('sidebar-collapsed-preload');
+          var isCollapsed = (saved === 'true');
+          var body = doc.body;
+          var html = doc.documentElement;
+          var sidebar = doc.getElementById('admin-sidebar');
+          if (isCollapsed) {
+            if (body) body.classList.add('sidebar-collapsed');
+            if (html) html.classList.add('sidebar-collapsed-preload');
+            if (sidebar) sidebar.classList.add('collapsed');
           } else {
-            document.body.classList.remove('sidebar-collapsed');
-            document.documentElement.classList.remove('sidebar-collapsed-preload');
+            if (body) body.classList.remove('sidebar-collapsed');
+            if (html) html.classList.remove('sidebar-collapsed-preload');
+            if (sidebar) sidebar.classList.remove('collapsed');
           }
         } catch (e) {}
       }
@@ -541,9 +560,11 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
             isActive = true;
           }
           if (isActive) {
-            a.className = ACTIVE_SIDEBAR_CLASS;
+            a.classList.remove('text-slate-900', 'hover:text-[#0B4F9C]', 'hover:bg-[#EAF4FF]');
+            a.classList.add('admin-nav-active', 'bg-[#0B4F9C]', 'text-white', 'shadow-xs');
           } else {
-            a.className = INACTIVE_SIDEBAR_CLASS;
+            a.classList.remove('admin-nav-active', 'bg-[#0B4F9C]', 'text-white', 'shadow-xs');
+            a.classList.add('text-slate-900', 'hover:text-[#0B4F9C]', 'hover:bg-[#EAF4FF]');
           }
         });
         updateSidebarLinkIcons();
@@ -571,14 +592,26 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
           saveSidebarScroll();
           var allLinks = document.querySelectorAll('#admin-sidebar nav a[href]');
           allLinks.forEach(function(a) {
-            a.className = INACTIVE_SIDEBAR_CLASS;
+            a.classList.remove('admin-nav-active', 'bg-[#0B4F9C]', 'text-white', 'shadow-xs');
+            a.classList.add('text-slate-900');
           });
-          link.className = ACTIVE_SIDEBAR_CLASS;
+          link.classList.remove('text-slate-900');
+          link.classList.add('admin-nav-active', 'bg-[#0B4F9C]', 'text-white', 'shadow-xs');
           updateSidebarLinkIcons();
         }
       });
 
       document.addEventListener('astro:before-preparation', saveSidebarScroll);
+      document.addEventListener('astro:before-swap', function(e) {
+        saveSidebarScroll();
+        syncSidebarCollapseState(e.newDocument);
+        if (document.documentElement.classList.contains('high-contrast')) {
+          e.newDocument.documentElement.classList.add('high-contrast');
+        }
+        if (document.documentElement.style.fontSize) {
+          e.newDocument.documentElement.style.fontSize = document.documentElement.style.fontSize;
+        }
+      });
       document.addEventListener('astro:page-load', function() {
         syncSidebarCollapseState();
         syncAdminSidebarActive();
