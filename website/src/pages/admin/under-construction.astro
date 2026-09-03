@@ -264,71 +264,86 @@ try {
   </style>
 
   <script is:inline>
-    // Modal script (Astro compliant client-side JS)
-    var dialog = document.getElementById('project-modal');
-    var openAddBtn = document.getElementById('open-add-modal');
-    var closeBtn = document.getElementById('close-modal-btn');
-    var cancelBtn = document.getElementById('cancel-modal-btn');
+    (function() {
+      function openProjectModal(action, id, name, capacity, date) {
+        var dialog = document.getElementById('project-modal');
+        var formAction = document.getElementById('form-action');
+        var formId = document.getElementById('form-id');
+        var formName = document.getElementById('form-name');
+        var formCapacity = document.getElementById('form-capacity');
+        var formDate = document.getElementById('form-date');
+        var modalTitle = document.getElementById('modal-title');
 
-    var formId = document.getElementById('form-id');
-    var formAction = document.getElementById('form-action');
-    var formName = document.getElementById('form-name');
-    var formCapacity = document.getElementById('form-capacity');
-    var formDate = document.getElementById('form-date');
-    var modalTitle = document.getElementById('modal-title');
+        if (!dialog) return;
 
-    function showModal(action, id = '', name = '', capacity = '', date = '') {
-      formAction.value = action;
-      formId.value = id;
-      formName.value = name;
-      formCapacity.value = capacity;
-      formDate.value = date;
-      modalTitle.textContent = action === 'create' ? 'Add New Project' : 'Edit Project Details';
-      
-      dialog.showModal();
-      document.body.style.overflow = 'hidden';
-    }
+        if (formAction) formAction.value = action || 'create';
+        if (formId) formId.value = id || '';
+        if (formName) formName.value = name || '';
+        if (formCapacity) formCapacity.value = capacity || '';
+        if (formDate) formDate.value = date || '';
+        if (modalTitle) modalTitle.textContent = action === 'create' ? 'Add New Project' : 'Edit Project Details';
 
-    openAddBtn?.addEventListener('click', function() {
-      showModal('create');
-    });
-
-    closeBtn?.addEventListener('click', function() {
-      dialog.close();
-    });
-
-    cancelBtn?.addEventListener('click', function() {
-      dialog.close();
-    });
-
-    // Handle scroll unlock on close
-    dialog?.addEventListener('close', function() {
-      document.body.style.overflow = '';
-    });
-
-    // Close on click outside the modal (backdrop click)
-    dialog?.addEventListener('click', function(event) {
-      var rect = dialog.getBoundingClientRect();
-      var isInDialog = (
-        rect.top <= event.clientY &&
-        event.clientY <= rect.top + rect.height &&
-        rect.left <= event.clientX &&
-        event.clientX <= rect.left + rect.width
-      );
-      if (!isInDialog) {
-        dialog.close();
+        dialog.showModal();
+        document.body.style.overflow = 'hidden';
       }
-    });
 
-    // Handle clicks on Edit buttons
-    document.querySelectorAll('.edit-btn').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        var id = btn.getAttribute('data-id') || '';
-        var name = btn.getAttribute('data-name') || '';
-        var capacity = btn.getAttribute('data-capacity') || '';
-        var date = btn.getAttribute('data-date') || '';
-        showModal('update', id, name, capacity, date);
+      function closeProjectModal() {
+        var dialog = document.getElementById('project-modal');
+        if (dialog && dialog.open) {
+          dialog.close();
+        }
+        document.body.style.overflow = '';
+      }
+
+      // Delegated click listener on document handles clicks across all Astro view transitions
+      document.addEventListener('click', function(e) {
+        var addBtn = e.target.closest('#open-add-modal');
+        if (addBtn) {
+          e.preventDefault();
+          openProjectModal('create', '', '', '', '');
+          return;
+        }
+
+        var editBtn = e.target.closest('.edit-btn');
+        if (editBtn) {
+          e.preventDefault();
+          var id = editBtn.getAttribute('data-id') || '';
+          var name = editBtn.getAttribute('data-name') || '';
+          var capacity = editBtn.getAttribute('data-capacity') || '';
+          var date = editBtn.getAttribute('data-date') || '';
+          openProjectModal('update', id, name, capacity, date);
+          return;
+        }
+
+        var closeBtn = e.target.closest('#close-modal-btn, #cancel-modal-btn');
+        if (closeBtn) {
+          e.preventDefault();
+          closeProjectModal();
+          return;
+        }
+
+        // Close on click outside the dialog
+        var dialog = document.getElementById('project-modal');
+        if (dialog && dialog.open && e.target === dialog) {
+          var rect = dialog.getBoundingClientRect();
+          var isInDialog = (
+            rect.top <= e.clientY &&
+            e.clientY <= rect.top + rect.height &&
+            rect.left <= e.clientX &&
+            e.clientX <= rect.left + rect.width
+          );
+          if (!isInDialog) {
+            closeProjectModal();
+          }
+        }
       });
-    });
+
+      // Ensure scroll unlocks if dialog is closed via Escape key
+      document.addEventListener('close', function(e) {
+        if (e.target && e.target.id === 'project-modal') {
+          document.body.style.overflow = '';
+        }
+      }, true);
+    })();
   </script>
 </AdminLayout>

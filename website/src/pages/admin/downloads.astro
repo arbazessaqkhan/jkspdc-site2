@@ -141,124 +141,151 @@ const categories = ['Forms', 'Reports', 'Circulars', 'Manuals', 'Guidelines', 'O
 
 <script is:inline>
 (function() {
-  var modal = document.getElementById('download-modal');
   function getToken() { var m = document.cookie.match(/admin_session=([^;]+)/); return m ? m[1] : ''; }
-  function closeModal() { modal.classList.add('hidden'); }
+  function closeModal() {
+    var modal = document.getElementById('download-modal');
+    if (modal) modal.classList.add('hidden');
+  }
 
-  // Category filter
-  document.querySelectorAll('.cat-filter-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
+  document.addEventListener('click', function(e) {
+    // Category filter
+    var catBtn = e.target.closest('.cat-filter-btn');
+    if (catBtn) {
+      e.preventDefault();
       document.querySelectorAll('.cat-filter-btn').forEach(function(b) {
         b.classList.remove('active', 'bg-blue-50', 'text-blue-700', 'border-blue-200');
         b.classList.add('text-slate-500', 'border-slate-200');
       });
-      btn.classList.add('active', 'bg-blue-50', 'text-blue-700', 'border-blue-200');
-      btn.classList.remove('text-slate-500', 'border-slate-200');
-      var cat = btn.dataset.cat;
+      catBtn.classList.add('active', 'bg-blue-50', 'text-blue-700', 'border-blue-200');
+      catBtn.classList.remove('text-slate-500', 'border-slate-200');
+      var cat = catBtn.dataset.cat;
       document.querySelectorAll('.download-row').forEach(function(row) {
         row.style.display = (cat === 'all' || row.dataset.cat === cat) ? '' : 'none';
       });
-    });
-  });
+      return;
+    }
 
-  // Add download
-  document.getElementById('add-download-btn').addEventListener('click', function() {
-    document.getElementById('dl-modal-title').textContent = 'Add Download';
-    document.getElementById('dl-edit-id').value = '';
-    document.getElementById('dl-title').value = '';
-    document.getElementById('dl-category').value = 'Forms';
-    document.getElementById('dl-status').value = 'Active';
-    document.getElementById('dl-file').value = '';
-    document.getElementById('dl-current-file').classList.add('hidden');
-    modal.classList.remove('hidden');
-  });
-
-  // Edit download
-  document.querySelectorAll('.edit-download-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      document.getElementById('dl-modal-title').textContent = 'Edit Download';
-      document.getElementById('dl-edit-id').value = btn.dataset.id;
-      document.getElementById('dl-title').value = btn.dataset.title;
-      document.getElementById('dl-category').value = btn.dataset.category;
-      document.getElementById('dl-status').value = btn.dataset.status;
+    // Add download
+    var addBtn = e.target.closest('#add-download-btn');
+    if (addBtn) {
+      e.preventDefault();
+      var modal = document.getElementById('download-modal');
+      document.getElementById('dl-modal-title').textContent = 'Add Download';
+      document.getElementById('dl-edit-id').value = '';
+      document.getElementById('dl-title').value = '';
+      document.getElementById('dl-category').value = 'Forms';
+      document.getElementById('dl-status').value = 'Active';
       document.getElementById('dl-file').value = '';
       var cf = document.getElementById('dl-current-file');
-      cf.classList.remove('hidden');
-      cf.querySelector('span').textContent = btn.dataset.filename;
-      modal.classList.remove('hidden');
-    });
-  });
+      if (cf) cf.classList.add('hidden');
+      if (modal) modal.classList.remove('hidden');
+      return;
+    }
 
-  // Delete download
-  document.querySelectorAll('.delete-download-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      if (!confirm('Delete "' + btn.dataset.title + '"?')) return;
-      fetch('http://localhost:3000/api/downloads/' + btn.dataset.id, {
+    // Edit download
+    var editBtn = e.target.closest('.edit-download-btn');
+    if (editBtn) {
+      e.preventDefault();
+      var modal = document.getElementById('download-modal');
+      document.getElementById('dl-modal-title').textContent = 'Edit Download';
+      document.getElementById('dl-edit-id').value = editBtn.dataset.id || '';
+      document.getElementById('dl-title').value = editBtn.dataset.title || '';
+      document.getElementById('dl-category').value = editBtn.dataset.category || 'Forms';
+      document.getElementById('dl-status').value = editBtn.dataset.status || 'Active';
+      document.getElementById('dl-file').value = '';
+      var cf = document.getElementById('dl-current-file');
+      if (cf) {
+        cf.classList.remove('hidden');
+        var span = cf.querySelector('span');
+        if (span) span.textContent = editBtn.dataset.filename || '';
+      }
+      if (modal) modal.classList.remove('hidden');
+      return;
+    }
+
+    // Delete download
+    var delBtn = e.target.closest('.delete-download-btn');
+    if (delBtn) {
+      e.preventDefault();
+      if (!confirm('Delete "' + delBtn.dataset.title + '"?')) return;
+      fetch('http://localhost:3000/api/downloads/' + delBtn.dataset.id, {
         method: 'DELETE', headers: { Authorization: 'Bearer ' + getToken() },
       }).then(function(r) { if (r.ok) window.location.reload(); else alert('Delete failed.'); });
-    });
-  });
-
-  // Save download
-  document.getElementById('dl-modal-save').addEventListener('click', function() {
-    var token = getToken();
-    if (!token) { alert('Not authenticated.'); return; }
-    var editId = document.getElementById('dl-edit-id').value;
-    var fileInput = document.getElementById('dl-file');
-    var title = document.getElementById('dl-title').value;
-    var category = document.getElementById('dl-category').value;
-    var status = document.getElementById('dl-status').value;
-
-    function saveRecord(fileName, documentUrl, fileSizeBytes) {
-      var body = { title: title, category: category, status: status, fileName: fileName, documentUrl: documentUrl, fileSizeBytes: fileSizeBytes || 0 };
-      var url = editId ? 'http://localhost:3000/api/downloads/' + editId : 'http://localhost:3000/api/downloads';
-      var method = editId ? 'PUT' : 'POST';
-      fetch(url, { method: method, headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(body) })
-        .then(function(r) { if (r.ok) { alert('Saved!'); window.location.reload(); } else alert('Save failed.'); });
+      return;
     }
 
-    if (fileInput.files && fileInput.files.length > 0) {
-      var file = fileInput.files[0];
-      var isImportant = document.getElementById('dl-is-important-checkbox')?.checked || false;
-      var MAX_STANDARD = 20 * 1024 * 1024;
-      var MAX_IMPORTANT = 100 * 1024 * 1024;
+    // Close buttons
+    var closeBtn = e.target.closest('#dl-modal-close, #dl-modal-cancel');
+    if (closeBtn) {
+      e.preventDefault();
+      closeModal();
+      return;
+    }
 
-      if (!isImportant && file.size > MAX_STANDARD) {
-        var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-        alert(`File size (${sizeMB} MB) exceeds the standard 20 MB limit.\n\nPlease check "Mark as Important" to allow uploading files up to 100 MB.`);
-        fileInput.value = '';
-        return;
+    var modal = document.getElementById('download-modal');
+    if (modal && !modal.classList.contains('hidden') && e.target === modal) {
+      closeModal();
+      return;
+    }
+
+    // Save download
+    var saveBtn = e.target.closest('#dl-modal-save');
+    if (saveBtn) {
+      e.preventDefault();
+      var token = getToken();
+      if (!token) { alert('Not authenticated.'); return; }
+      var editId = document.getElementById('dl-edit-id').value;
+      var fileInput = document.getElementById('dl-file');
+      var title = document.getElementById('dl-title').value;
+      var category = document.getElementById('dl-category').value;
+      var status = document.getElementById('dl-status').value;
+
+      function saveRecord(fileName, documentUrl, fileSizeBytes) {
+        var body = { title: title, category: category, status: status, fileName: fileName, documentUrl: documentUrl, fileSizeBytes: fileSizeBytes || 0 };
+        var url = editId ? 'http://localhost:3000/api/downloads/' + editId : 'http://localhost:3000/api/downloads';
+        var method = editId ? 'PUT' : 'POST';
+        fetch(url, { method: method, headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(body) })
+          .then(function(r) { if (r.ok) { alert('Saved!'); window.location.reload(); } else alert('Save failed.'); });
       }
 
-      if (file.size > MAX_IMPORTANT) {
-        var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-        alert(`File size (${sizeMB} MB) exceeds the maximum allowed limit of 100 MB.`);
-        fileInput.value = '';
-        return;
-      }
+      if (fileInput.files && fileInput.files.length > 0) {
+        var file = fileInput.files[0];
+        var isImportant = document.getElementById('dl-is-important-checkbox')?.checked || false;
+        var MAX_STANDARD = 20 * 1024 * 1024;
+        var MAX_IMPORTANT = 100 * 1024 * 1024;
 
-      var fd = new FormData();
-      fd.append('file', file);
-      fd.append('isImportant', isImportant ? 'true' : 'false');
-      fetch('http://localhost:3000/api/upload', { method: 'POST', headers: { Authorization: 'Bearer ' + token }, body: fd })
-        .then(function(r) {
-          if (!r.ok) return r.json().then(function(err) { throw new Error(err.message || 'Upload failed'); });
-          return r.json();
-        })
-        .then(function(data) { saveRecord(file.name, data.url || data.filePath, file.size); })
-        .catch(function(err) { alert('Upload error: ' + err.message); });
-    } else if (editId) {
-      // Update without changing file
-      var body = { title: title, category: category, status: status };
-      fetch('http://localhost:3000/api/downloads/' + editId, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(body) })
-        .then(function(r) { if (r.ok) { alert('Updated!'); window.location.reload(); } else alert('Update failed.'); });
-    } else {
-      alert('Please select a file to upload.');
+        if (!isImportant && file.size > MAX_STANDARD) {
+          var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+          alert(`File size (${sizeMB} MB) exceeds the standard 20 MB limit.\n\nPlease check "Mark as Important" to allow uploading files up to 100 MB.`);
+          fileInput.value = '';
+          return;
+        }
+
+        if (file.size > MAX_IMPORTANT) {
+          var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+          alert(`File size (${sizeMB} MB) exceeds the maximum allowed limit of 100 MB.`);
+          fileInput.value = '';
+          return;
+        }
+
+        var fd = new FormData();
+        fd.append('file', file);
+        fd.append('isImportant', isImportant ? 'true' : 'false');
+        fetch('http://localhost:3000/api/upload', { method: 'POST', headers: { Authorization: 'Bearer ' + token }, body: fd })
+          .then(function(r) {
+            if (!r.ok) return r.json().then(function(err) { throw new Error(err.message || 'Upload failed'); });
+            return r.json();
+          })
+          .then(function(data) { saveRecord(file.name, data.url || data.filePath, file.size); })
+          .catch(function(err) { alert('Upload error: ' + err.message); });
+      } else if (editId) {
+        var body = { title: title, category: category, status: status };
+        fetch('http://localhost:3000/api/downloads/' + editId, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(body) })
+          .then(function(r) { if (r.ok) { alert('Updated!'); window.location.reload(); } else alert('Update failed.'); });
+      } else {
+        alert('Please select a file to upload.');
+      }
     }
   });
-
-  document.getElementById('dl-modal-close').addEventListener('click', closeModal);
-  document.getElementById('dl-modal-cancel').addEventListener('click', closeModal);
-  modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
 })();
 </script>

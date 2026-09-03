@@ -355,190 +355,235 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
   </div>
 
   <script define:vars={{ sessionToken }}>
-    const modalContainer = document.getElementById('modal-container');
-    const modalBackdrop = document.getElementById('modal-backdrop');
-    const btnAdd = document.getElementById('btn-add-item');
-    const btnClose = document.getElementById('btn-close-modal');
-    const btnReset = document.getElementById('btn-reset-modal');
-    const agmForm = document.getElementById('agm-form');
-    const fileUploader = document.getElementById('modal-file-uploader');
-    const fileLabel = document.getElementById('file-label');
-    const uploadStatus = document.getElementById('upload-status');
-
-    // Form inputs
-    const agmIdInput = document.getElementById('agm-id');
-    const agmActionInput = document.getElementById('agm-action');
-    const agmTitleInput = document.getElementById('agm-title');
-    const agmMeetingDateInput = document.getElementById('agm-meetingDate');
-    const agmFileNameInput = document.getElementById('agm-fileName');
-    const agmDocumentUrlInput = document.getElementById('agm-documentUrl');
-    const modalHeading = document.getElementById('modal-heading');
-    const btnSubmit = document.getElementById('btn-submit-modal');
-
-    // Year and limit filter handling
-    const yearSelect = document.getElementById('year-select');
-    const limitSelect = document.getElementById('limit-select');
-
-    function applyFilters() {
-      const selectedYear = yearSelect.value;
-      const selectedLimit = parseInt(limitSelect.value, 10);
-      const rows = document.querySelectorAll('.agm-row');
-
-      let visibleCount = 0;
-
-      rows.forEach((row) => {
-        const year = row.getAttribute('data-year');
-        const matchesYear = selectedYear === 'All' || year === selectedYear;
-
-        if (matchesYear && visibleCount < selectedLimit) {
-          row.classList.remove('hidden');
-          visibleCount++;
-          row.querySelector('.row-index').textContent = visibleCount;
-        } else {
-          row.classList.add('hidden');
-        }
-      });
-    }
-
-    if (yearSelect) yearSelect.addEventListener('change', applyFilters);
-    if (limitSelect) limitSelect.addEventListener('change', applyFilters);
-
-    // Initial filter run
-    applyFilters();
-
-    // Show/Hide Modal
-    function showModal(isEdit = false) {
-      modalContainer.classList.remove('hidden');
-      if (isEdit) {
-        modalHeading.textContent = 'Edit AGM Document';
-        agmActionInput.value = 'update';
-        btnSubmit.textContent = 'Update';
-      } else {
-        modalHeading.textContent = 'Add AGM Document';
-        agmActionInput.value = 'create';
-        btnSubmit.textContent = 'Submit';
-        resetForm();
+    (function() {
+      function getElements() {
+        return {
+          modalContainer: document.getElementById('modal-container'),
+          modalBackdrop: document.getElementById('modal-backdrop'),
+          btnAdd: document.getElementById('btn-add-item'),
+          btnClose: document.getElementById('btn-close-modal'),
+          btnReset: document.getElementById('btn-reset-modal'),
+          agmForm: document.getElementById('agm-form'),
+          fileUploader: document.getElementById('modal-file-uploader'),
+          fileLabel: document.getElementById('file-label'),
+          uploadStatus: document.getElementById('upload-status'),
+          agmIdInput: document.getElementById('agm-id'),
+          agmActionInput: document.getElementById('agm-action'),
+          agmTitleInput: document.getElementById('agm-title'),
+          agmMeetingDateInput: document.getElementById('agm-meetingDate'),
+          agmFileNameInput: document.getElementById('agm-fileName'),
+          agmDocumentUrlInput: document.getElementById('agm-documentUrl'),
+          modalHeading: document.getElementById('modal-heading'),
+          btnSubmit: document.getElementById('btn-submit-modal'),
+          yearSelect: document.getElementById('year-select'),
+          limitSelect: document.getElementById('limit-select'),
+        };
       }
-    }
 
-    function hideModal() {
-      modalContainer.classList.add('hidden');
-    }
+      function applyFilters() {
+        var els = getElements();
+        if (!els.yearSelect || !els.limitSelect) return;
+        var selectedYear = els.yearSelect.value;
+        var selectedLimit = parseInt(els.limitSelect.value, 10);
+        var rows = document.querySelectorAll('.agm-row');
 
-    if (btnAdd) btnAdd.addEventListener('click', () => showModal(false));
-    if (btnClose) btnClose.addEventListener('click', hideModal);
-    if (modalBackdrop) modalBackdrop.addEventListener('click', hideModal);
+        var visibleCount = 0;
+        rows.forEach(function(row) {
+          var year = row.getAttribute('data-year');
+          var matchesYear = selectedYear === 'All' || year === selectedYear;
 
-    function resetForm() {
-      agmIdInput.value = '';
-      agmTitleInput.value = '';
-      agmMeetingDateInput.value = '';
-      agmFileNameInput.value = '';
-      agmDocumentUrlInput.value = '';
-      fileLabel.textContent = 'No file chosen';
-      fileLabel.classList.remove('text-emerald-700', 'font-bold');
-      uploadStatus.textContent = 'PDF Document only (Max 10MB)';
-      uploadStatus.className = 'text-[10px] text-slate-400 font-semibold mt-1 block';
-    }
+          if (matchesYear && visibleCount < selectedLimit) {
+            row.classList.remove('hidden');
+            visibleCount++;
+            var idxEl = row.querySelector('.row-index');
+            if (idxEl) idxEl.textContent = visibleCount;
+          } else {
+            row.classList.add('hidden');
+          }
+        });
+      }
 
-    if (btnReset) btnReset.addEventListener('click', resetForm);
+      function showModal(isEdit) {
+        var els = getElements();
+        if (!els.modalContainer) return;
+        els.modalContainer.classList.remove('hidden');
+        if (isEdit) {
+          if (els.modalHeading) els.modalHeading.textContent = 'Edit AGM Document';
+          if (els.agmActionInput) els.agmActionInput.value = 'update';
+          if (els.btnSubmit) els.btnSubmit.textContent = 'Update';
+        } else {
+          if (els.modalHeading) els.modalHeading.textContent = 'Add AGM Document';
+          if (els.agmActionInput) els.agmActionInput.value = 'create';
+          if (els.btnSubmit) els.btnSubmit.textContent = 'Submit';
+          resetForm();
+        }
+      }
 
-    // Handle AJAX File Upload
-    if (fileUploader) {
-      fileUploader.addEventListener('change', async (event) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
+      function hideModal() {
+        var els = getElements();
+        if (els.modalContainer) els.modalContainer.classList.add('hidden');
+      }
 
-        const isImportant = document.getElementById('agm-is-important-checkbox')?.checked || false;
-        const MAX_STANDARD = 20 * 1024 * 1024;
-        const MAX_IMPORTANT = 100 * 1024 * 1024;
+      function resetForm() {
+        var els = getElements();
+        if (els.agmIdInput) els.agmIdInput.value = '';
+        if (els.agmTitleInput) els.agmTitleInput.value = '';
+        if (els.agmMeetingDateInput) els.agmMeetingDateInput.value = '';
+        if (els.agmFileNameInput) els.agmFileNameInput.value = '';
+        if (els.agmDocumentUrlInput) els.agmDocumentUrlInput.value = '';
+        if (els.fileLabel) {
+          els.fileLabel.textContent = 'No file chosen';
+          els.fileLabel.classList.remove('text-emerald-700', 'font-bold');
+        }
+        if (els.uploadStatus) {
+          els.uploadStatus.textContent = 'PDF Document only (Max 10MB)';
+          els.uploadStatus.className = 'text-[10px] text-slate-400 font-semibold mt-1 block';
+        }
+      }
 
-        if (!isImportant && file.size > MAX_STANDARD) {
-          const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-          alert(`File size (${sizeMB} MB) exceeds the standard 20 MB limit.\n\nPlease check "Mark as Important" to allow uploading files up to 100 MB.`);
-          fileUploader.value = '';
-          fileLabel.textContent = 'No file chosen';
+      // Delegated clicks
+      document.addEventListener('click', function(e) {
+        var addBtn = e.target.closest('#btn-add-item');
+        if (addBtn) {
+          e.preventDefault();
+          showModal(false);
           return;
         }
 
-        if (file.size > MAX_IMPORTANT) {
-          const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-          alert(`File size (${sizeMB} MB) exceeds the maximum allowed limit of 100 MB.`);
-          fileUploader.value = '';
-          fileLabel.textContent = 'No file chosen';
+        var editBtn = e.target.closest('.btn-edit');
+        if (editBtn) {
+          e.preventDefault();
+          var row = editBtn.closest('.agm-row');
+          if (row) {
+            try {
+              var agmData = JSON.parse(row.getAttribute('data-agm'));
+              var els = getElements();
+              if (els.agmIdInput) els.agmIdInput.value = agmData.id || '';
+              if (els.agmTitleInput) els.agmTitleInput.value = agmData.title || '';
+
+              if (agmData.meetingDate && els.agmMeetingDateInput) {
+                var dateObj = new Date(agmData.meetingDate);
+                var yyyy = dateObj.getFullYear();
+                var mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+                var dd = String(dateObj.getDate()).padStart(2, '0');
+                els.agmMeetingDateInput.value = `${yyyy}-${mm}-${dd}`;
+              }
+
+              if (els.agmFileNameInput) els.agmFileNameInput.value = agmData.fileName || '';
+              if (els.agmDocumentUrlInput) els.agmDocumentUrlInput.value = agmData.documentUrl || '';
+              if (els.fileLabel) {
+                els.fileLabel.textContent = agmData.fileName || 'Attached existing file';
+                els.fileLabel.classList.add('text-emerald-700', 'font-bold');
+              }
+              if (els.uploadStatus) {
+                els.uploadStatus.textContent = 'Attached existing file';
+                els.uploadStatus.className = 'text-[10px] text-emerald-600 font-semibold mt-1 block';
+              }
+              showModal(true);
+            } catch (err) {
+              console.error(err);
+            }
+          }
           return;
         }
 
-        fileLabel.textContent = `Uploading ${file.name}...`;
-        fileLabel.classList.remove('text-emerald-700', 'font-bold');
-        uploadStatus.textContent = 'Uploading to secure asset server...';
-        uploadStatus.className = 'text-[10px] text-blue-600 font-semibold mt-1 block animate-pulse';
+        var closeBtn = e.target.closest('#btn-close-modal, #modal-backdrop');
+        if (closeBtn) {
+          e.preventDefault();
+          hideModal();
+          return;
+        }
 
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('isImportant', isImportant ? 'true' : 'false');
+        var resetBtn = e.target.closest('#btn-reset-modal');
+        if (resetBtn) {
+          e.preventDefault();
+          resetForm();
+          return;
+        }
+      });
 
-        try {
-          const response = await fetch('http://localhost:3000/api/upload', {
+      // Filter and upload change listeners
+      document.addEventListener('change', function(e) {
+        if (e.target && (e.target.id === 'year-select' || e.target.id === 'limit-select')) {
+          applyFilters();
+        }
+
+        if (e.target && e.target.id === 'modal-file-uploader') {
+          var file = e.target.files && e.target.files[0];
+          if (!file) return;
+
+          var els = getElements();
+          var isImportant = document.getElementById('agm-is-important-checkbox')?.checked || false;
+          var MAX_STANDARD = 20 * 1024 * 1024;
+          var MAX_IMPORTANT = 100 * 1024 * 1024;
+
+          if (!isImportant && file.size > MAX_STANDARD) {
+            var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            alert(`File size (${sizeMB} MB) exceeds the standard 20 MB limit.\n\nPlease check "Mark as Important" to allow uploading files up to 100 MB.`);
+            e.target.value = '';
+            if (els.fileLabel) els.fileLabel.textContent = 'No file chosen';
+            return;
+          }
+
+          if (file.size > MAX_IMPORTANT) {
+            var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            alert(`File size (${sizeMB} MB) exceeds the maximum allowed limit of 100 MB.`);
+            e.target.value = '';
+            if (els.fileLabel) els.fileLabel.textContent = 'No file chosen';
+            return;
+          }
+
+          if (els.fileLabel) {
+            els.fileLabel.textContent = `Uploading ${file.name}...`;
+            els.fileLabel.classList.remove('text-emerald-700', 'font-bold');
+          }
+          if (els.uploadStatus) {
+            els.uploadStatus.textContent = 'Uploading to secure asset server...';
+            els.uploadStatus.className = 'text-[10px] text-blue-600 font-semibold mt-1 block animate-pulse';
+          }
+
+          var formData = new FormData();
+          formData.append('file', file);
+          formData.append('isImportant', isImportant ? 'true' : 'false');
+
+          fetch('http://localhost:3000/api/upload', {
             method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${sessionToken}`,
-            },
+            headers: { 'Authorization': `Bearer ${sessionToken}` },
             body: formData,
+          })
+          .then(function(res) {
+            if (!res.ok) return res.json().then(function(err) { throw new Error(err.message || 'Upload failed'); });
+            return res.json();
+          })
+          .then(function(result) {
+            if (els.agmDocumentUrlInput) els.agmDocumentUrlInput.value = result.url;
+            if (els.fileLabel) {
+              els.fileLabel.textContent = file.name;
+              els.fileLabel.classList.add('text-emerald-700', 'font-bold');
+            }
+            if (els.uploadStatus) {
+              els.uploadStatus.textContent = `✓ Uploaded successfully (${Math.round(result.sizeBytes / 1024)} KB)`;
+              els.uploadStatus.className = 'text-[10px] text-emerald-600 font-semibold mt-1 block';
+            }
+            if (els.agmFileNameInput && !els.agmFileNameInput.value) {
+              els.agmFileNameInput.value = file.name;
+            }
+          })
+          .catch(function(error) {
+            if (els.fileLabel) els.fileLabel.textContent = 'Upload failed';
+            if (els.uploadStatus) {
+              els.uploadStatus.textContent = `⚠ Upload error: ${error.message}`;
+              els.uploadStatus.className = 'text-[10px] text-red-650 font-bold mt-1 block';
+            }
+            if (els.agmDocumentUrlInput) els.agmDocumentUrlInput.value = '';
+            e.target.value = '';
           });
-
-          if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || 'Upload failed');
-          }
-
-          const result = await response.json();
-          agmDocumentUrlInput.value = result.url;
-          fileLabel.textContent = file.name;
-          fileLabel.classList.add('text-emerald-700', 'font-bold');
-          uploadStatus.textContent = `✓ Uploaded successfully (${Math.round(result.sizeBytes / 1024)} KB)`;
-          uploadStatus.className = 'text-[10px] text-emerald-600 font-semibold mt-1 block';
-          
-          // Auto-fill File Name input if it is empty
-          if (!agmFileNameInput.value) {
-            agmFileNameInput.value = file.name;
-          }
-        } catch (error) {
-          fileLabel.textContent = 'Upload failed';
-          uploadStatus.textContent = `⚠ Upload error: ${error.message}`;
-          uploadStatus.className = 'text-[10px] text-red-650 font-bold mt-1 block';
-          agmDocumentUrlInput.value = '';
         }
       });
-    }
 
-    // Handle Edit Click
-    document.querySelectorAll('.btn-edit').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const row = btn.closest('.agm-row');
-        const agmData = JSON.parse(row.getAttribute('data-agm'));
-
-        agmIdInput.value = agmData.id;
-        agmTitleInput.value = agmData.title;
-        
-        // Format date to YYYY-MM-DD for date input
-        const dateObj = new Date(agmData.meetingDate);
-        const yyyy = dateObj.getFullYear();
-        const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
-        const dd = String(dateObj.getDate()).padStart(2, '0');
-        agmMeetingDateInput.value = `${yyyy}-${mm}-${dd}`;
-        
-        agmFileNameInput.value = agmData.fileName;
-        agmDocumentUrlInput.value = agmData.documentUrl;
-
-        fileLabel.textContent = agmData.fileName;
-        fileLabel.classList.add('text-emerald-700', 'font-bold');
-        uploadStatus.textContent = 'Attached existing file';
-        uploadStatus.className = 'text-[10px] text-emerald-600 font-semibold mt-1 block';
-
-        showModal(true);
-      });
-    });
+      document.addEventListener('astro:page-load', applyFilters);
+      applyFilters();
+    })();
   </script>
 
   <style>

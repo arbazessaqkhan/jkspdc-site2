@@ -309,29 +309,32 @@ try {
   </div>
 
   <script define:vars={{ sessionToken, tenders }}>
-    document.addEventListener('DOMContentLoaded', () => {
-      const modalBackdrop = document.getElementById('corr-modal-backdrop');
-      const btnOpenGlobal = document.getElementById('btn-open-global-corr-modal');
-      const btnCloseModal = document.getElementById('btn-close-corr-modal');
-      const btnCancelModal = document.getElementById('btn-cancel-corr-modal');
-      const searchInput = document.getElementById('modal-tender-search');
-      const hiddenTenderId = document.getElementById('modal-selected-tender-id');
-      const resultsBox = document.getElementById('modal-tender-results');
-      const badgeBox = document.getElementById('modal-selected-tender-badge');
-      const selectedTenderText = document.getElementById('selected-tender-text');
-      
-      const fileUploader = document.getElementById('modal-file-uploader');
-      const uploadStatus = document.getElementById('modal-upload-status');
-      const uploadBox = document.getElementById('modal-upload-box');
-      const hiddenDocUrl = document.getElementById('modal-doc-url');
-      const hiddenFileSize = document.getElementById('modal-file-size');
+    (function() {
+      function getElements() {
+        return {
+          modalBackdrop: document.getElementById('corr-modal-backdrop'),
+          btnOpenGlobal: document.getElementById('btn-open-global-corr-modal'),
+          btnCloseModal: document.getElementById('btn-close-corr-modal'),
+          btnCancelModal: document.getElementById('btn-cancel-corr-modal'),
+          searchInput: document.getElementById('modal-tender-search'),
+          hiddenTenderId: document.getElementById('modal-selected-tender-id'),
+          resultsBox: document.getElementById('modal-tender-results'),
+          badgeBox: document.getElementById('modal-selected-tender-badge'),
+          selectedTenderText: document.getElementById('selected-tender-text'),
+          fileUploader: document.getElementById('modal-file-uploader'),
+          uploadStatus: document.getElementById('modal-upload-status'),
+          uploadBox: document.getElementById('modal-upload-box'),
+          hiddenDocUrl: document.getElementById('modal-doc-url'),
+          hiddenFileSize: document.getElementById('modal-file-size'),
+          modalForm: document.getElementById('attach-corr-modal-form'),
+          submitBtn: document.getElementById('btn-submit-corr-modal'),
+        };
+      }
 
-      const modalForm = document.getElementById('attach-corr-modal-form');
-      const submitBtn = document.getElementById('btn-submit-corr-modal');
-
-      function openModal(preSelectedTender = null) {
-        if (!modalBackdrop) return;
-        modalBackdrop.classList.remove('hidden');
+      function openModal(preSelectedTender) {
+        var els = getElements();
+        if (!els.modalBackdrop) return;
+        els.modalBackdrop.classList.remove('hidden');
         resetModalForm();
 
         if (preSelectedTender) {
@@ -340,206 +343,238 @@ try {
       }
 
       function closeModal() {
-        if (!modalBackdrop) return;
-        modalBackdrop.classList.add('hidden');
+        var els = getElements();
+        if (!els.modalBackdrop) return;
+        els.modalBackdrop.classList.add('hidden');
         resetModalForm();
       }
 
       function resetModalForm() {
-        if (modalForm) modalForm.reset();
-        if (hiddenTenderId) hiddenTenderId.value = '';
-        if (hiddenDocUrl) hiddenDocUrl.value = '';
-        if (hiddenFileSize) hiddenFileSize.value = '0';
-        if (badgeBox) badgeBox.classList.add('hidden');
-        if (resultsBox) resultsBox.classList.add('hidden');
-        if (uploadStatus) uploadStatus.textContent = 'Click to choose Corrigendum PDF file';
-        if (uploadBox) uploadBox.classList.remove('border-emerald-300', 'bg-emerald-50/20');
+        var els = getElements();
+        if (els.modalForm) els.modalForm.reset();
+        if (els.hiddenTenderId) els.hiddenTenderId.value = '';
+        if (els.hiddenDocUrl) els.hiddenDocUrl.value = '';
+        if (els.hiddenFileSize) els.hiddenFileSize.value = '0';
+        if (els.badgeBox) els.badgeBox.classList.add('hidden');
+        if (els.resultsBox) els.resultsBox.classList.add('hidden');
+        if (els.uploadStatus) els.uploadStatus.textContent = 'Click to choose Corrigendum PDF file';
+        if (els.uploadBox) els.uploadBox.classList.remove('border-emerald-300', 'bg-emerald-50/20');
       }
 
       function selectTender(t) {
-        if (hiddenTenderId) hiddenTenderId.value = t.id;
-        if (searchInput) searchInput.value = `${t.referenceNo} — ${t.title}`;
-        if (selectedTenderText) selectedTenderText.textContent = `${t.referenceNo} (${t.title})`;
-        if (badgeBox) badgeBox.classList.remove('hidden');
-        if (resultsBox) resultsBox.classList.add('hidden');
+        var els = getElements();
+        if (els.hiddenTenderId) els.hiddenTenderId.value = t.id;
+        if (els.searchInput) els.searchInput.value = `${t.referenceNo} — ${t.title}`;
+        if (els.selectedTenderText) els.selectedTenderText.textContent = `${t.referenceNo} (${t.title})`;
+        if (els.badgeBox) els.badgeBox.classList.remove('hidden');
+        if (els.resultsBox) els.resultsBox.classList.add('hidden');
       }
 
-      btnOpenGlobal?.addEventListener('click', () => openModal());
-      btnCloseModal?.addEventListener('click', closeModal);
-      btnCancelModal?.addEventListener('click', closeModal);
+      // Delegated clicks for open, close, and row +Corr buttons
+      document.addEventListener('click', function(e) {
+        var openGlobal = e.target.closest('#btn-open-global-corr-modal');
+        if (openGlobal) {
+          e.preventDefault();
+          openModal();
+          return;
+        }
 
-      // Row attach buttons
-      document.querySelectorAll('.btn-attach-corr').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const id = btn.getAttribute('data-tender-id');
-          const ref = btn.getAttribute('data-tender-ref');
-          const title = btn.getAttribute('data-tender-title');
-          openModal({ id, referenceNo: ref, title });
-        });
+        var corrBtn = e.target.closest('.btn-attach-corr');
+        if (corrBtn) {
+          e.preventDefault();
+          var id = corrBtn.getAttribute('data-tender-id');
+          var ref = corrBtn.getAttribute('data-tender-ref');
+          var title = corrBtn.getAttribute('data-tender-title');
+          openModal({ id: id, referenceNo: ref, title: title });
+          return;
+        }
+
+        var closeBtn = e.target.closest('#btn-close-corr-modal, #btn-cancel-corr-modal');
+        if (closeBtn) {
+          e.preventDefault();
+          closeModal();
+          return;
+        }
+
+        var tenderOption = e.target.closest('.item-tender-option');
+        if (tenderOption) {
+          var id = tenderOption.getAttribute('data-id');
+          var t = tenders.find(function(x) { return x.id === id; });
+          if (t) selectTender(t);
+          return;
+        }
+
+        // Close on outside backdrop click
+        var els = getElements();
+        if (els.modalBackdrop && !els.modalBackdrop.classList.contains('hidden') && e.target === els.modalBackdrop) {
+          closeModal();
+        }
       });
 
       // Search input live filtering
-      searchInput?.addEventListener('input', () => {
-        const query = searchInput.value.toLowerCase().trim();
-        if (!query) {
-          resultsBox?.classList.add('hidden');
-          return;
-        }
+      document.addEventListener('input', function(e) {
+        if (e.target && e.target.id === 'modal-tender-search') {
+          var els = getElements();
+          var query = e.target.value.toLowerCase().trim();
+          if (!query) {
+            if (els.resultsBox) els.resultsBox.classList.add('hidden');
+            return;
+          }
 
-        const matches = tenders.filter((t) => 
-          (t.referenceNo || '').toLowerCase().includes(query) ||
-          (t.title || '').toLowerCase().includes(query) ||
-          (t.id || '').toLowerCase().includes(query) ||
-          (t.workCategory || '').toLowerCase().includes(query)
-        );
-
-        if (matches.length === 0) {
-          resultsBox.innerHTML = '<div class="p-3 text-slate-400 italic text-xs">No matching tenders found</div>';
-        } else {
-          resultsBox.innerHTML = matches.map((t) => `
-            <div class="p-2.5 hover:bg-amber-50/70 border-b border-slate-100 last:border-0 cursor-pointer text-xs select-none item-tender-option" data-id="${t.id}">
-              <div class="font-bold text-[#0B4F9C]">${t.referenceNo}</div>
-              <div class="font-semibold text-slate-800 leading-snug truncate">${t.title}</div>
-            </div>
-          `).join('');
-
-          resultsBox.querySelectorAll('.item-tender-option').forEach((opt) => {
-            opt.addEventListener('click', () => {
-              const id = opt.getAttribute('data-id');
-              const t = tenders.find((x) => x.id === id);
-              if (t) selectTender(t);
-            });
+          var matches = tenders.filter(function(t) {
+            return (t.referenceNo || '').toLowerCase().includes(query) ||
+              (t.title || '').toLowerCase().includes(query) ||
+              (t.id || '').toLowerCase().includes(query) ||
+              (t.workCategory || '').toLowerCase().includes(query);
           });
+
+          if (!els.resultsBox) return;
+
+          if (matches.length === 0) {
+            els.resultsBox.innerHTML = '<div class="p-3 text-slate-400 italic text-xs">No matching tenders found</div>';
+          } else {
+            els.resultsBox.innerHTML = matches.map(function(t) {
+              return '<div class="p-2.5 hover:bg-amber-50/70 border-b border-slate-100 last:border-0 cursor-pointer text-xs select-none item-tender-option" data-id="' + t.id + '">' +
+                '<div class="font-bold text-[#0B4F9C]">' + t.referenceNo + '</div>' +
+                '<div class="font-semibold text-slate-800 leading-snug truncate">' + t.title + '</div>' +
+              '</div>';
+            }).join('');
+          }
+          els.resultsBox.classList.remove('hidden');
         }
-        resultsBox?.classList.remove('hidden');
       });
 
       // File upload handler
-      modalFileUploader?.addEventListener('change', async (e) => {
-        const file = e.target?.files?.[0];
-        if (!file) return;
+      document.addEventListener('change', async function(e) {
+        if (e.target && e.target.id === 'modal-file-uploader') {
+          var file = e.target.files && e.target.files[0];
+          if (!file) return;
 
-        const isImportant = document.getElementById('modal-is-important-checkbox')?.checked || false;
-        const MAX_STANDARD = 20 * 1024 * 1024;
-        const MAX_IMPORTANT = 100 * 1024 * 1024;
+          var els = getElements();
+          var isImportant = document.getElementById('modal-is-important-checkbox')?.checked || false;
+          var MAX_STANDARD = 20 * 1024 * 1024;
+          var MAX_IMPORTANT = 100 * 1024 * 1024;
 
-        if (!isImportant && file.size > MAX_STANDARD) {
-          const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-          alert(`File size (${sizeMB} MB) exceeds the standard 20 MB limit.\n\nPlease check "Mark as Important" to allow uploading files up to 100 MB.`);
-          modalFileUploader.value = '';
-          return;
-        }
-
-        if (file.size > MAX_IMPORTANT) {
-          const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-          alert(`File size (${sizeMB} MB) exceeds the maximum allowed limit of 100 MB.`);
-          modalFileUploader.value = '';
-          return;
-        }
-
-        if (uploadStatus) uploadStatus.textContent = `Uploading ${file.name}...`;
-        if (uploadBox) uploadBox.classList.add('opacity-60', 'pointer-events-none');
-
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('isImportant', isImportant ? 'true' : 'false');
-
-        try {
-          const res = await fetch('http://localhost:3000/api/upload', {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${sessionToken}` },
-            body: formData,
-          });
-
-          if (!res.ok) {
-            const err = await res.json().catch(() => ({}));
-            throw new Error(err.message || 'Upload failed');
+          if (!isImportant && file.size > MAX_STANDARD) {
+            var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            alert(`File size (${sizeMB} MB) exceeds the standard 20 MB limit.\n\nPlease check "Mark as Important" to allow uploading files up to 100 MB.`);
+            e.target.value = '';
+            return;
           }
 
-          const result = await res.json();
-          if (hiddenDocUrl) hiddenDocUrl.value = result.url;
-          if (hiddenFileSize) hiddenFileSize.value = result.sizeBytes;
-          if (uploadStatus) uploadStatus.textContent = `Attached: ${result.filename} (${Math.round(result.sizeBytes / 1024)} KB)`;
-          if (uploadBox) uploadBox.classList.add('border-emerald-300', 'bg-emerald-50/20');
-        } catch (err) {
-          alert(`Upload failed: ${err.message}`);
-          if (uploadStatus) uploadStatus.textContent = 'Click to choose Corrigendum PDF file';
-          if (modalFileUploader) modalFileUploader.value = '';
-        } finally {
-          if (uploadBox) uploadBox.classList.remove('opacity-60', 'pointer-events-none');
+          if (file.size > MAX_IMPORTANT) {
+            var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            alert(`File size (${sizeMB} MB) exceeds the maximum allowed limit of 100 MB.`);
+            e.target.value = '';
+            return;
+          }
+
+          if (els.uploadStatus) els.uploadStatus.textContent = `Uploading ${file.name}...`;
+          if (els.uploadBox) els.uploadBox.classList.add('opacity-60', 'pointer-events-none');
+
+          var formData = new FormData();
+          formData.append('file', file);
+          formData.append('isImportant', isImportant ? 'true' : 'false');
+
+          try {
+            var res = await fetch('http://localhost:3000/api/upload', {
+              method: 'POST',
+              headers: { 'Authorization': `Bearer ${sessionToken}` },
+              body: formData,
+            });
+
+            if (!res.ok) {
+              var err = await res.json().catch(function() { return {}; });
+              throw new Error(err.message || 'Upload failed');
+            }
+
+            var result = await res.json();
+            if (els.hiddenDocUrl) els.hiddenDocUrl.value = result.url;
+            if (els.hiddenFileSize) els.hiddenFileSize.value = result.sizeBytes;
+            if (els.uploadStatus) els.uploadStatus.textContent = `Attached: ${result.filename} (${Math.round(result.sizeBytes / 1024)} KB)`;
+            if (els.uploadBox) els.uploadBox.classList.add('border-emerald-300', 'bg-emerald-50/20');
+          } catch (err) {
+            alert(`Upload failed: ${err.message}`);
+            if (els.uploadStatus) els.uploadStatus.textContent = 'Click to choose Corrigendum PDF file';
+            e.target.value = '';
+          } finally {
+            if (els.uploadBox) els.uploadBox.classList.remove('opacity-60', 'pointer-events-none');
+          }
         }
       });
 
       // Submit Form Handler
-      modalForm?.addEventListener('submit', async (e) => {
-        e.preventDefault();
+      document.addEventListener('submit', async function(e) {
+        if (e.target && e.target.id === 'attach-corr-modal-form') {
+          e.preventDefault();
 
-        const targetId = hiddenTenderId?.value;
-        const corrTitle = document.getElementById('modal-corr-title')?.value.trim();
-        const extClosing = document.getElementById('modal-extended-closing')?.value;
-        const extOpening = document.getElementById('modal-extended-opening')?.value;
-        const docUrl = hiddenDocUrl?.value;
-        const sizeBytes = parseInt(hiddenFileSize?.value || '0', 10);
+          var els = getElements();
+          var targetId = els.hiddenTenderId?.value;
+          var corrTitle = document.getElementById('modal-corr-title')?.value.trim();
+          var extClosing = document.getElementById('modal-extended-closing')?.value;
+          var extOpening = document.getElementById('modal-extended-opening')?.value;
+          var docUrl = els.hiddenDocUrl?.value;
+          var sizeBytes = parseInt(els.hiddenFileSize?.value || '0', 10);
 
-        if (!targetId) {
-          alert('Please select a target tender first.');
-          return;
-        }
-        if (!corrTitle) {
-          alert('Please enter the corrigendum title.');
-          return;
-        }
-        if (!docUrl) {
-          alert('Please attach the Corrigendum PDF file.');
-          return;
-        }
-
-        if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Saving...'; }
-
-        try {
-          // Fetch existing tender
-          const getRes = await fetch(`http://localhost:3000/api/tenders/${targetId}`);
-          if (!getRes.ok) throw new Error('Could not fetch target tender details.');
-          const tenderObj = await getRes.json();
-
-          const existingCorrs = Array.isArray(tenderObj.corrigendums) ? tenderObj.corrigendums : [];
-          
-          const newCorr = {
-            id: Math.random().toString(36).substring(2, 12),
-            title: corrTitle,
-            publishDate: new Date().toISOString(),
-            documentUrl: docUrl,
-            fileSizeBytes: sizeBytes,
-            extendedClosingDate: extClosing || null,
-            extendedBidOpeningDate: extOpening || null,
-          };
-
-          const updatedCorrs = [...existingCorrs, newCorr];
-
-          const putRes = await fetch(`http://localhost:3000/api/tenders/${targetId}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${sessionToken}`,
-            },
-            body: JSON.stringify({
-              corrigendums: updatedCorrs,
-            }),
-          });
-
-          if (putRes.ok) {
-            alert('Corrigendum successfully attached to tender!');
-            window.location.reload();
-          } else {
-            const err = await putRes.json().catch(() => ({}));
-            throw new Error(err.message || 'Failed to update tender with corrigendum.');
+          if (!targetId) {
+            alert('Please select a target tender first.');
+            return;
           }
-        } catch (err) {
-          alert(`Error attaching corrigendum: ${err.message}`);
-        } finally {
-          if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Confirm Attach Corrigendum'; }
+          if (!corrTitle) {
+            alert('Please enter the corrigendum title.');
+            return;
+          }
+          if (!docUrl) {
+            alert('Please attach the Corrigendum PDF file.');
+            return;
+          }
+
+          if (els.submitBtn) { els.submitBtn.disabled = true; els.submitBtn.textContent = 'Saving...'; }
+
+          try {
+            var getRes = await fetch(`http://localhost:3000/api/tenders/${targetId}`);
+            if (!getRes.ok) throw new Error('Could not fetch target tender details.');
+            var tenderObj = await getRes.json();
+
+            var existingCorrs = Array.isArray(tenderObj.corrigendums) ? tenderObj.corrigendums : [];
+            
+            var newCorr = {
+              id: Math.random().toString(36).substring(2, 12),
+              title: corrTitle,
+              publishDate: new Date().toISOString(),
+              documentUrl: docUrl,
+              fileSizeBytes: sizeBytes,
+              extendedClosingDate: extClosing || null,
+              extendedBidOpeningDate: extOpening || null,
+            };
+
+            var updatedCorrs = [...existingCorrs, newCorr];
+
+            var putRes = await fetch(`http://localhost:3000/api/tenders/${targetId}`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${sessionToken}`,
+              },
+              body: JSON.stringify({
+                corrigendums: updatedCorrs,
+              }),
+            });
+
+            if (putRes.ok) {
+              alert('Corrigendum successfully attached to tender!');
+              window.location.reload();
+            } else {
+              var err = await putRes.json().catch(function() { return {}; });
+              throw new Error(err.message || 'Failed to update tender with corrigendum.');
+            }
+          } catch (err) {
+            alert(`Error attaching corrigendum: ${err.message}`);
+          } finally {
+            if (els.submitBtn) { els.submitBtn.disabled = false; els.submitBtn.textContent = 'Confirm Attach Corrigendum'; }
+          }
         }
       });
-    });
+    })();
   </script>
 </AdminLayout>

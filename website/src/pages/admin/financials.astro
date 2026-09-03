@@ -135,92 +135,114 @@ const docCategories = ['Financial Results', 'Annual Reports', 'Chairman Statemen
 
 <script is:inline>
 (function() {
-  var modal = document.getElementById('fin-modal');
   function getToken() { var m = document.cookie.match(/admin_session=([^;]+)/); return m ? m[1] : ''; }
-  function closeModal() { modal.classList.add('hidden'); }
+  function closeModal() {
+    var modal = document.getElementById('fin-modal');
+    if (modal) modal.classList.add('hidden');
+  }
 
-  document.getElementById('add-fin-btn').addEventListener('click', function() {
-    document.getElementById('fin-modal-title').textContent = 'Add Financial Document';
-    document.getElementById('fin-edit-id').value = '';
-    document.getElementById('fin-title').value = '';
-    document.getElementById('fin-year').value = '';
-    document.getElementById('fin-file').value = '';
-    modal.classList.remove('hidden');
-  });
-
-  document.querySelectorAll('.edit-fin-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      document.getElementById('fin-modal-title').textContent = 'Edit Financial Document';
-      document.getElementById('fin-edit-id').value = btn.dataset.id;
-      document.getElementById('fin-title').value = btn.dataset.title;
-      document.getElementById('fin-category').value = btn.dataset.category;
-      document.getElementById('fin-year').value = btn.dataset.year;
+  document.addEventListener('click', function(e) {
+    var addBtn = e.target.closest('#add-fin-btn');
+    if (addBtn) {
+      e.preventDefault();
+      var modal = document.getElementById('fin-modal');
+      document.getElementById('fin-modal-title').textContent = 'Add Financial Document';
+      document.getElementById('fin-edit-id').value = '';
+      document.getElementById('fin-title').value = '';
+      document.getElementById('fin-year').value = '';
       document.getElementById('fin-file').value = '';
-      modal.classList.remove('hidden');
-    });
-  });
-
-  document.querySelectorAll('.delete-fin-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      if (!confirm('Delete "' + btn.dataset.title + '"?')) return;
-      fetch('http://localhost:3000/api/financials/' + btn.dataset.id, { method: 'DELETE', headers: { Authorization: 'Bearer ' + getToken() } })
-        .then(function(r) { if (r.ok) window.location.reload(); else alert('Delete failed.'); });
-    });
-  });
-
-  document.getElementById('fin-modal-save').addEventListener('click', function() {
-    var token = getToken();
-    var editId = document.getElementById('fin-edit-id').value;
-    var fileInput = document.getElementById('fin-file');
-    var title = document.getElementById('fin-title').value;
-    var category = document.getElementById('fin-category').value;
-    var fiscalYear = document.getElementById('fin-year').value;
-
-    function saveRecord(fileName, documentUrl) {
-      var body = { title: title, category: category, fiscalYear: fiscalYear, fileName: fileName, documentUrl: documentUrl };
-      var url = editId ? 'http://localhost:3000/api/financials/' + editId : 'http://localhost:3000/api/financials';
-      fetch(url, { method: editId ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(body) })
-        .then(function(r) { if (r.ok) { alert('Saved!'); window.location.reload(); } else alert('Save failed.'); });
+      if (modal) modal.classList.remove('hidden');
+      return;
     }
 
-    if (fileInput.files && fileInput.files.length > 0) {
-      var file = fileInput.files[0];
-      var isImportant = document.getElementById('fin-is-important-checkbox')?.checked || false;
-      var MAX_STANDARD = 20 * 1024 * 1024;
-      var MAX_IMPORTANT = 100 * 1024 * 1024;
+    var editBtn = e.target.closest('.edit-fin-btn');
+    if (editBtn) {
+      e.preventDefault();
+      var modal = document.getElementById('fin-modal');
+      document.getElementById('fin-modal-title').textContent = 'Edit Financial Document';
+      document.getElementById('fin-edit-id').value = editBtn.dataset.id || '';
+      document.getElementById('fin-title').value = editBtn.dataset.title || '';
+      document.getElementById('fin-category').value = editBtn.dataset.category || 'Annual Report';
+      document.getElementById('fin-year').value = editBtn.dataset.year || '';
+      document.getElementById('fin-file').value = '';
+      if (modal) modal.classList.remove('hidden');
+      return;
+    }
 
-      if (!isImportant && file.size > MAX_STANDARD) {
-        var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-        alert(`File size (${sizeMB} MB) exceeds the standard 20 MB limit.\n\nPlease check "Mark as Important" to allow uploading files up to 100 MB.`);
-        fileInput.value = '';
-        return;
+    var delBtn = e.target.closest('.delete-fin-btn');
+    if (delBtn) {
+      e.preventDefault();
+      if (!confirm('Delete "' + delBtn.dataset.title + '"?')) return;
+      fetch('http://localhost:3000/api/financials/' + delBtn.dataset.id, { method: 'DELETE', headers: { Authorization: 'Bearer ' + getToken() } })
+        .then(function(r) { if (r.ok) window.location.reload(); else alert('Delete failed.'); });
+      return;
+    }
+
+    var closeBtn = e.target.closest('#fin-modal-close, #fin-modal-cancel');
+    if (closeBtn) {
+      e.preventDefault();
+      closeModal();
+      return;
+    }
+
+    var modal = document.getElementById('fin-modal');
+    if (modal && !modal.classList.contains('hidden') && e.target === modal) {
+      closeModal();
+      return;
+    }
+
+    var saveBtn = e.target.closest('#fin-modal-save');
+    if (saveBtn) {
+      e.preventDefault();
+      var token = getToken();
+      var editId = document.getElementById('fin-edit-id').value;
+      var fileInput = document.getElementById('fin-file');
+      var title = document.getElementById('fin-title').value;
+      var category = document.getElementById('fin-category').value;
+      var fiscalYear = document.getElementById('fin-year').value;
+
+      function saveRecord(fileName, documentUrl) {
+        var body = { title: title, category: category, fiscalYear: fiscalYear, fileName: fileName, documentUrl: documentUrl };
+        var url = editId ? 'http://localhost:3000/api/financials/' + editId : 'http://localhost:3000/api/financials';
+        fetch(url, { method: editId ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(body) })
+          .then(function(r) { if (r.ok) { alert('Saved!'); window.location.reload(); } else alert('Save failed.'); });
       }
 
-      if (file.size > MAX_IMPORTANT) {
-        var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-        alert(`File size (${sizeMB} MB) exceeds the maximum allowed limit of 100 MB.`);
-        fileInput.value = '';
-        return;
-      }
+      if (fileInput.files && fileInput.files.length > 0) {
+        var file = fileInput.files[0];
+        var isImportant = document.getElementById('fin-is-important-checkbox')?.checked || false;
+        var MAX_STANDARD = 20 * 1024 * 1024;
+        var MAX_IMPORTANT = 100 * 1024 * 1024;
 
-      var fd = new FormData();
-      fd.append('file', file);
-      fd.append('isImportant', isImportant ? 'true' : 'false');
-      fetch('http://localhost:3000/api/upload', { method: 'POST', headers: { Authorization: 'Bearer ' + token }, body: fd })
-        .then(function(r) {
-          if (!r.ok) return r.json().then(function(err) { throw new Error(err.message || 'Upload failed'); });
-          return r.json();
-        })
-        .then(function(d) { saveRecord(file.name, d.url || d.filePath); })
-        .catch(function(err) { alert('Upload error: ' + err.message); });
-    } else if (editId) {
-      fetch('http://localhost:3000/api/financials/' + editId, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify({ title: title, category: category, fiscalYear: fiscalYear }) })
-        .then(function(r) { if (r.ok) { alert('Updated!'); window.location.reload(); } else alert('Update failed.'); });
-    } else { alert('Please select a file.'); }
+        if (!isImportant && file.size > MAX_STANDARD) {
+          var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+          alert(`File size (${sizeMB} MB) exceeds the standard 20 MB limit.\n\nPlease check "Mark as Important" to allow uploading files up to 100 MB.`);
+          fileInput.value = '';
+          return;
+        }
+
+        if (file.size > MAX_IMPORTANT) {
+          var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+          alert(`File size (${sizeMB} MB) exceeds the maximum allowed limit of 100 MB.`);
+          fileInput.value = '';
+          return;
+        }
+
+        var fd = new FormData();
+        fd.append('file', file);
+        fd.append('isImportant', isImportant ? 'true' : 'false');
+        fetch('http://localhost:3000/api/upload', { method: 'POST', headers: { Authorization: 'Bearer ' + token }, body: fd })
+          .then(function(r) {
+            if (!r.ok) return r.json().then(function(err) { throw new Error(err.message || 'Upload failed'); });
+            return r.json();
+          })
+          .then(function(d) { saveRecord(file.name, d.url || d.filePath); })
+          .catch(function(err) { alert('Upload error: ' + err.message); });
+      } else if (editId) {
+        fetch('http://localhost:3000/api/financials/' + editId, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify({ title: title, category: category, fiscalYear: fiscalYear }) })
+          .then(function(r) { if (r.ok) { alert('Updated!'); window.location.reload(); } else alert('Update failed.'); });
+      } else { alert('Please select a file.'); }
+    }
   });
-
-  document.getElementById('fin-modal-close').addEventListener('click', closeModal);
-  document.getElementById('fin-modal-cancel').addEventListener('click', closeModal);
-  modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
 })();
 </script>

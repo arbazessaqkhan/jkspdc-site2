@@ -339,180 +339,226 @@ const currentYear = new Date().getFullYear();
   </div>
 
   <script define:vars={{ sessionToken }}>
-    const modalContainer = document.getElementById('modal-container');
-    const modalBackdrop = document.getElementById('modal-backdrop');
-    const btnAdd = document.getElementById('btn-add-item');
-    const btnClose = document.getElementById('btn-close-modal');
-    const btnReset = document.getElementById('btn-reset-modal');
-    const notifForm = document.getElementById('notif-form');
-    const fileUploader = document.getElementById('modal-file-uploader');
-    const fileLabel = document.getElementById('file-label');
-    const btnChoose = document.getElementById('btn-choose-file');
-    const uploadStatus = document.getElementById('upload-status');
-
-    // Form inputs
-    const notifIdInput = document.getElementById('notif-id');
-    const notifActionInput = document.getElementById('notif-action');
-    const notifTitleInput = document.getElementById('notif-title');
-    const notifFileNameInput = document.getElementById('notif-fileName');
-    const notifDocumentUrlInput = document.getElementById('notif-documentUrl');
-    const modalHeading = document.getElementById('modal-heading');
-    const btnSubmit = document.getElementById('btn-submit-modal');
-
-    // Year and limit filter handling
-    const yearSelect = document.getElementById('year-select');
-    const limitSelect = document.getElementById('limit-select');
-
-    function applyFilters() {
-      const selectedYear = yearSelect.value;
-      const selectedLimit = parseInt(limitSelect.value, 10);
-      const rows = document.querySelectorAll('.notification-row');
-
-      let visibleCount = 0;
-
-      rows.forEach((row) => {
-        const year = row.getAttribute('data-year');
-        const matchesYear = selectedYear === 'All' || year === selectedYear;
-
-        if (matchesYear && visibleCount < selectedLimit) {
-          row.classList.remove('hidden');
-          visibleCount++;
-          row.querySelector('.row-index').textContent = visibleCount;
-        } else {
-          row.classList.add('hidden');
-        }
-      });
-    }
-
-    yearSelect.addEventListener('change', applyFilters);
-    limitSelect.addEventListener('change', applyFilters);
-
-    // Initial filter run
-    applyFilters();
-
-    // Show/Hide Modal
-    function showModal(isEdit = false) {
-      modalContainer.classList.remove('hidden');
-      if (isEdit) {
-        modalHeading.textContent = 'Edit Notification';
-        notifActionInput.value = 'update';
-        btnSubmit.textContent = 'Update';
-      } else {
-        modalHeading.textContent = 'Add Notification';
-        notifActionInput.value = 'create';
-        btnSubmit.textContent = 'Submit';
-        resetForm();
-      }
-    }
-
-    function hideModal() {
-      modalContainer.classList.add('hidden');
-    }
-
-    btnAdd.addEventListener('click', () => showModal(false));
-    btnClose.addEventListener('click', hideModal);
-    modalBackdrop.addEventListener('click', hideModal);
-
-    function resetForm() {
-      notifIdInput.value = '';
-      notifTitleInput.value = '';
-      notifFileNameInput.value = '';
-      notifDocumentUrlInput.value = '';
-      fileLabel.textContent = 'No file chosen';
-      fileLabel.classList.remove('text-emerald-700', 'font-bold');
-      uploadStatus.textContent = 'PDF, JPG, PNG, DOCX, XLSX (Max 10MB)';
-      uploadStatus.className = 'text-[10px] text-slate-400 font-semibold mt-1 block';
-    }
-
-    btnReset.addEventListener('click', resetForm);
-
-    // Handle AJAX File Upload
-    fileUploader.addEventListener('change', async (event) => {
-      const file = event.target.files?.[0];
-      if (!file) return;
-
-      const isImportant = document.getElementById('notif-is-important-checkbox')?.checked || false;
-      const MAX_STANDARD = 20 * 1024 * 1024;
-      const MAX_IMPORTANT = 100 * 1024 * 1024;
-
-      if (!isImportant && file.size > MAX_STANDARD) {
-        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-        alert(`File size (${sizeMB} MB) exceeds the standard 20 MB limit.\n\nPlease check "Mark as Important" to allow uploading files up to 100 MB.`);
-        fileUploader.value = '';
-        fileLabel.textContent = 'No file chosen';
-        return;
+    (function() {
+      function getElements() {
+        return {
+          modalContainer: document.getElementById('modal-container'),
+          modalBackdrop: document.getElementById('modal-backdrop'),
+          btnAdd: document.getElementById('btn-add-item'),
+          btnClose: document.getElementById('btn-close-modal'),
+          btnReset: document.getElementById('btn-reset-modal'),
+          notifForm: document.getElementById('notif-form'),
+          fileUploader: document.getElementById('modal-file-uploader'),
+          fileLabel: document.getElementById('file-label'),
+          btnChoose: document.getElementById('btn-choose-file'),
+          uploadStatus: document.getElementById('upload-status'),
+          notifIdInput: document.getElementById('notif-id'),
+          notifActionInput: document.getElementById('notif-action'),
+          notifTitleInput: document.getElementById('notif-title'),
+          notifFileNameInput: document.getElementById('notif-fileName'),
+          notifDocumentUrlInput: document.getElementById('notif-documentUrl'),
+          modalHeading: document.getElementById('modal-heading'),
+          btnSubmit: document.getElementById('btn-submit-modal'),
+          yearSelect: document.getElementById('year-select'),
+          limitSelect: document.getElementById('limit-select'),
+        };
       }
 
-      if (file.size > MAX_IMPORTANT) {
-        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-        alert(`File size (${sizeMB} MB) exceeds the maximum allowed limit of 100 MB.`);
-        fileUploader.value = '';
-        fileLabel.textContent = 'No file chosen';
-        return;
-      }
+      function applyFilters() {
+        var els = getElements();
+        if (!els.yearSelect || !els.limitSelect) return;
+        var selectedYear = els.yearSelect.value;
+        var selectedLimit = parseInt(els.limitSelect.value, 10);
+        var rows = document.querySelectorAll('.notification-row');
 
-      fileLabel.textContent = `Uploading ${file.name}...`;
-      fileLabel.classList.remove('text-emerald-700', 'font-bold');
-      uploadStatus.textContent = 'Uploading to secure asset server...';
-      uploadStatus.className = 'text-[10px] text-blue-600 font-semibold mt-1 block animate-pulse';
+        var visibleCount = 0;
+        rows.forEach(function(row) {
+          var year = row.getAttribute('data-year');
+          var matchesYear = selectedYear === 'All' || year === selectedYear;
 
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('isImportant', isImportant ? 'true' : 'false');
-
-      try {
-        const response = await fetch('http://localhost:3000/api/upload', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${sessionToken}`,
-          },
-          body: formData,
+          if (matchesYear && visibleCount < selectedLimit) {
+            row.classList.remove('hidden');
+            visibleCount++;
+            var idxEl = row.querySelector('.row-index');
+            if (idxEl) idxEl.textContent = visibleCount;
+          } else {
+            row.classList.add('hidden');
+          }
         });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.message || 'Upload failed');
-        }
-
-        const result = await response.json();
-        notifDocumentUrlInput.value = result.url;
-        fileLabel.textContent = file.name;
-        fileLabel.classList.add('text-emerald-700', 'font-bold');
-        uploadStatus.textContent = `✓ Uploaded successfully (${Math.round(result.sizeBytes / 1024)} KB)`;
-        uploadStatus.className = 'text-[10px] text-emerald-600 font-semibold mt-1 block';
-        
-        // Auto-fill File Name input if it is empty
-        if (!notifFileNameInput.value) {
-          notifFileNameInput.value = file.name;
-        }
-      } catch (error) {
-        fileLabel.textContent = 'Upload failed';
-        uploadStatus.textContent = `⚠ Upload error: ${error.message}`;
-        uploadStatus.className = 'text-[10px] text-red-650 font-bold mt-1 block';
-        notifDocumentUrlInput.value = '';
-        fileUploader.value = '';
       }
-    });
 
-    // Handle Edit Click
-    document.querySelectorAll('.btn-edit').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const row = btn.closest('.notification-row');
-        const notifData = JSON.parse(row.getAttribute('data-notif'));
+      function showModal(isEdit) {
+        var els = getElements();
+        if (!els.modalContainer) return;
+        els.modalContainer.classList.remove('hidden');
+        if (isEdit) {
+          if (els.modalHeading) els.modalHeading.textContent = 'Edit Notification';
+          if (els.notifActionInput) els.notifActionInput.value = 'update';
+          if (els.btnSubmit) els.btnSubmit.textContent = 'Update';
+        } else {
+          if (els.modalHeading) els.modalHeading.textContent = 'Add Notification';
+          if (els.notifActionInput) els.notifActionInput.value = 'create';
+          if (els.btnSubmit) els.btnSubmit.textContent = 'Submit';
+          resetForm();
+        }
+      }
 
-        notifIdInput.value = notifData.id;
-        notifTitleInput.value = notifData.title;
-        notifFileNameInput.value = notifData.fileName;
-        notifDocumentUrlInput.value = notifData.documentUrl;
+      function hideModal() {
+        var els = getElements();
+        if (els.modalContainer) els.modalContainer.classList.add('hidden');
+      }
 
-        fileLabel.textContent = notifData.fileName;
-        fileLabel.classList.add('text-emerald-700', 'font-bold');
-        uploadStatus.textContent = 'Attached existing file';
-        uploadStatus.className = 'text-[10px] text-emerald-600 font-semibold mt-1 block';
+      function resetForm() {
+        var els = getElements();
+        if (els.notifIdInput) els.notifIdInput.value = '';
+        if (els.notifTitleInput) els.notifTitleInput.value = '';
+        if (els.notifFileNameInput) els.notifFileNameInput.value = '';
+        if (els.notifDocumentUrlInput) els.notifDocumentUrlInput.value = '';
+        if (els.fileLabel) {
+          els.fileLabel.textContent = 'No file chosen';
+          els.fileLabel.classList.remove('text-emerald-700', 'font-bold');
+        }
+        if (els.uploadStatus) {
+          els.uploadStatus.textContent = 'PDF, JPG, PNG, DOCX, XLSX (Max 10MB)';
+          els.uploadStatus.className = 'text-[10px] text-slate-400 font-semibold mt-1 block';
+        }
+      }
 
-        showModal(true);
+      // Delegated clicks
+      document.addEventListener('click', function(e) {
+        var addBtn = e.target.closest('#btn-add-item');
+        if (addBtn) {
+          e.preventDefault();
+          showModal(false);
+          return;
+        }
+
+        var editBtn = e.target.closest('.btn-edit');
+        if (editBtn) {
+          e.preventDefault();
+          var row = editBtn.closest('.notification-row');
+          if (row) {
+            try {
+              var notifData = JSON.parse(row.getAttribute('data-notif'));
+              var els = getElements();
+              if (els.notifIdInput) els.notifIdInput.value = notifData.id || '';
+              if (els.notifTitleInput) els.notifTitleInput.value = notifData.title || '';
+              if (els.notifFileNameInput) els.notifFileNameInput.value = notifData.fileName || '';
+              if (els.notifDocumentUrlInput) els.notifDocumentUrlInput.value = notifData.documentUrl || '';
+              if (els.fileLabel) {
+                els.fileLabel.textContent = notifData.fileName || 'Attached existing file';
+                els.fileLabel.classList.add('text-emerald-700', 'font-bold');
+              }
+              if (els.uploadStatus) {
+                els.uploadStatus.textContent = 'Attached existing file';
+                els.uploadStatus.className = 'text-[10px] text-emerald-600 font-semibold mt-1 block';
+              }
+              showModal(true);
+            } catch (err) {
+              console.error(err);
+            }
+          }
+          return;
+        }
+
+        var closeBtn = e.target.closest('#btn-close-modal, #modal-backdrop');
+        if (closeBtn) {
+          e.preventDefault();
+          hideModal();
+          return;
+        }
+
+        var resetBtn = e.target.closest('#btn-reset-modal');
+        if (resetBtn) {
+          e.preventDefault();
+          resetForm();
+          return;
+        }
       });
-    });
+
+      // Filter change listeners
+      document.addEventListener('change', function(e) {
+        if (e.target && (e.target.id === 'year-select' || e.target.id === 'limit-select')) {
+          applyFilters();
+        }
+
+        // File upload
+        if (e.target && e.target.id === 'modal-file-uploader') {
+          var file = e.target.files && e.target.files[0];
+          if (!file) return;
+
+          var els = getElements();
+          var isImportant = document.getElementById('notif-is-important-checkbox')?.checked || false;
+          var MAX_STANDARD = 20 * 1024 * 1024;
+          var MAX_IMPORTANT = 100 * 1024 * 1024;
+
+          if (!isImportant && file.size > MAX_STANDARD) {
+            var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            alert(`File size (${sizeMB} MB) exceeds the standard 20 MB limit.\n\nPlease check "Mark as Important" to allow uploading files up to 100 MB.`);
+            e.target.value = '';
+            if (els.fileLabel) els.fileLabel.textContent = 'No file chosen';
+            return;
+          }
+
+          if (file.size > MAX_IMPORTANT) {
+            var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            alert(`File size (${sizeMB} MB) exceeds the maximum allowed limit of 100 MB.`);
+            e.target.value = '';
+            if (els.fileLabel) els.fileLabel.textContent = 'No file chosen';
+            return;
+          }
+
+          if (els.fileLabel) {
+            els.fileLabel.textContent = `Uploading ${file.name}...`;
+            els.fileLabel.classList.remove('text-emerald-700', 'font-bold');
+          }
+          if (els.uploadStatus) {
+            els.uploadStatus.textContent = 'Uploading to secure asset server...';
+            els.uploadStatus.className = 'text-[10px] text-blue-600 font-semibold mt-1 block animate-pulse';
+          }
+
+          var formData = new FormData();
+          formData.append('file', file);
+          formData.append('isImportant', isImportant ? 'true' : 'false');
+
+          fetch('http://localhost:3000/api/upload', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${sessionToken}` },
+            body: formData,
+          })
+          .then(function(res) {
+            if (!res.ok) return res.json().then(function(err) { throw new Error(err.message || 'Upload failed'); });
+            return res.json();
+          })
+          .then(function(result) {
+            if (els.notifDocumentUrlInput) els.notifDocumentUrlInput.value = result.url;
+            if (els.fileLabel) {
+              els.fileLabel.textContent = file.name;
+              els.fileLabel.classList.add('text-emerald-700', 'font-bold');
+            }
+            if (els.uploadStatus) {
+              els.uploadStatus.textContent = `✓ Uploaded successfully (${Math.round(result.sizeBytes / 1024)} KB)`;
+              els.uploadStatus.className = 'text-[10px] text-emerald-600 font-semibold mt-1 block';
+            }
+            if (els.notifFileNameInput && !els.notifFileNameInput.value) {
+              els.notifFileNameInput.value = file.name;
+            }
+          })
+          .catch(function(error) {
+            if (els.fileLabel) els.fileLabel.textContent = 'Upload failed';
+            if (els.uploadStatus) {
+              els.uploadStatus.textContent = `⚠ Upload error: ${error.message}`;
+              els.uploadStatus.className = 'text-[10px] text-red-650 font-bold mt-1 block';
+            }
+            if (els.notifDocumentUrlInput) els.notifDocumentUrlInput.value = '';
+            e.target.value = '';
+          });
+        }
+      });
+
+      document.addEventListener('astro:page-load', applyFilters);
+      applyFilters();
+    })();
   </script>
 
   <style>

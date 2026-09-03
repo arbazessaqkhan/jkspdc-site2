@@ -129,60 +129,86 @@ try {
 
 <script is:inline>
 (function() {
-  var modal = document.getElementById('exec-modal');
   function getToken() { var m = document.cookie.match(/admin_session=([^;]+)/); return m ? m[1] : ''; }
-  function closeModal() { modal.classList.add('hidden'); }
+  function closeModal() {
+    var modal = document.getElementById('exec-modal');
+    if (modal) modal.classList.add('hidden');
+  }
 
-  document.getElementById('add-exec-btn').addEventListener('click', function() {
-    document.getElementById('exec-modal-title').textContent = 'Add Executive';
-    document.getElementById('exec-edit-id').value = '';
-    ['exec-name','exec-designation','exec-department','exec-phone','exec-email','exec-address'].forEach(function(id) { document.getElementById(id).value = ''; });
-    document.getElementById('exec-sno').value = '0';
-    modal.classList.remove('hidden');
-  });
+  document.addEventListener('click', function(e) {
+    var addBtn = e.target.closest('#add-exec-btn');
+    if (addBtn) {
+      e.preventDefault();
+      var modal = document.getElementById('exec-modal');
+      document.getElementById('exec-modal-title').textContent = 'Add Executive';
+      document.getElementById('exec-edit-id').value = '';
+      ['exec-name','exec-designation','exec-department','exec-phone','exec-email','exec-address'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      var snoEl = document.getElementById('exec-sno');
+      if (snoEl) snoEl.value = '0';
+      if (modal) modal.classList.remove('hidden');
+      return;
+    }
 
-  document.querySelectorAll('.edit-exec-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
+    var editBtn = e.target.closest('.edit-exec-btn');
+    if (editBtn) {
+      e.preventDefault();
+      var modal = document.getElementById('exec-modal');
       document.getElementById('exec-modal-title').textContent = 'Edit Executive';
-      document.getElementById('exec-edit-id').value = btn.dataset.id;
-      document.getElementById('exec-name').value = btn.dataset.name;
-      document.getElementById('exec-designation').value = btn.dataset.designation;
-      document.getElementById('exec-department').value = btn.dataset.department;
-      document.getElementById('exec-phone').value = btn.dataset.phone;
-      document.getElementById('exec-email').value = btn.dataset.email;
-      document.getElementById('exec-address').value = btn.dataset.address;
-      document.getElementById('exec-sno').value = btn.dataset.sno;
-      modal.classList.remove('hidden');
-    });
-  });
+      document.getElementById('exec-edit-id').value = editBtn.dataset.id || '';
+      document.getElementById('exec-name').value = editBtn.dataset.name || '';
+      document.getElementById('exec-designation').value = editBtn.dataset.designation || '';
+      document.getElementById('exec-department').value = editBtn.dataset.department || '';
+      document.getElementById('exec-phone').value = editBtn.dataset.phone || '';
+      document.getElementById('exec-email').value = editBtn.dataset.email || '';
+      document.getElementById('exec-address').value = editBtn.dataset.address || '';
+      document.getElementById('exec-sno').value = editBtn.dataset.sno || '0';
+      if (modal) modal.classList.remove('hidden');
+      return;
+    }
 
-  document.querySelectorAll('.delete-exec-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      if (!confirm('Delete "' + btn.dataset.name + '"?')) return;
-      fetch('http://localhost:3000/api/executives/' + btn.dataset.id, { method: 'DELETE', headers: { Authorization: 'Bearer ' + getToken() } })
+    var delBtn = e.target.closest('.delete-exec-btn');
+    if (delBtn) {
+      e.preventDefault();
+      if (!confirm('Delete "' + delBtn.dataset.name + '"?')) return;
+      fetch('http://localhost:3000/api/executives/' + delBtn.dataset.id, { method: 'DELETE', headers: { Authorization: 'Bearer ' + getToken() } })
         .then(function(r) { if (r.ok) window.location.reload(); else alert('Delete failed.'); });
-    });
-  });
+      return;
+    }
 
-  document.getElementById('exec-modal-save').addEventListener('click', function() {
-    var token = getToken();
-    var editId = document.getElementById('exec-edit-id').value;
-    var body = {
-      name: document.getElementById('exec-name').value,
-      designation: document.getElementById('exec-designation').value,
-      department: document.getElementById('exec-department').value,
-      phone: document.getElementById('exec-phone').value,
-      email: document.getElementById('exec-email').value,
-      officeAddress: document.getElementById('exec-address').value,
-      sNo: parseInt(document.getElementById('exec-sno').value) || 0,
-    };
-    var url = editId ? 'http://localhost:3000/api/executives/' + editId : 'http://localhost:3000/api/executives';
-    fetch(url, { method: editId ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(body) })
-      .then(function(r) { if (r.ok) { alert('Saved!'); window.location.reload(); } else alert('Save failed.'); });
-  });
+    var closeBtn = e.target.closest('#exec-modal-close, #exec-modal-cancel');
+    if (closeBtn) {
+      e.preventDefault();
+      closeModal();
+      return;
+    }
 
-  document.getElementById('exec-modal-close').addEventListener('click', closeModal);
-  document.getElementById('exec-modal-cancel').addEventListener('click', closeModal);
-  modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
+    var modal = document.getElementById('exec-modal');
+    if (modal && !modal.classList.contains('hidden') && e.target === modal) {
+      closeModal();
+      return;
+    }
+
+    var saveBtn = e.target.closest('#exec-modal-save');
+    if (saveBtn) {
+      e.preventDefault();
+      var token = getToken();
+      var editId = document.getElementById('exec-edit-id').value;
+      var body = {
+        name: document.getElementById('exec-name').value,
+        designation: document.getElementById('exec-designation').value,
+        department: document.getElementById('exec-department').value,
+        phone: document.getElementById('exec-phone').value,
+        email: document.getElementById('exec-email').value,
+        officeAddress: document.getElementById('exec-address').value,
+        sNo: parseInt(document.getElementById('exec-sno').value) || 0,
+      };
+      var url = editId ? 'http://localhost:3000/api/executives/' + editId : 'http://localhost:3000/api/executives';
+      fetch(url, { method: editId ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(body) })
+        .then(function(r) { if (r.ok) { alert('Saved!'); window.location.reload(); } else alert('Save failed.'); });
+    }
+  });
 })();
 </script>
