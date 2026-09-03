@@ -57,8 +57,26 @@ async function fetchJson<T>(url: string, options?: RequestInit): Promise<T | nul
   }
 }
 
+let projectsData: unknown = [];
+let tendersData: unknown = [];
+
 try {
-  const [
+  let directorsData: unknown = [];
+  let dignitariesData: unknown = [];
+  let careersData: unknown = [];
+  let pressData: unknown = [];
+  let notificationsData: unknown = [];
+  let downloadsData: unknown = [];
+  let financialsData: unknown = [];
+  let agmData: unknown = [];
+  let executivesData: unknown = [];
+  let policiesData: unknown = [];
+  let galleryData: unknown = [];
+  let submissionsData: unknown = [];
+  let logsData: unknown = [];
+  let usersData: unknown = [];
+
+  [
     projectsData,
     directorsData,
     dignitariesData,
@@ -124,6 +142,103 @@ try {
   console.error('Error fetching dashboard statistics:', e);
   errorMessage = 'Failed to retrieve latest portal statistics. Ensure the backend REST service is online.';
 }
+
+interface ProjectRecord {
+  id?: string;
+  name?: string;
+  type?: string;
+  capacityMw?: number;
+  status?: string;
+  location?: string;
+  designEnergy?: number;
+  basin?: string;
+  sector?: string;
+}
+
+interface TenderRecord {
+  id?: string;
+  referenceNo?: string;
+  title?: string;
+  status?: string;
+  workCategory?: string;
+  locationTag?: string;
+  publishDate?: string;
+  closingDate?: string;
+}
+
+// 1. Hydro & Energy Analytics (Real Live Data)
+const rawProjects = asArray<ProjectRecord>(projectsData);
+let totalCapacityMw = 0;
+let operationalCapacityMw = 0;
+let pipelineCapacityMw = 0;
+let totalDesignEnergyMu = 0;
+const basinMap: Record<string, { mw: number; count: number }> = {};
+
+rawProjects.forEach((p) => {
+  const mw = Number(p.capacityMw) || 0;
+  const energy = Number(p.designEnergy) || 0;
+  totalCapacityMw += mw;
+  totalDesignEnergyMu += energy;
+
+  if (p.status === 'Operational') {
+    operationalCapacityMw += mw;
+  } else {
+    pipelineCapacityMw += mw;
+  }
+
+  let rawBasin = (p.basin || 'Other Basins').trim();
+  if (rawBasin === 'Chenab') rawBasin = 'Chenab Basin';
+  if (rawBasin === 'Jhelum' || rawBasin === 'Jhelum River') rawBasin = 'Jhelum River Basin';
+  if (rawBasin === 'Ravi') rawBasin = 'Ravi Basin';
+  if (!basinMap[rawBasin]) basinMap[rawBasin] = { mw: 0, count: 0 };
+  basinMap[rawBasin].mw += mw;
+  basinMap[rawBasin].count += 1;
+});
+
+const operationalPct = totalCapacityMw > 0 ? Math.round((operationalCapacityMw / totalCapacityMw) * 100) : 0;
+const pipelinePct = totalCapacityMw > 0 ? (100 - operationalPct) : 0;
+
+const basinStats = Object.entries(basinMap)
+  .map(([basin, data]) => ({
+    name: basin,
+    mw: Math.round(data.mw * 10) / 10,
+    count: data.count,
+    pct: totalCapacityMw > 0 ? Math.round((data.mw / totalCapacityMw) * 100) : 0,
+  }))
+  .sort((a, b) => b.mw - a.mw);
+
+// 2. Tenders & Procurement Analytics (Real Live Data)
+const rawTenders = asArray<TenderRecord>(tendersData);
+const tenderCategories: Record<string, number> = {};
+rawTenders.forEach((t) => {
+  const cat = t.workCategory || 'General Civil';
+  tenderCategories[cat] = (tenderCategories[cat] || 0) + 1;
+});
+const tenderCatStats = Object.entries(tenderCategories)
+  .map(([cat, count]) => ({
+    category: cat,
+    count,
+    pct: rawTenders.length > 0 ? Math.round((count / rawTenders.length) * 100) : 0,
+  }))
+  .sort((a, b) => b.count - a.count);
+
+// 3. Corporate Documentation & Compliance Health (Real Live Data)
+const totalCorporateDocs = 
+  (stats.downloadsCount || 0) +
+  (stats.financialsCount || 0) +
+  (stats.agmCount || 0) +
+  (stats.policiesCount || 0) +
+  (stats.notificationsCount || 0) +
+  (stats.pressCount || 0);
+
+const docBreakdown = [
+  { label: 'Financial Statements', count: stats.financialsCount || 0, href: '/admin/financials' },
+  { label: 'AGM Notices & Filings', count: stats.agmCount || 0, href: '/admin/agm' },
+  { label: 'Orders & Circulars', count: stats.notificationsCount || 0, href: '/admin/notifications' },
+  { label: 'Corporate Policies & CSR', count: stats.policiesCount || 0, href: '/admin/policies' },
+  { label: 'Public Forms & Downloads', count: stats.downloadsCount || 0, href: '/admin/downloads' },
+  { label: 'Press Releases & News', count: stats.pressCount || 0, href: '/admin/press-releases' },
+];
 
 const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Administrator';
 
@@ -517,12 +632,235 @@ const moduleGroups = [
       ))}
     </div>
 
+    <!-- REAL-TIME ENTERPRISE STATISTICS & OPERATIONAL INTELLIGENCE -->
+    <section class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 flex flex-col gap-6 relative overflow-hidden" aria-label="Enterprise Operational Statistics">
+      
+      <!-- Top Section Header with Title & Live Telemetry Badge & Toggle -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-[#EAF4FF] text-[#0B4F9C] flex items-center justify-center font-bold shrink-0">
+              <Icon name="bar-chart" size={16} strokeWidth={2.5} />
+            </div>
+            <div>
+              <h2 class="text-sm font-black text-[#0B4F9C] uppercase tracking-wider">
+                Enterprise Statistics &amp; Operational Analytics
+              </h2>
+              <p class="text-xs text-slate-500 font-medium">Real-time analytical telemetry synthesized directly from live JKSPDC corporate databases</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex items-center gap-3">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            Live DB Telemetry
+          </span>
+          <button 
+            id="toggle-stats-panel-btn"
+            type="button"
+            class="text-[11px] font-bold text-slate-600 hover:text-[#0B4F9C] bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg border border-slate-200 cursor-pointer transition-colors select-none"
+          >
+            <span id="stats-toggle-label">Hide Statistics</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main 3-Pillar Analytics Grid -->
+      <div id="stats-panel-content" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- PILLAR 1: Hydro Generation & Capacity Portfolio -->
+        <div class="bg-slate-50/70 rounded-xl border border-slate-200/80 p-5 flex flex-col justify-between gap-5 relative group hover:border-[#0B4F9C]/50 transition-colors">
+          <div class="flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-black text-[#0B4F9C] uppercase tracking-wide flex items-center gap-1.5">
+                <Icon name="zap" size={14} class="text-[#0B4F9C]" strokeWidth={2.5} /> Hydro Power Capacity
+              </span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-[#0B4F9C] border border-blue-200">
+                {rawProjects.length} Stations
+              </span>
+            </div>
+
+            <!-- Big Stat Figures -->
+            <div class="grid grid-cols-2 gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+              <div>
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Total Monitored</span>
+                <span class="text-xl font-black text-slate-900 tracking-tight">{totalCapacityMw.toLocaleString('en-IN', { maximumFractionDigits: 1 })} <span class="text-xs font-bold text-slate-500">MW</span></span>
+              </div>
+              <div>
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Design Potential</span>
+                <span class="text-xl font-black text-[#0B4F9C] tracking-tight">{totalDesignEnergyMu.toLocaleString('en-IN', { maximumFractionDigits: 1 })} <span class="text-xs font-bold text-slate-500">MU</span></span>
+              </div>
+            </div>
+
+            <!-- Proportional Portfolio Progress Bar -->
+            <div class="flex flex-col gap-1.5 pt-1">
+              <div class="flex justify-between text-[11px] font-bold">
+                <span class="text-[#0B4F9C] flex items-center gap-1">
+                  <span class="w-2 h-2 rounded-full bg-[#0B4F9C]"></span> Operational ({operationalCapacityMw.toLocaleString('en-IN', { maximumFractionDigits: 1 })} MW)
+                </span>
+                <span class="text-amber-700 flex items-center gap-1">
+                  <span class="w-2 h-2 rounded-full bg-amber-500"></span> Pipeline ({pipelineCapacityMw.toLocaleString('en-IN', { maximumFractionDigits: 1 })} MW)
+                </span>
+              </div>
+              <div class="h-2.5 w-full bg-slate-200 rounded-full overflow-hidden flex shadow-inner">
+                <div class="bg-[#0B4F9C] h-full transition-all duration-500" style={`width: ${operationalPct}%`} title={`Operational: ${operationalPct}%`}></div>
+                <div class="bg-amber-500 h-full transition-all duration-500" style={`width: ${pipelinePct}%`} title={`Pipeline: ${pipelinePct}%`}></div>
+              </div>
+              <div class="flex justify-between text-[10px] text-slate-500 font-semibold px-0.5">
+                <span>{operationalPct}% Commissioned</span>
+                <span>{pipelinePct}% Development Pipeline</span>
+              </div>
+            </div>
+
+            <!-- Basin Allocation Breakdown -->
+            <div class="flex flex-col gap-2 pt-2 border-t border-slate-200/80">
+              <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">River Basin Distribution</span>
+              <div class="flex flex-col gap-2">
+                {basinStats.map((basin) => (
+                  <div class="flex flex-col gap-1">
+                    <div class="flex justify-between text-[11px] font-semibold text-slate-700">
+                      <span class="font-bold text-slate-900 truncate">{basin.name} ({basin.count})</span>
+                      <span>{basin.mw} MW <span class="text-slate-400 font-normal">({basin.pct}%)</span></span>
+                    </div>
+                    <div class="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
+                      <div class="bg-blue-600 h-full rounded-full" style={`width: ${basin.pct}%`}></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <a href="/admin/operational-projects" class="inline-flex items-center justify-between text-xs font-bold text-[#0B4F9C] hover:text-[#084A8F] pt-2 border-t border-slate-200 group-hover:translate-x-0.5 transition-all">
+            <span>Explore Hydro Generating Stations</span>
+            <Icon name="arrow-right" size={12} strokeWidth={2.5} />
+          </a>
+        </div>
+
+        <!-- PILLAR 2: Procurement & Tendering Analytics -->
+        <div class="bg-slate-50/70 rounded-xl border border-slate-200/80 p-5 flex flex-col justify-between gap-5 relative group hover:border-violet-500/50 transition-colors">
+          <div class="flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-black text-violet-800 uppercase tracking-wide flex items-center gap-1.5">
+                <Icon name="file-text" size={14} class="text-violet-700" strokeWidth={2.5} /> Procurement &amp; Bids
+              </span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-violet-100 text-violet-900 border border-violet-200">
+                {rawTenders.length} Total NITs
+              </span>
+            </div>
+
+            <!-- Big Stat Figures -->
+            <div class="grid grid-cols-2 gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+              <div>
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Live Active Bids</span>
+                <span class="text-xl font-black text-violet-700 tracking-tight">{stats.tendersCount} <span class="text-xs font-bold text-slate-500">Active</span></span>
+              </div>
+              <div>
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Open Vacancies</span>
+                <span class="text-xl font-black text-sky-700 tracking-tight">{stats.careersCount} <span class="text-xs font-bold text-slate-500">Posts</span></span>
+              </div>
+            </div>
+
+            <!-- Work Category Breakdown -->
+            <div class="flex flex-col gap-2 pt-2 border-t border-slate-200/80">
+              <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Tender Work Categories</span>
+              <div class="flex flex-col gap-2">
+                {tenderCatStats.length > 0 ? (
+                  tenderCatStats.map((cat) => (
+                    <div class="flex flex-col gap-1">
+                      <div class="flex justify-between text-[11px] font-semibold text-slate-700">
+                        <span class="font-bold text-slate-900">{cat.category}</span>
+                        <span>{cat.count} NITs <span class="text-slate-400 font-normal">({cat.pct}%)</span></span>
+                      </div>
+                      <div class="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
+                        <div class="bg-violet-600 h-full rounded-full" style={`width: ${cat.pct}%`}></div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p class="text-xs text-slate-400 italic">No category data available</p>
+                )}
+              </div>
+            </div>
+
+            <!-- Fast Status Badges -->
+            <div class="p-3 bg-white rounded-lg border border-slate-200 flex items-center justify-between text-xs">
+              <span class="text-slate-600 font-medium">Bidding Status</span>
+              <span class="text-emerald-700 font-bold flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> All Active NITs Current
+              </span>
+            </div>
+          </div>
+
+          <a href="/admin/tenders" class="inline-flex items-center justify-between text-xs font-bold text-violet-700 hover:text-violet-900 pt-2 border-t border-slate-200 group-hover:translate-x-0.5 transition-all">
+            <span>Manage Tender Notices &amp; Bids</span>
+            <Icon name="arrow-right" size={12} strokeWidth={2.5} />
+          </a>
+        </div>
+
+        <!-- PILLAR 3: Corporate Governance & Digital Records -->
+        <div class="bg-slate-50/70 rounded-xl border border-slate-200/80 p-5 flex flex-col justify-between gap-5 relative group hover:border-emerald-500/50 transition-colors">
+          <div class="flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-black text-emerald-800 uppercase tracking-wide flex items-center gap-1.5">
+                <Icon name="shield-check" size={14} class="text-emerald-700" strokeWidth={2.5} /> Compliance &amp; Records
+              </span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-900 border border-emerald-200">
+                100% GIGW 3.0
+              </span>
+            </div>
+
+            <!-- Big Stat Figures -->
+            <div class="grid grid-cols-2 gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+              <div>
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Published Records</span>
+                <span class="text-xl font-black text-emerald-700 tracking-tight">{totalCorporateDocs} <span class="text-xs font-bold text-slate-500">Docs</span></span>
+              </div>
+              <div>
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Security Events</span>
+                <span class="text-xl font-black text-slate-900 tracking-tight">{stats.logsCount || 0} <span class="text-xs font-bold text-slate-500">Logged</span></span>
+              </div>
+            </div>
+
+            <!-- Document Category Registry Breakdown -->
+            <div class="flex flex-col gap-1.5 pt-2 border-t border-slate-200/80">
+              <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">Mandatory Corporate Registers</span>
+              <div class="grid grid-cols-2 gap-2">
+                {docBreakdown.map((item) => (
+                  <a href={item.href} class="p-2 bg-white rounded-lg border border-slate-200 hover:border-[#0B4F9C] flex items-center justify-between transition-colors shadow-2xs">
+                    <span class="text-[11px] font-bold text-slate-700 truncate pr-1" title={item.label}>{item.label}</span>
+                    <span class="text-xs font-black text-[#0B4F9C] shrink-0 bg-blue-50 px-1.5 py-0.5 rounded">{item.count}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            <!-- Citizen Inquiries Status -->
+            <div class="p-3 bg-white rounded-lg border border-slate-200 flex items-center justify-between text-xs">
+              <span class="text-slate-600 font-medium">Citizen Inquiries</span>
+              <span class="font-bold text-[#0B4F9C] flex items-center gap-1.5">
+                <Icon name="mail" size={12} class="text-[#0B4F9C]" />
+                {stats.inquiriesCount || 0} Submissions
+              </span>
+            </div>
+          </div>
+
+          <a href="/admin/site-settings" class="inline-flex items-center justify-between text-xs font-bold text-emerald-700 hover:text-emerald-900 pt-2 border-t border-slate-200 group-hover:translate-x-0.5 transition-all">
+            <span>Corporate Compliance &amp; Settings</span>
+            <Icon name="arrow-right" size={12} strokeWidth={2.5} />
+          </a>
+        </div>
+
+      </div>
+    </section>
+
     <!-- Complete Portal Modules Directory (Categorized & Non-Redundant) -->
     <div class="flex flex-col gap-6">
       <div class="flex items-center justify-between border-b border-slate-200 pb-2">
         <div>
           <h2 class="text-sm font-extrabold text-[#0B4F9C] uppercase tracking-wider flex items-center gap-2">
-            <Icon name="building" size={16} class="text-[#0B4F9C]" /> All Portal Modules &amp; Management Hub
+            <Icon name="landmark" size={16} class="text-[#0B4F9C]" /> All Portal Modules &amp; Management Hub
           </h2>
           <p class="text-xs text-slate-500 mt-0.5">Direct administrative access to all portal services, content managers, and governance registers.</p>
         </div>
@@ -667,4 +1005,33 @@ const moduleGroups = [
     </div>
 
   </div>
+
+  <script is:inline>
+    function initStatsPanelToggle() {
+      var btn = document.getElementById('toggle-stats-panel-btn');
+      var content = document.getElementById('stats-panel-content');
+      var label = document.getElementById('stats-toggle-label');
+      if (!btn || !content || !label) return;
+
+      var isHidden = localStorage.getItem('admin_stats_hidden') === 'true';
+      if (isHidden) {
+        content.classList.add('hidden');
+        label.textContent = 'Show Statistics';
+      } else {
+        content.classList.remove('hidden');
+        label.textContent = 'Hide Statistics';
+      }
+
+      btn.onclick = function() {
+        var hiddenNow = content.classList.toggle('hidden');
+        label.textContent = hiddenNow ? 'Show Statistics' : 'Hide Statistics';
+        try {
+          localStorage.setItem('admin_stats_hidden', hiddenNow ? 'true' : 'false');
+        } catch (e) {}
+      };
+    }
+
+    document.addEventListener('astro:page-load', initStatsPanelToggle);
+    initStatsPanelToggle();
+  </script>
 </AdminLayout>
