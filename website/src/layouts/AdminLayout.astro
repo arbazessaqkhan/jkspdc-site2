@@ -114,129 +114,129 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
         
         <!-- SECTION: OVERVIEW -->
         <div class="flex flex-col gap-0.5">
-          <p class="text-[10px] font-extrabold text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Overview</p>
-          <a href="/admin/dashboard" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'dashboard' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
-            <Icon name="bar-chart" size={14} /> Dashboard Overview
+          <p class="text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Overview</p>
+          <a href="/admin/dashboard" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'dashboard' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="bar-chart" size={15} class={activeTab === 'dashboard' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Dashboard Overview
           </a>
         </div>
 
         <!-- SECTION: WEBSITE CONTENT -->
         <div class="flex flex-col gap-0.5">
-          <p class="text-[10px] font-extrabold text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Website Content</p>
+          <p class="text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Website Content</p>
           
-          <a href="/admin/page-editor" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'page-editor' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
-            <Icon name="file-text" size={14} /> Page Editor
+          <a href="/admin/page-editor" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'page-editor' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="file-text" size={15} class={activeTab === 'page-editor' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Page Editor
           </a>
 
-          <a href="/admin/hero-slides" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'hero-slides' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
-            <Icon name="image" size={14} /> Hero Slider
+          <a href="/admin/hero-slides" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'hero-slides' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="image" size={15} class={activeTab === 'hero-slides' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Hero Slider
           </a>
 
-          <a href="/admin/site-settings" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'site-settings' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
-            <Icon name="settings" size={14} /> Site Settings
+          <a href="/admin/site-settings" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'site-settings' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="settings" size={15} class={activeTab === 'site-settings' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Site Settings
           </a>
         </div>
 
         <!-- SECTION: PROJECTS & INFRASTRUCTURE -->
         <div class="flex flex-col gap-0.5">
-          <p class="text-[10px] font-extrabold text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Projects &amp; Infrastructure</p>
+          <p class="text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Projects &amp; Infrastructure</p>
           
-          <a href="/admin/operational-projects" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'operational' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
-            <Icon name="zap" size={14} /> Operational Projects
+          <a href="/admin/operational-projects" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'operational' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="zap" size={15} class={activeTab === 'operational' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Operational Projects
           </a>
 
-          <a href="/admin/under-construction" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'construction' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
-            <Icon name="hardhat" size={14} /> Under Construction
+          <a href="/admin/under-construction" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'construction' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="hardhat" size={15} class={activeTab === 'construction' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Under Construction
           </a>
 
-          <a href="/admin/upcoming-projects" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'upcoming' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
-            <Icon name="rocket" size={14} /> Projects Under Development
+          <a href="/admin/upcoming-projects" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'upcoming' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="rocket" size={15} class={activeTab === 'upcoming' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Projects Under Development
           </a>
         </div>
 
         <!-- SECTION: TENDERS & CAREERS -->
         <div class="flex flex-col gap-0.5">
-          <p class="text-[10px] font-extrabold text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Tenders &amp; Careers</p>
+          <p class="text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Tenders &amp; Careers</p>
           
-          <a href="/admin/tenders" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'tenders' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
-            <Icon name="file-text" size={14} /> Tenders &amp; Bids
+          <a href="/admin/tenders" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'tenders' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="file-text" size={15} class={activeTab === 'tenders' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Tenders &amp; Bids
           </a>
 
-          <a href="/admin/careers" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'careers' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
-            <Icon name="briefcase" size={14} /> Careers &amp; Vacancies
+          <a href="/admin/careers" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'careers' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="briefcase" size={15} class={activeTab === 'careers' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Careers &amp; Vacancies
           </a>
         </div>
 
         <!-- SECTION: CORPORATE GOVERNANCE -->
         <div class="flex flex-col gap-0.5">
-          <p class="text-[10px] font-extrabold text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Corporate Governance</p>
+          <p class="text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Corporate Governance</p>
           
-          <a href="/admin/dignitaries" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'dignitaries' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
-            <Icon name="award" size={14} /> Dignitaries
+          <a href="/admin/dignitaries" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'dignitaries' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="award" size={15} class={activeTab === 'dignitaries' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Dignitaries
           </a>
 
-          <a href="/admin/board-of-directors" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'directors' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
-            <Icon name="users" size={14} /> Board of Directors
+          <a href="/admin/board-of-directors" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'directors' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="users" size={15} class={activeTab === 'directors' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Board of Directors
           </a>
 
-          <a href="/admin/executives" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'executives' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
-            <Icon name="user-check" size={14} /> Executives Directory
+          <a href="/admin/executives" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'executives' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="user-check" size={15} class={activeTab === 'executives' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Executives Directory
           </a>
 
-          <a href="/admin/agm" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'agm' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
-            <Icon name="scroll-text" size={14} /> AGM Documents
+          <a href="/admin/agm" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'agm' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="scroll-text" size={15} class={activeTab === 'agm' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> AGM Documents
           </a>
 
-          <a href="/admin/financials" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'financials' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
-            <Icon name="landmark" size={14} /> Financial Documents
+          <a href="/admin/financials" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'financials' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="landmark" size={15} class={activeTab === 'financials' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Financial Documents
           </a>
 
-          <a href="/admin/notifications" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'notifications' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
-            <Icon name="bell" size={14} /> Notifications
+          <a href="/admin/notifications" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'notifications' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="bell" size={15} class={activeTab === 'notifications' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Notifications
           </a>
         </div>
 
         <!-- SECTION: MEDIA & PUBLICATIONS -->
         <div class="flex flex-col gap-0.5">
-          <p class="text-[10px] font-extrabold text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Media &amp; Publications</p>
+          <p class="text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Media &amp; Publications</p>
           
-          <a href="/admin/press-releases" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'press' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
-            <Icon name="newspaper" size={14} /> Press Releases &amp; News
+          <a href="/admin/press-releases" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'press' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="newspaper" size={15} class={activeTab === 'press' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Press Releases &amp; News
           </a>
 
-          <a href="/admin/gallery" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'gallery' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
-            <Icon name="image" size={14} /> Media Gallery
+          <a href="/admin/gallery" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'gallery' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="image" size={15} class={activeTab === 'gallery' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Media Gallery
           </a>
 
-          <a href="/admin/downloads" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'downloads' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
-            <Icon name="download" size={14} /> Downloads Manager
+          <a href="/admin/downloads" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'downloads' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="download" size={15} class={activeTab === 'downloads' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Downloads Manager
           </a>
 
-          <a href="/admin/media-manager" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'media-manager' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
-            <Icon name="folder" size={14} /> Media &amp; Documents
+          <a href="/admin/media-manager" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'media-manager' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="folder" size={15} class={activeTab === 'media-manager' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Media &amp; Documents
           </a>
 
-          <a href="/admin/policies" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'policies' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
-            <Icon name="file-text" size={14} /> Policies &amp; CSR Docs
+          <a href="/admin/policies" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'policies' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="file-text" size={15} class={activeTab === 'policies' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Policies &amp; CSR Docs
           </a>
         </div>
 
         <!-- SECTION: INQUIRIES -->
         <div class="flex flex-col gap-0.5">
-          <p class="text-[10px] font-extrabold text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Inquiries</p>
-          <a href="/admin/contacts" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'contacts' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
-            <Icon name="mail" size={14} /> Contact Submissions
+          <p class="text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Inquiries</p>
+          <a href="/admin/contacts" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'contacts' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="mail" size={15} class={activeTab === 'contacts' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Contact Submissions
           </a>
         </div>
 
         <!-- SECTION: SECURITY & LOGS -->
         <div class="flex flex-col gap-0.5">
-          <p class="text-[10px] font-extrabold text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Security &amp; Logs</p>
-          <a href="/admin/users" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'users' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
-            <Icon name="shield-check" size={14} /> User Accounts
+          <p class="text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Security &amp; Logs</p>
+          <a href="/admin/users" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'users' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="shield-check" size={15} class={activeTab === 'users' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> User Accounts
           </a>
-          <a href="/admin/audit-logs" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'audit-logs' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-medium'}`}>
-            <Icon name="scroll-text" size={14} /> Audit Logs Feed
+          <a href="/admin/audit-logs" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'audit-logs' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="scroll-text" size={15} class={activeTab === 'audit-logs' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Audit Logs Feed
           </a>
         </div>
 

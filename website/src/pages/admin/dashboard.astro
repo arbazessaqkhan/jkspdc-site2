@@ -86,6 +86,12 @@ const statCards = [
     count: stats.operationalCount,
     href: '/admin/operational-projects',
     icon: 'zap',
+    bg: 'bg-gradient-to-br from-blue-50/90 via-white to-blue-100/40',
+    border: 'border-blue-200 hover:border-[#0B4F9C]',
+    topBar: 'bg-[#0B4F9C]',
+    iconBg: 'bg-[#0B4F9C] text-white',
+    badgeBg: 'bg-blue-100 text-[#0B4F9C] border-blue-200',
+    textColor: 'text-[#0B4F9C]',
   },
   {
     label: 'Construction',
@@ -93,6 +99,12 @@ const statCards = [
     count: stats.constructionCount,
     href: '/admin/under-construction',
     icon: 'hardhat',
+    bg: 'bg-gradient-to-br from-amber-50/90 via-white to-orange-100/40',
+    border: 'border-amber-200 hover:border-amber-500',
+    topBar: 'bg-amber-500',
+    iconBg: 'bg-amber-500 text-white',
+    badgeBg: 'bg-amber-100 text-amber-900 border-amber-200',
+    textColor: 'text-amber-800',
   },
   {
     label: 'Board Members',
@@ -100,6 +112,12 @@ const statCards = [
     count: stats.directorsCount,
     href: '/admin/board-of-directors',
     icon: 'users',
+    bg: 'bg-gradient-to-br from-emerald-50/90 via-white to-teal-100/40',
+    border: 'border-emerald-200 hover:border-emerald-600',
+    topBar: 'bg-emerald-600',
+    iconBg: 'bg-emerald-600 text-white',
+    badgeBg: 'bg-emerald-100 text-emerald-900 border-emerald-200',
+    textColor: 'text-emerald-800',
   },
   {
     label: 'Active Tenders',
@@ -107,6 +125,12 @@ const statCards = [
     count: stats.tendersCount,
     href: '/admin/tenders',
     icon: 'file-text',
+    bg: 'bg-gradient-to-br from-violet-50/90 via-white to-purple-100/40',
+    border: 'border-violet-200 hover:border-violet-600',
+    topBar: 'bg-violet-600',
+    iconBg: 'bg-violet-600 text-white',
+    badgeBg: 'bg-violet-100 text-violet-900 border-violet-200',
+    textColor: 'text-violet-800',
   },
   {
     label: 'Careers Open',
@@ -114,6 +138,12 @@ const statCards = [
     count: stats.careersCount,
     href: '/admin/careers',
     icon: 'briefcase',
+    bg: 'bg-gradient-to-br from-sky-50/90 via-white to-cyan-100/40',
+    border: 'border-sky-200 hover:border-sky-600',
+    topBar: 'bg-sky-600',
+    iconBg: 'bg-sky-600 text-white',
+    badgeBg: 'bg-sky-100 text-sky-900 border-sky-200',
+    textColor: 'text-sky-800',
   },
   {
     label: 'Press Articles',
@@ -121,16 +151,22 @@ const statCards = [
     count: stats.pressCount,
     href: '/admin/press-releases',
     icon: 'newspaper',
+    bg: 'bg-gradient-to-br from-indigo-50/90 via-white to-blue-100/40',
+    border: 'border-indigo-200 hover:border-indigo-600',
+    topBar: 'bg-indigo-600',
+    iconBg: 'bg-indigo-600 text-white',
+    badgeBg: 'bg-indigo-100 text-indigo-900 border-indigo-200',
+    textColor: 'text-indigo-800',
   },
 ];
 
 const quickActions = [
-  { label: 'Manage Board', href: '/admin/board-of-directors', icon: 'users' },
-  { label: 'Add Power Station', href: '/admin/operational-projects-form', icon: 'plus' },
-  { label: 'Manage Tenders', href: '/admin/tenders', icon: 'file-text' },
-  { label: 'Manage Careers', href: '/admin/careers', icon: 'briefcase' },
-  { label: 'Press Releases', href: '/admin/press-releases', icon: 'newspaper' },
-  { label: 'View Inquiries', href: '/admin/contacts', icon: 'mail' },
+  { label: 'Manage Board', href: '/admin/board-of-directors', icon: 'users', bg: 'bg-emerald-50/80 hover:bg-emerald-100/80 border-emerald-200 hover:border-emerald-500', iconBg: 'bg-emerald-600 text-white' },
+  { label: 'Add Power Station', href: '/admin/operational-projects-form', icon: 'plus', bg: 'bg-amber-50/80 hover:bg-amber-100/80 border-amber-200 hover:border-amber-500', iconBg: 'bg-amber-500 text-white' },
+  { label: 'Manage Tenders', href: '/admin/tenders', icon: 'file-text', bg: 'bg-violet-50/80 hover:bg-violet-100/80 border-violet-200 hover:border-violet-500', iconBg: 'bg-violet-600 text-white' },
+  { label: 'Manage Careers', href: '/admin/careers', icon: 'briefcase', bg: 'bg-sky-50/80 hover:bg-sky-100/80 border-sky-200 hover:border-sky-500', iconBg: 'bg-sky-600 text-white' },
+  { label: 'Press Releases', href: '/admin/press-releases', icon: 'newspaper', bg: 'bg-indigo-50/80 hover:bg-indigo-100/80 border-indigo-200 hover:border-indigo-500', iconBg: 'bg-indigo-600 text-white' },
+  { label: 'View Inquiries', href: '/admin/contacts', icon: 'mail', bg: 'bg-blue-50/80 hover:bg-blue-100/80 border-blue-200 hover:border-[#0B4F9C]', iconBg: 'bg-[#0B4F9C] text-white' },
 ];
 ---
 
@@ -138,16 +174,16 @@ const quickActions = [
   <div class="flex flex-col gap-6">
     
     <!-- Welcome Header Banner -->
-    <div class="bg-white rounded-xl border border-slate-200/90 border-t-3 border-t-[#0B4F9C] p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="bg-gradient-to-r from-blue-50/90 via-white to-[#EAF4FF]/50 rounded-xl border border-blue-200/90 border-t-3 border-t-[#0B4F9C] p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
         <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-100"></span>
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-100 animate-pulse"></span>
           <h1 class="text-xl font-extrabold text-[#0B4F9C] tracking-tight">Welcome back, {adminUserName}</h1>
         </div>
-        <p class="text-xs text-slate-600 font-medium mt-1">{formattedDate} &mdash; Administrative summary of the JKSPDC web portal.</p>
+        <p class="text-xs text-slate-700 font-medium mt-1">{formattedDate} &mdash; Administrative summary of the JKSPDC web portal.</p>
       </div>
       <div class="flex items-center gap-2 self-start md:self-auto">
-        <span class="text-[11px] font-bold text-[#0B4F9C] bg-[#EAF4FF] px-3.5 py-1.5 rounded-lg border border-[#BDD7EE] shadow-2xs">
+        <span class="text-[11px] font-bold text-[#0B4F9C] bg-white px-3.5 py-1.5 rounded-lg border border-[#BDD7EE] shadow-2xs">
           Console Status: <span class="text-emerald-700 font-extrabold">Online</span>
         </span>
       </div>
@@ -168,35 +204,35 @@ const quickActions = [
       {statCards.map((card) => (
         <a 
           href={card.href} 
-          class="group bg-white rounded-xl border border-slate-200/90 hover:border-[#0B4F9C] p-4 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between min-h-[148px] relative overflow-hidden"
+          class={`group rounded-xl border p-4 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between min-h-[148px] relative overflow-hidden ${card.bg} ${card.border}`}
         >
           <!-- Top Accent Bar -->
-          <div class="absolute top-0 inset-x-0 h-1 bg-slate-100 group-hover:bg-[#0B4F9C] transition-colors duration-200"></div>
+          <div class={`absolute top-0 inset-x-0 h-1.5 ${card.topBar}`}></div>
 
           <!-- Top Row: Icon Badge & Category Tag -->
-          <div class="flex items-center justify-between gap-2">
-            <div class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200/80 text-[#0B4F9C] flex items-center justify-center group-hover:bg-[#0B4F9C] group-hover:text-white transition-all duration-200 shadow-2xs shrink-0">
-              <Icon name={card.icon} size={18} />
+          <div class="flex items-center justify-between gap-2 pt-0.5">
+            <div class={`w-10 h-10 rounded-xl flex items-center justify-center shadow-xs shrink-0 ${card.iconBg} group-hover:scale-105 transition-transform duration-200`}>
+              <Icon name={card.icon} size={18} strokeWidth={2.2} />
             </div>
-            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-[#0B4F9C] transition-colors bg-slate-50 group-hover:bg-blue-50 px-2 py-0.5 rounded-md border border-slate-200/60 group-hover:border-blue-200">
+            <span class={`text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md border shadow-2xs ${card.badgeBg}`}>
               {card.badge}
             </span>
           </div>
 
           <!-- Middle Row: Big Metric Count & Full-Width Label -->
           <div class="my-2">
-            <div class="text-2xl font-black text-slate-800 tracking-tight leading-none group-hover:text-[#0B4F9C] transition-colors">
+            <div class="text-2xl font-black text-slate-900 tracking-tight leading-none group-hover:translate-x-0.5 transition-transform">
               {card.count}
             </div>
-            <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mt-1 truncate" title={card.label}>
+            <div class={`text-[11px] font-black uppercase tracking-wider mt-1 truncate ${card.textColor}`} title={card.label}>
               {card.label}
             </div>
           </div>
 
           <!-- Bottom Row: Clean Action Bar -->
-          <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-slate-400 group-hover:text-[#0B4F9C] transition-colors">
+          <div class="pt-2 border-t border-slate-200/70 flex items-center justify-between text-[11px] font-bold text-slate-700 group-hover:text-slate-900 transition-colors">
             <span>Manage</span>
-            <Icon name="arrow-right" size={11} class="group-hover:translate-x-1 transition-transform duration-200" />
+            <Icon name="arrow-right" size={12} class="group-hover:translate-x-1 transition-transform duration-200" strokeWidth={2.5} />
           </div>
         </a>
       ))}
@@ -205,21 +241,21 @@ const quickActions = [
     <!-- Administrative Quick Actions (Unified Corporate Design) -->
     <div class="bg-white rounded-xl border border-slate-200/90 shadow-xs p-6 flex flex-col gap-4">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
+        <h3 class="text-xs font-bold text-[#0B4F9C] uppercase tracking-wider flex items-center gap-2">
           <Icon name="zap" size={14} class="text-[#0B4F9C]" /> Administrative Quick Actions
         </h3>
-        <span class="text-[11px] text-slate-400 font-medium hidden sm:inline">Frequent portal operations</span>
+        <span class="text-[11px] text-slate-500 font-semibold hidden sm:inline">Frequent portal operations</span>
       </div>
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {quickActions.map((action) => (
           <a 
             href={action.href} 
-            class="group border border-slate-200/90 hover:border-[#0B4F9C] rounded-xl p-4 flex flex-col items-center justify-center text-center gap-2.5 transition-all duration-200 bg-white hover:bg-[#EAF4FF]/30 hover:shadow-xs min-h-[110px]"
+            class={`group border rounded-xl p-4 flex flex-col items-center justify-center text-center gap-2.5 transition-all duration-200 hover:shadow-sm min-h-[110px] ${action.bg}`}
           >
-            <div class="w-11 h-11 rounded-xl bg-slate-50 border border-slate-200/80 text-[#0B4F9C] flex items-center justify-center group-hover:bg-[#0B4F9C] group-hover:text-white group-hover:scale-105 transition-all duration-200 shadow-2xs">
-              <Icon name={action.icon} size={19} />
+            <div class={`w-11 h-11 rounded-xl flex items-center justify-center group-hover:scale-105 transition-all duration-200 shadow-xs ${action.iconBg}`}>
+              <Icon name={action.icon} size={19} strokeWidth={2.2} />
             </div>
-            <span class="text-xs font-bold text-slate-700 group-hover:text-[#0B4F9C] transition-colors leading-snug">{action.label}</span>
+            <span class="text-xs font-black text-slate-800 group-hover:text-slate-900 transition-colors leading-snug">{action.label}</span>
           </a>
         ))}
       </div>
