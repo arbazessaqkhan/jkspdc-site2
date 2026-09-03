@@ -34,6 +34,32 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
     <ClientRouter />
 
     <style is:global>
+      /* High-contrast, dark black navigation for Admin Sidebar */
+      #admin-sidebar nav a {
+        color: #0f172a !important; /* text-slate-900 */
+        font-weight: 700 !important;
+      }
+      #admin-sidebar nav a svg {
+        color: #0B4F9C !important;
+        stroke: #0B4F9C !important;
+      }
+      #admin-sidebar nav a.admin-nav-active,
+      #admin-sidebar nav a[class*="bg-\[#0B4F9C\]"],
+      #admin-sidebar nav a[class*="bg-blue-600"] {
+        background-color: #0B4F9C !important;
+        color: #ffffff !important;
+      }
+      #admin-sidebar nav a.admin-nav-active svg,
+      #admin-sidebar nav a[class*="bg-\[#0B4F9C\]"] svg,
+      #admin-sidebar nav a[class*="bg-blue-600"] svg {
+        color: #ffffff !important;
+        stroke: #ffffff !important;
+      }
+      #admin-sidebar nav a:hover:not(.admin-nav-active):not([class*="bg-\[#0B4F9C\]"]):not([class*="bg-blue-600"]) {
+        background-color: #EAF4FF !important;
+        color: #0B4F9C !important;
+      }
+
       .high-contrast,
       .high-contrast * {
         background-color: #000000 !important;
@@ -334,18 +360,43 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
       toggleBtn?.addEventListener('click', toggleSidebar);
       overlay?.addEventListener('click', toggleSidebar);
 
+      var ACTIVE_SIDEBAR_CLASS = 'flex items-center gap-3 px-3 py-2 text-xs font-bold rounded-lg transition-all bg-[#0B4F9C] text-white shadow-xs admin-nav-active';
+      var INACTIVE_SIDEBAR_CLASS = 'flex items-center gap-3 px-3 py-2 text-xs font-bold rounded-lg transition-all text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF]';
+
+      function updateSidebarLinkIcons() {
+        var sidebarLinks = document.querySelectorAll('#admin-sidebar nav a[href]');
+        sidebarLinks.forEach(function(a) {
+          var svg = a.querySelector('svg');
+          if (svg) {
+            var isActive = a.classList.contains('admin-nav-active') || a.classList.contains('bg-[#0B4F9C]');
+            if (isActive) {
+              svg.classList.remove('text-[#0B4F9C]');
+              svg.classList.add('text-white');
+            } else {
+              svg.classList.remove('text-white');
+              svg.classList.add('text-[#0B4F9C]');
+            }
+          }
+        });
+      }
+
       // Synchronize sidebar active tab highlighting with current route on client SPA navigation
       function syncAdminSidebarActive() {
         var currentPath = window.location.pathname.replace(/\/$/, '');
         var sidebarLinks = document.querySelectorAll('#admin-sidebar nav a[href]');
         sidebarLinks.forEach(function(a) {
           var href = (a.getAttribute('href') || '').replace(/\/$/, '');
+          var isActive = false;
           if (href && (currentPath === href || (href !== '/admin/dashboard' && href !== '/admin' && currentPath.startsWith(href)))) {
-            a.className = 'flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all bg-blue-600 text-white shadow-md';
+            isActive = true;
+          }
+          if (isActive) {
+            a.className = ACTIVE_SIDEBAR_CLASS;
           } else {
-            a.className = 'flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all text-slate-400 hover:bg-slate-800 hover:text-white';
+            a.className = INACTIVE_SIDEBAR_CLASS;
           }
         });
+        updateSidebarLinkIcons();
       }
 
       function saveSidebarScroll() {
@@ -370,9 +421,10 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
           saveSidebarScroll();
           var allLinks = document.querySelectorAll('#admin-sidebar nav a[href]');
           allLinks.forEach(function(a) {
-            a.className = 'flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all text-slate-400 hover:bg-slate-800 hover:text-white';
+            a.className = INACTIVE_SIDEBAR_CLASS;
           });
-          link.className = 'flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md transition-all bg-blue-600 text-white shadow-md';
+          link.className = ACTIVE_SIDEBAR_CLASS;
+          updateSidebarLinkIcons();
         }
       });
 
