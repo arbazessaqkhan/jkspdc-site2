@@ -13,15 +13,27 @@ function toDateOrNull(value: unknown): Date | null {
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
-let sessionToken = Astro.cookies.get('admin_session')?.value || '';
+const sessionToken = Astro.cookies.get('admin_session')?.value || '';
 
-let stats: Stats = {
+const stats: Stats = {
   operationalCount: 0,
   constructionCount: 0,
+  upcomingCount: 0,
   directorsCount: 0,
+  dignitariesCount: 0,
   tendersCount: 0,
   careersCount: 0,
   pressCount: 0,
+  notificationsCount: 0,
+  downloadsCount: 0,
+  financialsCount: 0,
+  agmCount: 0,
+  executivesCount: 0,
+  policiesCount: 0,
+  galleryCount: 0,
+  inquiriesCount: 0,
+  usersCount: 0,
+  logsCount: 0,
 };
 
 let recentInquiries: ContactSubmissionDto[] = [];
@@ -36,41 +48,77 @@ const formattedDate = new Date().toLocaleDateString('en-GB', {
 });
 
 async function fetchJson<T>(url: string, options?: RequestInit): Promise<T | null> {
-  const res = await fetch(url, options);
-  if (!res.ok) return null;
-  return (await res.json()) as T;
+  try {
+    const res = await fetch(url, options);
+    if (!res.ok) return null;
+    return (await res.json()) as T;
+  } catch {
+    return null;
+  }
 }
 
 try {
-  const projects = await fetchJson<unknown>('http://localhost:3000/api/projects');
-  const projectArray = asArray<ProjectDto>(projects);
+  const [
+    projectsData,
+    directorsData,
+    dignitariesData,
+    tendersData,
+    careersData,
+    pressData,
+    notificationsData,
+    downloadsData,
+    financialsData,
+    agmData,
+    executivesData,
+    policiesData,
+    galleryData,
+    submissionsData,
+    logsData,
+    usersData
+  ] = await Promise.all([
+    fetchJson<unknown>('http://localhost:3000/api/projects'),
+    fetchJson<unknown>('http://localhost:3000/api/directors'),
+    fetchJson<unknown>('http://localhost:3000/api/dignitaries'),
+    fetchJson<unknown>('http://localhost:3000/api/tenders'),
+    fetchJson<unknown>('http://localhost:3000/api/careers'),
+    fetchJson<unknown>('http://localhost:3000/api/press-releases'),
+    fetchJson<unknown>('http://localhost:3000/api/notifications'),
+    fetchJson<unknown>('http://localhost:3000/api/downloads'),
+    fetchJson<unknown>('http://localhost:3000/api/financials'),
+    fetchJson<unknown>('http://localhost:3000/api/agm'),
+    fetchJson<unknown>('http://localhost:3000/api/executives'),
+    fetchJson<unknown>('http://localhost:3000/api/policies'),
+    fetchJson<unknown>('http://localhost:3000/api/gallery'),
+    sessionToken ? fetchJson<unknown>('http://localhost:3000/api/contact', { headers: { Authorization: `Bearer ${sessionToken}` } }) : null,
+    sessionToken ? fetchJson<unknown>('http://localhost:3000/api/audit-logs', { headers: { Authorization: `Bearer ${sessionToken}` } }) : null,
+    sessionToken ? fetchJson<unknown>('http://localhost:3000/api/users', { headers: { Authorization: `Bearer ${sessionToken}` } }) : null,
+  ]);
+
+  const projectArray = asArray<{ id?: string; status?: string }>(projectsData);
   stats.operationalCount = projectArray.filter((p) => p.status === 'Operational').length;
   stats.constructionCount = projectArray.filter((p) => p.status === 'Under Construction').length;
+  stats.upcomingCount = projectArray.filter((p) => p.status === 'Under Development').length;
+  stats.directorsCount = asArray(directorsData).length;
+  stats.dignitariesCount = asArray(dignitariesData).length;
+  stats.tendersCount = asArray<{ status?: string }>(tendersData).filter((t) => t.status === 'Active').length;
+  stats.careersCount = asArray<{ status?: string }>(careersData).filter((c) => c.status === 'Active').length;
+  stats.pressCount = asArray(pressData).length;
+  stats.notificationsCount = asArray(notificationsData).length;
+  stats.downloadsCount = asArray(downloadsData).length;
+  stats.financialsCount = asArray(financialsData).length;
+  stats.agmCount = asArray(agmData).length;
+  stats.executivesCount = asArray(executivesData).length;
+  stats.policiesCount = asArray(policiesData).length;
+  stats.galleryCount = asArray(galleryData).length;
+  stats.inquiriesCount = asArray(submissionsData).length;
+  stats.usersCount = asArray(usersData).length;
+  stats.logsCount = asArray(logsData).length;
 
-  const directors = await fetchJson<unknown>('http://localhost:3000/api/directors');
-  stats.directorsCount = asArray<DirectorDto>(directors).length;
-
-  const tenders = await fetchJson<unknown>('http://localhost:3000/api/tenders');
-  stats.tendersCount = asArray<TenderDto>(tenders).filter((t) => t.status === 'Active').length;
-
-  const careers = await fetchJson<unknown>('http://localhost:3000/api/careers');
-  stats.careersCount = asArray<CareerDto>(careers).filter((c) => c.status === 'Active').length;
-
-  const press = await fetchJson<unknown>('http://localhost:3000/api/press-releases');
-  stats.pressCount = asArray<unknown>(press).length;
-
-  if (sessionToken) {
-    const submissions = await fetchJson<unknown>('http://localhost:3000/api/contact', {
-      headers: { Authorization: `Bearer ${sessionToken}` },
-    });
-    recentInquiries = asArray<ContactSubmissionDto>(submissions).slice(0, 5);
+  if (submissionsData) {
+    recentInquiries = asArray<ContactSubmissionDto>(submissionsData).slice(0, 5);
   }
-
-  if (sessionToken) {
-    const logs = await fetchJson<unknown>('http://localhost:3000/api/audit-logs', {
-      headers: { Authorization: `Bearer ${sessionToken}` },
-    });
-    recentLogs = asArray<AuditLogDto>(logs).slice(0, 5);
+  if (logsData) {
+    recentLogs = asArray<AuditLogDto>(logsData).slice(0, 5);
   }
 } catch (e) {
   console.error('Error fetching dashboard statistics:', e);
@@ -79,9 +127,10 @@ try {
 
 const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Administrator';
 
+// Top High-Level Executive Summary Cards
 const statCards = [
   {
-    label: 'Operational',
+    label: 'Operational Hydro',
     badge: 'Live',
     count: stats.operationalCount,
     href: '/admin/operational-projects',
@@ -94,9 +143,9 @@ const statCards = [
     textColor: 'text-[#0B4F9C]',
   },
   {
-    label: 'Construction',
-    badge: 'Active',
-    count: stats.constructionCount,
+    label: 'Projects Pipeline',
+    badge: 'Pipeline',
+    count: stats.constructionCount + (stats.upcomingCount || 0),
     href: '/admin/under-construction',
     icon: 'hardhat',
     bg: 'bg-gradient-to-br from-amber-50/90 via-white to-orange-100/40',
@@ -105,19 +154,6 @@ const statCards = [
     iconBg: 'bg-amber-500 text-white',
     badgeBg: 'bg-amber-100 text-amber-900 border-amber-200',
     textColor: 'text-amber-800',
-  },
-  {
-    label: 'Board Members',
-    badge: 'Official',
-    count: stats.directorsCount,
-    href: '/admin/board-of-directors',
-    icon: 'users',
-    bg: 'bg-gradient-to-br from-emerald-50/90 via-white to-teal-100/40',
-    border: 'border-emerald-200 hover:border-emerald-600',
-    topBar: 'bg-emerald-600',
-    iconBg: 'bg-emerald-600 text-white',
-    badgeBg: 'bg-emerald-100 text-emerald-900 border-emerald-200',
-    textColor: 'text-emerald-800',
   },
   {
     label: 'Active Tenders',
@@ -134,7 +170,7 @@ const statCards = [
   },
   {
     label: 'Careers Open',
-    badge: 'Open',
+    badge: 'Jobs',
     count: stats.careersCount,
     href: '/admin/careers',
     icon: 'briefcase',
@@ -146,11 +182,24 @@ const statCards = [
     textColor: 'text-sky-800',
   },
   {
-    label: 'Press Articles',
-    badge: 'News',
-    count: stats.pressCount,
-    href: '/admin/press-releases',
-    icon: 'newspaper',
+    label: 'Notifications',
+    badge: 'Orders',
+    count: stats.notificationsCount,
+    href: '/admin/notifications',
+    icon: 'bell',
+    bg: 'bg-gradient-to-br from-emerald-50/90 via-white to-teal-100/40',
+    border: 'border-emerald-200 hover:border-emerald-600',
+    topBar: 'bg-emerald-600',
+    iconBg: 'bg-emerald-600 text-white',
+    badgeBg: 'bg-emerald-100 text-emerald-900 border-emerald-200',
+    textColor: 'text-emerald-800',
+  },
+  {
+    label: 'Public Inquiries',
+    badge: 'Feedback',
+    count: stats.inquiriesCount,
+    href: '/admin/contacts',
+    icon: 'mail',
     bg: 'bg-gradient-to-br from-indigo-50/90 via-white to-blue-100/40',
     border: 'border-indigo-200 hover:border-indigo-600',
     topBar: 'bg-indigo-600',
@@ -160,13 +209,242 @@ const statCards = [
   },
 ];
 
-const quickActions = [
-  { label: 'Manage Board', href: '/admin/board-of-directors', icon: 'users', bg: 'bg-emerald-50/80 hover:bg-emerald-100/80 border-emerald-200 hover:border-emerald-500', iconBg: 'bg-emerald-600 text-white' },
-  { label: 'Add Power Station', href: '/admin/operational-projects-form', icon: 'plus', bg: 'bg-amber-50/80 hover:bg-amber-100/80 border-amber-200 hover:border-amber-500', iconBg: 'bg-amber-500 text-white' },
-  { label: 'Manage Tenders', href: '/admin/tenders', icon: 'file-text', bg: 'bg-violet-50/80 hover:bg-violet-100/80 border-violet-200 hover:border-violet-500', iconBg: 'bg-violet-600 text-white' },
-  { label: 'Manage Careers', href: '/admin/careers', icon: 'briefcase', bg: 'bg-sky-50/80 hover:bg-sky-100/80 border-sky-200 hover:border-sky-500', iconBg: 'bg-sky-600 text-white' },
-  { label: 'Press Releases', href: '/admin/press-releases', icon: 'newspaper', bg: 'bg-indigo-50/80 hover:bg-indigo-100/80 border-indigo-200 hover:border-indigo-500', iconBg: 'bg-indigo-600 text-white' },
-  { label: 'View Inquiries', href: '/admin/contacts', icon: 'mail', bg: 'bg-blue-50/80 hover:bg-blue-100/80 border-blue-200 hover:border-[#0B4F9C]', iconBg: 'bg-[#0B4F9C] text-white' },
+// All Modules Directory (Comprehensive, Categorized & Non-Redundant)
+const moduleGroups = [
+  {
+    title: 'Projects & Infrastructure',
+    subtitle: 'Power generation, ongoing execution & project development pipeline',
+    modules: [
+      {
+        title: 'Operational Projects',
+        desc: 'Active power stations, capacity, design energy & basins',
+        count: `${stats.operationalCount} Active`,
+        href: '/admin/operational-projects',
+        addHref: '/admin/operational-projects-form',
+        addLabel: '+ Add Station',
+        icon: 'zap',
+        color: 'text-[#0B4F9C]',
+        iconBg: 'bg-blue-100 text-[#0B4F9C]',
+      },
+      {
+        title: 'Under Construction',
+        desc: 'Hydro projects in active civil & electrical execution',
+        count: `${stats.constructionCount} Active`,
+        href: '/admin/under-construction',
+        icon: 'hardhat',
+        color: 'text-amber-700',
+        iconBg: 'bg-amber-100 text-amber-700',
+      },
+      {
+        title: 'Projects Under Development',
+        desc: 'Upcoming schemes, surveys, DPRs & pre-construction stages',
+        count: `${stats.upcomingCount || 0} In Pipeline`,
+        href: '/admin/upcoming-projects',
+        icon: 'rocket',
+        color: 'text-teal-700',
+        iconBg: 'bg-teal-100 text-teal-700',
+      },
+      {
+        title: 'IPP Projects (Investors)',
+        desc: 'Phase I–IX Independent Power Producer allotments',
+        count: 'Phase I–IX',
+        href: '/stakeholders/investors/ipp-projects',
+        icon: 'building',
+        color: 'text-indigo-700',
+        iconBg: 'bg-indigo-100 text-indigo-700',
+        isExternal: false,
+      },
+    ],
+  },
+  {
+    title: 'Tenders & Careers',
+    subtitle: 'Procurement tenders, corrigenda & employment recruitment',
+    modules: [
+      {
+        title: 'Tenders & Bids',
+        desc: 'Manage NITs, RFPs, work categories & attach corrigenda',
+        count: `${stats.tendersCount} Active Bids`,
+        href: '/admin/tenders',
+        addHref: '/admin/tenders-form',
+        addLabel: '+ Publish NIT',
+        icon: 'file-text',
+        color: 'text-violet-700',
+        iconBg: 'bg-violet-100 text-violet-700',
+      },
+      {
+        title: 'Careers & Vacancies',
+        desc: 'Recruitment advertisements, closing dates & application forms',
+        count: `${stats.careersCount} Open Posts`,
+        href: '/admin/careers',
+        addHref: '/admin/careers-form',
+        addLabel: '+ Post Vacancy',
+        icon: 'briefcase',
+        color: 'text-sky-700',
+        iconBg: 'bg-sky-100 text-sky-700',
+      },
+    ],
+  },
+  {
+    title: 'Corporate Governance & Legal',
+    subtitle: 'Leadership, executive hierarchy, statutory filings & official circulars',
+    modules: [
+      {
+        title: 'Dignitaries',
+        desc: 'Profiles, portfolios & bios for Hon\'ble LG, CM, Minister, MD',
+        count: `${stats.dignitariesCount} Profiles`,
+        href: '/admin/dignitaries',
+        icon: 'award',
+        color: 'text-amber-700',
+        iconBg: 'bg-amber-100 text-amber-700',
+      },
+      {
+        title: 'Board of Directors',
+        desc: 'Official Board members, roles, executive appointments',
+        count: `${stats.directorsCount} Members`,
+        href: '/admin/board-of-directors',
+        icon: 'users',
+        color: 'text-emerald-700',
+        iconBg: 'bg-emerald-100 text-emerald-700',
+      },
+      {
+        title: 'Executives Directory',
+        desc: 'Wing heads, chief engineers, departments & contact info',
+        count: `${stats.executivesCount} Listed`,
+        href: '/admin/executives',
+        icon: 'user-check',
+        color: 'text-blue-700',
+        iconBg: 'bg-blue-100 text-blue-700',
+      },
+      {
+        title: 'AGM Documents',
+        desc: 'Annual General Meeting reports, notices & proxy filings',
+        count: `${stats.agmCount} Documents`,
+        href: '/admin/agm',
+        icon: 'scroll-text',
+        color: 'text-cyan-700',
+        iconBg: 'bg-cyan-100 text-cyan-700',
+      },
+      {
+        title: 'Financial Documents',
+        desc: 'Annual balance sheets, audit reports & financial statements',
+        count: `${stats.financialsCount} Files`,
+        href: '/admin/financials',
+        icon: 'landmark',
+        color: 'text-purple-700',
+        iconBg: 'bg-purple-100 text-purple-700',
+      },
+      {
+        title: 'Notifications & Circulars',
+        desc: 'Official government circulars, office orders & gazette orders',
+        count: `${stats.notificationsCount} Orders`,
+        href: '/admin/notifications',
+        icon: 'bell',
+        color: 'text-rose-700',
+        iconBg: 'bg-rose-100 text-rose-700',
+      },
+    ],
+  },
+  {
+    title: 'Media, Publications & Resources',
+    subtitle: 'Public communications, galleries, citizen resources & compliance policies',
+    modules: [
+      {
+        title: 'Press Releases & News',
+        desc: 'Official media announcements, press releases & news bulletins',
+        count: `${stats.pressCount} Releases`,
+        href: '/admin/press-releases',
+        addHref: '/admin/press-releases-form',
+        addLabel: '+ New Release',
+        icon: 'newspaper',
+        color: 'text-indigo-700',
+        iconBg: 'bg-indigo-100 text-indigo-700',
+      },
+      {
+        title: 'Media Gallery',
+        desc: 'High-resolution photo albums & project visual archives',
+        count: `${stats.galleryCount} Photos`,
+        href: '/admin/gallery',
+        addHref: '/admin/gallery-form',
+        addLabel: '+ Add Photo',
+        icon: 'image',
+        color: 'text-emerald-700',
+        iconBg: 'bg-emerald-100 text-emerald-700',
+      },
+      {
+        title: 'Downloads Manager',
+        desc: 'Public downloadable resources, official forms & citizen charters',
+        count: `${stats.downloadsCount} Resources`,
+        href: '/admin/downloads',
+        icon: 'download',
+        color: 'text-teal-700',
+        iconBg: 'bg-teal-100 text-teal-700',
+      },
+      {
+        title: 'Media & Documents Storage',
+        desc: 'Secure asset repository for PDFs, images & document storage',
+        count: 'Asset Hub',
+        href: '/admin/media-manager',
+        icon: 'folder',
+        color: 'text-orange-700',
+        iconBg: 'bg-orange-100 text-orange-700',
+      },
+      {
+        title: 'Policies & CSR Docs',
+        desc: 'Corporate governance policies, CSR initiatives & ethics codes',
+        count: `${stats.policiesCount} Policies`,
+        href: '/admin/policies',
+        addHref: '/admin/policies-form',
+        addLabel: '+ Add Policy',
+        icon: 'file-text',
+        color: 'text-slate-700',
+        iconBg: 'bg-slate-100 text-slate-700',
+      },
+    ],
+  },
+  {
+    title: 'Citizen Services, Security & Administration',
+    subtitle: 'Citizen feedback, user management, audit trails & portal configurations',
+    modules: [
+      {
+        title: 'Public Inquiries & Feedback',
+        desc: 'Review and respond to citizen submissions & contact form queries',
+        count: `${stats.inquiriesCount} Inquiries`,
+        href: '/admin/contacts',
+        icon: 'mail',
+        color: 'text-blue-700',
+        iconBg: 'bg-blue-100 text-blue-700',
+      },
+      {
+        title: 'User Accounts & Roles',
+        desc: 'Manage portal administrator accounts, roles & access permissions',
+        count: `${stats.usersCount} Users`,
+        href: '/admin/users',
+        addHref: '/admin/users-form',
+        addLabel: '+ Add User',
+        icon: 'shield-check',
+        color: 'text-purple-700',
+        iconBg: 'bg-purple-100 text-purple-700',
+      },
+      {
+        title: 'System Audit Logs',
+        desc: 'Real-time security audit trails, IP tracking & administrative actions',
+        count: `${stats.logsCount} Events`,
+        href: '/admin/audit-logs',
+        icon: 'scroll-text',
+        color: 'text-amber-700',
+        iconBg: 'bg-amber-100 text-amber-700',
+      },
+      {
+        title: 'Site Settings',
+        desc: 'HQ contact numbers, emails, office address & global preferences',
+        count: 'Configured',
+        href: '/admin/site-settings',
+        icon: 'settings',
+        color: 'text-slate-700',
+        iconBg: 'bg-slate-100 text-slate-700',
+      },
+    ],
+  },
 ];
 ---
 
@@ -180,10 +458,11 @@ const quickActions = [
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-100 animate-pulse"></span>
           <h1 class="text-xl font-extrabold text-[#0B4F9C] tracking-tight">Welcome back, {adminUserName}</h1>
         </div>
-        <p class="text-xs text-slate-700 font-medium mt-1">{formattedDate} &mdash; Administrative summary of the JKSPDC web portal.</p>
+        <p class="text-xs text-slate-700 font-medium mt-1">{formattedDate} &mdash; Administrative control &amp; content management hub for the JKSPDC web portal.</p>
       </div>
       <div class="flex items-center gap-2 self-start md:self-auto">
-        <span class="text-[11px] font-bold text-[#0B4F9C] bg-white px-3.5 py-1.5 rounded-lg border border-[#BDD7EE] shadow-2xs">
+        <span class="text-[11px] font-bold text-[#0B4F9C] bg-white px-3.5 py-1.5 rounded-lg border border-[#BDD7EE] shadow-2xs flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
           Console Status: <span class="text-emerald-700 font-extrabold">Online</span>
         </span>
       </div>
@@ -193,13 +472,13 @@ const quickActions = [
       <div class="p-4 bg-amber-50 border-l-4 border-amber-500 rounded-lg text-xs text-amber-800 font-semibold shadow-xs flex items-start gap-2.5" role="alert">
         <Icon name="info" size={16} class="text-amber-600 shrink-0 mt-0.5" />
         <div class="flex flex-col gap-0.5">
-          <span>Backend Offline Notification:</span>
+          <span>Backend Notification:</span>
           <span class="text-[11px] font-normal text-amber-700">{errorMessage}</span>
         </div>
       </div>
     )}
 
-    <!-- Creative, Uniform & Proportional Executive Metric Cards -->
+    <!-- Top Executive Overview KPI Cards (High-Level Operational Status) -->
     <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
       {statCards.map((card) => (
         <a 
@@ -238,33 +517,81 @@ const quickActions = [
       ))}
     </div>
 
-    <!-- Administrative Quick Actions (Unified Corporate Design) -->
-    <div class="bg-white rounded-xl border border-slate-200/90 shadow-xs p-6 flex flex-col gap-4">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <h3 class="text-xs font-bold text-[#0B4F9C] uppercase tracking-wider flex items-center gap-2">
-          <Icon name="zap" size={14} class="text-[#0B4F9C]" /> Administrative Quick Actions
-        </h3>
-        <span class="text-[11px] text-slate-500 font-semibold hidden sm:inline">Frequent portal operations</span>
+    <!-- Complete Portal Modules Directory (Categorized & Non-Redundant) -->
+    <div class="flex flex-col gap-6">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+        <div>
+          <h2 class="text-sm font-extrabold text-[#0B4F9C] uppercase tracking-wider flex items-center gap-2">
+            <Icon name="building" size={16} class="text-[#0B4F9C]" /> All Portal Modules &amp; Management Hub
+          </h2>
+          <p class="text-xs text-slate-500 mt-0.5">Direct administrative access to all portal services, content managers, and governance registers.</p>
+        </div>
       </div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        {quickActions.map((action) => (
-          <a 
-            href={action.href} 
-            class={`group border rounded-xl p-4 flex flex-col items-center justify-center text-center gap-2.5 transition-all duration-200 hover:shadow-sm min-h-[110px] ${action.bg}`}
-          >
-            <div class={`w-11 h-11 rounded-xl flex items-center justify-center group-hover:scale-105 transition-all duration-200 shadow-xs ${action.iconBg}`}>
-              <Icon name={action.icon} size={19} strokeWidth={2.2} />
+
+      {moduleGroups.map((group) => (
+        <div class="bg-white rounded-xl border border-slate-200/90 shadow-xs p-5 flex flex-col gap-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-slate-100 pb-2.5">
+            <div>
+              <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wide flex items-center gap-2">
+                <span class="w-1.5 h-3.5 bg-[#0B4F9C] rounded-xs"></span>
+                {group.title}
+              </h3>
+              <p class="text-[11px] text-slate-500 font-medium ml-3.5">{group.subtitle}</p>
             </div>
-            <span class="text-xs font-black text-slate-800 group-hover:text-slate-900 transition-colors leading-snug">{action.label}</span>
-          </a>
-        ))}
-      </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
+            {group.modules.map((mod) => (
+              <div class="group border border-slate-200/90 hover:border-[#0B4F9C] rounded-xl p-4 bg-slate-50/40 hover:bg-white transition-all duration-200 shadow-2xs hover:shadow-xs flex flex-col justify-between gap-3">
+                <div class="flex items-start gap-3">
+                  <div class={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform ${mod.iconBg}`}>
+                    <Icon name={mod.icon} size={18} strokeWidth={2.2} />
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between gap-1">
+                      <h4 class="text-xs font-bold text-slate-900 group-hover:text-[#0B4F9C] transition-colors truncate" title={mod.title}>
+                        {mod.title}
+                      </h4>
+                      {mod.count && (
+                        <span class="text-[10px] font-extrabold bg-white border border-slate-200 px-1.5 py-0.5 rounded text-slate-700 shrink-0">
+                          {mod.count}
+                        </span>
+                      )}
+                    </div>
+                    <p class="text-[11px] text-slate-500 font-normal leading-relaxed mt-1 line-clamp-2" title={mod.desc}>
+                      {mod.desc}
+                    </p>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between gap-2 pt-2.5 border-t border-slate-200/70 text-[11px]">
+                  <a 
+                    href={mod.href} 
+                    class="font-bold text-[#0B4F9C] hover:underline inline-flex items-center gap-1 group-hover:translate-x-0.5 transition-transform"
+                  >
+                    Manage Module <Icon name="arrow-right" size={11} strokeWidth={2.5} />
+                  </a>
+
+                  {mod.addHref && (
+                    <a 
+                      href={mod.addHref} 
+                      class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-blue-50 hover:bg-blue-100 text-[#0B4F9C] border border-blue-200 transition-colors"
+                    >
+                      {mod.addLabel || '+ Add'}
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
 
     <!-- Bottom Grids: Recent Inquiries & System Activities -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       
-      <!-- Recent Citizen Inquiries -->
+      <!-- Recent Public Inquiries -->
       <div class="bg-white border border-slate-200/90 rounded-xl shadow-xs p-6 flex flex-col gap-4">
         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
           <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">

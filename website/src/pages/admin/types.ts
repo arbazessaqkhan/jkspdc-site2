@@ -1,10 +1,22 @@
 export interface Stats {
   operationalCount: number;
   constructionCount: number;
+  upcomingCount?: number;
   directorsCount: number;
+  dignitariesCount?: number;
   tendersCount: number;
   careersCount: number;
   pressCount: number;
+  notificationsCount?: number;
+  downloadsCount?: number;
+  financialsCount?: number;
+  agmCount?: number;
+  executivesCount?: number;
+  policiesCount?: number;
+  galleryCount?: number;
+  inquiriesCount?: number;
+  usersCount?: number;
+  logsCount?: number;
 }
 
 export interface ProjectDto {

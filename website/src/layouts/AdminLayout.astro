@@ -109,6 +109,62 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
         background-color: #333333 !important;
         color: #ffffff !important;
       }
+
+      /* Collapsible Sidebar Styles */
+      #admin-sidebar {
+        transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      body.sidebar-collapsed #admin-sidebar,
+      html.sidebar-collapsed-preload #admin-sidebar {
+        width: 70px !important;
+      }
+
+      body.sidebar-collapsed .sidebar-text,
+      body.sidebar-collapsed .sidebar-section-title,
+      body.sidebar-collapsed .sidebar-label,
+      body.sidebar-collapsed .sidebar-footer,
+      html.sidebar-collapsed-preload .sidebar-text,
+      html.sidebar-collapsed-preload .sidebar-section-title,
+      html.sidebar-collapsed-preload .sidebar-label,
+      html.sidebar-collapsed-preload .sidebar-footer {
+        display: none !important;
+      }
+
+      body.sidebar-collapsed .sidebar-brand-container,
+      html.sidebar-collapsed-preload .sidebar-brand-container {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+        justify-content: center !important;
+      }
+
+      body.sidebar-collapsed .sidebar-nav-link,
+      html.sidebar-collapsed-preload .sidebar-nav-link {
+        justify-content: center !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        width: 44px !important;
+        height: 42px !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        gap: 0 !important;
+      }
+
+      body.sidebar-collapsed #collapse-icon-expanded,
+      html.sidebar-collapsed-preload #collapse-icon-expanded {
+        display: none !important;
+      }
+
+      body.sidebar-collapsed #collapse-icon-collapsed,
+      html.sidebar-collapsed-preload #collapse-icon-collapsed {
+        display: flex !important;
+      }
+
+      body.sidebar-collapsed #admin-nav-container,
+      html.sidebar-collapsed-preload #admin-nav-container {
+        padding-left: 0.35rem !important;
+        padding-right: 0.35rem !important;
+      }
     </style>
     <script is:inline>
       function adjustFontSize(action) {
@@ -147,6 +203,10 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
           if (savedContrast === 'true') {
             document.documentElement.classList.add('high-contrast');
           }
+          var savedCollapsed = localStorage.getItem('admin-sidebar-collapsed');
+          if (savedCollapsed === 'true') {
+            document.documentElement.classList.add('sidebar-collapsed-preload');
+          }
         } catch (e) {}
       })();
     </script>
@@ -155,14 +215,30 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
     <a href="#main-admin-content" class="skip-link">Skip to Main Content</a>
 
     <!-- Sidebar Navigation -->
-    <aside id="admin-sidebar" transition:persist="admin-sidebar" class="w-64 shrink-0 bg-white border-r border-slate-200 text-slate-700 flex flex-col h-full z-45 transform -translate-x-full md:translate-x-0 md:static fixed top-0 left-0 transition-transform duration-200 ease-in-out shadow-xs">
+    <aside id="admin-sidebar" transition:persist="admin-sidebar" class="relative w-64 shrink-0 bg-white border-r border-slate-200 text-slate-700 flex flex-col h-full z-45 transform -translate-x-full md:translate-x-0 md:static fixed top-0 left-0 shadow-xs">
       
+      <!-- Desktop Sidebar Toggle Button (positioned on the vertical boundary line between sidebar and main content) -->
+      <button 
+        id="toggle-sidebar-collapse"
+        type="button"
+        class="hidden md:flex absolute -right-3.5 top-5 z-50 w-7 h-7 rounded-full bg-white border border-slate-300 text-slate-600 hover:text-[#0B4F9C] hover:border-[#0B4F9C] shadow-md items-center justify-center cursor-pointer transition-all duration-150 hover:scale-110 focus:outline-none select-none"
+        aria-label="Toggle Navigation Sidebar"
+        title="Toggle sidebar (icons only)"
+      >
+        <span id="collapse-icon-expanded" class="flex items-center justify-center">
+          <Icon name="chevron-left" size={13} strokeWidth={2.5} />
+        </span>
+        <span id="collapse-icon-collapsed" class="hidden items-center justify-center">
+          <Icon name="chevron-right" size={13} strokeWidth={2.5} />
+        </span>
+      </button>
+
       <!-- Brand Logo / Title -->
-      <div class="h-16 flex items-center px-5 border-b border-slate-200 bg-[#EAF4FF]/40 gap-3 shrink-0">
-        <img src="/logo.png" alt="JKSPDCL Logo" class="h-9 w-auto object-contain" />
-        <div class="flex flex-col">
-          <span class="text-sm font-black text-[#0B4F9C] tracking-tight uppercase">JKSPDC</span>
-          <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Management Console</span>
+      <div class="sidebar-brand-container h-16 flex items-center px-5 border-b border-slate-200 bg-[#EAF4FF]/40 gap-3 shrink-0 transition-all duration-200">
+        <img src="/logo.png" alt="JKSPDCL Logo" class="h-9 w-auto object-contain shrink-0" />
+        <div class="sidebar-text flex flex-col min-w-0">
+          <span class="text-sm font-black text-[#0B4F9C] tracking-tight uppercase truncate">JKSPDC</span>
+          <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider truncate">Management Console</span>
         </div>
       </div>
 
@@ -171,123 +247,143 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
         
         <!-- SECTION: OVERVIEW -->
         <div class="flex flex-col gap-0.5">
-          <p class="text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Overview</p>
-          <a href="/admin/dashboard" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'dashboard' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="bar-chart" size={15} class={activeTab === 'dashboard' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Dashboard Overview
+          <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Overview</p>
+          <a href="/admin/dashboard" title="Dashboard Overview" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'dashboard' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="bar-chart" size={15} class={activeTab === 'dashboard' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+            <span class="sidebar-label">Dashboard Overview</span>
           </a>
         </div>
 
-
         <!-- SECTION: PROJECTS & INFRASTRUCTURE -->
         <div class="flex flex-col gap-0.5">
-          <p class="text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Projects &amp; Infrastructure</p>
+          <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Projects &amp; Infrastructure</p>
           
-          <a href="/admin/operational-projects" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'operational' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="zap" size={15} class={activeTab === 'operational' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Operational Projects
+          <a href="/admin/operational-projects" title="Operational Projects" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'operational' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="zap" size={15} class={activeTab === 'operational' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+            <span class="sidebar-label">Operational Projects</span>
           </a>
 
-          <a href="/admin/under-construction" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'construction' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="hardhat" size={15} class={activeTab === 'construction' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Under Construction
+          <a href="/admin/under-construction" title="Under Construction" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'construction' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="hardhat" size={15} class={activeTab === 'construction' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+            <span class="sidebar-label">Under Construction</span>
           </a>
 
-          <a href="/admin/upcoming-projects" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'upcoming' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="rocket" size={15} class={activeTab === 'upcoming' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Projects Under Development
+          <a href="/admin/upcoming-projects" title="Projects Under Development" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'upcoming' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="rocket" size={15} class={activeTab === 'upcoming' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+            <span class="sidebar-label">Projects Under Development</span>
           </a>
         </div>
 
         <!-- SECTION: TENDERS & CAREERS -->
         <div class="flex flex-col gap-0.5">
-          <p class="text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Tenders &amp; Careers</p>
+          <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Tenders &amp; Careers</p>
           
-          <a href="/admin/tenders" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'tenders' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="file-text" size={15} class={activeTab === 'tenders' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Tenders &amp; Bids
+          <a href="/admin/tenders" title="Tenders & Bids" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'tenders' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="file-text" size={15} class={activeTab === 'tenders' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+            <span class="sidebar-label">Tenders &amp; Bids</span>
           </a>
 
-          <a href="/admin/careers" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'careers' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="briefcase" size={15} class={activeTab === 'careers' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Careers &amp; Vacancies
+          <a href="/admin/careers" title="Careers & Vacancies" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'careers' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="briefcase" size={15} class={activeTab === 'careers' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+            <span class="sidebar-label">Careers &amp; Vacancies</span>
           </a>
         </div>
 
         <!-- SECTION: CORPORATE GOVERNANCE -->
         <div class="flex flex-col gap-0.5">
-          <p class="text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Corporate Governance</p>
+          <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Corporate Governance</p>
           
-          <a href="/admin/dignitaries" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'dignitaries' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="award" size={15} class={activeTab === 'dignitaries' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Dignitaries
+          <a href="/admin/dignitaries" title="Dignitaries" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'dignitaries' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="award" size={15} class={activeTab === 'dignitaries' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+            <span class="sidebar-label">Dignitaries</span>
           </a>
 
-          <a href="/admin/board-of-directors" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'directors' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="users" size={15} class={activeTab === 'directors' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Board of Directors
+          <a href="/admin/board-of-directors" title="Board of Directors" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'directors' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="users" size={15} class={activeTab === 'directors' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+            <span class="sidebar-label">Board of Directors</span>
           </a>
 
-          <a href="/admin/executives" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'executives' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="user-check" size={15} class={activeTab === 'executives' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Executives Directory
+          <a href="/admin/executives" title="Executives Directory" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'executives' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="user-check" size={15} class={activeTab === 'executives' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+            <span class="sidebar-label">Executives Directory</span>
           </a>
 
-          <a href="/admin/agm" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'agm' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="scroll-text" size={15} class={activeTab === 'agm' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> AGM Documents
+          <a href="/admin/agm" title="AGM Documents" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'agm' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="scroll-text" size={15} class={activeTab === 'agm' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+            <span class="sidebar-label">AGM Documents</span>
           </a>
 
-          <a href="/admin/financials" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'financials' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="landmark" size={15} class={activeTab === 'financials' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Financial Documents
+          <a href="/admin/financials" title="Financial Documents" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'financials' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="landmark" size={15} class={activeTab === 'financials' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+            <span class="sidebar-label">Financial Documents</span>
           </a>
 
-          <a href="/admin/notifications" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'notifications' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="bell" size={15} class={activeTab === 'notifications' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Notifications
+          <a href="/admin/notifications" title="Notifications" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'notifications' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="bell" size={15} class={activeTab === 'notifications' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+            <span class="sidebar-label">Notifications</span>
           </a>
         </div>
 
         <!-- SECTION: MEDIA & PUBLICATIONS -->
         <div class="flex flex-col gap-0.5">
-          <p class="text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Media &amp; Publications</p>
+          <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Media &amp; Publications</p>
           
-          <a href="/admin/press-releases" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'press' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="newspaper" size={15} class={activeTab === 'press' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Press Releases &amp; News
+          <a href="/admin/press-releases" title="Press Releases & News" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'press' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="newspaper" size={15} class={activeTab === 'press' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+            <span class="sidebar-label">Press Releases &amp; News</span>
           </a>
 
-          <a href="/admin/gallery" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'gallery' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="image" size={15} class={activeTab === 'gallery' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Media Gallery
+          <a href="/admin/gallery" title="Media Gallery" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'gallery' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="image" size={15} class={activeTab === 'gallery' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+            <span class="sidebar-label">Media Gallery</span>
           </a>
 
-          <a href="/admin/downloads" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'downloads' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="download" size={15} class={activeTab === 'downloads' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Downloads Manager
+          <a href="/admin/downloads" title="Downloads Manager" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'downloads' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="download" size={15} class={activeTab === 'downloads' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+            <span class="sidebar-label">Downloads Manager</span>
           </a>
 
-          <a href="/admin/media-manager" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'media-manager' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="folder" size={15} class={activeTab === 'media-manager' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Media &amp; Documents
+          <a href="/admin/media-manager" title="Media & Documents" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'media-manager' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="folder" size={15} class={activeTab === 'media-manager' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+            <span class="sidebar-label">Media &amp; Documents</span>
           </a>
 
-          <a href="/admin/policies" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'policies' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="file-text" size={15} class={activeTab === 'policies' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Policies &amp; CSR Docs
+          <a href="/admin/policies" title="Policies & CSR Docs" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'policies' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="file-text" size={15} class={activeTab === 'policies' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+            <span class="sidebar-label">Policies &amp; CSR Docs</span>
           </a>
         </div>
 
         <!-- SECTION: INQUIRIES -->
         <div class="flex flex-col gap-0.5">
-          <p class="text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Inquiries</p>
-          <a href="/admin/contacts" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'contacts' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="mail" size={15} class={activeTab === 'contacts' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Contact Submissions
+          <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Inquiries</p>
+          <a href="/admin/contacts" title="Contact Submissions" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'contacts' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="mail" size={15} class={activeTab === 'contacts' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+            <span class="sidebar-label">Contact Submissions</span>
           </a>
         </div>
 
         <!-- SECTION: SECURITY & LOGS -->
         <div class="flex flex-col gap-0.5">
-          <p class="text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Security &amp; Logs</p>
-          <a href="/admin/users" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'users' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="shield-check" size={15} class={activeTab === 'users' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> User Accounts
+          <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Security &amp; Logs</p>
+          <a href="/admin/users" title="User Accounts" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'users' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="shield-check" size={15} class={activeTab === 'users' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+            <span class="sidebar-label">User Accounts</span>
           </a>
-          <a href="/admin/audit-logs" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'audit-logs' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="scroll-text" size={15} class={activeTab === 'audit-logs' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Audit Logs Feed
+          <a href="/admin/audit-logs" title="Audit Logs Feed" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'audit-logs' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="scroll-text" size={15} class={activeTab === 'audit-logs' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+            <span class="sidebar-label">Audit Logs Feed</span>
           </a>
-          <a href="/admin/site-settings" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'site-settings' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="settings" size={15} class={activeTab === 'site-settings' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Site Settings
+          <a href="/admin/site-settings" title="Site Settings" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'site-settings' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="settings" size={15} class={activeTab === 'site-settings' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+            <span class="sidebar-label">Site Settings</span>
           </a>
         </div>
 
       </nav>
 
       <!-- Sidebar Footer / Simple copyright -->
-      <div class="p-4 border-t border-slate-200 bg-slate-50/70 text-[10px] text-slate-500 shrink-0 select-none">
+      <div class="sidebar-footer p-4 border-t border-slate-200 bg-slate-50/70 text-[10px] text-slate-500 shrink-0 select-none">
         <p class="font-bold text-slate-600">&copy; {currentYear} JKSPDCL Admin.</p>
         <p class="mt-0.5 text-slate-400">Auditing Standard: GIGW 3.0</p>
       </div>
@@ -378,8 +474,44 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
       toggleBtn?.addEventListener('click', toggleSidebar);
       overlay?.addEventListener('click', toggleSidebar);
 
-      var ACTIVE_SIDEBAR_CLASS = 'flex items-center gap-3 px-3 py-2 text-xs font-bold rounded-lg transition-all bg-[#0B4F9C] text-white shadow-xs admin-nav-active';
-      var INACTIVE_SIDEBAR_CLASS = 'flex items-center gap-3 px-3 py-2 text-xs font-bold rounded-lg transition-all text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF]';
+      var ACTIVE_SIDEBAR_CLASS = 'sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs font-bold rounded-lg transition-all bg-[#0B4F9C] text-white shadow-xs admin-nav-active';
+      var INACTIVE_SIDEBAR_CLASS = 'sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs font-bold rounded-lg transition-all text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF]';
+
+      function toggleSidebarCollapse() {
+        var isCollapsed = document.body.classList.toggle('sidebar-collapsed');
+        if (isCollapsed) {
+          document.documentElement.classList.add('sidebar-collapsed-preload');
+        } else {
+          document.documentElement.classList.remove('sidebar-collapsed-preload');
+        }
+        try {
+          localStorage.setItem('admin-sidebar-collapsed', isCollapsed ? 'true' : 'false');
+        } catch (e) {}
+      }
+
+      function syncSidebarCollapseState() {
+        try {
+          var saved = localStorage.getItem('admin-sidebar-collapsed');
+          if (saved === 'true') {
+            document.body.classList.add('sidebar-collapsed');
+            document.documentElement.classList.add('sidebar-collapsed-preload');
+          } else {
+            document.body.classList.remove('sidebar-collapsed');
+            document.documentElement.classList.remove('sidebar-collapsed-preload');
+          }
+        } catch (e) {}
+      }
+
+      document.addEventListener('click', function(e) {
+        var collapseBtn = e.target.closest('#toggle-sidebar-collapse');
+        if (collapseBtn) {
+          e.preventDefault();
+          toggleSidebarCollapse();
+          return;
+        }
+      });
+
+      syncSidebarCollapseState();
 
       function updateSidebarLinkIcons() {
         var sidebarLinks = document.querySelectorAll('#admin-sidebar nav a[href]');
@@ -448,6 +580,7 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
 
       document.addEventListener('astro:before-preparation', saveSidebarScroll);
       document.addEventListener('astro:page-load', function() {
+        syncSidebarCollapseState();
         syncAdminSidebarActive();
         restoreSidebarScroll();
         if (window.initQuillRichEditors) window.initQuillRichEditors();
