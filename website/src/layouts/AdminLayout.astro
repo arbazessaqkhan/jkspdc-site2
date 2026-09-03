@@ -77,10 +77,6 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
         height: 130px !important;
         max-height: 130px !important;
       }
-      [data-rich-editor="edit-content"] {
-        height: 320px !important;
-        max-height: 320px !important;
-      }
 
       .ql-container.ql-snow .ql-editor,
       [data-rich-editor] .ql-editor {
@@ -185,10 +181,6 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
         <div class="flex flex-col gap-0.5">
           <p class="text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Website Content</p>
           
-          <a href="/admin/page-editor" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'page-editor' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="file-text" size={15} class={activeTab === 'page-editor' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Page Editor
-          </a>
-
           <a href="/admin/hero-slides" class={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-all ${activeTab === 'hero-slides' ? 'bg-[#0B4F9C] text-white font-bold shadow-xs' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="image" size={15} class={activeTab === 'hero-slides' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} /> Hero Slider
           </a>
