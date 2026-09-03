@@ -565,9 +565,9 @@ const displayTenders = mergedTenderItems.length > 0 ? mergedTenderItems : fallba
             <div class="scroll-track animate-marquee-vertical flex flex-col gap-2.5" style={`--marquee-duration: ${displayTenders.length * 8}s`}>
               {displayTenders.map((tender: any) => {
                 const isCorr = tender.isCorrigendum;
-                const docUrl = getDocUrl(tender.documentUrl) || `/stakeholders/vendors/tender-details?id=${tender.parentTenderId || tender.id}`;
+                const tenderDetailsUrl = `/stakeholders/vendors/tender-details?id=${tender.parentTenderId || tender.id}`;
                 return (
-                  <a href={docUrl} target="_blank" rel="noopener noreferrer" class="block p-3 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/35 rounded-lg shadow-xs text-left transition-all duration-150">
+                  <a href={tenderDetailsUrl} class="block p-3 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/35 rounded-lg shadow-xs text-left transition-all duration-150">
                     <div class="text-[10px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1.5 flex-wrap">
                       <span>📅</span>
                       <span>{formatRefDate(tender.publishDate)}</span>
@@ -586,9 +586,9 @@ const displayTenders = mergedTenderItems.length > 0 ? mergedTenderItems : fallba
               {/* Duplicate for marquee */}
               {displayTenders.map((tender: any) => {
                 const isCorr = tender.isCorrigendum;
-                const docUrl = getDocUrl(tender.documentUrl) || `/stakeholders/vendors/tender-details?id=${tender.parentTenderId || tender.id}`;
+                const tenderDetailsUrl = `/stakeholders/vendors/tender-details?id=${tender.parentTenderId || tender.id}`;
                 return (
-                  <a href={docUrl} target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true" class="block p-3 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/35 rounded-lg shadow-xs text-left transition-all duration-150">
+                  <a href={tenderDetailsUrl} tabindex="-1" aria-hidden="true" class="block p-3 bg-slate-50/50 border border-slate-200/60 hover:border-[#0B4F9C]/35 rounded-lg shadow-xs text-left transition-all duration-150">
                     <div class="text-[10px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1.5 flex-wrap">
                       <span>📅</span>
                       <span>{formatRefDate(tender.publishDate)}</span>

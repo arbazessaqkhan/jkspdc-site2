@@ -34,7 +34,7 @@ if (tickerItems.length === 0) {
         type: 'TENDER',
         text: `${t.title} (NIT Ref: ${t.referenceNo})`,
         colorClass: 'text-cyan-300 bg-cyan-500/10 border-cyan-400/20',
-        url: t.documentUrl || `/stakeholders/vendors/tender-details?id=${t.id}`,
+        url: `/stakeholders/vendors/tender-details?id=${t.id}`,
       });
     });
 
@@ -82,7 +82,12 @@ if (tickerItems.length === 0) {
           <span class="inline-flex items-center whitespace-nowrap shrink-0" style="padding-right:4rem;">
             › <strong class={`font-extrabold uppercase tracking-wider text-[10px] mr-1.5 px-1.5 py-0.5 rounded border whitespace-nowrap shrink-0 ${item.colorClass}`}>{item.type}:</strong> 
             {item.url ? (
-              <a href={item.url} target="_blank" rel="noopener noreferrer" class="text-slate-100 hover:underline hover:text-white transition-colors whitespace-nowrap">
+              <a 
+                href={item.url} 
+                target={item.url.startsWith('http') ? "_blank" : undefined} 
+                rel={item.url.startsWith('http') ? "noopener noreferrer" : undefined} 
+                class="text-slate-100 hover:underline hover:text-white transition-colors whitespace-nowrap"
+              >
                 {item.text}
               </a>
             ) : (
