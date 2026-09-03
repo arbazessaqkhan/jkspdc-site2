@@ -1090,7 +1090,25 @@ tbody tr:hover {
   background-color: #F8FAFC !important;
 }
 
-.ql-container.ql-snow {
+/* ── Fixed-height Quill Rich Text Editor structure ── */
+[data-rich-editor] {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+[data-rich-editor] .ql-toolbar.ql-snow {
+  flex-shrink: 0 !important;
+  border-top-left-radius: 0.5rem !important;
+  border-top-right-radius: 0.5rem !important;
+}
+
+[data-rich-editor] .ql-container.ql-snow {
+  flex: 1 1 0% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
   border-bottom-left-radius: 0.5rem !important;
   border-bottom-right-radius: 0.5rem !important;
   border-color: #CBD5E1 !important;
@@ -1099,12 +1117,14 @@ tbody tr:hover {
   outline: none !important;
 }
 
-.ql-editor {
+[data-rich-editor] .ql-editor {
+  flex: 1 1 0% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow-y: auto !important;
   outline: none !important;
   box-shadow: none !important;
-  min-height: 120px;
-  max-height: 200px;
-  overflow-y: auto !important;
 }
 
 .ql-editor:focus {
