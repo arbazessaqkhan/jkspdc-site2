@@ -60,6 +60,41 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
         color: #0B4F9C !important;
       }
 
+      /* Fix Quill Rich Text Editors & Textareas: Never expand/grow in height, scroll vertically only */
+      .ql-container.ql-snow,
+      [data-rich-editor] {
+        height: 160px;
+        max-height: 160px;
+        overflow: hidden !important;
+        box-sizing: border-box !important;
+      }
+
+      [data-rich-editor="field-description"] {
+        height: 160px !important;
+        max-height: 160px !important;
+      }
+      [data-rich-editor="field-keyResponsibilities"] {
+        height: 130px !important;
+        max-height: 130px !important;
+      }
+      [data-rich-editor="edit-content"] {
+        height: 320px !important;
+        max-height: 320px !important;
+      }
+
+      .ql-container.ql-snow .ql-editor,
+      [data-rich-editor] .ql-editor {
+        height: 100% !important;
+        max-height: 100% !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+      }
+
+      .admin-page textarea {
+        overflow-y: auto !important;
+      }
+
       .high-contrast,
       .high-contrast * {
         background-color: #000000 !important;

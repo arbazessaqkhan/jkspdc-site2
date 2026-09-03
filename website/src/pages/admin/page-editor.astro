@@ -169,7 +169,7 @@ const existingPages = new Map(pages.map((p: any) => [p.pageSlug, p]));
           <div class="flex-1">
             <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">Page Content (Rich Text Editor)</label>
             <input type="hidden" id="edit-content" value="" />
-            <div data-rich-editor="edit-content" data-placeholder="Enter page body content (supports headings, bold, lists, quotes)..." class="bg-white rounded-lg border border-slate-300 min-h-[280px] text-sm"></div>
+            <div data-rich-editor="edit-content" data-placeholder="Enter page body content (supports headings, bold, lists, quotes)..." class="bg-white rounded-lg border border-slate-300 h-80 max-h-80 overflow-hidden text-sm"></div>
           </div>
         </div>
         <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-between bg-slate-50">
