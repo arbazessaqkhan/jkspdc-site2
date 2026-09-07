@@ -1,27 +1,38 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 
-let memoDoc = null;
-let policyUrl = "/MoA_AoA.pdf";
-let memoTitle = "Memorandum & Articles of Association (MoA & AoA)";
-let memoDesc = "Official certified copies showing legal incorporation clauses under the Companies Act.";
+function getDocUrl(url?: string) {
+  if (!url) return '#';
+  if (url.startsWith('/uploads/')) {
+    return `http://localhost:3000${url}`;
+  }
+  return url;
+}
+
+let memoDocs: any[] = [];
 
 try {
-  const res = await fetch('http://localhost:3000/api/policies?category=Memorandum');
+  const res = await fetch('http://localhost:3000/api/policies');
   if (res.ok) {
     const data = await res.json();
-    const activeDocs = data.filter(d => d.status === 'Active');
-    if (activeDocs.length > 0) {
-      memoDoc = activeDocs[0];
-      policyUrl = memoDoc.documentUrl;
-      memoTitle = memoDoc.title;
-      if (memoDoc.description) {
-        memoDesc = memoDoc.description;
-      }
-    }
+    memoDocs = data.filter((d: any) => 
+      d.status === 'Active' && 
+      (d.category === 'Memorandum' || d.category === 'MoA / AoA')
+    );
   }
 } catch (e) {
   console.error('Error fetching memorandum document:', e);
+}
+
+if (memoDocs.length === 0) {
+  memoDocs = [
+    {
+      id: "fallback-moa",
+      title: "Memorandum & Articles of Association (MoA & AoA)",
+      description: "Official certified copies showing legal incorporation clauses under the Companies Act.",
+      documentUrl: "/MoA_AoA.pdf"
+    }
+  ];
 }
 ---
 
@@ -46,21 +57,23 @@ try {
     <!-- Content -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fadeInUp delay-200">
       <!-- Main Content -->
-      <article class="lg:col-span-2 prose-gov">
-        <p class="text-sm text-gray-700 leading-relaxed">
+      <article class="lg:col-span-2 prose-gov space-y-4">
+        <p class="text-sm text-gray-700 leading-relaxed mb-4">
           The Memorandum and Articles of Association define the purpose, authorized capital limits, internal operations, and corporate boundaries within which JKSPDC operates.
         </p>
 
-        <!-- Document download box -->
-        <div class="bg-white border border-gray-200 rounded-lg p-5 shadow-sm flex items-center justify-between gap-4">
-          <div>
-            <h3 class="font-bold text-gray-900 text-sm mb-1">{memoTitle}</h3>
-            <p class="text-xs text-gray-550">{memoDesc}</p>
+        <!-- Document download boxes -->
+        {memoDocs.map((doc) => (
+          <div class="bg-white border border-gray-200 hover:border-[#0B4F9C]/40 rounded-xl p-5 shadow-sm transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 class="font-bold text-gray-900 text-sm mb-1">{doc.title}</h3>
+              <p class="text-xs text-gray-550">{doc.description || "Official certified copies showing legal incorporation clauses under the Companies Act."}</p>
+            </div>
+            <a href={getDocUrl(doc.documentUrl)} target="_blank" rel="noopener noreferrer" class="btn-primary text-xs whitespace-nowrap cursor-pointer shrink-0">
+              📄 View MoA & AoA PDF
+            </a>
           </div>
-          <a href={policyUrl} target="_blank" rel="noopener noreferrer" class="btn-primary text-xs whitespace-nowrap cursor-pointer">
-            📄 View MoA & AoA PDF
-          </a>
-        </div>
+        ))}
       </article>
 
       <!-- Sidebar -->

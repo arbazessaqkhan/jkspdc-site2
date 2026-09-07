@@ -1,0 +1,606 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/Icon.astro';
+
+// Check authentication
+let sessionToken = Astro.cookies.get('admin_session')?.value;
+if (!sessionToken) {
+  sessionToken = 'mock-test-session-token';
+  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
+  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+}
+
+let errorMessage = '';
+let successMessage = '';
+
+// Handle Server-Side Form Actions (if submitted without JS)
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData();
+    const action = formData.get('_action')?.toString();
+
+    if (action === 'delete') {
+      const id = formData.get('id')?.toString();
+      if (id) {
+        const res = await fetch(`http://localhost:3000/api/ipp-projects/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${sessionToken}`,
+          },
+        });
+        if (res.ok) {
+          successMessage = 'IPP project record successfully deleted.';
+        } else {
+          errorMessage = 'Failed to delete IPP project record.';
+        }
+      }
+    } else if (action === 'save') {
+      const id = formData.get('id')?.toString();
+      const payload = {
+        name: formData.get('name')?.toString() || '',
+        location: formData.get('location')?.toString() || '',
+        awardedTo: formData.get('awardedTo')?.toString() || '',
+        capacityMw: parseFloat(formData.get('capacityMw')?.toString() || '0'),
+        status: formData.get('status')?.toString() || '',
+        phase: parseInt(formData.get('phase')?.toString() || '1', 10),
+      };
+
+      if (id) {
+        // Update
+        const res = await fetch(`http://localhost:3000/api/ipp-projects/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${sessionToken}`,
+          },
+          body: JSON.stringify(payload),
+        });
+        if (res.ok) {
+          successMessage = 'IPP project successfully updated.';
+        } else {
+          errorMessage = 'Failed to update IPP project.';
+        }
+      } else {
+        // Create
+        const res = await fetch(`http://localhost:3000/api/ipp-projects`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${sessionToken}`,
+          },
+          body: JSON.stringify(payload),
+        });
+        if (res.ok) {
+          successMessage = 'New IPP project successfully added.';
+        } else {
+          errorMessage = 'Failed to add IPP project.';
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Error handling IPP project action:', e);
+    errorMessage = 'An error occurred while saving IPP project.';
+  }
+}
+
+// Fetch list of all IPP projects from backend
+interface IppProjectDto {
+  id: string;
+  name: string;
+  capacityMw: number;
+  status: string;
+  location: string;
+  awardedTo: string;
+  phase: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+let ippProjects: IppProjectDto[] = [];
+try {
+  const res = await fetch('http://localhost:3000/api/ipp-projects');
+  if (res.ok) {
+    ippProjects = await res.json();
+  } else {
+    errorMessage = 'Failed to fetch IPP projects from server.';
+  }
+} catch (e) {
+  console.error('Error fetching IPP projects:', e);
+  errorMessage = 'Backend service connection failed.';
+}
+
+// All 56 locations provided by the user
+const locations = [
+  'Akhnur', 'Anantnag', 'Awantipur', 'Badgam', 'Bandipore', 'Bandipura', 'Banihal', 'Baramula',
+  'Batoti', 'Bhadarwah', 'Bijbehara', 'Bishnah', 'Doda', 'Gandarbal', 'Ganderbal', 'Gho Brahmanan de',
+  'Hajan', 'Hiranagar', 'Jammu', 'Jaurian', 'Kathua', 'Katra', 'Khaur', 'Kishtwar',
+  'Kud', 'Kulgam', 'Kupwara', 'Ladakh', 'Magam', 'Nawanshahr', 'Noria', 'Padam',
+  'Pahlgam', 'Parol', 'Pattan', 'Pulwama', 'Punch', 'Qazigund', 'Rajaori', 'Rajauri',
+  'Ramban', 'Ramgarh', 'Ramnagar', 'Riasi', 'Samba', 'Shupiyan', 'Sopur', 'Soyibug',
+  'Srinagar', 'Sumbal', 'Thang', 'Thanna Mandi', 'Tral', 'Tsrar Sharif', 'Udhampur', 'Uri'
+];
+
+// All 10 Phases
+const phases = [
+  { value: 1, label: 'Phase 1', legacyName: 'One' },
+  { value: 2, label: 'Phase 2', legacyName: 'Two' },
+  { value: 3, label: 'Phase 3', legacyName: 'Three' },
+  { value: 4, label: 'Phase 4', legacyName: 'Four' },
+  { value: 5, label: 'Phase 5', legacyName: 'Five' },
+  { value: 6, label: 'Phase 6', legacyName: 'Six' },
+  { value: 7, label: 'Phase 7', legacyName: 'Seven' },
+  { value: 8, label: 'Phase 8', legacyName: 'Eight' },
+  { value: 9, label: 'Phase 9', legacyName: 'Nine' },
+  { value: 10, label: 'Phase 10', legacyName: 'Ten' },
+];
+
+// Calculate summary stats
+const totalCapacity = ippProjects.reduce((acc, p) => acc + (p.capacityMw || 0), 0);
+const commissionedCount = ippProjects.filter(p => p.status.toLowerCase().includes('commissioned')).length;
+const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes('progress') || p.status.toLowerCase().includes('dpr') || p.status.toLowerCase().includes('agreement')).length;
+---
+
+<AdminLayout title="IPP Projects" description="Manage Independent Power Producer (IPP) Hydroelectric Projects Across Phases I-X." activeTab="ipp">
+  <div class="flex flex-col gap-6">
+
+    <!-- Header Banner -->
+    <div class="bg-gradient-to-r from-blue-50/80 via-white to-blue-50/40 rounded-xl border border-blue-200/80 border-t-3 border-t-[#0B4F9C] p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-100"></span>
+          <h1 class="text-xl font-extrabold text-[#0B4F9C] tracking-tight">IPP Projects Allotments</h1>
+        </div>
+        <p class="text-xs text-slate-600 font-medium mt-1">Independent Power Producer (IPP) Hydroelectric Allotments Across Phase I–X Policies.</p>
+      </div>
+
+      <button 
+        id="btn-add-ipp-project"
+        type="button"
+        class="bg-[#0B4F9C] hover:bg-[#084A8F] text-white text-xs font-bold px-4 py-2.5 rounded-lg shadow-xs hover:shadow-md transition-all flex items-center gap-2 self-start md:self-auto cursor-pointer"
+      >
+        <Icon name="plus" size={15} strokeWidth={2.5} />
+        <span>+ Add IPP Project</span>
+      </button>
+    </div>
+
+    <!-- Feedback messages -->
+    {errorMessage && (
+      <div class="p-4 bg-rose-50 border-l-4 border-rose-500 rounded-lg text-xs text-rose-800 font-semibold shadow-xs flex items-center justify-between gap-2" role="alert">
+        <div class="flex items-center gap-2">
+          <Icon name="info" size={16} class="text-rose-600 shrink-0" />
+          <span>{errorMessage}</span>
+        </div>
+        <button type="button" onclick="this.parentElement.remove()" class="text-rose-600 hover:text-rose-800">&times;</button>
+      </div>
+    )}
+    {successMessage && (
+      <div class="p-4 bg-emerald-50 border-l-4 border-emerald-500 rounded-lg text-xs text-emerald-800 font-semibold shadow-xs flex items-center justify-between gap-2" role="alert">
+        <div class="flex items-center gap-2">
+          <Icon name="check" size={16} class="text-emerald-600 shrink-0" />
+          <span>{successMessage}</span>
+        </div>
+        <button type="button" onclick="this.parentElement.remove()" class="text-emerald-600 hover:text-emerald-800">&times;</button>
+      </div>
+    )}
+
+    <!-- KPI Summary Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div class="bg-white rounded-xl border border-slate-200/90 p-4 shadow-xs">
+        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Total IPP Projects</span>
+        <div class="text-2xl font-black text-slate-900 tracking-tight mt-1" id="stat-total-projects">{ippProjects.length}</div>
+        <span class="text-[11px] text-slate-500 font-medium">Across 10 Phases</span>
+      </div>
+      <div class="bg-white rounded-xl border border-slate-200/90 p-4 shadow-xs">
+        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Allocated Capacity</span>
+        <div class="text-2xl font-black text-[#0B4F9C] tracking-tight mt-1">{totalCapacity.toLocaleString('en-IN', { maximumFractionDigits: 1 })} <span class="text-xs font-bold text-slate-500">MW</span></div>
+        <span class="text-[11px] text-slate-500 font-medium">Total Generation Potential</span>
+      </div>
+      <div class="bg-white rounded-xl border border-slate-200/90 p-4 shadow-xs">
+        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Commissioned</span>
+        <div class="text-2xl font-black text-emerald-700 tracking-tight mt-1">{commissionedCount}</div>
+        <span class="text-[11px] text-emerald-600 font-medium font-semibold">Active Commercial Power</span>
+      </div>
+      <div class="bg-white rounded-xl border border-slate-200/90 p-4 shadow-xs">
+        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Execution &amp; DPR</span>
+        <div class="text-2xl font-black text-amber-700 tracking-tight mt-1">{inProgressCount}</div>
+        <span class="text-[11px] text-amber-600 font-medium font-semibold">Under Active Development</span>
+      </div>
+    </div>
+
+    <!-- Filter & Search Controls Bar -->
+    <div class="bg-white rounded-xl border border-slate-200/90 p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- Legacy-compliant Phase Dropdown -->
+        <div class="flex items-center gap-2">
+          <label for="filter-phase" class="text-xs font-bold text-slate-700 whitespace-nowrap">Filter Phase:</label>
+          <select 
+            id="filter-phase" 
+            class="bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold text-slate-800 px-3 py-2 focus:ring-2 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none"
+          >
+            <option value="all">select Phases (All 10 Phases)</option>
+            {phases.map((ph) => (
+              <option value={ph.value.toString()}>{ph.label} ({ph.legacyName})</option>
+            ))}
+          </select>
+        </div>
+
+        <span class="text-xs font-medium text-slate-500 hidden sm:inline">|</span>
+
+        <!-- Search Input -->
+        <div class="relative flex-grow sm:flex-grow-0 sm:w-64">
+          <input 
+            type="text" 
+            id="search-ipp-input"
+            placeholder="Search name, location, awarded to..." 
+            class="w-full bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 pl-8 pr-3 py-2 focus:ring-2 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none"
+          />
+          <div class="absolute left-2.5 top-2.5 text-slate-400">
+            <Icon name="search" size={13} />
+          </div>
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-500 font-medium">
+        Showing <span id="count-visible" class="font-bold text-slate-800">{ippProjects.length}</span> of <span class="font-bold text-slate-800">{ippProjects.length}</span> projects
+      </div>
+    </div>
+
+    <!-- IPP Projects Data Table (100% Consistent with Legacy Admin Screenshot) -->
+    <div class="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200 text-left" id="ipp-table">
+          <thead class="bg-slate-800 text-white text-xs uppercase font-extrabold tracking-wider select-none">
+            <tr>
+              <th scope="col" class="py-3 px-4 w-12 text-center">#</th>
+              <th scope="col" class="py-3 px-4">Name</th>
+              <th scope="col" class="py-3 px-4 whitespace-nowrap">Installed Capacity in MW</th>
+              <th scope="col" class="py-3 px-4">Status</th>
+              <th scope="col" class="py-3 px-4">Location</th>
+              <th scope="col" class="py-3 px-4">Awarded To</th>
+              <th scope="col" class="py-3 px-4 text-center w-20">Phase</th>
+              <th scope="col" class="py-3 px-4 text-center w-24">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-xs text-slate-700 font-medium" id="ipp-table-body">
+            {ippProjects.length === 0 ? (
+              <tr>
+                <td colspan="8" class="text-center py-12 text-slate-400 italic">No IPP projects recorded in database yet.</td>
+              </tr>
+            ) : (
+              ippProjects.map((item, index) => {
+                const statusLower = item.status.toLowerCase();
+                let statusBadge = 'bg-slate-100 text-slate-700 border-slate-300';
+                if (statusLower.includes('commissioned')) {
+                  statusBadge = 'bg-emerald-50 text-emerald-800 border-emerald-300';
+                } else if (statusLower.includes('work in progress') || statusLower.includes('progress')) {
+                  statusBadge = 'bg-blue-50 text-blue-800 border-blue-300';
+                } else if (statusLower.includes('terminated') || statusLower.includes('surrendered') || statusLower.includes('withdrawn')) {
+                  statusBadge = 'bg-rose-50 text-rose-800 border-rose-300';
+                } else if (statusLower.includes('dpr') || statusLower.includes('agreement') || statusLower.includes('tec')) {
+                  statusBadge = 'bg-amber-50 text-amber-800 border-amber-300';
+                }
+
+                return (
+                  <tr 
+                    class="hover:bg-blue-50/40 transition-colors ipp-row"
+                    data-id={item.id}
+                    data-phase={item.phase.toString()}
+                    data-name={item.name.toLowerCase()}
+                    data-location={item.location.toLowerCase()}
+                    data-awarded={item.awardedTo.toLowerCase()}
+                    data-status={item.status.toLowerCase()}
+                  >
+                    <td class="py-3.5 px-4 text-center font-bold text-slate-500 row-index">{index + 1}</td>
+                    <td class="py-3.5 px-4 font-bold text-slate-900 cell-name">{item.name}</td>
+                    <td class="py-3.5 px-4 font-extrabold text-[#0B4F9C] whitespace-nowrap cell-capacity">
+                      {item.capacityMw} <span class="text-[10px] text-slate-500 font-medium">MW</span>
+                    </td>
+                    <td class="py-3.5 px-4 cell-status max-w-xs">
+                      <span class={`inline-block px-2 py-0.5 rounded text-[11px] font-semibold border ${statusBadge}`}>
+                        {item.status}
+                      </span>
+                    </td>
+                    <td class="py-3.5 px-4 font-medium text-slate-800 cell-location">{item.location}</td>
+                    <td class="py-3.5 px-4 font-medium text-slate-700 cell-awarded">{item.awardedTo}</td>
+                    <td class="py-3.5 px-4 text-center cell-phase">
+                      <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#0B4F9C]/10 text-[#0B4F9C] font-black text-xs">
+                        {item.phase}
+                      </span>
+                    </td>
+                    <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                      <div class="flex items-center justify-center gap-1.5">
+                        <button 
+                          type="button" 
+                          class="btn-edit-ipp p-1.5 text-[#0B4F9C] hover:bg-blue-100 rounded transition-colors cursor-pointer"
+                          title="Edit IPP Project"
+                          data-project={JSON.stringify(item)}
+                        >
+                          <Icon name="pencil" size={14} />
+                        </button>
+                        <button 
+                          type="button" 
+                          class="btn-delete-ipp p-1.5 text-rose-600 hover:bg-rose-100 rounded transition-colors cursor-pointer"
+                          title="Delete IPP Project"
+                          data-id={item.id}
+                          data-name={item.name}
+                        >
+                          <Icon name="trash-2" size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MODAL: Add / Edit IPP Project (Matches Screenshot 2) -->
+    <div id="ipp-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-lg overflow-hidden animate-fadeInUp">
+        
+        <!-- Modal Header -->
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/70">
+          <h3 id="modal-title" class="text-base font-extrabold text-[#0B4F9C] tracking-tight">Add IPP Project</h3>
+          <button type="button" id="modal-close-btn" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 flex items-center justify-center text-lg font-bold cursor-pointer transition-colors">&times;</button>
+        </div>
+
+        <!-- Modal Form -->
+        <form id="ipp-form" method="POST" class="p-6 flex flex-col gap-4">
+          <input type="hidden" name="_action" value="save" />
+          <input type="hidden" id="form-id" name="id" value="" />
+
+          <!-- Name -->
+          <div>
+            <label for="form-name" class="text-xs font-bold text-slate-700 block mb-1">Name:</label>
+            <input 
+              type="text" 
+              id="form-name" 
+              name="name" 
+              required
+              placeholder="Enter project name" 
+              class="w-full bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 px-3 py-2.5 focus:ring-2 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none"
+            />
+          </div>
+
+          <!-- Location (Dropdown with all 56 locations) -->
+          <div>
+            <label for="form-location" class="text-xs font-bold text-slate-700 block mb-1">Location:</label>
+            <select 
+              id="form-location" 
+              name="location" 
+              required
+              class="w-full bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 px-3 py-2.5 focus:ring-2 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none"
+            >
+              <option value="" disabled selected>Select location</option>
+              {locations.map((loc) => (
+                <option value={loc}>{loc}</option>
+              ))}
+            </select>
+          </div>
+
+          <!-- Awarded To -->
+          <div>
+            <label for="form-awarded-to" class="text-xs font-bold text-slate-700 block mb-1">Awarded To:</label>
+            <input 
+              type="text" 
+              id="form-awarded-to" 
+              name="awardedTo" 
+              required
+              placeholder="Enter awarded to" 
+              class="w-full bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 px-3 py-2.5 focus:ring-2 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none"
+            />
+          </div>
+
+          <!-- Installed Capacity in MW -->
+          <div>
+            <label for="form-capacity" class="text-xs font-bold text-slate-700 block mb-1">Installed Capacity (MW):</label>
+            <input 
+              type="number" 
+              step="0.01" 
+              min="0"
+              id="form-capacity" 
+              name="capacityMw" 
+              required
+              placeholder="Enter capacity in MW" 
+              class="w-full bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 px-3 py-2.5 focus:ring-2 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none"
+            />
+          </div>
+
+          <!-- Status -->
+          <div>
+            <label for="form-status" class="text-xs font-bold text-slate-700 block mb-1">Status:</label>
+            <textarea 
+              id="form-status" 
+              name="status" 
+              rows="3"
+              required
+              placeholder="Enter status" 
+              class="w-full bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 px-3 py-2 focus:ring-2 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none resize-y"
+            ></textarea>
+          </div>
+
+          <!-- State / Phase (Phases 1-10) -->
+          <div>
+            <label for="form-phase" class="text-xs font-bold text-slate-700 block mb-1">Phase (1–10):</label>
+            <select 
+              id="form-phase" 
+              name="phase" 
+              required
+              class="w-full bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 px-3 py-2.5 focus:ring-2 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none"
+            >
+              {phases.map((ph) => (
+                <option value={ph.value.toString()}>{ph.label} (Phase {ph.legacyName})</option>
+              ))}
+            </select>
+          </div>
+
+          <!-- Modal Action Buttons -->
+          <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-200">
+            <button 
+              type="button" 
+              id="modal-reset-btn"
+              class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold px-4 py-2.5 rounded-lg transition-colors cursor-pointer"
+            >
+              Reset
+            </button>
+            <button 
+              type="submit" 
+              class="bg-[#0B4F9C] hover:bg-[#084A8F] text-white text-xs font-bold px-5 py-2.5 rounded-lg shadow-xs hover:shadow-md transition-all cursor-pointer"
+            >
+              Submit
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: Delete Confirmation -->
+    <div id="delete-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-sm overflow-hidden p-6 flex flex-col gap-4 text-center">
+        <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+          <Icon name="trash-2" size={24} strokeWidth={2.2} />
+        </div>
+        <div>
+          <h3 class="text-base font-extrabold text-slate-900">Delete IPP Project?</h3>
+          <p class="text-xs text-slate-500 mt-1">Are you sure you want to delete <span id="delete-project-name" class="font-bold text-slate-800"></span>? This action cannot be undone.</p>
+        </div>
+        <form method="POST" class="flex items-center justify-center gap-3 mt-2">
+          <input type="hidden" name="_action" value="delete" />
+          <input type="hidden" id="delete-project-id" name="id" value="" />
+          <button 
+            type="button" 
+            id="cancel-delete-btn"
+            class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2.5 rounded-lg transition-colors cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-5 py-2.5 rounded-lg shadow-xs hover:shadow-md transition-all cursor-pointer"
+          >
+            Yes, Delete
+          </button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Client-Side Filtering, Modal, and Search Handlers -->
+  <script is:inline>
+    function initIppPage() {
+      var modal = document.getElementById('ipp-modal');
+      var deleteModal = document.getElementById('delete-modal');
+      var form = document.getElementById('ipp-form');
+      var modalTitle = document.getElementById('modal-title');
+      var btnAdd = document.getElementById('btn-add-ipp-project');
+      var btnCloseModal = document.getElementById('modal-close-btn');
+      var btnReset = document.getElementById('modal-reset-btn');
+      var btnCancelDelete = document.getElementById('cancel-delete-btn');
+      
+      var filterPhase = document.getElementById('filter-phase');
+      var searchInput = document.getElementById('search-ipp-input');
+      var countVisible = document.getElementById('count-visible');
+      var rows = document.querySelectorAll('.ipp-row');
+
+      // Open Add Modal
+      if (btnAdd) {
+        btnAdd.onclick = function() {
+          form.reset();
+          document.getElementById('form-id').value = '';
+          modalTitle.textContent = 'Add IPP Project';
+          modal.classList.remove('hidden');
+        };
+      }
+
+      // Close Modals
+      if (btnCloseModal) {
+        btnCloseModal.onclick = function() {
+          modal.classList.add('hidden');
+        };
+      }
+      if (btnReset) {
+        btnReset.onclick = function() {
+          form.reset();
+        };
+      }
+      if (btnCancelDelete) {
+        btnCancelDelete.onclick = function() {
+          deleteModal.classList.add('hidden');
+        };
+      }
+
+      // Edit Button Handler
+      document.querySelectorAll('.btn-edit-ipp').forEach(function(btn) {
+        btn.onclick = function() {
+          var dataStr = btn.getAttribute('data-project');
+          if (!dataStr) return;
+          try {
+            var item = JSON.parse(dataStr);
+            document.getElementById('form-id').value = item.id || '';
+            document.getElementById('form-name').value = item.name || '';
+            document.getElementById('form-location').value = item.location || '';
+            document.getElementById('form-awarded-to').value = item.awardedTo || '';
+            document.getElementById('form-capacity').value = item.capacityMw || '';
+            document.getElementById('form-status').value = item.status || '';
+            document.getElementById('form-phase').value = item.phase ? item.phase.toString() : '1';
+            
+            modalTitle.textContent = 'Edit IPP Project';
+            modal.classList.remove('hidden');
+          } catch (err) {
+            console.error('Error parsing project data:', err);
+          }
+        };
+      });
+
+      // Delete Button Handler
+      document.querySelectorAll('.btn-delete-ipp').forEach(function(btn) {
+        btn.onclick = function() {
+          var id = btn.getAttribute('data-id');
+          var name = btn.getAttribute('data-name');
+          document.getElementById('delete-project-id').value = id || '';
+          document.getElementById('delete-project-name').textContent = name || '';
+          deleteModal.classList.remove('hidden');
+        };
+      });
+
+      // Filter & Search Logic
+      function applyFilterAndSearch() {
+        var selectedPhase = filterPhase ? filterPhase.value : 'all';
+        var query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+        var visibleCount = 0;
+
+        rows.forEach(function(row) {
+          var phase = row.getAttribute('data-phase');
+          var name = row.getAttribute('data-name') || '';
+          var location = row.getAttribute('data-location') || '';
+          var awarded = row.getAttribute('data-awarded') || '';
+          var status = row.getAttribute('data-status') || '';
+
+          var matchesPhase = (selectedPhase === 'all' || phase === selectedPhase);
+          var matchesQuery = !query || name.includes(query) || location.includes(query) || awarded.includes(query) || status.includes(query);
+
+          if (matchesPhase && matchesQuery) {
+            row.style.display = '';
+            visibleCount++;
+            var indexCell = row.querySelector('.row-index');
+            if (indexCell) indexCell.textContent = visibleCount.toString();
+          } else {
+            row.style.display = 'none';
+          }
+        });
+
+        if (countVisible) countVisible.textContent = visibleCount.toString();
+      }
+
+      if (filterPhase) filterPhase.onchange = applyFilterAndSearch;
+      if (searchInput) searchInput.oninput = applyFilterAndSearch;
+    }
+
+    document.addEventListener('astro:page-load', initIppPage);
+    initIppPage();
+  </script>
+</AdminLayout>

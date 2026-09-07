@@ -1,0 +1,68 @@
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma.service';
+
+export interface CreateIppProjectDto {
+  name: string;
+  capacityMw: number;
+  status: string;
+  location: string;
+  awardedTo: string;
+  phase: number;
+}
+
+export interface UpdateIppProjectDto {
+  name?: string;
+  capacityMw?: number;
+  status?: string;
+  location?: string;
+  awardedTo?: string;
+  phase?: number;
+}
+
+@Injectable()
+export class IppProjectsService {
+  constructor(private prisma: PrismaService) {}
+
+  async findAll(phase?: number) {
+    const where = phase ? { phase } : {};
+    return this.prisma.ippProject.findMany({
+      where,
+      orderBy: [{ phase: 'asc' }, { name: 'asc' }],
+    });
+  }
+
+  async findById(id: string) {
+    return this.prisma.ippProject.findUnique({ where: { id } });
+  }
+
+  async create(data: CreateIppProjectDto) {
+    return this.prisma.ippProject.create({
+      data: {
+        name: data.name,
+        capacityMw: Number(data.capacityMw) || 0,
+        status: data.status || 'Active',
+        location: data.location || 'Jammu',
+        awardedTo: data.awardedTo || '—',
+        phase: Number(data.phase) || 1,
+      },
+    });
+  }
+
+  async update(id: string, data: UpdateIppProjectDto) {
+    const updateData: any = { ...data };
+    if (data.capacityMw !== undefined) {
+      updateData.capacityMw = Number(data.capacityMw) || 0;
+    }
+    if (data.phase !== undefined) {
+      updateData.phase = Number(data.phase) || 1;
+    }
+    return this.prisma.ippProject.update({
+      where: { id },
+      data: updateData,
+    });
+  }
+
+  async delete(id: string) {
+    return this.prisma.ippProject.delete({ where: { id } });
+  }
+}

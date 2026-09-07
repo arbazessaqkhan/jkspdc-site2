@@ -332,11 +332,6 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
             <span class="sidebar-label">Executives Directory</span>
           </a>
 
-          <a href="/admin/agm" title="AGM Documents" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'agm' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="scroll-text" size={15} class={activeTab === 'agm' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-            <span class="sidebar-label">AGM Documents</span>
-          </a>
-
           <a href="/admin/financials" title="Financial Documents" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'financials' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="landmark" size={15} class={activeTab === 'financials' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
             <span class="sidebar-label">Financial Documents</span>
@@ -362,19 +357,14 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
             <span class="sidebar-label">Media Gallery</span>
           </a>
 
-          <a href="/admin/downloads" title="Downloads Manager" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'downloads' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="download" size={15} class={activeTab === 'downloads' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-            <span class="sidebar-label">Downloads Manager</span>
-          </a>
-
-          <a href="/admin/media-manager" title="Media & Documents" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'media-manager' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="folder" size={15} class={activeTab === 'media-manager' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-            <span class="sidebar-label">Media &amp; Documents</span>
-          </a>
-
-          <a href="/admin/policies" title="Policies & CSR Docs" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'policies' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+          <a href="/admin/policies" title="CSR Documents Manager" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'policies' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="file-text" size={15} class={activeTab === 'policies' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-            <span class="sidebar-label">Policies &amp; CSR Docs</span>
+            <span class="sidebar-label">CSR Documents Manager</span>
+          </a>
+
+          <a href="/admin/resources" title="Resources" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'resources' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="archive" size={15} class={activeTab === 'resources' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+            <span class="sidebar-label">Resources</span>
           </a>
         </div>
 

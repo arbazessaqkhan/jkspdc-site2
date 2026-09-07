@@ -2,36 +2,50 @@
 import Layout from '../../layouts/Layout.astro';
 import Icon from '../../components/Icon.astro';
 
-let downloads = [
-  {
-    id: "static-dl-1",
-    title: "NIT Upload Request Form",
-    description: "Official form and instructions required for submitting NIT, e-NIT Gist, Quotations, or Corrigenda for upload to the web portal via webupdates[at]jkspdcl[dot]com.",
-    documentUrl: "/NIT Upload Request Form.pdf",
-    category: "Official Forms",
-    status: "Active"
-  },
-  {
-    id: "static-dl-2",
-    title: "User Creation",
-    description: "Requisite details form and instructions for generating user credentials and mapping digital signature certificates on jktenders.gov.in website.",
-    documentUrl: "/User Creation.pdf",
-    category: "E-Tendering Forms",
-    status: "Active"
+function getDocUrl(url?: string) {
+  if (!url) return '#';
+  if (url.startsWith('/uploads/')) {
+    return `http://localhost:3000${url}`;
   }
-];
+  return url;
+}
+
+let downloads: any[] = [];
 
 try {
   const res = await fetch('http://localhost:3000/api/downloads');
   if (res.ok) {
-    const data = await res.json();
-    const activeBackendDocs = data.filter((d: any) => d.status === 'Active');
-    if (activeBackendDocs.length > 0) {
-      downloads = [...activeBackendDocs, ...downloads];
-    }
+    const dbItems = await res.json();
+    const active = dbItems.filter((d: any) => 
+      (!d.status || d.status === 'Active') &&
+      (!d.category || d.category.toLowerCase() === 'downloads' || d.category === 'official forms' || d.category === 'e-tendering forms')
+    );
+    downloads = active;
   }
 } catch (e) {
   console.error('Error fetching downloads from backend:', e);
+}
+
+// Fallback if backend is empty/offline
+if (downloads.length === 0) {
+  downloads = [
+    {
+      id: "static-dl-1",
+      title: "NIT Upload Request Form",
+      description: "Official form and instructions required for submitting NIT, e-NIT Gist, Quotations, or Corrigenda for upload to the web portal via webupdates[at]jkspdcl[dot]com.",
+      documentUrl: "/NIT Upload Request Form.pdf",
+      category: "Official Forms",
+      status: "Active"
+    },
+    {
+      id: "static-dl-2",
+      title: "User Creation",
+      description: "Requisite details form and instructions for generating user credentials and mapping digital signature certificates on jktenders.gov.in website.",
+      documentUrl: "/User Creation.pdf",
+      category: "E-Tendering Forms",
+      status: "Active"
+    }
+  ];
 }
 ---
 
@@ -52,25 +66,30 @@ try {
     </div>
 
     <!-- Content -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fadeInUp delay-200">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fadeInUp delay-200 mt-6">
       <!-- Main List -->
       <article class="lg:col-span-2 prose-gov space-y-4">
         {downloads.map((doc) => (
-          <div class="bg-white border border-gray-200 hover:border-[#9BC2E6] rounded-xl p-5 shadow-sm transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div class="space-y-1.5 max-w-xl">
-              <span class="text-[9px] uppercase tracking-wider font-extrabold text-[#0B4F9C] bg-[#0B4F9C]/5 px-2 py-0.5 rounded">
+          <div class="bg-white border border-gray-200 hover:border-[#9BC2E6] rounded-xl p-5 shadow-xs transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="space-y-2 max-w-xl">
+              <span class="text-[9px] uppercase tracking-wider font-extrabold text-[#0B4F9C] bg-[#0B4F9C]/5 px-2.5 py-1 rounded-sm">
                 {doc.category || "Downloads"}
               </span>
-              <h3 class="font-bold text-gray-900 text-base mt-1.5 leading-snug">
-                {doc.title}
-              </h3>
-              <p class="text-xs text-slate-500 leading-relaxed mt-1">
-                {doc.description || "Official corporate booklets, brochures, and administrative publication attachments."}
-              </p>
+              <div class="flex items-start gap-2.5 pt-0.5">
+                <div class="w-1 h-5 bg-[#D8681B] rounded-full shrink-0 mt-0.5"></div>
+                <h3 class="font-bold text-[#0B4F9C] text-base leading-snug">
+                  {doc.title}
+                </h3>
+              </div>
+              {doc.description && (
+                <p class="text-xs text-slate-500 leading-relaxed pl-3.5">
+                  {doc.description}
+                </p>
+              )}
             </div>
             <div class="shrink-0 flex items-center">
               <a 
-                href={doc.documentUrl} 
+                href={getDocUrl(doc.documentUrl)} 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 class="w-full md:w-auto inline-flex items-center justify-center gap-2 bg-[#0B4F9C] hover:bg-[#084A8F] text-white font-bold text-xs px-5 py-2.5 rounded transition-all duration-150 shadow-sm cursor-pointer"

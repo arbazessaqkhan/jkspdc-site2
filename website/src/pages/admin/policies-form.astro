@@ -17,7 +17,7 @@ let docData = {
   id: '',
   title: '',
   description: '',
-  category: 'Policies',
+  category: 'CSR',
   documentUrl: '',
   status: 'Active',
 };
@@ -32,7 +32,7 @@ if (editId) {
         id: data.id || '',
         title: data.title || '',
         description: data.description || '',
-        category: data.category || 'Policies',
+        category: 'CSR',
         documentUrl: data.documentUrl || '',
         status: data.status || 'Active',
       };
@@ -52,22 +52,22 @@ if (Astro.request.method === 'POST') {
     const id = formData.get('id')?.toString();
     const title = formData.get('title')?.toString();
     const description = formData.get('description')?.toString();
-    const category = formData.get('category')?.toString();
     const documentUrl = formData.get('documentUrl')?.toString();
     const status = formData.get('status')?.toString();
+    const category = 'CSR';
 
     // Preserve values
     docData = {
       id: id || '',
       title: title || '',
       description: description || '',
-      category: category || 'Policies',
+      category: 'CSR',
       documentUrl: documentUrl || '',
       status: status || 'Active',
     };
 
-    if (!title || !category || !documentUrl) {
-      errorMessage = 'Title, Category, and Document File are required.';
+    if (!title || !documentUrl) {
+      errorMessage = 'Title and Document File are required.';
     } else {
       const body = {
         title,
@@ -105,7 +105,7 @@ if (Astro.request.method === 'POST') {
 }
 ---
 
-<AdminLayout title={editId ? "Edit Policy / Document" : "Add Policy / Document"} description="Manage JKSPDCL Policies and Documents" activeTab="policies">
+<AdminLayout title={editId ? "Edit CSR Document" : "Add CSR Document"} description="Manage JKSPDCL CSR Documents" activeTab="policies">
   <div class="flex flex-col gap-6">
     
     <!-- Breadcrumbs / Back button -->
@@ -115,7 +115,7 @@ if (Astro.request.method === 'POST') {
           <Icon name="arrow-left" size={16} strokeWidth={2.5} />
         </a>
         <h1 class="text-xl font-bold text-slate-900">
-          {editId ? "Edit Document / Policy" : "Add Document / Policy"}
+          {editId ? "Edit CSR Document" : "Add CSR Document"}
         </h1>
       </div>
     </div>
@@ -133,23 +133,13 @@ if (Astro.request.method === 'POST') {
       <input type="hidden" name="id" id="id" value={docData.id} />
       
       <div class="p-6 md:p-8 space-y-6 flex-grow">
+        <!-- Hidden: category is always CSR -->
+        <input type="hidden" name="category" value="CSR" />
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          
-          <!-- Category selection -->
-          <div class="form-group flex flex-col gap-1.5 col-span-1">
-            <label for="category" class="text-xs font-bold text-slate-700">Document Category <span class="text-red-500">*</span></label>
-            <select name="category" id="category" class="form-input text-xs" required>
-              <option value="Policies" selected={docData.category === 'Policies'}>Corporate Policies (e.g. Whistleblower)</option>
-              <option value="CSR" selected={docData.category === 'CSR'}>CSR Policies &amp; Statements</option>
-              <option value="Memorandum" selected={docData.category === 'Memorandum'}>Memorandum / Articles of Association</option>
-              <option value="Ethics" selected={docData.category === 'Ethics'}>Ethics &amp; Code of Conduct</option>
-              <option value="Power Trading" selected={docData.category === 'Power Trading'}>Power Trading &amp; Volume Disclosures</option>
-              <option value="Downloads" selected={docData.category === 'Downloads'}>General Downloads (Booklets, etc.)</option>
-            </select>
-          </div>
 
           <!-- Status selection -->
-          <div class="form-group flex flex-col gap-1.5 col-span-1">
+          <div class="form-group flex flex-col gap-1.5 col-span-1 md:col-span-2">
             <label for="status" class="text-xs font-bold text-slate-700">Status <span class="text-red-500">*</span></label>
             <select name="status" id="status" class="form-input text-xs" required>
               <option value="Active" selected={docData.status === 'Active'}>Active (Visible)</option>
@@ -171,16 +161,25 @@ if (Astro.request.method === 'POST') {
             />
           </div>
 
-          <!-- Document Description -->
+          <!-- Document Type / Description -->
           <div class="form-group flex flex-col gap-1.5 col-span-1 md:col-span-2">
-            <label for="description" class="text-xs font-bold text-slate-700">Short Description / Subtitle</label>
-            <textarea 
+            <label for="description" class="text-xs font-bold text-slate-700">Document Type / Category Tag <span class="text-slate-400 font-normal">(e.g. Policy, Committee, Projects, Reports, Plans)</span></label>
+            <input 
+              type="text" 
               name="description" 
               id="description" 
-              rows="3" 
-              class="form-input text-xs resize-y" 
-              placeholder="Provide a brief overview of the document contents, regulatory references, or publication updates."
-            >{docData.description}</textarea>
+              class="form-input text-xs" 
+              placeholder="e.g. Policy, Committee, Projects, Reports, or Plans" 
+              value={docData.description} 
+              list="doc-type-options"
+            />
+            <datalist id="doc-type-options">
+              <option value="Policy">Policy</option>
+              <option value="Committee">Committee</option>
+              <option value="Projects">Projects</option>
+              <option value="Reports">Reports</option>
+              <option value="Plans">Plans</option>
+            </datalist>
           </div>
 
           <!-- File Upload Section -->
@@ -240,92 +239,110 @@ if (Astro.request.method === 'POST') {
   </div>
 </AdminLayout>
 
-<script is:inline define:vars={{ sessionToken }}>
+<script is:inline>
   (function() {
-    var fileUploader = document.getElementById('file-uploader');
-    var uploadContainer = document.getElementById('upload-container');
-    var uploadStatusText = document.getElementById('upload-status-text');
-    var documentUrlInput = document.getElementById('documentUrl');
-    var attachedFileInfo = document.getElementById('attached-file-info');
-    var attachedFilename = document.getElementById('attached-filename');
-    var submitBtn = document.getElementById('submit-btn');
-
-    fileUploader?.addEventListener('change', async (event) => {
-      var file = event.target?.files?.[0];
-      if (!file) return;
-
-      var isImportant = document.getElementById('is-important-checkbox')?.checked || false;
-      var MAX_STANDARD = 20 * 1024 * 1024;
-      var MAX_IMPORTANT = 100 * 1024 * 1024;
-
-      if (!isImportant && file.size > MAX_STANDARD) {
-        var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-        alert(`File size (${sizeMB} MB) exceeds the standard 20 MB limit.\n\nPlease check "Mark as Important" to allow uploading files up to 100 MB.`);
-        fileUploader.value = '';
-        return;
+    // Delegated click handler on upload container to ensure file input triggers
+    document.addEventListener('click', function(e) {
+      var container = e.target.closest('#upload-container');
+      if (container) {
+        var uploader = document.getElementById('file-uploader');
+        if (uploader && e.target !== uploader) {
+          uploader.click();
+        }
       }
+    });
 
-      if (file.size > MAX_IMPORTANT) {
-        var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-        alert(`File size (${sizeMB} MB) exceeds the maximum allowed limit of 100 MB.`);
-        fileUploader.value = '';
-        return;
-      }
+    // Delegated change handler on document so uploading works instantly on any navigation without page refresh
+    document.addEventListener('change', async function(e) {
+      if (e.target && e.target.id === 'file-uploader') {
+        var file = e.target.files && e.target.files[0];
+        if (!file) return;
 
-      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Uploading…'; }
-      if (uploadStatusText) uploadStatusText.textContent = `Uploading ${file.name}…`;
-      if (uploadContainer) uploadContainer.classList.add('opacity-60', 'pointer-events-none');
+        var uploadContainer = document.getElementById('upload-container');
+        var uploadStatusText = document.getElementById('upload-status-text');
+        var documentUrlInput = document.getElementById('documentUrl');
+        var attachedFileInfo = document.getElementById('attached-file-info');
+        var attachedFilename = document.getElementById('attached-filename');
+        var submitBtn = document.getElementById('submit-btn');
 
-      var formData = new FormData();
-      formData.append('file', file);
-      formData.append('isImportant', isImportant ? 'true' : 'false');
+        var isImportant = (document.getElementById('is-important-checkbox') && document.getElementById('is-important-checkbox').checked) || false;
+        var MAX_STANDARD = 20 * 1024 * 1024;
+        var MAX_IMPORTANT = 100 * 1024 * 1024;
 
-      try {
-        var response = await fetch('http://localhost:3000/api/upload', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${sessionToken}`,
-          },
-          body: formData,
-        });
-
-        if (!response.ok) {
-          var errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.message || 'Upload failed');
+        if (!isImportant && file.size > MAX_STANDARD) {
+          var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+          alert('File size (' + sizeMB + ' MB) exceeds the standard 20 MB limit.\n\nPlease check "Mark as Important" to allow uploading files up to 100 MB.');
+          e.target.value = '';
+          return;
         }
 
-        var result = await response.json();
-        
-        // Update input
-        if (documentUrlInput) documentUrlInput.value = result.url;
+        if (file.size > MAX_IMPORTANT) {
+          var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+          alert('File size (' + sizeMB + ' MB) exceeds the maximum allowed limit of 100 MB.');
+          e.target.value = '';
+          return;
+        }
 
-        // Update UI
-        if (uploadStatusText) uploadStatusText.textContent = 'Change attached file';
-        if (attachedFileInfo) {
-          attachedFileInfo.classList.remove('hidden');
-          if (attachedFilename) attachedFilename.textContent = result.filename;
-          
-          var viewLink = attachedFileInfo.querySelector('a');
-          if (!viewLink) {
-            viewLink = document.createElement('a');
-            viewLink.target = '_blank';
-            viewLink.className = 'text-emerald-700 hover:text-emerald-900 underline font-bold shrink-0';
-            viewLink.textContent = 'View File';
-            attachedFileInfo.appendChild(viewLink);
+        if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Uploading…'; }
+        if (uploadStatusText) uploadStatusText.textContent = 'Uploading ' + file.name + '…';
+        if (uploadContainer) uploadContainer.classList.add('opacity-60', 'pointer-events-none');
+
+        var formData = new FormData();
+        formData.append('file', file);
+        formData.append('isImportant', isImportant ? 'true' : 'false');
+
+        var authToken = (document.cookie.match(/admin_session=([^;]+)/) || [])[1] || 'mock-test-session-token';
+
+        try {
+          var response = await fetch('http://localhost:3000/api/upload', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + authToken,
+            },
+            body: formData,
+          });
+
+          if (!response.ok) {
+            var errorData = await response.json().catch(function() { return {}; });
+            throw new Error(errorData.message || 'Upload failed');
           }
-          viewLink.href = result.url;
-        }
 
-      } catch (error) {
-        alert('Upload failed: ' + error.message);
-        if (uploadStatusText) uploadStatusText.textContent = 'Click to choose or drag document file here';
-        if (documentUrlInput) documentUrlInput.value = '';
-      } finally {
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = document.getElementById('id')?.value ? 'Update Document' : 'Save Document';
+          var result = await response.json();
+
+          // Update input
+          if (documentUrlInput) documentUrlInput.value = result.url;
+
+          // Update UI
+          if (uploadStatusText) uploadStatusText.textContent = 'Change attached file';
+          if (attachedFileInfo) {
+            attachedFileInfo.classList.remove('hidden');
+            if (attachedFilename) attachedFilename.textContent = result.filename || file.name;
+
+            var viewLink = attachedFileInfo.querySelector('a');
+            if (!viewLink) {
+              viewLink = document.createElement('a');
+              viewLink.target = '_blank';
+              viewLink.rel = 'noopener noreferrer';
+              viewLink.className = 'text-emerald-700 hover:text-emerald-900 underline font-bold shrink-0';
+              viewLink.textContent = 'View File';
+              attachedFileInfo.appendChild(viewLink);
+            }
+            var fullFileUrl = result.url.startsWith('/uploads/') ? 'http://localhost:3000' + result.url : result.url;
+            viewLink.href = fullFileUrl;
+          }
+
+        } catch (error) {
+          alert('Upload failed: ' + error.message);
+          if (uploadStatusText) uploadStatusText.textContent = 'Click to choose or drag document file here';
+          if (documentUrlInput) documentUrlInput.value = '';
+        } finally {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            var editId = document.getElementById('id') ? document.getElementById('id').value : '';
+            submitBtn.textContent = editId ? 'Update Document' : 'Save Document';
+          }
+          if (uploadContainer) uploadContainer.classList.remove('opacity-60', 'pointer-events-none');
         }
-        if (uploadContainer) uploadContainer.classList.remove('opacity-60', 'pointer-events-none');
       }
     });
   })();

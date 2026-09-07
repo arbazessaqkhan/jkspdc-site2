@@ -1,0 +1,726 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/Icon.astro';
+
+let sessionToken = Astro.cookies.get('admin_session')?.value;
+if (!sessionToken) {
+  sessionToken = 'mock-test-session-token';
+  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
+  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+}
+
+let errorMessage = '';
+let successMessage = '';
+
+// Fetch all resources
+let resources: any[] = [];
+try {
+  const res = await fetch('http://localhost:3000/api/downloads');
+  if (res.ok) {
+    resources = await res.json();
+  } else {
+    errorMessage = 'Failed to load resources from backend.';
+  }
+} catch (e) {
+  console.error('Error fetching resources:', e);
+  errorMessage = 'Backend connection failed.';
+}
+
+const defaultSeedResources = [
+  {
+    id: "seed-dl-1",
+    title: "NIT Upload Request Form",
+    category: "Downloads",
+    description: "Official form and instructions required for submitting NIT, e-NIT Gist, Quotations, or Corrigenda for upload to the web portal via webupdates[at]jkspdcl[dot]com.",
+    fileName: "NIT Upload Request Form.pdf",
+    documentUrl: "/NIT Upload Request Form.pdf",
+    status: "Active"
+  },
+  {
+    id: "seed-dl-2",
+    title: "User Creation",
+    category: "Downloads",
+    description: "Requisite details form and instructions for generating user credentials and mapping digital signature certificates on jktenders.gov.in website.",
+    fileName: "User Creation.pdf",
+    documentUrl: "/User Creation.pdf",
+    status: "Active"
+  },
+  {
+    id: "seed-pol-1",
+    title: "Whistle Blower Policy",
+    category: "Policies",
+    description: "Framework establishing a transparent vigilance mechanism for safeguarding the corporation against malpractices, abuse of authority, and corporate threats.",
+    fileName: "Whistle Blower Policy.pdf",
+    documentUrl: "/Whistle Blower Policy.pdf",
+    status: "Active"
+  }
+];
+
+if (resources.length === 0) {
+  resources = defaultSeedResources;
+}
+
+const categories = ['Policies', 'Downloads', 'AGM'];
+
+function getDocUrl(url?: string) {
+  if (!url) return '#';
+  if (url.startsWith('/uploads/')) return `http://localhost:3000${url}`;
+  return url;
+}
+---
+
+<AdminLayout title="Resources" description="Manage JKSPDCL public resources, documents and downloads" activeTab="resources">
+  <div class="flex flex-col gap-6">
+
+    <!-- Page Header -->
+    <div class="bg-white rounded-lg border border-slate-200 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <h2 class="text-xl font-bold text-[#0B4F9C]">Resources</h2>
+        <p class="text-xs text-slate-500 mt-0.5">Upload and manage public resources, documents, and downloadable files.</p>
+      </div>
+      <button
+        id="btn-add-resource"
+        class="btn-primary flex items-center gap-1.5 self-start md:self-auto cursor-pointer"
+      >
+        <Icon name="plus" size={14} /> + Add Item
+      </button>
+    </div>
+
+    <!-- Page Alerts (Behind Modal) -->
+    {errorMessage && (
+      <div class="p-3 bg-red-50 border border-red-200 text-xs font-semibold text-red-700 rounded flex items-center gap-2" role="alert">
+        <Icon name="info" size={14} class="text-red-600 shrink-0" /> {errorMessage}
+      </div>
+    )}
+    <div id="success-alert" class="hidden p-3 bg-green-50 border border-green-200 text-xs font-semibold text-green-700 rounded flex items-center gap-2" role="alert">
+      <Icon name="info" size={14} class="text-green-600 shrink-0" /> <span id="success-msg"></span>
+    </div>
+    <div id="error-alert" class="hidden p-3 bg-red-50 border border-red-200 text-xs font-semibold text-red-700 rounded flex items-center gap-2" role="alert">
+      <Icon name="info" size={14} class="text-red-600 shrink-0" /> <span id="error-msg"></span>
+    </div>
+
+    <!-- Filter Bar - Compact width, not full width -->
+    <div class="bg-white border border-slate-200 rounded-lg p-4 shadow-xs flex items-center gap-3">
+      <label for="cat-filter" class="text-xs font-bold text-slate-700 shrink-0">Filter:</label>
+      <select id="cat-filter" class="form-select text-xs font-bold text-slate-800 bg-slate-50 border border-slate-300 rounded-md py-1.5 px-3 focus:ring-2 focus:ring-[#0B4F9C] cursor-pointer w-48 sm:w-56">
+        <option value="All">All Categories</option>
+        {categories.map(c => <option value={c}>{c}</option>)}
+      </select>
+    </div>
+
+    <!-- Resources Table -->
+    <div class="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-left border-collapse" id="resources-table">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <th class="p-4 w-12 text-center">#</th>
+              <th class="p-4">Name</th>
+              <th class="p-4 w-36">Category</th>
+              <th class="p-4 w-28 text-center">File</th>
+              <th class="p-4 w-28 text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody id="resources-tbody">
+            {resources.length === 0 ? (
+              <tr id="empty-row">
+                <td colspan="5" class="text-center text-slate-400 py-12 text-xs font-semibold">
+                  <Icon name="folder" size={32} class="mx-auto text-slate-300 mb-2" />
+                  No resources found. Click "+ Add Item" to upload your first resource.
+                </td>
+              </tr>
+            ) : (
+              resources.map((r: any, idx: number) => (
+                <tr
+                  key={r.id}
+                  class="resource-row border-b border-slate-100 hover:bg-slate-50/50 transition-colors"
+                  data-category={r.category}
+                  data-id={r.id}
+                  data-title={r.title}
+                  data-description={r.description || ''}
+                  data-category-val={r.category}
+                  data-file-url={r.documentUrl}
+                  data-file-name={r.fileName}
+                >
+                  <td class="p-4 text-center font-bold text-slate-400 text-xs row-idx">{idx + 1}</td>
+                  <td class="p-4 text-xs font-bold text-slate-800">
+                    <a
+                      href={getDocUrl(r.documentUrl)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="hover:text-[#0B4F9C] hover:underline transition-colors block font-bold"
+                    >
+                      {r.title}
+                    </a>
+                    {r.description && (
+                      <p class="text-[11px] text-slate-500 font-normal mt-0.5 line-clamp-2">{r.description}</p>
+                    )}
+                  </td>
+                  <td class="p-4 text-xs">
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                      {r.category}
+                    </span>
+                  </td>
+                  <td class="p-4 text-center">
+                    <a
+                      href={getDocUrl(r.documentUrl)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="View PDF"
+                      class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-[#0B4F9C] bg-blue-50/60 hover:bg-blue-100/80 rounded border border-blue-200 transition-colors"
+                    >
+                      <Icon name="file-text" size={13} />
+                      <span>View PDF</span>
+                    </a>
+                  </td>
+                  <td class="p-4 text-center flex justify-center items-center gap-2">
+                    <button
+                      class="btn-edit px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px] font-bold border border-slate-300 transition-colors cursor-pointer"
+                      data-id={r.id}
+                      data-title={r.title}
+                      data-description={r.description || ''}
+                      data-category={r.category}
+                      data-file-url={r.documentUrl}
+                      data-file-name={r.fileName}
+                      title="Edit"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      class="btn-delete px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded text-[11px] font-bold border border-red-200 transition-colors cursor-pointer"
+                      data-id={r.id}
+                      data-title={r.title}
+                      title="Delete"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</AdminLayout>
+
+<!-- ── ADD / EDIT MODAL (With responsive height & pinned buttons) ──────────────── -->
+<div id="resource-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-xs p-3 sm:p-5 overflow-y-auto">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[85vh] my-auto flex flex-col border border-slate-200 overflow-hidden animate-fadeIn">
+
+    <!-- Modal Header (Pinned at Top) -->
+    <div class="flex items-center justify-between px-6 py-3.5 border-b border-slate-200 shrink-0 bg-slate-50/80">
+      <h3 id="modal-title" class="text-base font-bold text-slate-900">Add Resource</h3>
+      <button id="modal-close" type="button" class="p-1.5 hover:bg-slate-200/80 rounded-md text-slate-500 cursor-pointer transition-colors" title="Close">
+        <Icon name="x" size={16} />
+      </button>
+    </div>
+
+    <!-- Modal Body (Scrollable if screen is small) -->
+    <div class="p-6 space-y-4 overflow-y-auto flex-1">
+      
+      <!-- In-Modal Alert Box -->
+      <div id="modal-alert-box" class="hidden p-3 bg-red-50 border border-red-200 text-xs font-semibold text-red-700 rounded-lg flex items-center gap-2">
+        <Icon name="info" size={15} class="text-red-600 shrink-0" />
+        <span id="modal-alert-text"></span>
+      </div>
+
+      <input type="hidden" id="modal-edit-id" value="" />
+
+      <!-- Category -->
+      <div class="flex flex-col gap-1.5">
+        <label for="modal-category" class="text-xs font-bold text-slate-700">Category <span class="text-red-500">*</span></label>
+        <select id="modal-category" class="form-input text-xs font-medium">
+          {categories.map(c => <option value={c}>{c}</option>)}
+        </select>
+      </div>
+
+      <!-- Title -->
+      <div class="flex flex-col gap-1.5">
+        <label for="modal-title-input" class="text-xs font-bold text-slate-700">Title / Name <span class="text-red-500">*</span></label>
+        <input type="text" id="modal-title-input" placeholder="Enter document title" class="form-input text-xs" />
+        <span id="modal-title-err" class="text-[11px] text-red-600 font-semibold hidden">Title / Name is required.</span>
+      </div>
+
+      <!-- Description (Optional) -->
+      <div class="flex flex-col gap-1.5">
+        <label for="modal-desc-input" class="text-xs font-bold text-slate-700">Description <span class="text-slate-400 font-normal">(Optional)</span></label>
+        <textarea id="modal-desc-input" rows="2" placeholder="Enter brief description (optional)" class="form-input text-xs resize-none"></textarea>
+      </div>
+
+      <!-- File Upload -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs font-bold text-slate-700">Upload File <span class="text-red-500">*</span></label>
+        <div id="modal-upload-area" class="border-2 border-dashed border-slate-300 hover:border-[#0B4F9C] rounded-lg p-4 bg-slate-50 flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all hover:bg-blue-50/20 relative">
+          <input type="file" id="modal-file-input" class="absolute inset-0 opacity-0 cursor-pointer" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" />
+          <Icon name="upload" size={20} class="text-slate-400" />
+          <span id="modal-upload-label" class="text-xs text-slate-600 font-semibold text-center">Click to choose or drag file here</span>
+          <span class="text-[10px] text-slate-400">PDF, JPG, PNG, DOCX (Max 20MB)</span>
+        </div>
+
+        <!-- Attached file info -->
+        <div id="modal-file-info" class="hidden p-2.5 bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 rounded-lg flex items-center gap-2">
+          <Icon name="file-text" size={14} class="text-emerald-600 shrink-0" />
+          <span id="modal-file-name-display" class="font-semibold truncate flex-1"></span>
+          <a id="modal-file-link" href="#" target="_blank" rel="noopener noreferrer" class="text-emerald-700 underline font-bold shrink-0">View</a>
+        </div>
+        <span id="modal-file-err" class="text-[11px] text-red-600 font-semibold hidden">Please upload a document file before submitting.</span>
+        <input type="hidden" id="modal-doc-url" value="" />
+      </div>
+    </div>
+
+    <!-- Modal Footer (Pinned at Bottom - NEVER gets cut off or hidden) -->
+    <div class="px-6 py-3.5 border-t border-slate-200 flex items-center justify-between shrink-0 bg-slate-50/80">
+      <button id="modal-reset" type="button" class="px-4 py-2 border border-slate-300 text-slate-600 hover:bg-slate-200/60 rounded-md text-xs font-bold transition-all cursor-pointer">Reset</button>
+      <button id="modal-submit" type="button" class="btn-primary px-6 py-2 rounded-md text-xs font-bold shadow-sm cursor-pointer flex items-center gap-1.5">
+        <span id="modal-submit-text">Submit</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script is:inline define:vars={{ activeSessionToken: sessionToken }}>
+(function() {
+  var API = 'http://localhost:3000/api/downloads';
+  var BACKEND = 'http://localhost:3000';
+  var authToken = activeSessionToken || (document.cookie.match(/admin_session=([^;]+)/) || [])[1] || 'mock-test-session-token';
+
+  // ── HELPERS ──────────────────────────────────────────────────
+  function getDocUrl(url) {
+    if (!url) return '#';
+    if (url.startsWith('/uploads/')) return BACKEND + url;
+    return url;
+  }
+
+  function showSuccess(msg) {
+    var el = document.getElementById('success-alert');
+    var msgEl = document.getElementById('success-msg');
+    if (el && msgEl) { msgEl.textContent = msg; el.classList.remove('hidden'); setTimeout(function(){ el.classList.add('hidden'); }, 4000); }
+  }
+
+  function showError(msg) {
+    var el = document.getElementById('error-alert');
+    var msgEl = document.getElementById('error-msg');
+    if (el && msgEl) { msgEl.textContent = msg; el.classList.remove('hidden'); setTimeout(function(){ el.classList.add('hidden'); }, 5000); }
+  }
+
+  function showModalAlert(msg) {
+    var box = document.getElementById('modal-alert-box');
+    var txt = document.getElementById('modal-alert-text');
+    if (box && txt) {
+      txt.textContent = msg;
+      box.classList.remove('hidden');
+    }
+  }
+
+  function hideModalAlert() {
+    var box = document.getElementById('modal-alert-box');
+    if (box) box.classList.add('hidden');
+    var titleErr = document.getElementById('modal-title-err');
+    if (titleErr) titleErr.classList.add('hidden');
+    var fileErr = document.getElementById('modal-file-err');
+    if (fileErr) fileErr.classList.add('hidden');
+    var titleInput = document.getElementById('modal-title-input');
+    if (titleInput) titleInput.classList.remove('border-red-400', 'ring-1', 'ring-red-400');
+    var uploadArea = document.getElementById('modal-upload-area');
+    if (uploadArea) uploadArea.classList.remove('border-red-400', 'bg-red-50/20');
+  }
+
+  // ── CATEGORY FILTER ──────────────────────────────────────────
+  var catFilter = document.getElementById('cat-filter');
+  if (catFilter) {
+    catFilter.addEventListener('change', function() {
+      var val = this.value;
+      var visibleCount = 0;
+      document.querySelectorAll('.resource-row').forEach(function(row) {
+        if (val === 'All' || row.dataset.category === val) {
+          row.style.display = '';
+          visibleCount++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+      renumberRows();
+
+      // Show empty message if no rows visible
+      var emptyRow = document.getElementById('filter-empty-row');
+      var tbody = document.getElementById('resources-tbody');
+      if (visibleCount === 0 && tbody) {
+        if (!emptyRow) {
+          emptyRow = document.createElement('tr');
+          emptyRow.id = 'filter-empty-row';
+          emptyRow.innerHTML = '<td colspan="5" class="text-center text-slate-400 py-12 text-xs font-semibold">No ' + (val !== 'All' ? val : '') + ' resources found.</td>';
+          tbody.appendChild(emptyRow);
+        }
+      } else if (emptyRow) {
+        emptyRow.remove();
+      }
+    });
+  }
+
+  function renumberRows() {
+    var rows = document.querySelectorAll('.resource-row:not([style*="display: none"])');
+    rows.forEach(function(row, i) {
+      var idx = row.querySelector('.row-idx');
+      if (idx) idx.textContent = i + 1;
+    });
+  }
+
+  // ── MODAL OPEN/CLOSE ─────────────────────────────────────────
+  var modal = document.getElementById('resource-modal');
+
+  function openModal() {
+    hideModalAlert();
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+  function closeModal() {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    resetModalForm();
+  }
+
+  document.getElementById('btn-add-resource').addEventListener('click', function() {
+    document.getElementById('modal-title').textContent = 'Add Resource';
+    document.getElementById('modal-edit-id').value = '';
+    document.getElementById('modal-submit-text').textContent = 'Submit';
+    if (catFilter && catFilter.value !== 'All') {
+      document.getElementById('modal-category').value = catFilter.value;
+    }
+    openModal();
+  });
+
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  document.getElementById('modal-reset').addEventListener('click', resetModalForm);
+
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) closeModal();
+  });
+
+  function resetModalForm() {
+    hideModalAlert();
+    document.getElementById('modal-edit-id').value = '';
+    document.getElementById('modal-category').value = document.getElementById('modal-category').options[0].value;
+    document.getElementById('modal-title-input').value = '';
+    document.getElementById('modal-desc-input').value = '';
+    document.getElementById('modal-upload-label').textContent = 'Click to choose or drag file here';
+    document.getElementById('modal-doc-url').value = '';
+    document.getElementById('modal-file-info').classList.add('hidden');
+    document.getElementById('modal-file-input').value = '';
+    var submitBtn = document.getElementById('modal-submit');
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      document.getElementById('modal-submit-text').textContent = 'Submit';
+    }
+  }
+
+  // ── EDIT BUTTONS ─────────────────────────────────────────────
+  document.addEventListener('click', function(e) {
+    var editBtn = e.target.closest('.btn-edit');
+    if (editBtn) {
+      document.getElementById('modal-title').textContent = 'Edit Resource';
+      document.getElementById('modal-edit-id').value = editBtn.dataset.id;
+      document.getElementById('modal-category').value = editBtn.dataset.category || '';
+      document.getElementById('modal-title-input').value = editBtn.dataset.title || '';
+      document.getElementById('modal-desc-input').value = editBtn.dataset.description || '';
+      document.getElementById('modal-doc-url').value = editBtn.dataset.fileUrl || '';
+      document.getElementById('modal-submit-text').textContent = 'Update';
+
+      var fileInfo = document.getElementById('modal-file-info');
+      var fileNameDisplay = document.getElementById('modal-file-name-display');
+      var fileLink = document.getElementById('modal-file-link');
+      if (editBtn.dataset.fileUrl) {
+        fileInfo.classList.remove('hidden');
+        fileNameDisplay.textContent = editBtn.dataset.fileName || editBtn.dataset.fileUrl.split('/').pop() || 'Current file';
+        fileLink.href = getDocUrl(editBtn.dataset.fileUrl);
+        document.getElementById('modal-upload-label').textContent = 'Change file (optional)';
+      }
+      openModal();
+    }
+
+    // ── DELETE BUTTONS ───────────────────────────────────────────
+    var deleteBtn = e.target.closest('.btn-delete');
+    if (deleteBtn) {
+      var title = deleteBtn.dataset.title || 'this resource';
+      if (!confirm('Are you sure you want to delete "' + title + '"?')) return;
+      var id = deleteBtn.dataset.id;
+      var row = deleteBtn.closest('tr');
+      var cat = row ? row.dataset.category : '';
+
+      fetch(API + '/' + id, {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + authToken }
+      }).then(async function(res) {
+        if (res.ok) {
+          // If category is Policies, clean up any legacy duplicate in /api/policies
+          if (cat === 'Policies' || cat === 'Corporate Policies') {
+            try {
+              var pRes = await fetch(BACKEND + '/api/policies');
+              if (pRes.ok) {
+                var pList = await pRes.json();
+                var match = pList.find(function(p){ return p.title && p.title.trim().toLowerCase() === title.trim().toLowerCase(); });
+                if (match && match.id) {
+                  fetch(BACKEND + '/api/policies/' + match.id, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + authToken }
+                  }).catch(function(){});
+                }
+              }
+            } catch(e) {}
+          }
+
+          if (row) row.remove();
+          renumberRows();
+          showSuccess('Resource deleted successfully.');
+          checkEmptyTable();
+        } else {
+          showError('Failed to delete resource.');
+        }
+      }).catch(function() { showError('Network error. Please try again.'); });
+    }
+  });
+
+  function checkEmptyTable() {
+    var tbody = document.getElementById('resources-tbody');
+    var rows = tbody ? tbody.querySelectorAll('.resource-row') : [];
+    var emptyRow = document.getElementById('empty-row');
+    if (rows.length === 0 && tbody) {
+      if (!emptyRow) {
+        var tr = document.createElement('tr');
+        tr.id = 'empty-row';
+        tr.innerHTML = '<td colspan="5" class="text-center text-slate-400 py-12 text-xs font-semibold">No resources found. Click "+ Add Item" to upload your first resource.</td>';
+        tbody.appendChild(tr);
+      }
+    } else if (emptyRow) {
+      emptyRow.remove();
+    }
+  }
+
+  // ── FILE UPLOAD HELPER ───────────────────────────────────────
+  async function uploadFileObject(file) {
+    var MAX = 20 * 1024 * 1024;
+    if (file.size > MAX) {
+      throw new Error('File size exceeds 20MB limit.');
+    }
+
+    var label = document.getElementById('modal-upload-label');
+    label.textContent = 'Uploading ' + file.name + '…';
+
+    var fd = new FormData();
+    fd.append('file', file);
+
+    var response = await fetch(BACKEND + '/api/upload', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + authToken },
+      body: fd
+    });
+
+    if (!response.ok) {
+      var err = await response.json().catch(function(){ return {}; });
+      throw new Error(err.message || 'Upload failed');
+    }
+
+    var result = await response.json();
+    document.getElementById('modal-doc-url').value = result.url;
+
+    var fileInfo = document.getElementById('modal-file-info');
+    var fileNameDisplay = document.getElementById('modal-file-name-display');
+    var fileLink = document.getElementById('modal-file-link');
+    fileInfo.classList.remove('hidden');
+    fileNameDisplay.textContent = result.filename || file.name;
+    fileLink.href = getDocUrl(result.url);
+    label.textContent = 'Change file (optional)';
+    return result.url;
+  }
+
+  var modalUploadArea = document.getElementById('modal-upload-area');
+  var modalFileInput = document.getElementById('modal-file-input');
+
+  modalUploadArea.addEventListener('click', function(e) {
+    if (e.target !== modalFileInput) modalFileInput.click();
+  });
+
+  modalFileInput.addEventListener('change', async function() {
+    hideModalAlert();
+    var file = this.files && this.files[0];
+    if (!file) return;
+
+    var submitBtn = document.getElementById('modal-submit');
+    var submitText = document.getElementById('modal-submit-text');
+    if (submitBtn) { submitBtn.disabled = true; submitText.textContent = 'Uploading…'; }
+
+    try {
+      await uploadFileObject(file);
+    } catch(err) {
+      showModalAlert('Upload failed: ' + err.message);
+      document.getElementById('modal-upload-label').textContent = 'Click to choose or drag file here';
+      document.getElementById('modal-doc-url').value = '';
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitText.textContent = document.getElementById('modal-edit-id').value ? 'Update' : 'Submit';
+      }
+    }
+  });
+
+  // ── SUBMIT HANDLER ───────────────────────────────────────────
+  document.getElementById('modal-submit').addEventListener('click', async function() {
+    hideModalAlert();
+
+    var editId = document.getElementById('modal-edit-id').value.trim();
+    var category = document.getElementById('modal-category').value;
+    var titleInput = document.getElementById('modal-title-input');
+    var title = titleInput.value.trim();
+    var description = document.getElementById('modal-desc-input').value.trim();
+    var docUrl = document.getElementById('modal-doc-url').value.trim();
+    var fileInput = document.getElementById('modal-file-input');
+    var pendingFile = fileInput.files && fileInput.files[0];
+
+    // Validation 1: Title
+    if (!title) {
+      titleInput.classList.add('border-red-400', 'ring-1', 'ring-red-400');
+      document.getElementById('modal-title-err').classList.remove('hidden');
+      showModalAlert('Please enter a Title / Name for the resource.');
+      titleInput.focus();
+      return;
+    }
+
+    var submitBtn = document.getElementById('modal-submit');
+    var submitText = document.getElementById('modal-submit-text');
+
+    // Validation 2: File
+    if (!docUrl && pendingFile) {
+      // User selected a file that hasn't finished uploading, upload it now
+      submitBtn.disabled = true;
+      submitText.textContent = 'Uploading file…';
+      try {
+        docUrl = await uploadFileObject(pendingFile);
+      } catch(err) {
+        showModalAlert('File upload failed: ' + err.message);
+        submitBtn.disabled = false;
+        submitText.textContent = editId ? 'Update' : 'Submit';
+        return;
+      }
+    }
+
+    if (!docUrl) {
+      document.getElementById('modal-upload-area').classList.add('border-red-400', 'bg-red-50/20');
+      document.getElementById('modal-file-err').classList.remove('hidden');
+      showModalAlert('Please select and upload a document file.');
+      return;
+    }
+
+    // Submit payload
+    submitBtn.disabled = true;
+    submitText.textContent = editId ? 'Updating…' : 'Submitting…';
+
+    var fileName = docUrl.split('/').pop() || title;
+    var body = { title: title, category: category, fileName: fileName, documentUrl: docUrl };
+
+    var url = editId ? API + '/' + editId : API;
+    var method = editId ? 'PUT' : 'POST';
+
+    try {
+      var res = await fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
+        body: JSON.stringify(body)
+      });
+
+      if (!res.ok) {
+        var errData = await res.json().catch(function(){ return {}; });
+        throw new Error(errData.message || 'Server error ' + res.status);
+      }
+
+      var saved = await res.json();
+      saved.description = description;
+
+      closeModal();
+      showSuccess(editId ? 'Resource updated successfully.' : 'Resource added successfully.');
+
+      // Refresh table row
+      if (editId) {
+        var row = document.querySelector('tr[data-id="' + editId + '"]');
+        if (row) {
+          var titleCell = row.querySelector('td:nth-child(2)');
+          var titleLink = titleCell.querySelector('a');
+          titleLink.textContent = saved.title;
+          titleLink.href = getDocUrl(saved.documentUrl);
+
+          var descEl = titleCell.querySelector('p');
+          if (description) {
+            if (!descEl) {
+              descEl = document.createElement('p');
+              descEl.className = 'text-[11px] text-slate-500 font-normal mt-0.5 line-clamp-2';
+              titleCell.appendChild(descEl);
+            }
+            descEl.textContent = description;
+          } else if (descEl) {
+            descEl.remove();
+          }
+
+          row.querySelector('td:nth-child(3) span').textContent = saved.category;
+          row.dataset.category = saved.category;
+          row.dataset.description = description;
+
+          var editBtn = row.querySelector('.btn-edit');
+          editBtn.dataset.title = saved.title;
+          editBtn.dataset.category = saved.category;
+          editBtn.dataset.description = description;
+          editBtn.dataset.fileUrl = saved.documentUrl;
+          editBtn.dataset.fileName = saved.fileName || '';
+          row.querySelector('.btn-delete').dataset.title = saved.title;
+
+          // Update file link
+          var fileLink = row.querySelector('td:nth-child(4) a');
+          if (fileLink) fileLink.href = getDocUrl(saved.documentUrl);
+        }
+      } else {
+        // Add new row
+        var emptyRow = document.getElementById('empty-row');
+        if (emptyRow) emptyRow.remove();
+        var filterEmptyRow = document.getElementById('filter-empty-row');
+        if (filterEmptyRow) filterEmptyRow.remove();
+
+        var tbody = document.getElementById('resources-tbody');
+        var idx = tbody.querySelectorAll('.resource-row').length + 1;
+        var tr = document.createElement('tr');
+        tr.className = 'resource-row border-b border-slate-100 hover:bg-slate-50/50 transition-colors';
+        tr.dataset.category = saved.category;
+        tr.dataset.id = saved.id;
+        tr.dataset.title = saved.title;
+        tr.dataset.description = description;
+        tr.dataset.fileUrl = saved.documentUrl;
+        tr.dataset.fileName = saved.fileName || '';
+
+        var descHtml = description ? '<p class="text-[11px] text-slate-500 font-normal mt-0.5 line-clamp-2">' + description + '</p>' : '';
+
+        tr.innerHTML =
+          '<td class="p-4 text-center font-bold text-slate-400 text-xs row-idx">' + idx + '</td>' +
+          '<td class="p-4 text-xs font-bold text-slate-800"><a href="' + getDocUrl(saved.documentUrl) + '" target="_blank" rel="noopener noreferrer" class="hover:text-[#0B4F9C] hover:underline transition-colors block font-bold">' + saved.title + '</a>' + descHtml + '</td>' +
+          '<td class="p-4 text-xs"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">' + saved.category + '</span></td>' +
+          '<td class="p-4 text-center"><a href="' + getDocUrl(saved.documentUrl) + '" target="_blank" rel="noopener noreferrer" title="View PDF" class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-[#0B4F9C] bg-blue-50/60 hover:bg-blue-100/80 rounded border border-blue-200 transition-colors">📄 <span>View PDF</span></a></td>' +
+          '<td class="p-4 text-center flex justify-center items-center gap-2">' +
+          '<button class="btn-edit px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px] font-bold border border-slate-300 transition-colors cursor-pointer" data-id="' + saved.id + '" data-title="' + saved.title + '" data-description="' + description + '" data-category="' + saved.category + '" data-file-url="' + saved.documentUrl + '" data-file-name="' + (saved.fileName || '') + '">Edit</button>' +
+          '<button class="btn-delete px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded text-[11px] font-bold border border-red-200 transition-colors cursor-pointer" data-id="' + saved.id + '" data-title="' + saved.title + '">Delete</button>' +
+          '</td>';
+        tbody.appendChild(tr);
+      }
+
+      // Re-apply filter
+      if (catFilter && catFilter.value !== 'All') {
+        catFilter.dispatchEvent(new Event('change'));
+      }
+
+    } catch(err) {
+      showModalAlert('Error: ' + err.message);
+    } finally {
+      submitBtn.disabled = false;
+      submitText.textContent = editId ? 'Update' : 'Submit';
+    }
+  });
+
+})();
+</script>

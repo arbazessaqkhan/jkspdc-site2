@@ -24,6 +24,15 @@ function getDocUrl(url?: string) {
   return url;
 }
 
+function isDocUrl(url?: string) {
+  if (!url) return false;
+  return (
+    url.includes('/uploads/') ||
+    /\.(pdf|docx?|xlsx?|pptx?|zip|rar|csv)$/i.test(url) ||
+    (url.startsWith('http') && url.includes('/uploads/'))
+  );
+}
+
 // Dynamically fetch ticker items from the public APIs
 let tickerItems: any[] = [];
 try {
@@ -269,16 +278,49 @@ if (tickerItems.length === 0) {
               btn.addEventListener('click', toggleLangDropdown);
             }
             
-            // Navigation Menu Toggle Logic (1st click = maximize/open, 2nd click = minimize/close)
+            // Navigation Menu Toggle & Smart Viewport Edge Alignment Logic
             var navItems = document.querySelectorAll('.nav-dropdown-item');
+            
+            function positionDropdown(item) {
+              var menu = item.querySelector('.nav-dropdown-menu');
+              if (!menu) return;
+              var rect = item.getBoundingClientRect();
+              var windowWidth = window.innerWidth || document.documentElement.clientWidth;
+              var itemCenter = rect.left + (rect.width / 2);
+
+              if (itemCenter > windowWidth / 2) {
+                // Item is on right half of screen -> align right so menu opens to the left
+                menu.style.left = 'auto';
+                menu.style.right = '0';
+              } else {
+                // Item is on left half of screen -> align left so menu opens to the right
+                menu.style.left = '0';
+                menu.style.right = 'auto';
+              }
+            }
+
+            function updateAllDropdownPositions() {
+              navItems.forEach(positionDropdown);
+            }
+
+            // Initial positioning
+            updateAllDropdownPositions();
+            window.addEventListener('resize', updateAllDropdownPositions);
+
             navItems.forEach(function(item) {
               var btn = item.querySelector('.nav-dropdown-btn');
               var menu = item.querySelector('.nav-dropdown-menu');
               if (!btn || !menu) return;
 
+              // Ensure correct positioning before opening on mouseenter
+              item.addEventListener('mouseenter', function() {
+                positionDropdown(item);
+              });
+
               btn.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
+                positionDropdown(item);
 
                 var isClosed = item.classList.contains('is-closed');
                 var isOpen = item.classList.contains('is-open');
@@ -355,40 +397,40 @@ if (tickerItems.length === 0) {
     </noscript>
 
     <header class="bg-[#EAF4FF] border-b-2 border-[#0B4F9C] shadow-sm">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1.5 flex items-center justify-between">
+      <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-1.5 flex items-center justify-between gap-2">
         <!-- Left Logo -->
         <a href="/" class="flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C] rounded p-0.5" aria-label="JKSPDCL Home">
-          <img src="/logo.png" alt="JKSPDCL Logo" class="h-12 md:h-14 lg:h-16 w-auto object-contain" />
+          <img src="/logo.png" alt="JKSPDCL Logo" class="h-11 sm:h-12 md:h-14 lg:h-[3.75rem] w-auto object-contain" />
         </a>
 
         <!-- Centered Organization Name -->
-        <div class="flex-1 text-center px-4">
-          <h1 class="text-base md:text-xl font-bold text-[#0B4F9C] leading-tight">
+        <div class="flex-1 text-center px-1 sm:px-2 min-w-0">
+          <h1 class="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-[#0B4F9C] leading-tight whitespace-nowrap">
             Jammu &amp; Kashmir State Power Development Corporation Limited
           </h1>
-          <p class="text-xs md:text-sm font-bold text-[#0B4F9C] mt-0.5">(JKSPDCL)</p>
-          <p class="text-xs text-[#0B4F9C] font-semibold mt-0.5" lang="hi">
+          <p class="text-[11px] sm:text-xs md:text-sm font-bold text-[#0B4F9C] mt-0.5 whitespace-nowrap">(JKSPDCL)</p>
+          <p class="text-[10px] sm:text-xs text-[#0B4F9C] font-semibold mt-0.5 whitespace-nowrap" lang="hi">
             जम्मू और कश्मीर राज्य विद्युत विकास निगम लिमिटेड (जेकेएसपीडीसीएल)
           </p>
         </div>
 
         <!-- Right Accessibility Controls & Search Bar -->
-        <div class="flex flex-col items-end gap-2 flex-shrink-0">
+        <div class="flex flex-col items-end gap-1.5 flex-shrink-0">
           <!-- Accessibility Controls -->
-          <div class="flex items-center gap-2.5 text-xs text-slate-700 select-none">
+          <div class="flex items-center gap-1.5 sm:gap-2 text-xs text-slate-700 select-none">
             <!-- Font Sizing -->
             <div class="flex items-center gap-1" aria-label="Font Size Controls" role="group">
-              <button class="flex items-center gap-1 px-2 py-0.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-xs font-bold text-slate-700 transition-colors cursor-pointer" onclick="adjustFontSize('dec')" aria-label="Decrease Font Size" title="Decrease Font Size">
+              <button class="flex items-center gap-1 px-1.5 py-0.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-xs font-bold text-slate-700 transition-colors cursor-pointer" onclick="adjustFontSize('dec')" aria-label="Decrease Font Size" title="Decrease Font Size">
                 <Icon name="minus" size={9} strokeWidth={2.5} /> A
               </button>
-              <button class="flex items-center px-2.5 py-0.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-xs font-bold text-slate-700 transition-colors cursor-pointer" onclick="adjustFontSize('reset')" aria-label="Reset Font Size" title="Reset Font Size">A</button>
-              <button class="flex items-center gap-1 px-2 py-0.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-xs font-bold text-slate-700 transition-colors cursor-pointer" onclick="adjustFontSize('inc')" aria-label="Increase Font Size" title="Increase Font Size">
+              <button class="flex items-center px-2 py-0.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-xs font-bold text-slate-700 transition-colors cursor-pointer" onclick="adjustFontSize('reset')" aria-label="Reset Font Size" title="Reset Font Size">A</button>
+              <button class="flex items-center gap-1 px-1.5 py-0.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-xs font-bold text-slate-700 transition-colors cursor-pointer" onclick="adjustFontSize('inc')" aria-label="Increase Font Size" title="Increase Font Size">
                 <Icon name="plus" size={9} strokeWidth={2.5} /> A
               </button>
             </div>
             <span class="text-slate-300">|</span>
             <!-- Contrast Switcher -->
-            <button class="flex items-center gap-1.5 px-2.5 py-0.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-xs font-bold text-slate-700 transition-colors cursor-pointer" onclick="toggleHighContrast()" aria-label="Toggle High Contrast Mode">
+            <button class="flex items-center gap-1 px-2 py-0.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-xs font-bold text-slate-700 transition-colors cursor-pointer" onclick="toggleHighContrast()" aria-label="Toggle High Contrast Mode">
               <Icon name="contrast" size={11} strokeWidth={2.5} /> Contrast
             </button>
             <span class="text-slate-300">|</span>
@@ -397,7 +439,7 @@ if (tickerItems.length === 0) {
               <button
                 id="lang-dropdown-btn"
                 type="button"
-                class="flex items-center gap-1 px-2.5 py-0.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-xs font-bold text-slate-700 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
+                class="flex items-center gap-1 px-2 py-0.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-xs font-bold text-slate-700 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
                 aria-expanded="false"
                 aria-haspopup="true"
               >
@@ -433,14 +475,14 @@ if (tickerItems.length === 0) {
                 name="q" 
                 id="header-search" 
                 placeholder="Search…" 
-                class="bg-white hover:bg-slate-50 focus-visible:bg-white text-xs text-slate-850 focus-visible:text-slate-900 px-3 py-2 rounded-l-md border border-slate-300 border-r-0 focus-visible:border-[#0B4F9C] focus-visible:outline-none transition-[background-color,border-color,color] duration-150 w-36 lg:w-44 placeholder-slate-400 shadow-sm" 
+                class="bg-white hover:bg-slate-50 focus-visible:bg-white text-xs text-slate-850 focus-visible:text-slate-900 px-2.5 py-1.5 rounded-l-md border border-slate-300 border-r-0 focus-visible:border-[#0B4F9C] focus-visible:outline-none transition-[background-color,border-color,color] duration-150 w-32 sm:w-36 lg:w-40 placeholder-slate-400 shadow-sm" 
                 required
               />
               <!-- Suggestions Dropdown Container -->
               <div id="header-search-suggestions" class="absolute left-0 right-0 top-full mt-1 bg-white text-slate-850 border border-slate-200 rounded-md shadow-xl hidden z-[9999] max-h-60 overflow-y-auto text-left py-1 w-full lg:w-48">
               </div>
             </div>
-            <button type="submit" class="p-2 bg-[#1a5276] hover:bg-[#084A8F] rounded-r-md text-xs text-white font-bold flex items-center justify-center border border-transparent transition-[background-color,border-color] duration-150 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C]/50 cursor-pointer" aria-label="Submit Search">
+            <button type="submit" class="p-1.5 bg-[#1a5276] hover:bg-[#084A8F] rounded-r-md text-xs text-white font-bold flex items-center justify-center border border-transparent transition-[background-color,border-color] duration-150 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C]/50 cursor-pointer" aria-label="Submit Search">
               <Icon name="search" size={14} strokeWidth={2.5} />
             </button>
           </form>
@@ -456,7 +498,7 @@ if (tickerItems.length === 0) {
           <ul>
             {tickerItems.map((item: any) => (
               <li>
-                <strong>{item.type}:</strong> {item.url ? <a href={item.url}>{item.text}</a> : item.text}
+                <strong>{item.type}:</strong> {item.url ? <a href={item.url} target={isDocUrl(item.url) ? "_blank" : undefined} rel={isDocUrl(item.url) ? "noopener noreferrer" : undefined}>{item.text}</a> : item.text}
               </li>
             ))}
           </ul>
@@ -475,7 +517,7 @@ if (tickerItems.length === 0) {
                 <span class="inline-flex items-center whitespace-nowrap shrink-0" style="padding-right:4rem;">
                   › <strong class={`font-extrabold uppercase tracking-wider text-[10px] mr-1.5 px-1.5 py-0.5 rounded border whitespace-nowrap shrink-0 ${item.colorClass}`}>{item.type}:</strong>
                   {item.url ? (
-                    <a href={item.url} class="text-slate-100 hover:underline hover:text-white transition-colors whitespace-nowrap">
+                    <a href={item.url} target={isDocUrl(item.url) ? "_blank" : undefined} rel={isDocUrl(item.url) ? "noopener noreferrer" : undefined} class="text-slate-100 hover:underline hover:text-white transition-colors whitespace-nowrap">
                       {item.text}
                     </a>
                   ) : (
@@ -590,6 +632,7 @@ if (tickerItems.length === 0) {
             <li>
               <a href="/media/downloads" class="block px-3.5 py-3.5 text-white hover:bg-[#084A8F] transition-colors border-b-2 border-transparent hover:border-white/60">Downloads</a>
             </li>
+
 
             <!-- Employees Corner -->
             <li class="relative nav-dropdown-item">
@@ -1010,6 +1053,22 @@ if (tickerItems.length === 0) {
         }
         requestAnimationFrame(step);
       })();
+    </script>
+    <!-- Global Document Link Target Handler (Ensures all document/upload links open in a new blank tab) -->
+    <script is:inline>
+      document.addEventListener('click', function(e) {
+        var anchor = e.target.closest('a');
+        if (!anchor) return;
+        var href = anchor.getAttribute('href');
+        if (!href) return;
+        var isDoc = href.indexOf('/uploads/') !== -1 || 
+                    /\.(pdf|docx?|xlsx?|pptx?|zip|rar|csv)$/i.test(href) ||
+                    (href.indexOf('http') === 0 && href.indexOf('/uploads/') !== -1);
+        if (isDoc) {
+          anchor.setAttribute('target', '_blank');
+          anchor.setAttribute('rel', 'noopener noreferrer');
+        }
+      }, true);
     </script>
   </body>
 </html>

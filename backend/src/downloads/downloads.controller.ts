@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, Query } from '@nestjs/common';
 import { DownloadsService } from './downloads.service';
 import { AuthGuard } from '../auth/auth.guard';
 
@@ -7,8 +7,8 @@ export class DownloadsController {
   constructor(private readonly service: DownloadsService) {}
 
   @Get()
-  findAll() {
-    return this.service.findAll();
+  findAll(@Query('category') category?: string) {
+    return this.service.findAll(category);
   }
 
   @Get(':id')
@@ -18,7 +18,7 @@ export class DownloadsController {
 
   @UseGuards(AuthGuard)
   @Post()
-  create(@Body() body: { title: string; category: string; fileName: string; documentUrl: string; fileSizeBytes?: number }) {
+  create(@Body() body: { title: string; category: string; fileName: string; documentUrl: string; fileSizeBytes?: number; description?: string }) {
     return this.service.create(body);
   }
 

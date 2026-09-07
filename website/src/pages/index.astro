@@ -435,23 +435,23 @@ const displayTenders = mergedTenderItems.length > 0 ? mergedTenderItems : fallba
                       </div>
                       <div>
                         <dt class="text-white/60 font-semibold uppercase tracking-wider text-[11px]">Configuration</dt>
-                        <dd class="text-xs font-bold text-white mt-0.5">{slide.configuration}</dd>
+                        <dd class="text-base font-extrabold text-white mt-0.5">{slide.configuration}</dd>
                       </div>
                       <div>
                         <dt class="text-white/60 font-semibold uppercase tracking-wider text-[11px]">Design Energy</dt>
-                        <dd class="text-xs font-bold text-white mt-0.5">{slide.designEnergy ? `${slide.designEnergy} MU` : '—'}</dd>
+                        <dd class="text-base font-extrabold text-white mt-0.5">{slide.designEnergy ? `${slide.designEnergy} MU` : '—'}</dd>
                       </div>
                       <div>
                         <dt class="text-white/60 font-semibold uppercase tracking-wider text-[11px]">Commissioning</dt>
-                        <dd class="text-xs font-bold text-white mt-0.5">{slide.yearOfCommissioning || '—'}</dd>
+                        <dd class="text-base font-extrabold text-white mt-0.5">{slide.yearOfCommissioning || '—'}</dd>
                       </div>
                       <div>
                         <dt class="text-white/60 font-semibold uppercase tracking-wider text-[11px]">River Basin</dt>
-                        <dd class="text-xs font-bold text-white mt-0.5">{slide.basin}</dd>
+                        <dd class="text-base font-extrabold text-white mt-0.5">{slide.basin}</dd>
                       </div>
                       <div>
                         <dt class="text-white/60 font-semibold uppercase tracking-wider text-[11px]">District Location</dt>
-                        <dd class="text-xs font-bold text-white mt-0.5">{slide.location}</dd>
+                        <dd class="text-base font-extrabold text-white mt-0.5">{slide.location}</dd>
                       </div>
                     </dl>
                   </div>
@@ -911,96 +911,99 @@ const displayTenders = mergedTenderItems.length > 0 ? mergedTenderItems : fallba
     <!-- ============================================================ -->
     <!-- QUICK ACCESS GRID                                             -->
     <!-- ============================================================ -->
-    <section aria-labelledby="quick-access-heading" class="bg-white rounded-2xl border border-[#BDD7EE] shadow-sm overflow-hidden">
-      <div class="px-8 md:px-12 pt-10 pb-3">
-        <div class="text-[11px] uppercase tracking-[0.14em] text-[#1B3A6B] font-bold mb-2">Quick Access</div>
-        <h2 id="quick-access-heading" class="text-2xl md:text-3xl font-extrabold text-[#1A5276]">Navigate the corporation</h2>
-        <p class="text-sm text-slate-500 mt-2.5 max-w-2xl leading-relaxed">One-click access to the most-used services and information across the corporation.</p>
+    <section aria-labelledby="quick-access-heading" class="text-left mt-8">
+      <!-- Section Header (Outside Card) -->
+      <div class="text-left mb-4 flex-shrink-0">
+        <span class="inline-block text-[10px] uppercase tracking-[0.12em] text-[#1B3A6B] font-bold bg-transparent px-3 py-1 rounded-full border border-[#1B3A6B] mb-2.5">Quick Access</span>
+        <h2 id="quick-access-heading" class="text-xl md:text-2xl font-extrabold text-[#1B2A41]">Navigate the Corporation</h2>
+        <div class="w-10 h-0.5 bg-[#D8681B] mt-2.5 rounded-full"></div>
       </div>
-      <div class="px-8 md:px-12 pb-10 pt-8">
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {quickLinks.map((link) => (
-            <a href={link.href} class="group relative bg-white border border-[#BDD7EE]/80 rounded-xl p-5 hover:border-[#0B4F9C] hover:outline hover:outline-2 hover:outline-[#0B4F9C] -outline-offset-2 hover:shadow-[0_12px_24px_-4px_rgba(11,79,156,0.15)] hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col gap-3">
-              <!-- Subtle card background glow on hover -->
-              <div class="absolute inset-0 bg-gradient-to-br from-[#EAF4FF]/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-              <div class="w-12 h-12 rounded-xl bg-[#EAF4FF] text-[#0B4F9C] group-hover:bg-[#0B4F9C] group-hover:text-white flex items-center justify-center flex-shrink-0 transition-all duration-300 shadow-xs group-hover:shadow-md relative z-10 group-hover:scale-110">
-                <Icon name={link.icon} size={22} strokeWidth={1.75} />
-              </div>
-              <div class="relative z-10">
-                <div class="font-bold text-slate-800 text-sm leading-snug group-hover:text-[#0B4F9C] transition-colors">{link.label}</div>
-                <div class="text-xs text-slate-500 mt-1 leading-relaxed">{link.desc}</div>
-              </div>
-              <span class="absolute bottom-4 right-4 text-[#0B4F9C] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-base font-extrabold z-10">&rarr;</span>
-            </a>
-          ))}
+
+      <!-- White Card Container -->
+      <div class="bg-white rounded-2xl border border-[#BDD7EE] shadow-sm overflow-hidden">
+        <div class="px-8 md:px-12 pt-8 pb-3">
+          <p class="text-sm text-slate-500 max-w-2xl leading-relaxed">One-click access to the most-used services and information across the corporation.</p>
+        </div>
+        <div class="px-8 md:px-12 pb-10 pt-4">
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {quickLinks.map((link) => (
+              <a href={link.href} class="group relative bg-white border border-[#BDD7EE]/80 rounded-xl p-5 hover:border-[#0B4F9C] hover:outline hover:outline-2 hover:outline-[#0B4F9C] -outline-offset-2 hover:shadow-[0_12px_24px_-4px_rgba(11,79,156,0.15)] hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col gap-3">
+                <!-- Subtle card background glow on hover -->
+                <div class="absolute inset-0 bg-gradient-to-br from-[#EAF4FF]/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                <div class="w-12 h-12 rounded-xl bg-[#EAF4FF] text-[#0B4F9C] group-hover:bg-[#0B4F9C] group-hover:text-white flex items-center justify-center flex-shrink-0 transition-all duration-300 shadow-xs group-hover:shadow-md relative z-10 group-hover:scale-110">
+                  <Icon name={link.icon} size={22} strokeWidth={1.75} />
+                </div>
+                <div class="relative z-10">
+                  <div class="font-bold text-slate-800 text-sm leading-snug group-hover:text-[#0B4F9C] transition-colors">{link.label}</div>
+                  <div class="text-xs text-slate-500 mt-1 leading-relaxed">{link.desc}</div>
+                </div>
+                <span class="absolute bottom-4 right-4 text-[#0B4F9C] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-base font-extrabold z-10">&rarr;</span>
+              </a>
+            ))}
+          </div>
         </div>
       </div>
     </section>
 
-
-
-
-
-
-
     <!-- ============================================================ -->
     <!-- QUICK LINKS LOGO MARQUEE SECTION                             -->
     <!-- ============================================================ -->
-    <section id="quick-links-marquee" aria-labelledby="marquee-heading" class="bg-white rounded-2xl border border-[#BDD7EE]/80 shadow-sm overflow-hidden py-8 px-6">
-      <div class="text-center mb-6">
-        <span class="inline-block text-[11px] uppercase tracking-[0.14em] text-[#1B3A6B] font-bold bg-transparent px-4 py-1.5 rounded-full border border-[#1B3A6B] mb-3">External Portals</span>
+    <section id="quick-links-marquee" aria-labelledby="marquee-heading" class="text-left mt-8">
+      <!-- Section Header -->
+      <div class="text-left mb-4 flex-shrink-0">
+        <span class="inline-block text-[10px] uppercase tracking-[0.12em] text-[#1B3A6B] font-bold bg-transparent px-3 py-1 rounded-full border border-[#1B3A6B] mb-2.5">External Portals</span>
         <h2 id="marquee-heading" class="text-xl md:text-2xl font-extrabold text-[#1B2A41]">Important Quick Links</h2>
-        <div class="w-12 h-0.5 bg-[#D8681B] mt-2.5 mx-auto rounded-full"></div>
+        <div class="w-10 h-0.5 bg-[#D8681B] mt-2.5 rounded-full"></div>
       </div>
 
-      <!-- Scrolling Marquee Row -->
-      <div class="relative w-full overflow-hidden bg-slate-50/50 border border-slate-100 rounded-xl py-4 px-4">
+      <!-- Scrolling Marquee Row (Directly on section background) -->
+      <div class="relative w-full overflow-hidden py-2">
         <div class="marquee-track flex">
           <!-- Slide List (duplicated for infinite loop) -->
           <div class="marquee-content flex items-center gap-6 pr-6 flex-shrink-0">
-            <a href="https://cea.nic.in/" target="_blank" rel="noopener noreferrer" title="Central Electricity Authority" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+            <a href="https://cea.nic.in/" target="_blank" rel="noopener noreferrer" title="Central Electricity Authority" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow-md transition-all duration-200 w-[160px] h-[80px]">
               <img src="/logos/cea.webp" alt="Central Electricity Authority" title="Central Electricity Authority" class="max-w-full max-h-full object-contain" />
             </a>
-            <a href="https://moef.gov.in/" target="_blank" rel="noopener noreferrer" title="Ministry of Environment, Forest and Climate Change" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+            <a href="https://moef.gov.in/" target="_blank" rel="noopener noreferrer" title="Ministry of Environment, Forest and Climate Change" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow-md transition-all duration-200 w-[160px] h-[80px]">
               <img src="/logos/moef.png" alt="Ministry of Environment, Forest and Climate Change" title="Ministry of Environment, Forest and Climate Change" class="max-w-full max-h-full object-contain" />
             </a>
-            <a href="https://www.india.gov.in/" target="_blank" rel="noopener noreferrer" title="National Portal of India" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+            <a href="https://www.india.gov.in/" target="_blank" rel="noopener noreferrer" title="National Portal of India" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow-md transition-all duration-200 w-[160px] h-[80px]">
               <img src="/logos/india.svg" alt="National Portal of India" title="National Portal of India" class="max-w-full max-h-full object-contain" />
             </a>
-            <a href="https://mnre.gov.in/" target="_blank" rel="noopener noreferrer" title="Ministry of New and Renewable Energy" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+            <a href="https://mnre.gov.in/" target="_blank" rel="noopener noreferrer" title="Ministry of New and Renewable Energy" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow-md transition-all duration-200 w-[160px] h-[80px]">
               <img src="/logos/mnre.svg" alt="Ministry of New and Renewable Energy" title="Ministry of New and Renewable Energy" class="max-w-full max-h-full object-contain" />
             </a>
-            <a href="https://pdd.jk.gov.in/" target="_blank" rel="noopener noreferrer" title="Power Development Department J&K" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+            <a href="https://pdd.jk.gov.in/" target="_blank" rel="noopener noreferrer" title="Power Development Department J&K" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow-md transition-all duration-200 w-[160px] h-[80px]">
               <img src="/logos/pdd.svg" alt="Power Development Department J&K" title="Power Development Department J&K" class="max-w-full max-h-full object-contain p-0.5" />
             </a>
-            <a href="https://cwc.gov.in/" target="_blank" rel="noopener noreferrer" title="Central Water Commission" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+            <a href="https://cwc.gov.in/" target="_blank" rel="noopener noreferrer" title="Central Water Commission" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow-md transition-all duration-200 w-[160px] h-[80px]">
               <img src="/logos/cwc.png" alt="Central Water Commission" title="Central Water Commission" class="max-w-full max-h-full object-contain" />
             </a>
-            <a href="https://jercjkl.jk.gov.in/AboutUs.html" target="_blank" rel="noopener noreferrer" title="J&K Joint Electricity Regulatory Commission" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+            <a href="https://jercjkl.jk.gov.in/AboutUs.html" target="_blank" rel="noopener noreferrer" title="J&K Joint Electricity Regulatory Commission" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow-md transition-all duration-200 w-[160px] h-[80px]">
               <img src="/logos/jerc.png" alt="J&K Joint Electricity Regulatory Commission" title="J&K Joint Electricity Regulatory Commission" class="max-w-full max-h-full object-contain" />
             </a>
           </div>
           <!-- Duplicate for infinite looping -->
           <div class="marquee-content flex items-center gap-6 pr-6 flex-shrink-0" aria-hidden="true">
-            <a href="https://cea.nic.in/" target="_blank" rel="noopener noreferrer" title="Central Electricity Authority" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+            <a href="https://cea.nic.in/" target="_blank" rel="noopener noreferrer" title="Central Electricity Authority" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow-md transition-all duration-200 w-[160px] h-[80px]">
               <img src="/logos/cea.webp" alt="Central Electricity Authority" title="Central Electricity Authority" class="max-w-full max-h-full object-contain" />
             </a>
-            <a href="https://moef.gov.in/" target="_blank" rel="noopener noreferrer" title="Ministry of Environment, Forest and Climate Change" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+            <a href="https://moef.gov.in/" target="_blank" rel="noopener noreferrer" title="Ministry of Environment, Forest and Climate Change" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow-md transition-all duration-200 w-[160px] h-[80px]">
               <img src="/logos/moef.png" alt="Ministry of Environment, Forest and Climate Change" title="Ministry of Environment, Forest and Climate Change" class="max-w-full max-h-full object-contain" />
             </a>
-            <a href="https://www.india.gov.in/" target="_blank" rel="noopener noreferrer" title="National Portal of India" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+            <a href="https://www.india.gov.in/" target="_blank" rel="noopener noreferrer" title="National Portal of India" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow-md transition-all duration-200 w-[160px] h-[80px]">
               <img src="/logos/india.svg" alt="National Portal of India" title="National Portal of India" class="max-w-full max-h-full object-contain" />
             </a>
-            <a href="https://mnre.gov.in/" target="_blank" rel="noopener noreferrer" title="Ministry of New and Renewable Energy" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+            <a href="https://mnre.gov.in/" target="_blank" rel="noopener noreferrer" title="Ministry of New and Renewable Energy" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow-md transition-all duration-200 w-[160px] h-[80px]">
               <img src="/logos/mnre.svg" alt="Ministry of New and Renewable Energy" title="Ministry of New and Renewable Energy" class="max-w-full max-h-full object-contain" />
             </a>
-            <a href="https://pdd.jk.gov.in/" target="_blank" rel="noopener noreferrer" title="Power Development Department J&K" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+            <a href="https://pdd.jk.gov.in/" target="_blank" rel="noopener noreferrer" title="Power Development Department J&K" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow-md transition-all duration-200 w-[160px] h-[80px]">
               <img src="/logos/pdd.svg" alt="Power Development Department J&K" title="Power Development Department J&K" class="max-w-full max-h-full object-contain p-0.5" />
             </a>
-            <a href="https://cwc.gov.in/" target="_blank" rel="noopener noreferrer" title="Central Water Commission" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+            <a href="https://cwc.gov.in/" target="_blank" rel="noopener noreferrer" title="Central Water Commission" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow-md transition-all duration-200 w-[160px] h-[80px]">
               <img src="/logos/cwc.png" alt="Central Water Commission" title="Central Water Commission" class="max-w-full max-h-full object-contain" />
             </a>
-            <a href="https://jercjkl.jk.gov.in/AboutUs.html" target="_blank" rel="noopener noreferrer" title="J&K Joint Electricity Regulatory Commission" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/60 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow transition-all duration-200 w-[160px] h-[80px]">
+            <a href="https://jercjkl.jk.gov.in/AboutUs.html" target="_blank" rel="noopener noreferrer" title="J&K Joint Electricity Regulatory Commission" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-[#0B4F9C] hover:shadow-md transition-all duration-200 w-[160px] h-[80px]">
               <img src="/logos/jerc.png" alt="J&K Joint Electricity Regulatory Commission" title="J&K Joint Electricity Regulatory Commission" class="max-w-full max-h-full object-contain" />
             </a>
           </div>

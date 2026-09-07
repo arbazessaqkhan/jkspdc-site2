@@ -2,35 +2,39 @@
 import Layout from '../../../layouts/Layout.astro';
 import Icon from '../../../components/Icon.astro';
 
-let csrDocuments = [];
+function getDocUrl(url?: string) {
+  if (!url) return '#';
+  if (url.startsWith('/uploads/')) {
+    return `http://localhost:3000${url}`;
+  }
+  return url;
+}
+
+let csrDocuments: any[] = [];
 
 try {
-  const res = await fetch('http://localhost:3000/api/policies?category=CSR');
+  const res = await fetch('http://localhost:3000/api/policies');
   if (res.ok) {
     const data = await res.json();
-    csrDocuments = data.filter(d => d.status === 'Active');
+    csrDocuments = data.filter((d: any) => 
+      d.status === 'Active' && 
+      (
+        d.category === 'CSR' || 
+        (d.title && d.title.toUpperCase().includes('CSR')) || 
+        (d.description && d.description.toUpperCase().includes('CSR'))
+      )
+    );
   }
 } catch (e) {
   console.error('Error fetching CSR policies:', e);
 }
 
-// Fallback to static CSR policy if none exist in the database
-if (csrDocuments.length === 0) {
-  csrDocuments = [
-    {
-      id: "fallback-csr",
-      title: "Corporate Social Responsibility (CSR) Policy",
-      description: "Approved corporate policy statement detailing community development parameters, budget allocations, and regional project selection guidelines.",
-      documentUrl: "/JKSPDC CSR Policy.pdf",
-      status: "Active"
-    }
-  ];
-}
+// Fallback: If no CSR documents in database, keep list empty for admin uploads
 ---
 
 <Layout 
-  title="CSR Policy - Sustainability" 
-  description="Corporate Social Responsibility (CSR) policy guidelines of JKSPDC."
+  title="Corporate Social Responsibility (CSR) - Sustainability" 
+  description="Corporate Social Responsibility (CSR) policy, committee disclosures, and board approved projects of JKSPDC."
 >
   <div class="space-y-0">
     <!-- Premium Page Header Band -->
@@ -42,45 +46,69 @@ if (csrDocuments.length === 0) {
         <span class="separator">/</span>
         <span class="current">CSR Policy</span>
       </nav>
-      <h1>CSR Policy</h1>
+      <h1>Corporate Social Responsibility (CSR)</h1>
       <p class="page-subtitle">Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL)</p>
     </div>
 
     <!-- Content -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fadeInUp delay-200">
-      <!-- Main Text -->
-      <article class="lg:col-span-2 prose-gov">
-        {csrDocuments.map((doc) => (
-          <div class="bg-white border border-[#BDD7EE] hover:border-[#9BC2E6] rounded-xl p-5 shadow-sm transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div class="space-y-1.5 max-w-xl">
-              <div class="flex items-center gap-2 flex-wrap">
-                <span class="text-[9px] uppercase tracking-wider font-extrabold text-[#0B4F9C] bg-[#0B4F9C]/5 px-2 py-0.5 rounded">
-                  Sustainability
-                </span>
-                <span class="bg-emerald-100 text-emerald-700 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded">
-                  Active
-                </span>
-              </div>
-              <h3 class="font-bold text-gray-900 text-base mt-1 flex items-center gap-1.5">
-                {doc.title}
-              </h3>
-              <p class="text-xs text-slate-500 leading-relaxed mt-1">
-                {doc.description || "Official community development project declaration and budget parameter statements of the corporation."}
-              </p>
-            </div>
-            
-            <div class="shrink-0 flex items-center">
-              <a 
-                href={doc.documentUrl} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                class="w-full md:w-auto inline-flex items-center justify-center gap-2 bg-[#0B4F9C] hover:bg-[#084A8F] text-white font-bold text-xs px-5 py-2.5 rounded transition-all duration-150 shadow-sm cursor-pointer"
-              >
-                <Icon name="search" size={13} strokeWidth={2.5} /> View Policy PDF
-              </a>
-            </div>
+      <!-- Main Content Area: CSR Table -->
+      <article class="lg:col-span-2 space-y-6">
+        
+        <!-- Table Header Title (Styled to match screenshot & site theme) -->
+        <div class="text-center mb-6">
+          <h2 class="text-2xl md:text-3xl font-extrabold text-[#1D63B8] tracking-tight">
+            Corporate Social Responsibility (CSR)
+          </h2>
+        </div>
+
+        <!-- CSR Document Table -->
+        <div class="bg-white border border-[#BDD7EE] rounded-xl shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs md:text-sm">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-slate-800 font-bold">
+                  <th scope="col" class="p-3.5 w-12 text-center border-r border-slate-200">#</th>
+                  <th scope="col" class="p-3.5 border-r border-slate-200">Document</th>
+                  <th scope="col" class="p-3.5 w-32 border-r border-slate-200">Type</th>
+                  <th scope="col" class="p-3.5 w-40 text-center">Download</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200">
+                {csrDocuments.length === 0 ? (
+                  <tr>
+                    <td colspan="4" class="text-center text-slate-500 py-10 text-xs italic">
+                      No CSR documents currently published. Please check back later.
+                    </td>
+                  </tr>
+                ) : (
+                  csrDocuments.map((doc: any, idx: number) => {
+                    const docUrl = getDocUrl(doc.documentUrl);
+                    const docType = doc.description || 'Policy';
+                    return (
+                      <tr class="hover:bg-slate-50/80 transition-colors duration-150">
+                        <td class="p-3.5 text-center font-bold text-slate-600 border-r border-slate-200">{idx + 1}</td>
+                        <td class="p-3.5 font-semibold text-slate-800 border-r border-slate-200">{doc.title}</td>
+                        <td class="p-3.5 text-slate-700 font-medium border-r border-slate-200">{docType}</td>
+                        <td class="p-3.5 text-center">
+                          <a 
+                            href={docUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            class="text-[#0B4F9C] hover:underline font-extrabold inline-flex items-center gap-1 cursor-pointer"
+                          >
+                            View / Download
+                          </a>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
           </div>
-        ))}
+        </div>
+
       </article>
 
       <!-- Sidebar -->
@@ -90,9 +118,12 @@ if (csrDocuments.length === 0) {
           <ul class="flex flex-col gap-2 text-xs font-semibold text-[#0B4F9C]">
             <li><a href="/sustainability/csr/overview" class="sidebar-link">Overview</a></li>
             <li><a href="/sustainability/csr/communication-policy" class="sidebar-link">CSR Communication Policy</a></li>
+            <li><a href="/sustainability/csr/plans" class="sidebar-link">Annual CSR Plans</a></li>
+            <li><a href="/sustainability/csr/reports" class="sidebar-link">Activities Reports</a></li>
           </ul>
         </div>
       </aside>
     </div>
   </div>
 </Layout>
+

@@ -183,6 +183,7 @@ model PageContent {
 model Download {
   id            String   @id @default(uuid())
   title         String
+  description   String?
   category      String
   fileName      String
   documentUrl   String
@@ -311,4 +312,16 @@ model HydroIngestionLog {
   errorMessage   String?
   durationMs     Int?
   createdAt      DateTime @default(now())
+}
+
+model IppProject {
+  id         String   @id @default(uuid())
+  name       String
+  capacityMw Float
+  status     String
+  location   String
+  awardedTo  String
+  phase      Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }

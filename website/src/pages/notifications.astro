@@ -163,6 +163,11 @@ const formatDate = (dateStr: string) => {
               </div>
             ))
           )}
+
+          <!-- Empty State Container when 0 results match filters -->
+          <div id="notif-empty-state" class="hidden text-center py-12 bg-slate-50 border border-slate-200 border-dashed rounded-xl text-slate-400 font-semibold italic text-xs">
+            No notifications or circulars found matching the filters.
+          </div>
         </div>
       </article>
 
@@ -238,6 +243,15 @@ const formatDate = (dateStr: string) => {
       cards.forEach((card: any) => {
         if (container) container.appendChild(card);
       });
+
+      const emptyState = document.getElementById('notif-empty-state');
+      if (emptyState) {
+        if (visibleCount === 0) {
+          emptyState.classList.remove('hidden');
+        } else {
+          emptyState.classList.add('hidden');
+        }
+      }
 
       if (countDisplay) {
         countDisplay.textContent = `Showing ${visibleCount} item(s)`;
