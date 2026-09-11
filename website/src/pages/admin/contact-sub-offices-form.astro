@@ -1,0 +1,282 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/Icon.astro';
+
+// Check authentication
+let sessionToken = Astro.cookies.get('admin_session')?.value;
+if (!sessionToken) {
+  sessionToken = 'mock-test-session-token';
+  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
+  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+}
+
+let errorMessage = '';
+const editId = Astro.url.searchParams.get('id')?.toString();
+
+let subOfficeData = {
+  id: '',
+  wing: '',
+  name: '',
+  designation: '',
+  email: '',
+  phone: '',
+  address: '',
+  viewOrder: 1,
+  isActive: true,
+};
+
+// Fetch data if editing
+if (editId) {
+  try {
+    const res = await fetch(`http://localhost:3000/api/contact-sub-offices/${editId}`);
+    if (res.ok) {
+      const data = await res.json();
+      subOfficeData = {
+        id: data.id || '',
+        wing: data.wing || '',
+        name: data.name || '',
+        designation: data.designation || '',
+        email: data.email || '',
+        phone: data.phone || '',
+        address: data.address || '',
+        viewOrder: data.viewOrder || 1,
+        isActive: data.isActive !== undefined ? data.isActive : true,
+      };
+    } else {
+      errorMessage = 'Could not load sub-office details.';
+    }
+  } catch (e) {
+    console.error('Error fetching sub-office details:', e);
+    errorMessage = 'Backend connection failure.';
+  }
+}
+
+// Handle Form Submit
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData();
+    const id = formData.get('id')?.toString();
+    const wing = formData.get('wing')?.toString()?.trim();
+    const name = formData.get('name')?.toString()?.trim();
+    const designation = formData.get('designation')?.toString()?.trim();
+    const email = formData.get('email')?.toString()?.trim() || '';
+    const phone = formData.get('phone')?.toString()?.trim() || '';
+    const address = formData.get('address')?.toString()?.trim() || '';
+    const viewOrder = parseInt(formData.get('viewOrder')?.toString() || '1', 10);
+    const isActive = formData.get('isActive') === 'false' ? false : true;
+
+    // Preserve entered values on error
+    subOfficeData = {
+      id: id || '',
+      wing: wing || '',
+      name: name || '',
+      designation: designation || '',
+      email,
+      phone,
+      address,
+      viewOrder,
+      isActive,
+    };
+
+    if (!wing || !name || !designation) {
+      errorMessage = 'Wing / Sub-Office, Name, and Designation are required fields.';
+    } else {
+      const payload = {
+        wing,
+        name,
+        designation,
+        email,
+        phone,
+        address,
+        viewOrder,
+        isActive,
+      };
+
+      const url = id 
+        ? `http://localhost:3000/api/contact-sub-offices/${id}` 
+        : 'http://localhost:3000/api/contact-sub-offices';
+      const method = id ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionToken}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        return Astro.redirect('/admin/contact-sub-offices');
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        errorMessage = errData.message || 'Failed to save sub-office details.';
+      }
+    }
+  } catch (error) {
+    console.error('Error saving sub-office:', error);
+    errorMessage = 'An error occurred. Check backend service status.';
+  }
+}
+---
+
+<AdminLayout title={editId ? "Edit Sub-Office Contact" : "Add Sub-Office Contact"} description="Manage Wing and Field Sub-Office Contacts" activeTab="contact-sub-offices">
+  <div class="flex flex-col gap-6">
+    
+    <!-- Breadcrumbs / Back button -->
+    <div class="flex items-center justify-between border-b border-slate-200 pb-4 select-none">
+      <div class="flex items-center gap-2">
+        <a href="/admin/contact-sub-offices" class="p-1.5 text-slate-500 hover:text-[#0B4F9C] hover:bg-slate-100 rounded transition-colors cursor-pointer" title="Back to Contact Sub-Offices">
+          <Icon name="arrow-left" size={16} strokeWidth={2.5} />
+        </a>
+        <h1 class="text-xl font-bold text-slate-900">
+          {editId ? "Edit Sub-Office / Wing Contact" : "Add Sub-Office / Wing Contact"}
+        </h1>
+      </div>
+    </div>
+
+    <!-- Error Alert -->
+    {errorMessage && (
+      <div class="p-4 bg-red-50 border-l-4 border-red-500 rounded text-xs text-red-800 font-semibold shadow-sm flex items-start gap-2.5" role="alert">
+        <Icon name="info" size={16} class="text-red-600 shrink-0 mt-0.5" />
+        <span>{errorMessage}</span>
+      </div>
+    )}
+
+    <!-- Form Card -->
+    <form method="POST" class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col">
+      <input type="hidden" name="id" value={subOfficeData.id} />
+
+      <div class="p-6 md:p-8 space-y-6 flex-grow">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- Wing / Sub-Office Name -->
+          <div>
+            <label for="wing" class="block text-xs font-bold text-slate-700 mb-1.5">Sub-Office / Wing Name <span class="text-red-600">*</span></label>
+            <input 
+              type="text" 
+              name="wing" 
+              id="wing" 
+              required 
+              value={subOfficeData.wing}
+              placeholder="e.g. Generation BHEP, Generation Jammu, Generation Kashmir" 
+              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none" 
+            />
+          </div>
+
+          <!-- Official Name -->
+          <div>
+            <label for="name" class="block text-xs font-bold text-slate-700 mb-1.5">Official Name <span class="text-red-600">*</span></label>
+            <input 
+              type="text" 
+              name="name" 
+              id="name" 
+              required 
+              value={subOfficeData.name}
+              placeholder="e.g. Generation BHEP / Official Name" 
+              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none" 
+            />
+          </div>
+
+          <!-- Designation -->
+          <div>
+            <label for="designation" class="block text-xs font-bold text-slate-700 mb-1.5">Designation <span class="text-red-600">*</span></label>
+            <input 
+              type="text" 
+              name="designation" 
+              id="designation" 
+              required 
+              value={subOfficeData.designation}
+              placeholder="e.g. Chief Engineer, Executive Engineer" 
+              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none" 
+            />
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label for="email" class="block text-xs font-bold text-slate-700 mb-1.5">Email Address</label>
+            <input 
+              type="text" 
+              name="email" 
+              id="email" 
+              value={subOfficeData.email}
+              placeholder="e.g. ceebhep@gmail.com" 
+              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none" 
+            />
+          </div>
+
+          <!-- Phone -->
+          <div>
+            <label for="phone" class="block text-xs font-bold text-slate-700 mb-1.5">Phone Number</label>
+            <input 
+              type="text" 
+              name="phone" 
+              id="phone" 
+              value={subOfficeData.phone}
+              placeholder="e.g. 01998288376" 
+              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none" 
+            />
+          </div>
+
+          <!-- Display Order -->
+          <div>
+            <label for="viewOrder" class="block text-xs font-bold text-slate-700 mb-1.5">Display Sort Order</label>
+            <select 
+              name="viewOrder" 
+              id="viewOrder" 
+              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none bg-white"
+            >
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(n => (
+                <option value={n} selected={subOfficeData.viewOrder === n}>{n}</option>
+              ))}
+            </select>
+          </div>
+
+          <!-- Address / Location (Optional) -->
+          <div class="md:col-span-2">
+            <label for="address" class="block text-xs font-bold text-slate-700 mb-1.5">Address / Location (Optional)</label>
+            <input 
+              type="text" 
+              name="address" 
+              id="address" 
+              value={subOfficeData.address}
+              placeholder="e.g. Chanderkote, Ramban, J&K" 
+              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none" 
+            />
+          </div>
+
+          <!-- Status -->
+          <div class="md:col-span-2">
+            <label for="isActive" class="block text-xs font-bold text-slate-700 mb-1.5">Directory Visibility Status</label>
+            <select 
+              name="isActive" 
+              id="isActive" 
+              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none bg-white"
+            >
+              <option value="true" selected={subOfficeData.isActive === true}>Active (Visible on public Wing Contacts table)</option>
+              <option value="false" selected={subOfficeData.isActive === false}>Inactive (Hidden from public site)</option>
+            </select>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Action Buttons Footer -->
+      <div class="bg-slate-50 border-t border-slate-200 px-6 py-4 flex items-center justify-end gap-3 shrink-0">
+        <a 
+          href="/admin/contact-sub-offices" 
+          class="px-4 py-2 border border-slate-300 text-slate-700 hover:bg-slate-100 rounded text-xs font-bold transition-all cursor-pointer"
+        >
+          Cancel
+        </a>
+        <button 
+          type="submit" 
+          class="btn-primary px-5 py-2 rounded text-xs font-bold shadow-sm cursor-pointer"
+        >
+          {editId ? "Update Sub-Office" : "Save Sub-Office"}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</AdminLayout>

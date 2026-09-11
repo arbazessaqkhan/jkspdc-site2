@@ -1,7 +1,7 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
-import type { Stats, ProjectDto, DirectorDto, TenderDto, CareerDto, ContactSubmissionDto, AuditLogDto } from './types';
+import type { Stats, ProjectDto, DirectorDto, TenderDto, ContactSubmissionDto, AuditLogDto } from './types';
 
 function asArray<T>(value: unknown): T[] {
   return Array.isArray(value) ? (value as T[]) : [];
@@ -22,13 +22,9 @@ const stats: Stats = {
   directorsCount: 0,
   dignitariesCount: 0,
   tendersCount: 0,
-  careersCount: 0,
-  pressCount: 0,
   notificationsCount: 0,
   downloadsCount: 0,
-  financialsCount: 0,
   agmCount: 0,
-  executivesCount: 0,
   policiesCount: 0,
   galleryCount: 0,
   inquiriesCount: 0,
@@ -63,13 +59,9 @@ let tendersData: unknown = [];
 try {
   let directorsData: unknown = [];
   let dignitariesData: unknown = [];
-  let careersData: unknown = [];
-  let pressData: unknown = [];
   let notificationsData: unknown = [];
   let downloadsData: unknown = [];
-  let financialsData: unknown = [];
   let agmData: unknown = [];
-  let executivesData: unknown = [];
   let policiesData: unknown = [];
   let galleryData: unknown = [];
   let submissionsData: unknown = [];
@@ -81,13 +73,9 @@ try {
     directorsData,
     dignitariesData,
     tendersData,
-    careersData,
-    pressData,
     notificationsData,
     downloadsData,
-    financialsData,
     agmData,
-    executivesData,
     policiesData,
     galleryData,
     submissionsData,
@@ -98,13 +86,9 @@ try {
     fetchJson<unknown>('http://localhost:3000/api/directors'),
     fetchJson<unknown>('http://localhost:3000/api/dignitaries'),
     fetchJson<unknown>('http://localhost:3000/api/tenders'),
-    fetchJson<unknown>('http://localhost:3000/api/careers'),
-    fetchJson<unknown>('http://localhost:3000/api/press-releases'),
     fetchJson<unknown>('http://localhost:3000/api/notifications'),
     fetchJson<unknown>('http://localhost:3000/api/downloads'),
-    fetchJson<unknown>('http://localhost:3000/api/financials'),
     fetchJson<unknown>('http://localhost:3000/api/agm'),
-    fetchJson<unknown>('http://localhost:3000/api/executives'),
     fetchJson<unknown>('http://localhost:3000/api/policies'),
     fetchJson<unknown>('http://localhost:3000/api/gallery'),
     sessionToken ? fetchJson<unknown>('http://localhost:3000/api/contact', { headers: { Authorization: `Bearer ${sessionToken}` } }) : null,
@@ -119,13 +103,9 @@ try {
   stats.directorsCount = asArray(directorsData).length;
   stats.dignitariesCount = asArray(dignitariesData).length;
   stats.tendersCount = asArray<{ status?: string }>(tendersData).filter((t) => t.status === 'Active').length;
-  stats.careersCount = asArray<{ status?: string }>(careersData).filter((c) => c.status === 'Active').length;
-  stats.pressCount = asArray(pressData).length;
   stats.notificationsCount = asArray(notificationsData).length;
   stats.downloadsCount = asArray(downloadsData).length;
-  stats.financialsCount = asArray(financialsData).length;
   stats.agmCount = asArray(agmData).length;
-  stats.executivesCount = asArray(executivesData).length;
   stats.policiesCount = asArray(policiesData).length;
   stats.galleryCount = asArray(galleryData).length;
   stats.inquiriesCount = asArray(submissionsData).length;
@@ -225,18 +205,14 @@ const tenderCatStats = Object.entries(tenderCategories)
 // 3. Corporate Documentation & Compliance Health (Real Live Data)
 const totalCorporateDocs = 
   (stats.downloadsCount || 0) +
-  (stats.financialsCount || 0) +
   (stats.agmCount || 0) +
   (stats.policiesCount || 0) +
-  (stats.notificationsCount || 0) +
-  (stats.pressCount || 0);
+  (stats.notificationsCount || 0);
 
 const docBreakdown = [
-  { label: 'Financial Statements', count: stats.financialsCount || 0, href: '/admin/financials' },
   { label: 'AGM Notices & Filings', count: stats.agmCount || 0, href: '/admin/agm' },
   { label: 'Orders & Circulars', count: stats.notificationsCount || 0, href: '/admin/notifications' },
   { label: 'Corporate Policies, CSR, MoA/AoA & Downloads', count: stats.policiesCount || 0, href: '/admin/policies' },
-  { label: 'Press Releases & News', count: stats.pressCount || 0, href: '/admin/press-releases' },
 ];
 
 const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Administrator';
@@ -283,17 +259,17 @@ const statCards = [
     textColor: 'text-violet-800',
   },
   {
-    label: 'Careers Open',
-    badge: 'Jobs',
-    count: stats.careersCount,
-    href: '/admin/careers',
-    icon: 'briefcase',
-    bg: 'bg-gradient-to-br from-sky-50/90 via-white to-cyan-100/40',
-    border: 'border-sky-200 hover:border-sky-600',
-    topBar: 'bg-sky-600',
-    iconBg: 'bg-sky-600 text-white',
-    badgeBg: 'bg-sky-100 text-sky-900 border-sky-200',
-    textColor: 'text-sky-800',
+    label: 'AGM Documents',
+    badge: 'Investors',
+    count: stats.agmCount || 0,
+    href: '/admin/agm',
+    icon: 'scroll-text',
+    bg: 'bg-gradient-to-br from-cyan-50/90 via-white to-sky-100/40',
+    border: 'border-cyan-200 hover:border-cyan-600',
+    topBar: 'bg-cyan-600',
+    iconBg: 'bg-cyan-600 text-white',
+    badgeBg: 'bg-cyan-100 text-cyan-900 border-cyan-200',
+    textColor: 'text-cyan-800',
   },
   {
     label: 'Notifications',
@@ -371,8 +347,8 @@ const moduleGroups = [
     ],
   },
   {
-    title: 'Tenders & Careers',
-    subtitle: 'Procurement tenders, corrigenda & employment recruitment',
+    title: 'Tenders & Procurement',
+    subtitle: 'Procurement tenders, corrigenda & contractor notifications',
     modules: [
       {
         title: 'Tenders & Bids',
@@ -385,22 +361,11 @@ const moduleGroups = [
         color: 'text-violet-700',
         iconBg: 'bg-violet-100 text-violet-700',
       },
-      {
-        title: 'Careers & Vacancies',
-        desc: 'Recruitment advertisements, closing dates & application forms',
-        count: `${stats.careersCount} Open Posts`,
-        href: '/admin/careers',
-        addHref: '/admin/careers-form',
-        addLabel: '+ Post Vacancy',
-        icon: 'briefcase',
-        color: 'text-sky-700',
-        iconBg: 'bg-sky-100 text-sky-700',
-      },
     ],
   },
   {
     title: 'Corporate Governance & Legal',
-    subtitle: 'Leadership, executive hierarchy, statutory filings & official circulars',
+    subtitle: 'Leadership, statutory filings & official circulars',
     modules: [
       {
         title: 'Dignitaries',
@@ -421,15 +386,6 @@ const moduleGroups = [
         iconBg: 'bg-emerald-100 text-emerald-700',
       },
       {
-        title: 'Executives Directory',
-        desc: 'Wing heads, chief engineers, departments & contact info',
-        count: `${stats.executivesCount} Listed`,
-        href: '/admin/executives',
-        icon: 'user-check',
-        color: 'text-blue-700',
-        iconBg: 'bg-blue-100 text-blue-700',
-      },
-      {
         title: 'AGM Documents',
         desc: 'Annual General Meeting reports, notices & proxy filings',
         count: `${stats.agmCount} Documents`,
@@ -437,15 +393,6 @@ const moduleGroups = [
         icon: 'scroll-text',
         color: 'text-cyan-700',
         iconBg: 'bg-cyan-100 text-cyan-700',
-      },
-      {
-        title: 'Financial Documents',
-        desc: 'Annual balance sheets, audit reports & financial statements',
-        count: `${stats.financialsCount} Files`,
-        href: '/admin/financials',
-        icon: 'landmark',
-        color: 'text-purple-700',
-        iconBg: 'bg-purple-100 text-purple-700',
       },
       {
         title: 'Notifications & Circulars',
@@ -460,19 +407,8 @@ const moduleGroups = [
   },
   {
     title: 'Media, Publications & Resources',
-    subtitle: 'Public communications, galleries, citizen resources & compliance policies',
+    subtitle: 'Galleries, citizen resources & compliance policies',
     modules: [
-      {
-        title: 'Press Releases & News',
-        desc: 'Official media announcements, press releases & news bulletins',
-        count: `${stats.pressCount} Releases`,
-        href: '/admin/press-releases',
-        addHref: '/admin/press-releases-form',
-        addLabel: '+ New Release',
-        icon: 'newspaper',
-        color: 'text-indigo-700',
-        iconBg: 'bg-indigo-100 text-indigo-700',
-      },
       {
         title: 'Media Gallery',
         desc: 'High-resolution photo albums & project visual archives',
@@ -738,8 +674,8 @@ const moduleGroups = [
                 <span class="text-xl font-black text-violet-700 tracking-tight">{stats.tendersCount} <span class="text-xs font-bold text-slate-500">Active</span></span>
               </div>
               <div>
-                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Open Vacancies</span>
-                <span class="text-xl font-black text-sky-700 tracking-tight">{stats.careersCount} <span class="text-xs font-bold text-slate-500">Posts</span></span>
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Closed / Archived</span>
+                <span class="text-xl font-black text-slate-700 tracking-tight">{Math.max(0, rawTenders.length - stats.tendersCount)} <span class="text-xs font-bold text-slate-500">Bids</span></span>
               </div>
             </div>
 

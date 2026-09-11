@@ -1,149 +1,477 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
+import Icon from '../../../components/Icon.astro';
+
+// Fallback seed data in case backend is temporarily unreachable
+const fallbackOfficialContacts = [
+  {
+    id: 'contact-seed-1',
+    name: 'Shri Rahul Yadav (IAS)',
+    position: 'Managing Director',
+    email: 'md-jkspdcl@jk.gov.in',
+    srinagarPhone: '0194-2483783',
+    srinagarFax: '0194-2451665',
+    jammuPhone: '0191-2430548',
+    jammuFax: '0191-2435403',
+    viewOrder: 1,
+  },
+  {
+    id: 'contact-seed-2',
+    name: 'Er. Javid Ahmad Dar',
+    position: 'Executive Director (Electric)',
+    email: 'ede@jkspdcl.com',
+    srinagarPhone: '0194-2483782',
+    srinagarFax: '0194-2483782',
+    jammuPhone: '0191-2459549',
+    jammuFax: '0191-2459549',
+    viewOrder: 2,
+  },
+  {
+    id: 'contact-seed-3',
+    name: 'Er. Dev Raj Bhagat',
+    position: 'Executive Director (Civil) (Chief Vigilance Officer)',
+    email: 'edciviljkspdc2@gmail.com',
+    srinagarPhone: '0194-2489033',
+    srinagarFax: '0194-2489033',
+    jammuPhone: '0191-2459534',
+    jammuFax: '0191-2459534',
+    viewOrder: 3,
+  },
+  {
+    id: 'contact-seed-4',
+    name: 'Smt. Santosh Kumari',
+    position: 'Director Finance',
+    email: 'patodfpdc@gmail.com',
+    srinagarPhone: '0194-2489032',
+    srinagarFax: '0194-2439474',
+    jammuPhone: '0191-2435159',
+    jammuFax: '0191-2435159',
+    viewOrder: 4,
+  },
+  {
+    id: 'contact-seed-5',
+    name: 'Shri Sunil Gupta',
+    position: 'Company Secretary',
+    email: 'csjkspdcl@gmail.com',
+    srinagarPhone: '0194-2483779',
+    srinagarFax: '0194-2483779',
+    jammuPhone: '0191-2439347',
+    jammuFax: '0191-2439347',
+    viewOrder: 5,
+  },
+  {
+    id: 'contact-seed-6',
+    name: 'Mrs. Roopali Puri',
+    position: 'Chief General Manager (Law)',
+    email: 'cgmlaw.jkspdcl@gmail.com',
+    srinagarPhone: '0191-2459537',
+    srinagarFax: '0191-2459537',
+    jammuPhone: '0191-2459537',
+    jammuFax: '0191-2459537',
+    viewOrder: 6,
+  },
+  {
+    id: 'contact-seed-7',
+    name: 'Shri Akhil Dutt',
+    position: 'Senior General Manager (Civil)',
+    email: 'sgmciviljkspdc@gmail.com',
+    srinagarPhone: '0194-2489033',
+    srinagarFax: '0194-2489033',
+    jammuPhone: '0191-2459534',
+    jammuFax: '0191-2459534',
+    viewOrder: 7,
+  },
+  {
+    id: 'contact-seed-8',
+    name: 'Mrs. Harjeet Kour',
+    position: 'General Manager (Accounts) (Departmental Vigilance Officer) Jammu',
+    email: 'gmajmu@gmail.com',
+    srinagarPhone: '0191-2459528',
+    srinagarFax: '0191-2459528',
+    jammuPhone: '0191-2459528',
+    jammuFax: '0191-2459528',
+    viewOrder: 8,
+  },
+  {
+    id: 'contact-seed-9',
+    name: 'Sh. Dawanjeet Singh',
+    position: 'Administrative Officer',
+    email: 'admjkpdc@gmail.com',
+    srinagarPhone: '0194-2489034',
+    srinagarFax: '0194-2489034',
+    jammuPhone: '0194-2489034',
+    jammuFax: '0194-2489034',
+    viewOrder: 9,
+  },
+];
+
+const fallbackWingContacts = [
+  {
+    id: 'wing-seed-1',
+    name: 'Generation BHEP',
+    designation: 'Chief Engineer',
+    email: 'ceebhep@gmail.com',
+    phone: '01998288376',
+    wing: 'BHEP',
+    viewOrder: 1,
+  },
+  {
+    id: 'wing-seed-2',
+    name: 'Generation Jammu',
+    designation: 'Chief Engineer',
+    email: 'cegenjammu6@gmail.com',
+    phone: '01912479899',
+    wing: 'Jammu',
+    viewOrder: 2,
+  },
+  {
+    id: 'wing-seed-3',
+    name: 'Generation Kashmir',
+    designation: 'Chief Engineer',
+    email: 'cegenkmr@gmail.com',
+    phone: '01942493140',
+    wing: 'Kashmir',
+    viewOrder: 3,
+  },
+];
+
+// Fetch official corporate contacts dynamically from Admin-managed database
+let officialContacts = [];
+try {
+  const res = await fetch('http://localhost:3000/api/official-contacts');
+  if (res.ok) {
+    officialContacts = await res.json();
+  }
+} catch (e) {
+  console.error('Error fetching official contacts from backend:', e);
+}
+if (!officialContacts || officialContacts.length === 0) {
+  officialContacts = fallbackOfficialContacts;
+}
+
+// Fetch wing contacts & sub-offices dynamically from Admin-managed database
+let subOffices = [];
+try {
+  const res = await fetch('http://localhost:3000/api/contact-sub-offices');
+  if (res.ok) {
+    subOffices = await res.json();
+  }
+} catch (e) {
+  console.error('Error fetching contact sub-offices from backend:', e);
+}
+if (!subOffices || subOffices.length === 0) {
+  subOffices = fallbackWingContacts;
+}
+
+// Dynamic wing contacts directly from Admin-managed database
+const wingContacts = subOffices;
+
+// Helper for obfuscating emails to prevent scrapers while maintaining readability
+function formatEmail(email?: string | null) {
+  if (!email) return '';
+  return email.replace('@', '[at]').replace(/\./g, '[dot]');
+}
 ---
 
 <Layout 
-  title="Contact Us - Others" 
-  description="Contact information and office locations of the Jammu & Kashmir State Power Development Corporation."
+  title="Contact Us - Corporate Offices & Directory" 
+  description="Official contact directory, Srinagar Corporate Office and Jammu Camp Office locations, interactive maps, and wing contacts of JKSPDCL."
 >
-  <div class="space-y-0">
-    <!-- Premium Page Header Band -->
+  <div class="space-y-0 max-w-5xl mx-auto">
+    <!-- Premium Page Header Band (Strict Tender Details Shell Reference) -->
     <div class="page-header-band animate-fadeInUp">
       <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
         <a href="/">Home</a>
         <span class="separator">/</span>
         <span>About Us</span>
         <span class="separator">/</span>
-        <span class="current">Contact</span>
+        <span class="current">Contact Us</span>
       </nav>
-      <h1>Contact Corporate Offices</h1>
+      <h1>Contact Us &amp; Official Directory</h1>
       <p class="page-subtitle">Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL)</p>
     </div>
 
-    <!-- Content Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Introductory Notice -->
+    <p class="text-sm sm:text-base text-slate-700 font-medium pt-5 pb-3">
+      You can contact us at the below coordinates:
+    </p>
+
+    <!-- Section 1: Official Corporate Offices & Interactive Maps (Matches Screenshot 1) -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-8">
       
-      <!-- Office Details -->
-      <section class="space-y-6">
-        
-        <!-- Srinagar Office -->
-        <div class="card-static">
-          <span class="text-[10px] text-[#0B4F9C] font-bold uppercase tracking-wider">Corporate Headquarters (Summer)</span>
-          <h3 class="font-extrabold text-[#0B4F9C] text-lg mt-1">Srinagar Office</h3>
-          <p class="text-xs text-gray-600 mt-2 leading-relaxed">
-            Exhibition Grounds, Jahangir Chowk, Srinagar, 190009
+      <!-- MAP 1: Srinagar Corporate Office -->
+      <div class="bg-white rounded-lg border border-slate-200 shadow-sm flex flex-col overflow-hidden">
+        <div class="p-5 flex-grow space-y-2">
+          <p class="text-xs sm:text-sm text-slate-800 leading-relaxed">
+            <strong class="font-bold text-slate-900">Corporate Office Address:</strong> Jammu and Kashmir State Power Development Corporation, PDD Building, Exhibition Grounds, Opposite High Court, Jahangir Chowk, Srinagar (J&amp;K).
           </p>
-          <div class="mt-4 pt-4 border-t border-gray-100 text-xs text-gray-500 space-y-1">
-            <p><strong>Phone:</strong> +91 194 2451665</p>
-            <p><strong>Email:</strong> md-jkspdcl[at]jk[dot]gov[dot]in</p>
+          <div class="text-xs sm:text-sm text-slate-700 space-y-0.5 pt-1">
+            <p><strong class="font-bold text-slate-900">PIN:</strong> 190009</p>
+            <p><strong class="font-bold text-slate-900">Phone:</strong> 0194-2483783</p>
+            <p><strong class="font-bold text-slate-900">Fax:</strong> 0194-2451665</p>
+            <p><strong class="font-bold text-slate-900">Email:</strong> <a href="mailto:md-jkspdcl@jk.gov.in" class="text-[#0B4F9C] hover:underline font-medium">md-jkspdcl[at]jk[dot]gov[dot]in</a></p>
           </div>
         </div>
 
-        <!-- Jammu Office -->
-        <div class="card-static">
-          <span class="text-[10px] text-[#0B4F9C] font-bold uppercase tracking-wider">Corporate Office (Winter)</span>
-          <h3 class="font-extrabold text-[#0B4F9C] text-lg mt-1">Jammu Office</h3>
-          <p class="text-xs text-gray-600 mt-2 leading-relaxed">
-            Ashok Nagar, Satwari, Jammu (J&K), 180004
+        <!-- Interactive Map Container (Srinagar) with "Open in Maps" action -->
+        <div class="relative w-full h-72 bg-slate-100 border-t border-slate-200">
+          <!-- Accessible "Open in Google Maps" Button Overlay -->
+          <div class="absolute top-2.5 left-2.5 z-20">
+            <a 
+              href="https://www.google.com/maps/place/JKPDCL+CORPORATE+HQ/@34.0718076,74.802229,17z/data=!3m1!4b1!4m6!3m5!1s0x38e18fece6632a1b:0x3cb1b664082eb9c0!8m2!3d34.0718076!4d74.802229!16s%2Fg%2F11clsczfyc" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              class="px-2.5 py-1.5 bg-white hover:bg-slate-50 text-[#0B4F9C] hover:text-[#084A8F] text-xs font-bold rounded shadow-md border border-slate-300 flex items-center gap-1.5 transition-all focus:ring-2 focus:ring-[#0B4F9C] select-none cursor-pointer"
+              title="Open JKPDCL Corporate HQ Srinagar in Google Maps (opens in new tab)"
+            >
+              <span>Open in Maps</span>
+              <Icon name="external-link" size={13} strokeWidth={2.5} />
+            </a>
+          </div>
+
+          <!-- Embedded Interactive Map (Srinagar Corporate HQ) -->
+          <iframe 
+            src="https://maps.google.com/maps?q=JKPDCL+CORPORATE+HQ&t=&z=16&ie=UTF8&iwloc=&output=embed" 
+            title="Interactive Map - Corporate Office Srinagar (JKPDCL Corporate HQ)"
+            class="w-full h-full border-0" 
+            loading="lazy" 
+            referrerpolicy="no-referrer-when-downgrade"
+            allowfullscreen
+          ></iframe>
+        </div>
+      </div>
+
+      <!-- MAP 2: Jammu Camp Office -->
+      <div class="bg-white rounded-lg border border-slate-200 shadow-sm flex flex-col overflow-hidden">
+        <div class="p-5 flex-grow space-y-2">
+          <p class="text-xs sm:text-sm text-slate-800 leading-relaxed">
+            <strong class="font-bold text-slate-900">Camp Office Address:</strong> Jammu and Kashmir State Power Development Corporation, Ashok Nagar, Satwari, Jammu (J&amp;K).
           </p>
-          <div class="mt-4 pt-4 border-t border-gray-100 text-xs text-gray-500 space-y-1">
-            <p><strong>Phone:</strong> +91 191 2430548 / 2439039</p>
-            <p><strong>Email:</strong> md-jkspdcl[at]jk[dot]gov[dot]in</p>
+          <div class="text-xs sm:text-sm text-slate-700 space-y-0.5 pt-1">
+            <p><strong class="font-bold text-slate-900">PIN:</strong> 180004</p>
+            <p><strong class="font-bold text-slate-900">Phone:</strong> 0191-2430548</p>
+            <p><strong class="font-bold text-slate-900">Fax:</strong> 0191-2435403</p>
+            <p><strong class="font-bold text-slate-900">Email:</strong> <a href="mailto:md-jkspdcl@jk.gov.in" class="text-[#0B4F9C] hover:underline font-medium">md-jkspdcl[at]jk[dot]gov[dot]in</a></p>
           </div>
         </div>
-      </section>
 
-      <!-- Message Form (Using Design System UI Classes) -->
-      <section class="card-static">
-        <h3 class="font-bold text-gray-900 text-lg mb-4 border-b border-gray-100 pb-2">Send Official Inquiry</h3>
-        
-        <!-- Feedback message box -->
-        <div id="form-feedback" class="hidden mb-4 p-4 rounded text-xs font-semibold" role="alert"></div>
-
-        <form id="contact-form" class="space-y-4">
-          <div class="form-group">
-            <label for="contact-name" class="form-label">Full Name <span class="text-red-600" aria-label="Required">*</span></label>
-            <input type="text" id="contact-name" class="form-input" placeholder="e.g. John Doe" required minlength="3" maxlength="100" />
+        <!-- Interactive Map Container (Jammu) with "Open in Maps" action -->
+        <div class="relative w-full h-72 bg-slate-100 border-t border-slate-200">
+          <!-- Accessible "Open in Google Maps" Button Overlay -->
+          <div class="absolute top-2.5 left-2.5 z-20">
+            <a 
+              href="https://www.google.com/maps/place/JKPDCL+CAMP+OFFICE,+JAMMU/@32.6902516,74.8496825,17z/data=!3m1!4b1!4m6!3m5!1s0x391e84cab0cd7a3f:0xbe9d30145dd09cde!8m2!3d32.6902516!4d74.8496825!16s%2Fg%2F11c2lffpk9" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              class="px-2.5 py-1.5 bg-white hover:bg-slate-50 text-[#0B4F9C] hover:text-[#084A8F] text-xs font-bold rounded shadow-md border border-slate-300 flex items-center gap-1.5 transition-all focus:ring-2 focus:ring-[#0B4F9C] select-none cursor-pointer"
+              title="Open JKPDCL Camp Office Jammu in Google Maps (opens in new tab)"
+            >
+              <span>Open in Maps</span>
+              <Icon name="external-link" size={13} strokeWidth={2.5} />
+            </a>
           </div>
 
-          <div class="form-group">
-            <label for="contact-email" class="form-label">Official Email <span class="text-red-600" aria-label="Required">*</span></label>
-            <input type="email" id="contact-email" class="form-input" placeholder="e.g. name[at]organisation[dot]com" required maxlength="150" />
-          </div>
-
-          <div class="form-group">
-            <label for="contact-message" class="form-label">Inquiry Details <span class="text-red-600" aria-label="Required">*</span></label>
-            <textarea id="contact-message" class="form-input min-h-[100px]" placeholder="State your inquiry..." required minlength="10" maxlength="2000"></textarea>
-          </div>
-
-          <button type="submit" id="submit-btn" class="btn-primary w-full">Send Message</button>
-        </form>
-      </section>
+          <!-- Embedded Interactive Map (Jammu Camp Office) -->
+          <iframe 
+            src="https://maps.google.com/maps?q=JKPDCL+CAMP+OFFICE,+JAMMU&t=&z=16&ie=UTF8&iwloc=&output=embed" 
+            title="Interactive Map - Camp Office Jammu (JKPDCL Camp Office)"
+            class="w-full h-full border-0" 
+            loading="lazy" 
+            referrerpolicy="no-referrer-when-downgrade"
+            allowfullscreen
+          ></iframe>
+        </div>
+      </div>
 
     </div>
+
+    <!-- Section 2: Corporate Office Contacts Table (Matches Screenshot 2) -->
+    <section class="mt-4 mb-8 overflow-hidden rounded-lg border border-slate-200 shadow-sm bg-white" aria-labelledby="corporate-office-heading">
+      <!-- Blue Rectangular Banner Header -->
+      <div id="corporate-office-heading" class="bg-[#0B4F9C] text-white font-bold text-center py-2.5 px-4 text-xs sm:text-sm uppercase tracking-wider select-none">
+        CORPORATE OFFICE
+      </div>
+
+      <!-- Responsive Corporate Contacts Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs sm:text-sm text-slate-800 border-collapse">
+          <thead class="bg-slate-100/90 text-slate-900 font-bold border-b border-slate-200 select-none">
+            <tr>
+              <th scope="col" class="py-3 px-4 sm:px-6 w-2/5 border-r border-slate-200">Name of the Official with designation</th>
+              <th scope="col" class="py-3 px-4 sm:px-6 w-3/10 border-r border-slate-200 text-center">Corporate office, Srinagar</th>
+              <th scope="col" class="py-3 px-4 sm:px-6 w-3/10 text-center">Corporate office, Jammu</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 font-normal">
+            {officialContacts.map((c: any) => (
+              <tr class="hover:bg-slate-50/75 transition-colors">
+                <!-- Name, Designation, Email -->
+                <td class="py-3.5 px-4 sm:px-6 border-r border-slate-200 text-center">
+                  <p class="font-bold text-slate-900 text-xs sm:text-sm">{c.name}</p>
+                  <p class="text-xs text-slate-700 mt-0.5">{c.position}</p>
+                  {c.email && (
+                    <p class="text-[11px] sm:text-xs text-slate-600 mt-0.5">
+                      email: <a href={`mailto:${c.email}`} class="text-[#0B4F9C] hover:underline">{formatEmail(c.email)}</a>
+                    </p>
+                  )}
+                </td>
+
+                <!-- Srinagar Phone / Fax -->
+                <td class="py-3.5 px-4 sm:px-6 border-r border-slate-200 text-center text-xs sm:text-sm text-slate-700">
+                  {c.srinagarPhone && <p class="font-medium text-slate-900">{c.srinagarPhone}</p>}
+                  {c.srinagarFax && <p class="text-xs text-slate-600 mt-0.5">Fax. {c.srinagarFax}</p>}
+                  {!c.srinagarPhone && !c.srinagarFax && <span class="text-slate-400 italic">—</span>}
+                </td>
+
+                <!-- Jammu Phone / Fax -->
+                <td class="py-3.5 px-4 sm:px-6 text-center text-xs sm:text-sm text-slate-700">
+                  {c.jammuPhone && <p class="font-medium text-slate-900">{c.jammuPhone}</p>}
+                  {c.jammuFax && (
+                    <p class="text-xs text-slate-600 mt-0.5">
+                      Fax. {c.jammuFax}
+                    </p>
+                  )}
+                  {c.jammuFax && (
+                    <p class="text-[11px] text-slate-500 italic mt-0.5">(Fax on Automode 24 x 7)</p>
+                  )}
+                  {!c.jammuPhone && !c.jammuFax && <span class="text-slate-400 italic">—</span>}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 3: Wing Contacts Table (Matches Screenshot 3) -->
+    <section class="mb-8 overflow-hidden rounded-lg border border-slate-200 shadow-sm bg-white" aria-labelledby="wing-contacts-heading">
+      <!-- Blue Rectangular Banner Header -->
+      <div id="wing-contacts-heading" class="bg-[#0B4F9C] text-white font-bold text-center py-2.5 px-4 text-xs sm:text-sm uppercase tracking-wider select-none">
+        Wing Contacts
+      </div>
+
+      <!-- Responsive Wing Contacts Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs sm:text-sm text-slate-800 border-collapse">
+          <thead class="bg-slate-100/90 text-slate-900 font-bold border-b border-slate-200 select-none">
+            <tr>
+              <th scope="col" class="py-3 px-4 sm:px-6 w-1/4 border-r border-slate-200 text-center">Wing</th>
+              <th scope="col" class="py-3 px-4 sm:px-6 w-1/2 border-r border-slate-200 text-center">Official with designation</th>
+              <th scope="col" class="py-3 px-4 sm:px-6 w-1/4 text-center">Phone</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 font-normal">
+            {wingContacts.map((w: any) => (
+              <tr class="hover:bg-slate-50/75 transition-colors">
+                <!-- Wing -->
+                <td class="py-3.5 px-4 sm:px-6 border-r border-slate-200 text-center font-bold text-slate-900">
+                  {w.wing}
+                  {w.address && <p class="text-[11px] font-normal text-slate-500 mt-0.5">{w.address}</p>}
+                </td>
+
+                <!-- Official with designation & email -->
+                <td class="py-3.5 px-4 sm:px-6 border-r border-slate-200 text-center">
+                  <p class="font-bold text-slate-900">{w.name}</p>
+                  <p class="text-xs text-slate-700 mt-0.5">{w.designation}</p>
+                  {w.email && (
+                    <p class="text-[11px] sm:text-xs text-slate-600 mt-0.5">
+                      <a href={`mailto:${w.email}`} class="text-[#0B4F9C] hover:underline">{formatEmail(w.email)}</a>
+                    </p>
+                  )}
+                </td>
+
+                <!-- Phone -->
+                <td class="py-3.5 px-4 sm:px-6 text-center text-xs sm:text-sm font-medium text-slate-900">
+                  {w.phone ? w.phone : <span class="text-slate-400 italic">—</span>}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 4: Citizen Feedback & Inquiries Callout Banner -->
+    <section class="mt-8 mb-10 p-5 rounded-lg bg-[#EAF4FF] border border-[#0B4F9C]/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 select-none">
+      <div class="flex items-center gap-3.5">
+        <div class="w-11 h-11 rounded-full bg-[#0B4F9C] text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+          <Icon name="mail" size={22} strokeWidth={2.2} />
+        </div>
+        <div>
+          <h2 class="text-sm sm:text-base font-bold text-[#0B4F9C]">Have a General Query, Grievance, or Corporate Inquiry?</h2>
+          <p class="text-xs sm:text-sm text-slate-700 mt-0.5">Submit citizen queries, public grievances, or general administrative feedback through our online portal.</p>
+        </div>
+      </div>
+      <a 
+        href="/feedback" 
+        class="px-5 py-2.5 bg-[#0B4F9C] hover:bg-[#084A8F] text-white rounded text-xs sm:text-sm font-bold shadow-xs whitespace-nowrap transition-colors flex-shrink-0"
+      >
+        Submit General Inquiry / Feedback &rarr;
+      </a>
+    </section>
+
+    <!-- Section 5: Portal Support & Citizen Information -->
+    <section class="card-static mb-10" id="help-support" aria-labelledby="portal-support-heading">
+      <div class="border-b border-slate-200 pb-3 mb-6">
+        <span class="text-xs font-bold text-[#0B4F9C] uppercase tracking-wider">Citizen &amp; Portal Assistance</span>
+        <h2 id="portal-support-heading" class="font-bold text-[#0B4F9C] text-lg sm:text-xl mt-1">Help, Support &amp; Statutory Information</h2>
+        <p class="text-xs sm:text-sm text-slate-600 mt-0.5">Website help, accessibility assistance, RTI statutory disclosures, and official working hours.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
+        
+        <!-- Card 1: Website Help & Support -->
+        <div class="p-5 rounded-xl border border-slate-200 bg-white hover:border-slate-300 hover:shadow-xs transition-all flex flex-col justify-between">
+          <div>
+            <div class="w-9 h-9 rounded-lg bg-slate-100 text-[#0B4F9C] flex items-center justify-center font-bold mb-2.5">
+              <Icon name="info" size={20} />
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm sm:text-base">Website Help &amp; Support</h3>
+            <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">
+              Assistance with navigating portal tenders, downloads, circulars, screen reader accessibility, and font scaling options.
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100">
+            <a href="/help" class="text-xs font-semibold text-[#0B4F9C] hover:underline inline-flex items-center gap-1">
+              Browse Help Guide &rarr;
+            </a>
+          </div>
+        </div>
+
+        <!-- Card 2: RTI Disclosures -->
+        <div class="p-5 rounded-xl border border-slate-200 bg-white hover:border-slate-300 hover:shadow-xs transition-all flex flex-col justify-between">
+          <div>
+            <div class="w-9 h-9 rounded-lg bg-slate-100 text-[#0B4F9C] flex items-center justify-center font-bold mb-2.5">
+              <Icon name="shield-check" size={20} />
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm sm:text-base">RTI Disclosures</h3>
+            <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">
+              Directory of designated Public Information Officers (PIOs) and proactive Section 4(1)(b) publications.
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100">
+            <a href="/about-us/explore/rti" class="text-xs font-semibold text-[#0B4F9C] hover:underline inline-flex items-center gap-1">
+              Access RTI Portal &rarr;
+            </a>
+          </div>
+        </div>
+
+        <!-- Card 3: Official Working Hours (Non-interactive static info) -->
+        <div class="p-5 rounded-xl border border-slate-200 bg-white shadow-xs flex flex-col justify-between">
+          <div>
+            <div class="w-9 h-9 rounded-lg bg-slate-100 text-[#0B4F9C] flex items-center justify-center font-bold mb-2.5">
+              <Icon name="clock" size={20} />
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm sm:text-base">Official Working Hours</h3>
+            <p class="text-xs text-slate-700 mt-1.5 leading-relaxed font-medium">working hrs are from 9.30 am to 5.30 pm from monday to friday</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100">
+            <span class="text-[11px] font-bold text-emerald-700">Official Government Timings</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
   </div>
-
-  <!-- Client-side form handler -->
-  <script>
-    const form = document.getElementById('contact-form') as HTMLFormElement;
-    const feedback = document.getElementById('form-feedback') as HTMLDivElement;
-    const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
-
-    if (form && feedback && submitBtn) {
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        // UI Loading state
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Submitting...';
-        feedback.classList.add('hidden');
-
-        const nameInput = document.getElementById('contact-name') as HTMLInputElement;
-        const emailInput = document.getElementById('contact-email') as HTMLInputElement;
-        const messageInput = document.getElementById('contact-message') as HTMLTextAreaElement;
-
-        const payload = {
-          name: nameInput.value.trim(),
-          email: emailInput.value.trim(),
-          message: messageInput.value.trim()
-        };
-
-        try {
-          // Send request to NestJS backend proxy endpoint
-          const response = await fetch('/api/contact', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-          });
-
-          const result = await response.json();
-
-          if (response.ok && result.success) {
-            // Render success state
-            feedback.className = 'mb-4 p-4 rounded text-xs font-semibold bg-emerald-50 border border-emerald-200 text-emerald-800';
-            feedback.innerHTML = `<p>${result.message}</p>`;
-            feedback.classList.remove('hidden');
-            form.reset();
-          } else {
-            // Render validation errors
-            const errMsg = result.message || 'An error occurred during submission.';
-            feedback.className = 'mb-4 p-4 rounded text-xs font-semibold bg-rose-50 border border-rose-200 text-rose-800';
-            feedback.innerHTML = `<p>${Array.isArray(errMsg) ? errMsg.join('<br>') : errMsg}</p>`;
-            feedback.classList.remove('hidden');
-          }
-        } catch (err) {
-          // Network error state
-          feedback.className = 'mb-4 p-4 rounded text-xs font-semibold bg-rose-50 border border-rose-200 text-rose-800';
-          feedback.innerHTML = '<p>Unable to connect to the server. Please try again later.</p>';
-          feedback.classList.remove('hidden');
-        } finally {
-          // Reset UI button state
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Send Message';
-        }
-      });
-    }
-  </script>
 </Layout>

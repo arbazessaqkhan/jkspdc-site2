@@ -26,7 +26,7 @@ const faqs = [
   title="Help & Support - JKSPDC"
   description="Help and FAQ guide for the JKSPDC official website. Learn how to find tenders, notifications, documents, and use the accessibility features."
 >
-  <div class="space-y-0">
+  <div class="space-y-0 max-w-5xl mx-auto">
     <!-- Page Header Band -->
     <div class="page-header-band animate-fadeInUp">
       <nav class="breadcrumb-trail" aria-label="breadcrumb">
@@ -124,7 +124,7 @@ const faqs = [
                 <span aria-hidden="true" class="text-[#0B4F9C] font-bold text-lg leading-none">+</span>
               </summary>
               <div class="p-4 pt-2 text-sm text-gray-700 border-t border-gray-100">
-                <p>Use the <a href="/feedback" class="text-[#0B4F9C] hover:underline">Feedback Form</a> to report broken links, content errors, accessibility issues, or to suggest improvements. You will receive a reference number to track your submission.</p>
+                <p>Use the <a href="#website-feedback" class="text-[#0B4F9C] hover:underline font-semibold">Website Feedback Form</a> below to report broken links, content errors, accessibility issues, or to suggest improvements. For general administrative inquiries or public grievances, please use the <a href="/feedback" class="text-[#0B4F9C] hover:underline font-semibold">Citizen Queries &amp; Feedback Portal</a>.</p>
               </div>
             </details>
 
@@ -171,6 +171,99 @@ const faqs = [
           <p class="mt-2 text-sm text-gray-600">Enable JavaScript for full functionality including language translation and search autocomplete.</p>
         </div>
 
+        <!-- Website Feedback Form at the end of Help & Support content -->
+        <div class="card-static scroll-mt-6" id="website-feedback">
+          <div class="flex items-center gap-3 border-b border-gray-100 pb-3 mb-4">
+            <div class="w-10 h-10 rounded-lg bg-[#EAF4FF] text-[#0B4F9C] flex items-center justify-center font-bold shrink-0">
+              <Icon name="mail" size={22} />
+            </div>
+            <div>
+              <h2 class="font-bold text-[#0B4F9C] text-base">Website Feedback &amp; Issue Report</h2>
+              <p class="text-xs text-gray-600 mt-0.5">Share your experience, report website errors, or suggest portal improvements.</p>
+            </div>
+          </div>
+
+          <!-- Acknowledgement Box (shown after submit) -->
+          <div id="website-feedback-ack" class="hidden mb-4 bg-emerald-50 border border-emerald-300 rounded-lg p-4" role="alert">
+            <div class="flex items-start gap-2.5">
+              <span class="text-emerald-600 text-xl">✅</span>
+              <div>
+                <h3 class="font-bold text-emerald-800 text-sm">Feedback Received!</h3>
+                <p class="text-emerald-700 text-xs mt-0.5">Thank you for helping us improve the website.</p>
+                <p class="text-emerald-700 text-xs mt-1 font-mono"><strong>Ref:</strong> <span id="website-feedback-ref"></span></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Website Feedback Form -->
+          <form id="website-feedback-form" class="space-y-4" novalidate>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Feedback Type -->
+              <div class="form-group">
+                <label for="wf-type" class="block text-xs font-bold text-slate-700 mb-1">Feedback Type <span class="text-red-600">*</span></label>
+                <select id="wf-type" name="feedbackType" class="w-full px-3 py-2 border border-slate-300 rounded text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none bg-white" required>
+                  <option value="">-- Select Type --</option>
+                  <option value="website_content">Website Content</option>
+                  <option value="accessibility">Accessibility Issue</option>
+                  <option value="broken_link">Broken Link / Error</option>
+                  <option value="document_issue">Document / Download Issue</option>
+                  <option value="search_issue">Search Issue</option>
+                  <option value="suggestion">Suggestion / Improvement</option>
+                  <option value="appreciation">Appreciation</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              <!-- Page URL (optional) -->
+              <div class="form-group">
+                <label for="wf-page-url" class="block text-xs font-bold text-slate-700 mb-1">Page URL <span class="text-gray-400 font-normal">(Optional)</span></label>
+                <input type="text" id="wf-page-url" name="pageUrl" placeholder="e.g. /tenders" class="w-full px-3 py-2 border border-slate-300 rounded text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Full Name -->
+              <div class="form-group">
+                <label for="wf-name" class="block text-xs font-bold text-slate-700 mb-1">Full Name <span class="text-red-600">*</span></label>
+                <input type="text" id="wf-name" name="name" required placeholder="Your name" class="w-full px-3 py-2 border border-slate-300 rounded text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none" />
+              </div>
+
+              <!-- Email -->
+              <div class="form-group">
+                <label for="wf-email" class="block text-xs font-bold text-slate-700 mb-1">Email Address <span class="text-gray-400 font-normal">(Optional)</span></label>
+                <input type="email" id="wf-email" name="email" placeholder="your@email.com" class="w-full px-3 py-2 border border-slate-300 rounded text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none" />
+              </div>
+            </div>
+
+            <!-- Rating -->
+            <div class="form-group">
+              <label class="block text-xs font-bold text-slate-700 mb-1">Website Experience Rating</label>
+              <div class="flex gap-2 items-center" role="radiogroup" aria-label="Satisfaction rating">
+                {[1, 2, 3, 4, 5].map(n => (
+                  <label class="cursor-pointer">
+                    <input type="radio" name="wf-rating" value={n} class="sr-only wf-rating-input" />
+                    <span class="wf-rating-span w-8 h-8 rounded border border-slate-300 flex items-center justify-center text-xs font-bold text-slate-700 hover:border-[#0B4F9C] hover:bg-blue-50 transition-colors">{n}</span>
+                  </label>
+                ))}
+                <span class="text-[11px] text-slate-400 ml-2">(1 = Poor, 5 = Excellent)</span>
+              </div>
+            </div>
+
+            <!-- Message -->
+            <div class="form-group">
+              <label for="wf-message" class="block text-xs font-bold text-slate-700 mb-1">Feedback Details <span class="text-red-600">*</span></label>
+              <textarea id="wf-message" name="message" required minlength="10" rows="3" placeholder="Describe the issue or suggestion..." class="w-full px-3 py-2 border border-slate-300 rounded text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none resize-y"></textarea>
+            </div>
+
+            <div class="flex justify-between items-center pt-1">
+              <div id="wf-error" class="hidden text-xs font-semibold text-red-600"></div>
+              <button type="submit" id="wf-submit-btn" class="btn-primary text-xs py-2 px-5 cursor-pointer ml-auto">
+                Submit Website Feedback
+              </button>
+            </div>
+          </form>
+        </div>
+
       </article>
 
       <!-- Sidebar -->
@@ -178,9 +271,10 @@ const faqs = [
         <div class="card-static">
           <h3 class="sidebar-card-title">Quick Links</h3>
           <ul class="flex flex-col gap-2 text-xs font-semibold text-[#0B4F9C]">
+            <li><a href="#website-feedback" class="sidebar-link">Website Feedback Form</a></li>
             <li><a href="/sitemap" class="sidebar-link">Sitemap</a></li>
             <li><a href="/about-us/others/contact" class="sidebar-link">Contact Directory</a></li>
-            <li><a href="/feedback" class="sidebar-link">Submit Feedback</a></li>
+            <li><a href="/feedback" class="sidebar-link">General Citizen Queries</a></li>
             <li><a href="/accessibility-statement" class="sidebar-link">Accessibility Statement</a></li>
             <li><a href="/about-us/explore/rti" class="sidebar-link">RTI Disclosures</a></li>
           </ul>
@@ -194,3 +288,96 @@ const faqs = [
     </div>
   </div>
 </Layout>
+
+<script>
+  // Handle website feedback submission inside Help & Support page
+  const wfForm = document.getElementById('website-feedback-form') as HTMLFormElement | null;
+  const wfSubmitBtn = document.getElementById('wf-submit-btn') as HTMLButtonElement | null;
+  const wfAck = document.getElementById('website-feedback-ack') as HTMLDivElement | null;
+  const wfRef = document.getElementById('website-feedback-ref') as HTMLSpanElement | null;
+  const wfError = document.getElementById('wf-error') as HTMLDivElement | null;
+
+  if (wfForm && wfSubmitBtn) {
+    // Rating selector visual interaction
+    const ratingInputs = wfForm.querySelectorAll('.wf-rating-input');
+    ratingInputs.forEach(input => {
+      input.addEventListener('change', () => {
+        wfForm.querySelectorAll('.wf-rating-span').forEach(span => {
+          span.classList.remove('bg-[#0B4F9C]', 'text-white', 'border-[#0B4F9C]');
+        });
+        const parentSpan = (input as HTMLElement).nextElementSibling;
+        if (parentSpan) {
+          parentSpan.classList.add('bg-[#0B4F9C]', 'text-white', 'border-[#0B4F9C]');
+        }
+      });
+    });
+
+    wfForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (wfError) wfError.classList.add('hidden');
+
+      const typeEl = document.getElementById('wf-type') as HTMLSelectElement;
+      const nameEl = document.getElementById('wf-name') as HTMLInputElement;
+      const emailEl = document.getElementById('wf-email') as HTMLInputElement;
+      const pageUrlEl = document.getElementById('wf-page-url') as HTMLInputElement;
+      const msgEl = document.getElementById('wf-message') as HTMLTextAreaElement;
+      const ratingEl = wfForm.querySelector('input[name="wf-rating"]:checked') as HTMLInputElement | null;
+
+      if (!typeEl.value || !nameEl.value.trim() || !msgEl.value.trim() || msgEl.value.trim().length < 10) {
+        if (wfError) {
+          wfError.textContent = 'Please fill out all required fields (minimum 10 characters for details).';
+          wfError.classList.remove('hidden');
+        }
+        return;
+      }
+
+      wfSubmitBtn.disabled = true;
+      wfSubmitBtn.textContent = 'Submitting...';
+
+      const emailVal = emailEl.value.trim();
+      const payload = {
+        name: nameEl.value.trim(),
+        email: emailVal ? emailVal : 'Not provided',
+        message: `[WEBSITE FEEDBACK]\n[TYPE: ${typeEl.value}]\n[PAGE: ${pageUrlEl.value.trim() || 'General'}]\n[RATING: ${ratingEl ? ratingEl.value : 'Not rated'}]\n\n${msgEl.value.trim()}`
+      };
+
+      try {
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.message || 'Failed to submit feedback to server.');
+        }
+
+        const data = await res.json().catch(() => ({}));
+        const refNo = data.referenceId 
+          ? `JKSPDC-WEB-${data.referenceId.slice(0, 8).toUpperCase()}`
+          : `JKSPDC-WEB-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.floor(Math.random() * 90000) + 10000}`;
+
+        if (wfRef) wfRef.textContent = refNo;
+        wfForm.reset();
+        wfForm.querySelectorAll('.wf-rating-span').forEach(span => {
+          span.classList.remove('bg-[#0B4F9C]', 'text-white', 'border-[#0B4F9C]');
+        });
+        if (wfAck) {
+          wfAck.classList.remove('hidden');
+          wfAck.scrollIntoView({ behavior: 'smooth' });
+        }
+      } catch (err: any) {
+        console.error('Website feedback submission error:', err);
+        if (wfError) {
+          wfError.textContent = err.message || 'Failed to submit feedback. Please check your connection and try again.';
+          wfError.classList.remove('hidden');
+          wfError.scrollIntoView({ behavior: 'smooth' });
+        }
+      } finally {
+        wfSubmitBtn.disabled = false;
+        wfSubmitBtn.textContent = 'Submit Website Feedback';
+      }
+    });
+  }
+</script>

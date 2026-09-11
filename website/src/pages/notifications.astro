@@ -42,7 +42,7 @@ const formatDate = (dateStr: string) => {
   title="Notifications & Circulars - JKSPDC" 
   description="Official notifications, circulars, office orders, and public notices of JKSPDC."
 >
-  <div class="space-y-6">
+  <div class="space-y-0 max-w-5xl mx-auto">
     <!-- Page Header Band -->
     <div class="page-header-band animate-fadeInUp">
       <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
@@ -134,7 +134,8 @@ const formatDate = (dateStr: string) => {
           ) : (
             notifications.map((notif: any) => (
               <div 
-                class="notif-card p-5 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                id={`notif-${notif.id}`}
+                class="notif-card p-5 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 scroll-mt-24"
                 data-year={new Date(notif.publishDate).getFullYear()}
                 data-timestamp={new Date(notif.publishDate).getTime()}
                 data-search-keys={`${(notif.id || '').toLowerCase()} ${(notif.title || '').toLowerCase()} ${(notif.fileName || '').toLowerCase()}`}
@@ -179,7 +180,7 @@ const formatDate = (dateStr: string) => {
           <ul class="flex flex-col gap-2 text-xs font-semibold text-[#0B4F9C]">
             <li><a href="/commercial/commercial-notices" class="hover:underline block py-1">&rarr; Commercial Notices &amp; Circulars</a></li>
             <li><a href="/stakeholders/vendors/tender-bids" class="hover:underline block py-1">&rarr; Tenders &amp; Bids Notices</a></li>
-            <li><a href="/media/press-releases" class="hover:underline block py-1">&rarr; Press Releases &amp; Media</a></li>
+            <li><a href="/media/gallery" class="hover:underline block py-1">&rarr; Media &amp; Photo Gallery</a></li>
             <li><a href="/media/downloads" class="hover:underline block py-1">&rarr; Policy &amp; Public Downloads</a></li>
           </ul>
         </div>

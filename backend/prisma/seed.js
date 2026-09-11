@@ -277,6 +277,170 @@ async function main() {
   }
   console.log('Sample tenders seeded.');
 
+  // 6. Seed Official Contacts (Corporate Office Directory)
+  const officialContacts = [
+    {
+      id: 'contact-seed-1',
+      name: 'Shri Rahul Yadav (IAS)',
+      position: 'Managing Director',
+      email: 'md-jkspdcl@jk.gov.in',
+      srinagarPhone: '0194-2483783',
+      srinagarFax: '0194-2451665',
+      jammuPhone: '0191-2430548',
+      jammuFax: '0191-2435403',
+      viewOrder: 1,
+      isActive: true,
+    },
+    {
+      id: 'contact-seed-2',
+      name: 'Er. Javid Ahmad Dar',
+      position: 'Executive Director (Electric)',
+      email: 'ede@jkspdcl.com',
+      srinagarPhone: '0194-2483782',
+      srinagarFax: '0194-2483782',
+      jammuPhone: '0191-2459549',
+      jammuFax: '0191-2459549',
+      viewOrder: 2,
+      isActive: true,
+    },
+    {
+      id: 'contact-seed-3',
+      name: 'Er. Dev Raj Bhagat',
+      position: 'Executive Director (Civil) (Chief Vigilance Officer)',
+      email: 'edciviljkspdc2@gmail.com',
+      srinagarPhone: '0194-2489033',
+      srinagarFax: '0194-2489033',
+      jammuPhone: '0191-2459534',
+      jammuFax: '0191-2459534',
+      viewOrder: 3,
+      isActive: true,
+    },
+    {
+      id: 'contact-seed-4',
+      name: 'Smt. Santosh Kumari',
+      position: 'Director Finance',
+      email: 'patodfpdc@gmail.com',
+      srinagarPhone: '0194-2489032',
+      srinagarFax: '0194-2439474',
+      jammuPhone: '0191-2435159',
+      jammuFax: '0191-2435159',
+      viewOrder: 4,
+      isActive: true,
+    },
+    {
+      id: 'contact-seed-5',
+      name: 'Shri Sunil Gupta',
+      position: 'Company Secretary',
+      email: 'csjkspdcl@gmail.com',
+      srinagarPhone: '0194-2483779',
+      srinagarFax: '0194-2483779',
+      jammuPhone: '0191-2439347',
+      jammuFax: '0191-2439347',
+      viewOrder: 5,
+      isActive: true,
+    },
+    {
+      id: 'contact-seed-6',
+      name: 'Mrs. Roopali Puri',
+      position: 'Chief General Manager (Law)',
+      email: 'cgmlaw.jkspdcl@gmail.com',
+      srinagarPhone: '0191-2459537',
+      srinagarFax: '0191-2459537',
+      jammuPhone: '0191-2459537',
+      jammuFax: '0191-2459537',
+      viewOrder: 6,
+      isActive: true,
+    },
+    {
+      id: 'contact-seed-7',
+      name: 'Shri Akhil Dutt',
+      position: 'Senior General Manager (Civil)',
+      email: 'sgmciviljkspdc@gmail.com',
+      srinagarPhone: '0194-2489033',
+      srinagarFax: '0194-2489033',
+      jammuPhone: '0191-2459534',
+      jammuFax: '0191-2459534',
+      viewOrder: 7,
+      isActive: true,
+    },
+    {
+      id: 'contact-seed-8',
+      name: 'Mrs. Harjeet Kour',
+      position: 'General Manager (Accounts) (Departmental Vigilance Officer) Jammu',
+      email: 'gmajmu@gmail.com',
+      srinagarPhone: '0191-2459528',
+      srinagarFax: '0191-2459528',
+      jammuPhone: '0191-2459528',
+      jammuFax: '0191-2459528',
+      viewOrder: 8,
+      isActive: true,
+    },
+    {
+      id: 'contact-seed-9',
+      name: 'Sh. Dawanjeet Singh',
+      position: 'Administrative Officer',
+      email: 'admjkpdc@gmail.com',
+      srinagarPhone: '0194-2489034',
+      srinagarFax: '0194-2489034',
+      jammuPhone: '0194-2489034',
+      jammuFax: '0194-2489034',
+      viewOrder: 9,
+      isActive: true,
+    },
+  ];
+
+  for (const c of officialContacts) {
+    await prisma.officialContact.upsert({
+      where: { id: c.id },
+      create: c,
+      update: c,
+    });
+  }
+  console.log('Official contacts seeded.');
+
+  // 7. Seed Contact Sub-Offices / Wing Contacts
+  const subOffices = [
+    {
+      id: 'wing-seed-1',
+      name: 'Generation BHEP',
+      designation: 'Chief Engineer',
+      email: 'ceebhep@gmail.com',
+      phone: '01998288376',
+      wing: 'BHEP',
+      viewOrder: 1,
+      isActive: true,
+    },
+    {
+      id: 'wing-seed-2',
+      name: 'Generation Jammu',
+      designation: 'Chief Engineer',
+      email: 'cegenjammu6@gmail.com',
+      phone: '01912479899',
+      wing: 'Jammu',
+      viewOrder: 2,
+      isActive: true,
+    },
+    {
+      id: 'wing-seed-3',
+      name: 'Generation Kashmir',
+      designation: 'Chief Engineer',
+      email: 'cegenkmr@gmail.com',
+      phone: '01942493140',
+      wing: 'Kashmir',
+      viewOrder: 3,
+      isActive: true,
+    },
+  ];
+
+  for (const s of subOffices) {
+    await prisma.contactSubOffice.upsert({
+      where: { id: s.id },
+      create: s,
+      update: s,
+    });
+  }
+  console.log('Contact Sub-Offices / Wing Contacts seeded.');
+
   console.log('Seeding completed successfully!');
 }
 

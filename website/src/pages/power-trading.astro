@@ -210,42 +210,23 @@ const getDocUrl = (url?: string) => {
   title="Power Trading Cell | Statutory Disclosures & Power Tenders" 
   description="Official Power Trading Cell of JKSPDCL - Trading licences, CERC/JERC regulatory orders, Regulation 12 monthly disclosures, power tenders, and audited financial net worth status."
 >
-  <div class="space-y-6">
+  <div class="space-y-0 max-w-5xl mx-auto">
     
     <!-- Premium Page Header Band -->
-    <div class="bg-gradient-to-r from-[#073B75] via-[#0B4F9C] to-[#042750] text-white rounded-xl p-6 sm:p-8 shadow-xl border border-white/10 relative overflow-hidden">
-      <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
-      
-      <nav class="flex items-center gap-2 text-xs text-blue-200/90 font-medium mb-3 select-none" aria-label="Breadcrumbs">
-        <a href="/" class="hover:text-white transition-colors">Home</a>
-        <span>/</span>
-        <span class="text-white font-bold">Power Trading Cell</span>
+    <div class="page-header-band animate-fadeInUp">
+      <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
+        <a href="/">Home</a>
+        <span class="separator">/</span>
+        <a href="/our-business/power-stations">Projects</a>
+        <span class="separator">/</span>
+        <span class="current">Power Trading Cell</span>
       </nav>
-
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div class="flex flex-wrap items-center gap-3">
-            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-3">
-              <span class="p-2 bg-white/10 rounded-lg backdrop-blur-xs border border-white/20">📑</span>
-              Power Trading Cell
-            </h1>
-            <span class="px-3 py-1 bg-amber-400 text-slate-950 text-xs font-black uppercase tracking-wider rounded-md border border-amber-300 shadow-md animate-pulse flex items-center gap-1">
-              ⚠️ DEMO / TEST PHASE
-            </span>
-          </div>
-          <p class="text-xs sm:text-sm text-blue-100/90 mt-1 max-w-3xl leading-relaxed">
-            Statutory Disclosures, Regulatory Licences, Power Tenders, and Energy Market Framework of Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL).
-          </p>
-        </div>
-        
-        <div class="shrink-0 flex items-center gap-2">
-          <span class="px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-bold flex items-center gap-1.5 shadow-xs">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            CERC Category-I Licensee
-          </span>
-        </div>
-      </div>
+      <h1>Power Trading Cell</h1>
+      <p class="page-subtitle">Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL)</p>
     </div>
+
+    <!-- Space wrapper for page content -->
+    <div class="space-y-6">
 
     <!-- DEMO / TEST PHASE WARNING BANNER -->
     <div class="bg-amber-500/15 border-2 border-amber-500/80 rounded-xl p-4 text-amber-950 shadow-sm flex items-start gap-3.5">
@@ -301,7 +282,7 @@ const getDocUrl = (url?: string) => {
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
             {fallbackLicences.map((lic) => (
-              <div key={lic.id} class="p-4 bg-slate-50 rounded-lg border border-slate-200 hover:border-[#0B4F9C]/40 transition-all flex flex-col justify-between gap-3 shadow-xs">
+              <div key={lic.id} class="p-4 bg-slate-50 rounded-lg border border-slate-200 hover:border-slate-300 hover:shadow-xs transition-all flex flex-col justify-between gap-3 shadow-xs">
                 <div class="space-y-1.5">
                   <div class="flex items-center justify-between gap-2">
                     <span class="text-[10px] font-extrabold px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded uppercase font-mono">{lic.status}</span>
@@ -417,7 +398,7 @@ const getDocUrl = (url?: string) => {
               const corrs = tender.corrigendums && Array.isArray(tender.corrigendums) ? tender.corrigendums : [];
               const docUrl = getDocUrl(tender.documentUrl) || `#`;
               return (
-                <div key={tender.id} class="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-[#0B4F9C]/40 transition-all shadow-xs space-y-3">
+                <div key={tender.id} class="p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-xs transition-all shadow-xs space-y-3">
                   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div class="flex items-center gap-2 flex-wrap">
                       <span class="px-2 py-0.5 rounded bg-[#0B4F9C] text-white text-[10px] font-extrabold uppercase">{tender.referenceNo}</span>
@@ -532,7 +513,7 @@ const getDocUrl = (url?: string) => {
               href="https://noar.in/" 
               target="_blank" 
               rel="noopener noreferrer" 
-              class="p-4 bg-slate-50 hover:bg-blue-50/60 border border-slate-200 hover:border-[#0B4F9C]/50 rounded-xl transition-all flex flex-col justify-between gap-3 shadow-xs group"
+              class="p-4 bg-slate-50 hover:bg-slate-100/80 border border-slate-200 hover:border-slate-300 rounded-xl transition-all flex flex-col justify-between gap-3 shadow-xs group"
             >
               <div class="flex items-center justify-between gap-3">
                 <div class="w-12 h-12 rounded-lg bg-white p-1.5 border border-slate-200/80 shadow-xs flex items-center justify-center shrink-0">
@@ -553,7 +534,7 @@ const getDocUrl = (url?: string) => {
               href="https://pdd.jk.gov.in/" 
               target="_blank" 
               rel="noopener noreferrer" 
-              class="p-4 bg-slate-50 hover:bg-blue-50/60 border border-slate-200 hover:border-[#0B4F9C]/50 rounded-xl transition-all flex flex-col justify-between gap-3 shadow-xs group"
+              class="p-4 bg-slate-50 hover:bg-slate-100/80 border border-slate-200 hover:border-slate-300 rounded-xl transition-all flex flex-col justify-between gap-3 shadow-xs group"
             >
               <div class="flex items-center justify-between gap-3">
                 <div class="w-12 h-12 rounded-lg bg-white p-1.5 border border-slate-200/80 shadow-xs flex items-center justify-center shrink-0">
@@ -574,7 +555,7 @@ const getDocUrl = (url?: string) => {
               href="https://jercjkl.jk.gov.in/" 
               target="_blank" 
               rel="noopener noreferrer" 
-              class="p-4 bg-slate-50 hover:bg-blue-50/60 border border-slate-200 hover:border-[#0B4F9C]/50 rounded-xl transition-all flex flex-col justify-between gap-3 shadow-xs group"
+              class="p-4 bg-slate-50 hover:bg-slate-100/80 border border-slate-200 hover:border-slate-300 rounded-xl transition-all flex flex-col justify-between gap-3 shadow-xs group"
             >
               <div class="flex items-center justify-between gap-3">
                 <div class="w-12 h-12 rounded-lg bg-white p-1.5 border border-slate-200/80 shadow-xs flex items-center justify-center shrink-0">
@@ -595,7 +576,7 @@ const getDocUrl = (url?: string) => {
               href="https://cercind.gov.in/" 
               target="_blank" 
               rel="noopener noreferrer" 
-              class="p-4 bg-slate-50 hover:bg-blue-50/60 border border-slate-200 hover:border-[#0B4F9C]/50 rounded-xl transition-all flex flex-col justify-between gap-3 shadow-xs group"
+              class="p-4 bg-slate-50 hover:bg-slate-100/80 border border-slate-200 hover:border-slate-300 rounded-xl transition-all flex flex-col justify-between gap-3 shadow-xs group"
             >
               <div class="flex items-center justify-between gap-3">
                 <div class="w-12 h-12 rounded-lg bg-white p-1.5 border border-slate-200/80 shadow-xs flex items-center justify-center shrink-0">
@@ -616,7 +597,7 @@ const getDocUrl = (url?: string) => {
               href="https://www.iexindia.com/" 
               target="_blank" 
               rel="noopener noreferrer" 
-              class="p-4 bg-slate-50 hover:bg-blue-50/60 border border-slate-200 hover:border-[#0B4F9C]/50 rounded-xl transition-all flex flex-col justify-between gap-3 shadow-xs group"
+              class="p-4 bg-slate-50 hover:bg-slate-100/80 border border-slate-200 hover:border-slate-300 rounded-xl transition-all flex flex-col justify-between gap-3 shadow-xs group"
             >
               <div class="flex items-center justify-between gap-3">
                 <div class="w-12 h-12 rounded-lg bg-white p-1.5 border border-slate-200/80 shadow-xs flex items-center justify-center shrink-0">
@@ -637,7 +618,7 @@ const getDocUrl = (url?: string) => {
               href="https://powerexindia.in/" 
               target="_blank" 
               rel="noopener noreferrer" 
-              class="p-4 bg-slate-50 hover:bg-blue-50/60 border border-slate-200 hover:border-[#0B4F9C]/50 rounded-xl transition-all flex flex-col justify-between gap-3 shadow-xs group"
+              class="p-4 bg-slate-50 hover:bg-slate-100/80 border border-slate-200 hover:border-slate-300 rounded-xl transition-all flex flex-col justify-between gap-3 shadow-xs group"
             >
               <div class="flex items-center justify-between gap-3">
                 <div class="w-12 h-12 rounded-lg bg-white p-1.5 border border-slate-200/80 shadow-xs flex items-center justify-center shrink-0">
@@ -655,6 +636,8 @@ const getDocUrl = (url?: string) => {
             </a>
           </div>
         </section>
+
+    </div>
 
     </div>
 

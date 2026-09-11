@@ -29,21 +29,44 @@ if (tickerItems.length === 0) {
 
     const fetched: TickerItem[] = [];
 
-    tenders.filter((t: any) => t.status === 'Active').slice(0, 4).forEach((t: any) => {
+    // Recent Active Tenders (Sorted by publication date descending, limit to recent 3)
+    const recentTenders = tenders
+      .filter((t: any) => t.status === 'Active')
+      .sort((a: any, b: any) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime())
+      .slice(0, 3);
+
+    recentTenders.forEach((t: any) => {
       fetched.push({
         type: 'TENDER',
         text: `${t.title} (NIT Ref: ${t.referenceNo})`,
         colorClass: 'text-cyan-300 bg-cyan-500/10 border-cyan-400/20',
         url: `/stakeholders/vendors/tender-details?id=${t.id}`,
       });
+
+      // Recent corrigendums if any
+      const corrs = t.corrigendums && Array.isArray(t.corrigendums) ? t.corrigendums : [];
+      corrs.slice(0, 1).forEach((c: any) => {
+        fetched.push({
+          type: 'CORRIGENDUM',
+          text: `Corrigendum: ${c.title} — ${t.title} (Ref: ${t.referenceNo})`,
+          colorClass: 'text-orange-400 bg-orange-500/10 border-orange-400/20',
+          url: `/stakeholders/vendors/tender-details?id=${t.id}#corrigendum-${c.id}`,
+        });
+      });
     });
 
-    notifs.slice(0, 4).forEach((n: any) => {
+    // Recent Notifications & Notices (Sorted by publication date descending, limit to recent 3)
+    const recentNotifs = notifs
+      .sort((a: any, b: any) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime())
+      .slice(0, 3);
+
+    recentNotifs.forEach((n: any) => {
+      const docUrl = n.documentUrl ? (n.documentUrl.startsWith('/uploads/') ? `http://localhost:3000${n.documentUrl}` : n.documentUrl) : '/notifications';
       fetched.push({
-        type: 'NOTIFICATION',
-        text: `${n.title} ${n.fileName ? `(File: ${n.fileName})` : ''}`,
+        type: 'NOTICE',
+        text: `${n.title}${n.fileName ? ` (${n.fileName})` : ''}`,
         colorClass: 'text-yellow-400 bg-yellow-500/10 border-yellow-400/20',
-        url: n.documentUrl || `/stakeholders/investors/announcement`,
+        url: docUrl,
       });
     });
 
@@ -58,9 +81,16 @@ if (tickerItems.length === 0) {
 if (tickerItems.length === 0) {
   tickerItems = [
     { 
-      type: 'LIVE', 
-      text: 'Jammu & Kashmir State Power Development Corporation Limited official portal online.', 
-      colorClass: 'text-yellow-400 bg-yellow-500/10 border-yellow-400/20' 
+      type: 'TENDER', 
+      text: 'Active Notice Inviting Tenders (NITs) & Procurement Opportunities', 
+      colorClass: 'text-cyan-300 bg-cyan-500/10 border-cyan-400/20',
+      url: '/stakeholders/vendors/tender-bids'
+    },
+    { 
+      type: 'NOTICE', 
+      text: 'Official Notifications & Circulars Repository — JKSPDCL', 
+      colorClass: 'text-yellow-400 bg-yellow-500/10 border-yellow-400/20',
+      url: '/notifications'
     }
   ];
 }

@@ -105,7 +105,7 @@ html {
 
   --color-brand-text: #1B2A41;
   --color-brand-muted: #4B5563;
-  --color-brand-border: #BDD7EE;
+  --color-brand-border: #E2E8F0;
   --color-brand-success: #1E8E3E;
   --color-brand-warning: #D97706;
   --color-brand-error: #C62828;
@@ -115,8 +115,8 @@ html {
   --color-brand-header-tint: #D6EAF8;
   --color-brand-footer: #042750;
 
-  --shadow-card: 0 3px 6px -1px rgba(11, 79, 156, 0.06), 0 2px 4px -2px rgba(11, 79, 156, 0.04);
-  --shadow-card-hover: 0 14px 28px -6px rgba(11, 79, 156, 0.16), 0 6px 12px -4px rgba(11, 79, 156, 0.08);
+  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  --shadow-card-hover: 0 4px 12px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
 
   --radius-btn: 6px;
   --radius-card: 10px;
@@ -535,33 +535,37 @@ td {
   outline: none;
 }
 
-/* --- BUTTON COMPONENTS WITH HYDRO GLOW & HOVER SWEEP --- */
+/* --- BUTTON COMPONENTS WITH FORMAL GOVERNMENT STYLING --- */
 @utility btn-primary {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0B4F9C 0%, #084A8F 100%);
+  background-color: #0B4F9C;
   color: #ffffff;
   font-weight: 700;
   font-size: 0.875rem;
   padding: 0.625rem 1.35rem;
   border-radius: var(--radius-btn);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 3px 10px -2px rgba(11, 79, 156, 0.3);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid transparent;
+  box-shadow: 0 1px 3px rgba(11, 79, 156, 0.2);
+  transition: all 0.2s ease;
   cursor: pointer;
-  overflow: hidden;
 
   &:hover {
-    background: linear-gradient(135deg, #0D5BB4 0%, #073F7B 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px -3px rgba(11, 79, 156, 0.4);
+    background-color: #084A8F;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(11, 79, 156, 0.25);
   }
 
   &:active {
     transform: translateY(0);
-    box-shadow: 0 2px 6px -1px rgba(11, 79, 156, 0.4);
+    box-shadow: 0 1px 2px rgba(11, 79, 156, 0.2);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus-ring-color);
+    outline-offset: 2px;
   }
 
   &:disabled {
@@ -577,32 +581,37 @@ td {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1A5276 0%, #154360 100%);
+  background-color: #1A5276;
   color: #ffffff;
   font-weight: 700;
   font-size: 0.875rem;
   padding: 0.625rem 1.35rem;
   border-radius: var(--radius-btn);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 3px 10px -2px rgba(26, 82, 118, 0.25);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid transparent;
+  box-shadow: 0 1px 3px rgba(26, 82, 118, 0.2);
+  transition: all 0.2s ease;
   cursor: pointer;
-  overflow: hidden;
 
   &:hover {
-    background: linear-gradient(135deg, #1F618D 0%, #113852 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px -3px rgba(26, 82, 118, 0.35);
+    background-color: #154360;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(26, 82, 118, 0.25);
   }
 
   &:active {
     transform: translateY(0);
   }
 
+  &:focus-visible {
+    outline: 2px solid var(--focus-ring-color);
+    outline-offset: 2px;
+  }
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
+    box-shadow: none;
   }
 }
 
@@ -616,19 +625,24 @@ td {
   font-size: 0.875rem;
   padding: 0.625rem 1.35rem;
   border-radius: var(--radius-btn);
-  border: 1.5px solid var(--color-brand-primary);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid var(--color-brand-primary);
+  transition: all 0.2s ease;
   cursor: pointer;
 
   &:hover {
-    background: linear-gradient(135deg, #0B4F9C 0%, #084A8F 100%);
+    background-color: #0B4F9C;
     color: #ffffff;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px -3px rgba(11, 79, 156, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(11, 79, 156, 0.2);
   }
 
   &:active {
     transform: translateY(0);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus-ring-color);
+    outline-offset: 2px;
   }
 
   &:disabled {
@@ -637,73 +651,61 @@ td {
     background-color: transparent;
     cursor: not-allowed;
     transform: none;
+    box-shadow: none;
   }
 }
 
-/* --- CARD COMPONENTS WITH ROYAL BLUE OUTLINE HOVER --- */
+/* --- CARD COMPONENTS WITH RESTRAINED FORMAL BORDERS --- */
 @utility card-static {
   background-color: #ffffff;
-  border: 1px solid #BDD7EE;
+  border: 1px solid #E2E8F0;
   border-radius: var(--radius-card);
   padding: 1.5rem;
   box-shadow: var(--shadow-card);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-
-  &:hover {
-    border-color: #0B4F9C;
-    outline: 2px solid #0B4F9C;
-    outline-offset: -2px;
-    box-shadow: 0 10px 25px -5px rgba(11, 79, 156, 0.16), 0 8px 16px -6px rgba(11, 79, 156, 0.12);
-    transform: translateY(-2px);
-  }
 }
 
 @utility card-interactive {
   background-color: #ffffff;
-  border: 1px solid #BDD7EE;
+  border: 1px solid #E2E8F0;
   border-radius: var(--radius-card);
   padding: 1.5rem;
   box-shadow: var(--shadow-card);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.2s ease;
 
   &:hover {
-    border-color: #0B4F9C;
-    outline: 2px solid #0B4F9C;
-    outline-offset: -2px;
-    box-shadow: 0 12px 28px -6px rgba(11, 79, 156, 0.2), 0 8px 20px -8px rgba(11, 79, 156, 0.15);
-    transform: translateY(-4px) scale(1.005);
+    border-color: #CBD5E1;
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-2px);
   }
 }
 
 @utility glass-card {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(189, 215, 238, 0.7);
+  border: 1px solid #E2E8F0;
   border-radius: var(--radius-card);
-  box-shadow: 0 8px 32px 0 rgba(11, 79, 156, 0.06);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-card);
+  transition: all 0.2s ease;
 
   &:hover {
-    border-color: #0B4F9C;
-    outline: 2px solid #0B4F9C;
-    outline-offset: -2px;
-    box-shadow: 0 12px 28px -6px rgba(11, 79, 156, 0.16);
+    border-color: #CBD5E1;
+    box-shadow: var(--shadow-card-hover);
   }
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   CRITICAL UNIVERSAL BLUE OUTLINE HOVER FOR ALL MODULES & TABS
+   RESTRAINED INTERACTION STYLES FOR CARDS, TICKERS & TABLES
    ═══════════════════════════════════════════════════════════════ */
 
-/* 1. All Cards, Marquee Items, Tenders & Notifications Tickers */
+/* 1. Interactive Cards, Marquee Items, Tenders & Notifications Tickers */
 .neon-card-hover,
 .marquee-item,
 .tender-card,
 .project-card,
 .quick-access-card,
 .scroll-track a {
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.2s ease;
 }
 
 .neon-card-hover:hover,
@@ -712,32 +714,24 @@ td {
 .project-card:hover,
 .quick-access-card:hover,
 .scroll-track a:hover {
-  border-color: #0B4F9C !important;
-  outline: 2px solid #0B4F9C !important;
-  outline-offset: -2px !important;
-  box-shadow: 0 8px 24px -4px rgba(11, 79, 156, 0.22) !important;
+  background-color: #F8FAFC;
+  border-color: #CBD5E1 !important;
+  box-shadow: 0 2px 6px -1px rgba(15, 23, 42, 0.06) !important;
 }
 
-/* 2. Primary Navigation Bar Tabs & Dropdown Links */
-nav[aria-label="Primary Navigation"] ul li>a:hover,
-nav[aria-label="Primary Navigation"] ul li>button:hover {
-  outline: 2px solid #60A5FA !important;
-  outline-offset: -2px !important;
-  border-radius: 4px;
-}
-
-/* Dropdown Menu Items */
+/* 2. Primary Navigation Bar Dropdown Items */
 nav[aria-label="Primary Navigation"] div.absolute a:hover {
-  outline: 2px solid #0B4F9C !important;
-  outline-offset: -2px !important;
-  border-color: #0B4F9C !important;
+  background-color: #F1F5F9 !important;
+  color: #0B4F9C !important;
 }
 
 /* 3. Table Rows */
+tbody tr {
+  transition: background-color 0.15s ease;
+}
+
 tbody tr:hover {
-  outline: 2px solid #0B4F9C !important;
-  outline-offset: -2px !important;
-  background-color: #F1F7FD !important;
+  background-color: #F8FAFC !important;
 }
 
 /* --- FORM COMPONENTS --- */
@@ -759,16 +753,21 @@ tbody tr:hover {
   font-size: 0.875rem;
   padding: 0.625rem 0.875rem;
   border-radius: 4px;
-  border: 1px solid #d1d5db;
+  border: 1px solid #CBD5E1;
   background-color: #ffffff;
   color: #111827;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 
-  &:hover,
-  &:focus {
+  &:hover {
+    border-color: #94A3B8;
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: 2px solid var(--focus-ring-color);
+    outline-offset: 0;
     border-color: #0B4F9C;
-    outline: 2px solid #0B4F9C;
-    outline-offset: -2px;
+    box-shadow: 0 0 0 1px #0B4F9C;
   }
 }
 
@@ -777,16 +776,21 @@ tbody tr:hover {
   font-size: 0.875rem;
   padding: 0.625rem 0.875rem;
   border-radius: 4px;
-  border: 1px solid #d1d5db;
+  border: 1px solid #CBD5E1;
   background-color: #ffffff;
   color: #111827;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 
-  &:hover,
-  &:focus {
+  &:hover {
+    border-color: #94A3B8;
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: 2px solid var(--focus-ring-color);
+    outline-offset: 0;
     border-color: #0B4F9C;
-    outline: 2px solid #0B4F9C;
-    outline-offset: -2px;
+    box-shadow: 0 0 0 1px #0B4F9C;
   }
 }
 
@@ -794,7 +798,7 @@ tbody tr:hover {
   width: 1rem;
   height: 1rem;
   border-radius: 4px;
-  border: 1px solid #d1d5db;
+  border: 1px solid #CBD5E1;
   accent-color: var(--color-brand-primary);
 }
 
@@ -809,7 +813,7 @@ tbody tr:hover {
 @utility table-wrapper {
   width: 100%;
   overflow-x: auto;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #E2E8F0;
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
 }
@@ -821,21 +825,21 @@ tbody tr:hover {
   font-size: 0.875rem;
 
   & th {
-    background-color: #D6EAF8;
-    color: #1A5276;
-    font-weight: 600;
+    background-color: #F8FAFC;
+    color: #1E293B;
+    font-weight: 700;
     padding: 0.875rem 1rem;
-    border-bottom: 2px solid #BDD7EE;
+    border-bottom: 2px solid #CBD5E1;
   }
 
   & td {
     padding: 0.875rem 1rem;
-    border-bottom: 1px solid #e5e7eb;
-    color: #374151;
+    border-bottom: 1px solid #F1F5F9;
+    color: #334155;
   }
 
   & tbody tr:hover {
-    background-color: #EAF4FF;
+    background-color: #F8FAFC;
   }
 }
 

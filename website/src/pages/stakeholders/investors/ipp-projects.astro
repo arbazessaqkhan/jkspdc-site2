@@ -119,7 +119,7 @@ const phase1Data = ippPhases[0];
   title="IPP Projects - Investors Corner" 
   description="Independent Power Producer (IPP) Hydroelectric & Renewable Energy Projects across J&K."
 >
-  <div class="space-y-8">
+  <div class="space-y-0 max-w-5xl mx-auto">
     <!-- Premium Page Header Band -->
     <div class="page-header-band animate-fadeInUp">
       <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
@@ -149,8 +149,7 @@ const phase1Data = ippPhases[0];
         {ippPhases.map((phase) => (
           <a
             href={`/stakeholders/investors/ipp-project-details?phase=${phase.id}`}
-            class="phase-card-btn group block p-5 rounded-2xl border-2 border-[#1E6BCE]/30 hover:border-[#0B4F9C] bg-white hover:bg-slate-50/90 text-center shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer select-none"
-            style="outline: 2px solid transparent; outline-offset: -2px;"
+            class="phase-card-btn group block p-5 rounded-xl border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-center shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C]"
           >
             <span class="text-lg font-extrabold text-[#0B4F9C] group-hover:text-[#073B75] tracking-wide block">
               {phase.name}
@@ -164,11 +163,11 @@ const phase1Data = ippPhases[0];
     </div>
 
     <!-- Default Static Phase 1 Overview Register -->
-    <div id="phase-detail-card" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6 animate-fadeIn delay-300">
+    <div id="phase-detail-card" class="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-6 animate-fadeIn delay-300">
       <!-- Active Phase Title Banner -->
       <div class="border-b border-slate-200 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <div class="inline-block text-[10px] font-bold uppercase tracking-wider bg-[#EAF4FF] text-[#0B4F9C] px-3 py-1 rounded-full mb-1 border border-[#BDD7EE]">
+          <div class="inline-block text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-[#0B4F9C] px-3 py-1 rounded-full mb-1 border border-slate-200">
             Default Allotment Phase Overview
           </div>
           <h2 class="text-xl sm:text-2xl font-extrabold text-[#0B4F9C]">

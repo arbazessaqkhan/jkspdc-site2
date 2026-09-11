@@ -29,6 +29,8 @@ import { ExecutivesModule } from './executives/executives.module';
 import { HeroSlidesModule } from './hero-slides/hero-slides.module';
 import { SiteSettingsModule } from './site-settings/site-settings.module';
 import { DignitariesModule } from './dignitaries/dignitaries.module';
+import { OfficialContactsModule } from './official-contacts/official-contacts.module';
+import { ContactSubOfficesModule } from './contact-sub-offices/contact-sub-offices.module';
 
 @Module({
   imports: [
@@ -61,6 +63,8 @@ import { DignitariesModule } from './dignitaries/dignitaries.module';
     ExecutivesModule,
     HeroSlidesModule,
     SiteSettingsModule,
+    OfficialContactsModule,
+    ContactSubOfficesModule,
   ],
   controllers: [
     ContactController,

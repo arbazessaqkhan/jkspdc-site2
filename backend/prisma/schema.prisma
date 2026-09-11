@@ -325,3 +325,32 @@ model IppProject {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
+
+model OfficialContact {
+  id            String   @id @default(uuid())
+  name          String
+  position      String
+  email         String?
+  srinagarPhone String?
+  srinagarFax   String?
+  jammuPhone    String?
+  jammuFax      String?
+  viewOrder     Int      @default(0)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model ContactSubOffice {
+  id            String   @id @default(uuid())
+  name          String
+  designation   String
+  email         String?
+  phone         String?
+  wing          String
+  address       String?
+  viewOrder     Int      @default(0)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}

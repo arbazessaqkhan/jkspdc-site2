@@ -1,4 +1,4 @@
-import { IsString, IsEmail, MaxLength, MinLength } from 'class-validator';
+import { IsString, MaxLength, MinLength } from 'class-validator';
 
 export class CreateContactDto {
   @IsString()
@@ -6,7 +6,7 @@ export class CreateContactDto {
   @MaxLength(100, { message: 'Name must not exceed 100 characters.' })
   name!: string;
 
-  @IsEmail({}, { message: 'Please provide a valid email address.' })
+  @IsString()
   @MaxLength(150, { message: 'Email must not exceed 150 characters.' })
   email!: string;
 

@@ -298,18 +298,13 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
           </a>
         </div>
 
-        <!-- SECTION: TENDERS & CAREERS -->
+        <!-- SECTION: TENDERS & PROCUREMENT -->
         <div class="flex flex-col gap-0.5">
-          <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Tenders &amp; Careers</p>
+          <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Tenders &amp; Procurement</p>
           
           <a href="/admin/tenders" title="Tenders & Bids" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'tenders' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="file-text" size={15} class={activeTab === 'tenders' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
             <span class="sidebar-label">Tenders &amp; Bids</span>
-          </a>
-
-          <a href="/admin/careers" title="Careers & Vacancies" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'careers' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="briefcase" size={15} class={activeTab === 'careers' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-            <span class="sidebar-label">Careers &amp; Vacancies</span>
           </a>
         </div>
 
@@ -327,16 +322,6 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
             <span class="sidebar-label">Board of Directors</span>
           </a>
 
-          <a href="/admin/executives" title="Executives Directory" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'executives' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="user-check" size={15} class={activeTab === 'executives' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-            <span class="sidebar-label">Executives Directory</span>
-          </a>
-
-          <a href="/admin/financials" title="Financial Documents" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'financials' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="landmark" size={15} class={activeTab === 'financials' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-            <span class="sidebar-label">Financial Documents</span>
-          </a>
-
           <a href="/admin/notifications" title="Notifications" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'notifications' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="bell" size={15} class={activeTab === 'notifications' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
             <span class="sidebar-label">Notifications</span>
@@ -346,11 +331,6 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
         <!-- SECTION: MEDIA & PUBLICATIONS -->
         <div class="flex flex-col gap-0.5">
           <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Media &amp; Publications</p>
-          
-          <a href="/admin/press-releases" title="Press Releases & News" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'press' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="newspaper" size={15} class={activeTab === 'press' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-            <span class="sidebar-label">Press Releases &amp; News</span>
-          </a>
 
           <a href="/admin/gallery" title="Media Gallery" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'gallery' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="image" size={15} class={activeTab === 'gallery' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
@@ -368,12 +348,27 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
           </a>
         </div>
 
-        <!-- SECTION: INQUIRIES -->
+        <!-- SECTION: CONTACT DIRECTORY -->
         <div class="flex flex-col gap-0.5">
-          <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Inquiries</p>
-          <a href="/admin/contacts" title="Contact Submissions" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'contacts' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+          <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Contact Directory</p>
+          
+          <a href="/admin/official-contacts" title="Official Contacts" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'official-contacts' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="phone" size={15} class={activeTab === 'official-contacts' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+            <span class="sidebar-label">Official Contact</span>
+          </a>
+
+          <a href="/admin/contact-sub-offices" title="Contact Sub-Offices" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'contact-sub-offices' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="building-2" size={15} class={activeTab === 'contact-sub-offices' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+            <span class="sidebar-label">Contact Sub-Offices</span>
+          </a>
+        </div>
+
+        <!-- SECTION: INQUIRIES & FEEDBACK -->
+        <div class="flex flex-col gap-0.5">
+          <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Feedback &amp; Inquiries</p>
+          <a href="/admin/contacts" title="Feedbacks & Inquiries" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'contacts' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="mail" size={15} class={activeTab === 'contacts' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-            <span class="sidebar-label">Contact Submissions</span>
+            <span class="sidebar-label">Feedbacks &amp; Inquiries</span>
           </a>
         </div>
 

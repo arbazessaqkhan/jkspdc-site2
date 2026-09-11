@@ -5,13 +5,9 @@ export interface Stats {
   directorsCount: number;
   dignitariesCount?: number;
   tendersCount: number;
-  careersCount: number;
-  pressCount: number;
   notificationsCount?: number;
   downloadsCount?: number;
-  financialsCount?: number;
   agmCount?: number;
-  executivesCount?: number;
   policiesCount?: number;
   galleryCount?: number;
   inquiriesCount?: number;
@@ -33,11 +29,6 @@ export interface TenderDto {
   status?: string;
 }
 
-export interface CareerDto {
-  id?: string | number;
-  status?: string;
-}
-
 export interface ContactSubmissionDto {
   id?: string | number;
   name?: string;
@@ -54,4 +45,4 @@ export interface AuditLogDto {
   details?: unknown;
 }
 
-export type AdminTab = 'dashboard' | 'construction' | 'directors' | 'dignitaries' | 'operational' | 'tenders' | 'careers' | 'press' | 'contacts' | 'users' | 'audit-logs' | 'media-manager' | 'policies' | 'upcoming' | 'agm' | 'gallery' | 'notifications' | 'downloads' | 'financials' | 'executives' | 'site-settings';
+export type AdminTab = 'dashboard' | 'construction' | 'directors' | 'dignitaries' | 'operational' | 'tenders' | 'contacts' | 'users' | 'audit-logs' | 'media-manager' | 'policies' | 'upcoming' | 'agm' | 'gallery' | 'notifications' | 'downloads' | 'site-settings' | 'official-contacts' | 'contact-sub-offices';

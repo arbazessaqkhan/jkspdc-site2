@@ -1,0 +1,27 @@
+import type { APIRoute } from 'astro';
+
+export const POST: APIRoute = async ({ request }) => {
+  try {
+    const body = await request.json();
+    
+    // Proxy client request to NestJS backend
+    const res = await fetch('http://localhost:3000/api/contact', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = await res.json().catch(() => ({}));
+    return new Response(JSON.stringify(data), {
+      status: res.status,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (err: any) {
+    return new Response(
+      JSON.stringify({ success: false, message: err.message || 'Error communicating with backend.' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+};
