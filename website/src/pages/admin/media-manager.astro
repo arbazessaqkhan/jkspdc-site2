@@ -32,20 +32,17 @@ try {
 <AdminLayout title="Media & Documents" description="Central file repository for portal PDFs, images, and attachments" activeTab="media-manager">
   <div class="flex flex-col gap-6" id="media-manager-root">
     
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-5">
-      <div class="space-y-1">
-        <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-          <Icon name="folder" size={24} class="text-[#0B4F9C]" /> Media &amp; Document Manager
-        </h1>
-        <p class="text-xs text-slate-600 font-medium">One-stop repository to upload, reference, copy links, and delete documents and images across the website.</p>
+    <!-- Page Header -->
+    <div class="admin-page-header">
+      <div>
+        <h1 class="admin-page-title">Media &amp; Document Manager</h1>
+        <p class="admin-page-subtitle">Central authoritative file repository for portal PDFs, circulars, photographs, and public attachments.</p>
       </div>
     </div>
 
     {errorMessage && (
-      <div class="p-4 bg-amber-50 border-l-4 border-amber-500 rounded text-xs text-amber-800 font-semibold shadow-sm flex items-start gap-2.5" role="alert">
-        <Icon name="info" size={16} class="text-amber-600 shrink-0 mt-0.5" />
-        <span>{errorMessage}</span>
+      <div class="p-3 bg-red-50 border border-red-200 text-xs font-semibold text-red-700 rounded flex items-center gap-2" role="alert">
+        <Icon name="info" size={14} class="text-red-600 shrink-0" /> {errorMessage}
       </div>
     )}
 
@@ -53,103 +50,151 @@ try {
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       
       <!-- Upload Card -->
-      <div class="card-static lg:col-span-1 flex flex-col gap-4 self-start">
-        <h2 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider border-b border-slate-100 pb-2">Upload File</h2>
+      <div class="bg-white rounded-lg border border-slate-200 p-5 shadow-xs lg:col-span-1 flex flex-col gap-4 self-start">
+        <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-2">Upload File</h2>
         
-        <div id="upload-container" class="border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-lg p-6 bg-slate-50 flex flex-col items-center justify-center gap-2 hover:bg-blue-50/20 transition-all cursor-pointer relative min-h-[160px]">
+        <div id="upload-container" class="border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-lg p-6 bg-slate-50 flex flex-col items-center justify-center gap-2 hover:bg-blue-50/20 transition-all cursor-pointer relative min-h-[150px]">
           <input type="file" id="file-uploader" class="absolute inset-0 opacity-0 cursor-pointer" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" />
-          <Icon name="upload" size={28} class="text-slate-400" />
-          <span class="text-xs text-slate-600 font-bold text-center" id="upload-status-text">Click to browse or drag file here</span>
-          <span class="text-[10px] text-slate-450 text-center">PDF, JPG, PNG, DOCX, XLSX (Max 20MB / 100MB if Important)</span>
+          <Icon name="upload" size={26} class="text-slate-400" />
+          <span class="text-xs text-slate-700 font-bold text-center" id="upload-status-text">Click to browse or drag file here</span>
+          <span class="text-[10px] text-slate-500 text-center">PDF, JPG, PNG, DOCX, XLSX (Max 20MB / 100MB if Important)</span>
         </div>
 
-        <label class="flex items-center gap-2 p-2.5 bg-amber-50/70 border border-amber-200/80 rounded-lg cursor-pointer hover:bg-amber-50 transition-colors select-none">
-          <input type="checkbox" id="is-important-checkbox" class="w-4 h-4 rounded text-[#0B4F9C] border-slate-300 focus:ring-[#0B4F9C] cursor-pointer" />
+        <label class="flex items-center gap-2 p-2 bg-amber-50/70 border border-amber-200/80 rounded cursor-pointer hover:bg-amber-50 transition-colors select-none">
+          <input type="checkbox" id="is-important-checkbox" class="w-3.5 h-3.5 rounded text-[#0B4F9C] border-slate-300 focus:ring-[#0B4F9C] cursor-pointer" />
           <div class="flex flex-col">
             <span class="text-xs font-bold text-amber-900 flex items-center gap-1">★ Mark as Important</span>
-            <span class="text-[10px] text-amber-700">Increases max upload limit from 20 MB to 100 MB</span>
+            <span class="text-[10px] text-amber-700">Increases upload limit from 20 MB to 100 MB</span>
           </div>
         </label>
 
-        <div class="text-[11px] text-slate-500 leading-relaxed bg-slate-50 border border-slate-100 rounded-lg p-3">
-          <p class="font-bold text-slate-700 mb-1 flex items-center gap-1">
-            <Icon name="info" size={12} class="text-slate-400" /> Referencing Uploads:
+        <div class="text-[11px] text-slate-600 leading-relaxed bg-slate-50 border border-slate-200 rounded p-3">
+          <p class="font-bold text-slate-800 mb-1 flex items-center gap-1">
+            <Icon name="info" size={12} class="text-[#0B4F9C]" /> Referencing Uploads:
           </p>
-          Once uploaded, click <strong class="text-slate-700">Copy URL</strong> and paste the link anywhere in rich text textareas, download buttons, or configuration modules.
+          Once uploaded, click <strong class="text-slate-800">Copy URL</strong> to reference the document anywhere across the admin portal.
         </div>
       </div>
 
-      <!-- Files Registry -->
+      <!-- Files Registry Table -->
       <div class="lg:col-span-2 space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-          <h2 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider">Repository Files ({filesList.length})</h2>
-          <span class="text-[10px] text-slate-500 font-semibold uppercase">Sorted by newest upload</span>
+        <div class="admin-toolbar flex-wrap">
+          <div>
+            <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Repository Files ({filesList.length})</h2>
+            <span class="text-[10px] text-slate-500 font-medium">Authoritative file storage across all portal modules</span>
+          </div>
+
+          <!-- Filter / Search input -->
+          <div class="relative w-full sm:w-60">
+            <input 
+              type="text" 
+              id="search-files-input" 
+              placeholder="Filter files..." 
+              class="w-full bg-white border border-slate-300 rounded text-xs text-slate-800 pl-8 pr-3 py-1.5 focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none"
+            />
+            <div class="absolute left-2.5 top-2 text-slate-400">
+              <Icon name="search" size={13} />
+            </div>
+          </div>
         </div>
 
         {filesList.length === 0 ? (
-          <div class="text-center py-12 bg-white border border-slate-200 rounded-xl shadow-sm text-slate-400 space-y-2">
-            <Icon name="folder" size={36} class="text-slate-300 mx-auto" />
-            <p class="text-sm font-medium">No files uploaded yet.</p>
-            <p class="text-xs text-slate-400">Use the upload box on the left to add documents.</p>
+          <div class="text-center py-12 bg-white border border-slate-200 rounded-lg shadow-xs text-slate-400 space-y-2">
+            <Icon name="folder" size={32} class="text-slate-300 mx-auto" />
+            <p class="text-xs font-medium">No files uploaded yet.</p>
+            <p class="text-[11px] text-slate-400">Use the upload box on the left to add documents or images.</p>
           </div>
         ) : (
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="files-grid">
-            {filesList.map((file) => {
-              const isImage = /\.(jpg|jpeg|png|webp)$/i.test(file.filename);
-              const ext = file.filename.split('.').pop()?.toUpperCase() || 'FILE';
-              const sizeFormatted = file.sizeBytes > 1024 * 1024 
-                ? `${(file.sizeBytes / (1024 * 1024)).toFixed(2)} MB`
-                : `${Math.round(file.sizeBytes / 1024)} KB`;
-              const dateFormatted = new Date(file.createdAt).toLocaleDateString('en-GB', {
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric'
-              });
+          <div class="admin-table-container">
+            <table class="admin-table min-w-full" id="files-table">
+              <thead>
+                <tr>
+                  <th scope="col" class="w-10 text-center">#</th>
+                  <th scope="col" class="w-14 text-center">Type</th>
+                  <th scope="col" class="min-w-[200px]">File Name</th>
+                  <th scope="col" class="w-24 whitespace-nowrap">Size</th>
+                  <th scope="col" class="w-28 whitespace-nowrap">Uploaded</th>
+                  <th scope="col" class="w-28 text-center sticky-col-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="files-tbody">
+                {filesList.map((file, idx) => {
+                  const isImage = /\.(jpg|jpeg|png|webp)$/i.test(file.filename);
+                  const ext = file.filename.split('.').pop()?.toUpperCase() || 'FILE';
+                  const sizeFormatted = file.sizeBytes > 1024 * 1024 
+                    ? `${(file.sizeBytes / (1024 * 1024)).toFixed(2)} MB`
+                    : `${Math.round(file.sizeBytes / 1024)} KB`;
+                  const dateFormatted = new Date(file.createdAt).toLocaleDateString('en-GB', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                  });
 
-              return (
-                <div class="bg-white border border-slate-200 hover:border-slate-300 rounded-xl p-4 shadow-sm transition-all flex flex-col justify-between gap-3 relative file-card" data-filename={file.filename}>
-                  <div class="flex items-start gap-3 min-w-0">
-                    <!-- Icon / Thumbnail Preview -->
-                    <div class="w-12 h-12 rounded bg-slate-100 border border-slate-200 shrink-0 flex items-center justify-center overflow-hidden">
-                      {isImage ? (
-                        <img src={file.url} alt={file.filename} class="w-full h-full object-cover" />
-                      ) : (
-                        <span class="text-[10px] font-extrabold text-[#0B4F9C] bg-[#0B4F9C]/5 w-full h-full flex items-center justify-center uppercase">
-                          {ext}
-                        </span>
-                      )}
-                    </div>
-                    
-                    <div class="min-w-0 flex-grow">
-                      <p class="text-xs font-bold text-slate-900 truncate" title={file.filename}>
-                        {file.filename}
-                      </p>
-                      <p class="text-[10px] text-slate-500 font-semibold mt-0.5">
-                        {sizeFormatted} &bull; {dateFormatted}
-                      </p>
-                    </div>
-                  </div>
-
-                  <!-- Action Buttons -->
-                  <div class="flex items-center gap-2 border-t border-slate-100 pt-3 mt-1 text-xs">
-                    <button 
-                      type="button" 
-                      class="flex-grow inline-flex items-center justify-center gap-1 bg-slate-50 hover:bg-[#0B4F9C]/5 text-slate-700 hover:text-[#0B4F9C] font-bold py-1.5 px-3 rounded border border-slate-200 hover:border-[#0B4F9C]/30 transition-colors cursor-pointer btn-copy-url"
-                      data-url={file.url}
-                    >
-                      <Icon name="file-text" size={13} /> Copy URL
-                    </button>
-                    <button 
-                      type="button" 
-                      class="inline-flex items-center justify-center bg-slate-50 hover:bg-red-50 text-slate-500 hover:text-red-600 font-bold py-1.5 px-2.5 rounded border border-slate-200 hover:border-red-200 transition-colors cursor-pointer btn-delete-file"
-                      data-filename={file.filename}
-                    >
-                      <Icon name="trash" size={13} />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+                  return (
+                    <tr class="file-row transition-colors" data-filename={file.filename}>
+                      <td class="text-center font-bold text-slate-400 text-xs file-idx">{idx + 1}</td>
+                      <td class="text-center p-2">
+                        <div class="w-8 h-8 rounded bg-slate-100 border border-slate-200 mx-auto flex items-center justify-center overflow-hidden">
+                          {isImage ? (
+                            <img src={file.url} alt={file.filename} class="w-full h-full object-cover" />
+                          ) : (
+                            <span class="text-[9px] font-black text-[#0B4F9C] uppercase">
+                              {ext}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        <div class="flex flex-col">
+                          <span class="font-bold text-slate-900 text-xs break-all leading-snug" title={file.filename}>
+                            {file.filename}
+                          </span>
+                          <span class="text-[10px] text-slate-400 font-mono truncate max-w-xs">{file.url}</span>
+                        </div>
+                      </td>
+                      <td class="whitespace-nowrap text-xs font-medium text-slate-700">
+                        {sizeFormatted}
+                      </td>
+                      <td class="whitespace-nowrap text-xs text-slate-600 font-medium">
+                        {dateFormatted}
+                      </td>
+                      <td class="td-actions sticky-col-right text-center">
+                        <div class="admin-action-group justify-center">
+                          <button 
+                            type="button" 
+                            class="admin-btn-action btn-copy-url"
+                            data-url={file.url}
+                            aria-label="Copy Absolute URL"
+                            title="Copy Absolute URL"
+                          >
+                            <Icon name="copy" size={13} />
+                          </button>
+                          <a 
+                            href={file.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            class="admin-btn-action"
+                            aria-label="Open File in New Tab"
+                            title="Open File in New Tab"
+                          >
+                            <Icon name="external-link" size={13} />
+                          </a>
+                          <button 
+                            type="button" 
+                            class="admin-btn-action action-delete btn-delete-file"
+                            data-filename={file.filename}
+                            aria-label="Delete File"
+                            title="Delete File"
+                          >
+                            <Icon name="trash-2" size={13} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
@@ -269,16 +314,20 @@ try {
             throw new Error(errData.message || 'Failed to delete file.');
           }
 
-          // Remove file card from grid
-          const card = document.querySelector(`.file-card[data-filename="${CSS.escape(filename)}"]`);
-          if (card) {
-            card.style.transition = 'all 0.3s ease';
-            card.style.opacity = '0';
-            card.style.transform = 'scale(0.9)';
+          // Remove file row from table
+          const row = document.querySelector(`.file-row[data-filename="${CSS.escape(filename)}"], .file-card[data-filename="${CSS.escape(filename)}"]`);
+          if (row) {
+            row.style.transition = 'all 0.3s ease';
+            row.style.opacity = '0';
             setTimeout(() => {
-              card.remove();
-              // Refresh page if no cards left to display blank state
-              if (document.querySelectorAll('.file-card').length === 0) {
+              row.remove();
+              // Re-index remaining rows
+              document.querySelectorAll('.file-row').forEach((r, i) => {
+                const idxEl = r.querySelector('.file-idx');
+                if (idxEl) idxEl.textContent = (i + 1).toString();
+              });
+              // Refresh page if no rows left to display blank state
+              if (document.querySelectorAll('.file-row').length === 0) {
                 window.location.reload();
               }
             }, 300);
@@ -290,5 +339,25 @@ try {
         }
       });
     });
+
+    // File quick filter
+    const searchFilesInput = document.getElementById('search-files-input');
+    if (searchFilesInput) {
+      searchFilesInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        let visibleCount = 0;
+        document.querySelectorAll('.file-row').forEach((row) => {
+          const fn = (row.getAttribute('data-filename') || '').toLowerCase();
+          if (!query || fn.includes(query)) {
+            row.style.display = '';
+            visibleCount++;
+            const idxEl = row.querySelector('.file-idx');
+            if (idxEl) idxEl.textContent = visibleCount.toString();
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      });
+    }
   </script>
 </AdminLayout>

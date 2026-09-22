@@ -36,9 +36,9 @@ try {
     </div>
 
     <!-- Content -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fadeInUp delay-200">
+    <div class="animate-fadeInUp delay-200 mt-6">
       <!-- Main Content -->
-      <article class="lg:col-span-2">
+      <article class="w-full">
         
         {errorMessage && (
           <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 text-xs font-semibold">
@@ -92,17 +92,6 @@ try {
         </p>
       </article>
 
-      <!-- Sidebar -->
-      <aside class="space-y-5 animate-fadeIn delay-300">
-        <div class="card-static">
-          <h3 class="sidebar-card-title">Business Sectors</h3>
-          <ul class="flex flex-col gap-2 text-xs font-semibold text-[#0B4F9C]">
-            <li><a href="/our-business/power-stations" class="sidebar-link">Operating Power Stations</a></li>
-            <li><a href="/our-business/construction" class="sidebar-link">Construction Projects</a></li>
-            <li><a href="/our-business/jv-subsidiary-projects" class="sidebar-link">JV & Subsidiary Projects</a></li>
-          </ul>
-        </div>
-      </aside>
     </div>
   </div>
 </Layout>

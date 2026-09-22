@@ -114,13 +114,16 @@ if (Astro.request.method === 'POST' && editId) {
   <div class="flex flex-col gap-6">
     
     <!-- Top breadcrumbs and back link -->
-    <div class="flex items-center justify-between border-b border-slate-200 pb-4 select-none">
-      <a href="/admin/gallery" class="text-xs text-[#0B4F9C] hover:underline font-semibold flex items-center gap-1.5">
-        &larr; Back to Gallery List
+    <div class="admin-page-header">
+      <div>
+        <h1 class="admin-page-title">
+          {editId ? 'Modify Gallery Image' : 'Upload Gallery Images'}
+        </h1>
+        <p class="admin-page-subtitle">Upload official event imagery, photo captions, and partition categorizations.</p>
+      </div>
+      <a href="/admin/gallery" class="admin-btn admin-btn-secondary">
+        &larr; Back to Gallery
       </a>
-      <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider">
-        {editId ? 'Modify Gallery Image' : 'Upload Gallery Images (Batch)'}
-      </h2>
     </div>
 
     <!-- Error notice -->
@@ -251,8 +254,8 @@ if (Astro.request.method === 'POST' && editId) {
 
       <!-- Actions -->
       <div class="flex justify-end gap-3 border-t border-slate-100 pt-6 mt-2">
-        <a href="/admin/gallery" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-semibold border border-slate-300 transition-colors">Cancel</a>
-        <button type="submit" id="submit-btn" class="btn-primary text-xs font-bold shadow-md cursor-pointer">
+        <a href="/admin/gallery" class="admin-btn admin-btn-secondary">Cancel</a>
+        <button type="submit" id="submit-btn" class="admin-btn admin-btn-primary cursor-pointer">
           {editId ? 'Update Image' : 'Add to Gallery'}
         </button>
       </div>

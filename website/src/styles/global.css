@@ -153,7 +153,20 @@ h5,
 h6 {
   font-family: var(--font-heading);
   letter-spacing: -0.015em;
+}
+
+h1,
+.hero-title,
+.page-title {
   text-wrap: balance;
+}
+
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-wrap: wrap;
 }
 
 h1 {
@@ -809,38 +822,448 @@ tbody tr:hover {
   margin-top: 0.25rem;
 }
 
-/* --- TABLE COMPONENTS --- */
-@utility table-wrapper {
+/* --- TABLE SYSTEM: High-Scannability Data Tables Across Entire Website & Admin --- */
+.table-wrapper,
+.admin-table-wrapper,
+.admin-table-container {
   width: 100%;
+  max-width: 100%;
   overflow-x: auto;
-  border: 1px solid #E2E8F0;
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-card);
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid #CBD5E1;
+  border-radius: 0.5rem;
+  background-color: #FFFFFF;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
 }
 
-@utility table-data {
+/* Custom subtle scrollbar for contained table scrolling */
+.table-wrapper::-webkit-scrollbar,
+.admin-table-wrapper::-webkit-scrollbar,
+.admin-table-container::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+.table-wrapper::-webkit-scrollbar-track,
+.admin-table-wrapper::-webkit-scrollbar-track,
+.admin-table-container::-webkit-scrollbar-track {
+  background: #F1F5F9;
+  border-radius: 4px;
+}
+.table-wrapper::-webkit-scrollbar-thumb,
+.admin-table-wrapper::-webkit-scrollbar-thumb,
+.admin-table-container::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+.table-wrapper::-webkit-scrollbar-thumb:hover,
+.admin-table-wrapper::-webkit-scrollbar-thumb:hover,
+.admin-table-container::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+.table-data,
+.admin-table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  table-layout: auto;
+}
 
-  & th {
-    background-color: #F8FAFC;
-    color: #1E293B;
-    font-weight: 700;
-    padding: 0.875rem 1rem;
-    border-bottom: 2px solid #CBD5E1;
-  }
+.table-data thead th,
+.table-data th,
+.admin-table thead th,
+.admin-table th {
+  background-color: #0B4F9C;
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.65rem 0.85rem;
+  border-bottom: 2px solid #073B75;
+  vertical-align: middle;
+  white-space: nowrap;
+  user-select: none;
+}
 
-  & td {
-    padding: 0.875rem 1rem;
-    border-bottom: 1px solid #F1F5F9;
-    color: #334155;
-  }
+.table-data thead th.th-wrap,
+.table-data th.th-wrap,
+.admin-table thead th.th-wrap,
+.admin-table th.th-wrap {
+  white-space: normal;
+}
 
-  & tbody tr:hover {
-    background-color: #F8FAFC;
+.table-data tbody td,
+.table-data td,
+.admin-table tbody td,
+.admin-table td {
+  padding: 0.65rem 0.85rem;
+  border-bottom: 1px solid #E2E8F0;
+  color: #1E293B;
+  font-size: 0.8125rem;
+  vertical-align: middle;
+  line-height: 1.5;
+  word-break: normal;
+  overflow-wrap: break-word;
+  hyphens: manual;
+}
+
+/* Institutional alternating zebra striping for scannability */
+.table-data tbody tr:nth-child(even),
+.table-data tr:nth-child(even),
+.table-data tbody tr:nth-child(even)>td,
+.table-data tr:nth-child(even)>td,
+.admin-table tbody tr:nth-child(even),
+.admin-table tr:nth-child(even),
+.admin-table tbody tr:nth-child(even)>td,
+.admin-table tr:nth-child(even)>td {
+  background-color: #F8FAFC;
+}
+
+.table-data tbody tr:nth-child(odd),
+.table-data tr:nth-child(odd),
+.table-data tbody tr:nth-child(odd)>td,
+.table-data tr:nth-child(odd)>td,
+.admin-table tbody tr:nth-child(odd),
+.admin-table tr:nth-child(odd),
+.admin-table tbody tr:nth-child(odd)>td,
+.admin-table tr:nth-child(odd)>td {
+  background-color: #FFFFFF;
+}
+
+/* Clear institutional blue hover state for table rows */
+.table-data tbody tr:hover,
+.table-data tbody tr:hover>td,
+.table-data tbody tr.cursor-pointer:hover,
+.table-data tbody tr.cursor-pointer:hover>td,
+.table-data tr.cursor-pointer:hover,
+.table-data tr.cursor-pointer:hover>td,
+.admin-table tbody tr:hover,
+.admin-table tbody tr:hover>td {
+  background-color: #EAF4FF !important;
+}
+
+/* Ensure the last row's bottom border aligns cleanly with container */
+.table-data tbody tr:last-child td,
+.table-data tr:last-child td,
+.admin-table tbody tr:last-child td,
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Sticky Column Support for Wide Administrative Tables */
+.admin-table .sticky-col-right,
+.table-data .sticky-col-right {
+  position: sticky;
+  right: 0;
+  z-index: 10;
+  box-shadow: -3px 0 6px -2px rgba(15, 23, 42, 0.08);
+}
+
+.admin-table .sticky-col-left,
+.table-data .sticky-col-left {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  box-shadow: 3px 0 6px -2px rgba(15, 23, 42, 0.08);
+}
+
+/* Maintain proper background for sticky cells during zebra rows */
+.admin-table tbody tr:nth-child(odd) .sticky-col-right,
+.admin-table tbody tr:nth-child(odd) .sticky-col-left,
+.table-data tbody tr:nth-child(odd) .sticky-col-right,
+.table-data tbody tr:nth-child(odd) .sticky-col-left {
+  background-color: #FFFFFF;
+}
+
+.admin-table tbody tr:nth-child(even) .sticky-col-right,
+.admin-table tbody tr:nth-child(even) .sticky-col-left,
+.table-data tbody tr:nth-child(even) .sticky-col-right,
+.table-data tbody tr:nth-child(even) .sticky-col-left {
+  background-color: #F8FAFC;
+}
+
+.admin-table tbody tr:hover .sticky-col-right,
+.admin-table tbody tr:hover .sticky-col-left,
+.table-data tbody tr:hover .sticky-col-right,
+.table-data tbody tr:hover .sticky-col-left {
+  background-color: #EDF4FD !important;
+}
+
+/* Admin Table Action Cells & Standardized Action Controls */
+.table-data td.td-actions,
+.table-data .td-actions,
+.admin-table td.td-actions,
+.admin-table .td-actions {
+  white-space: nowrap !important;
+  text-align: center;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  width: 1%;
+  min-width: 80px;
+}
+
+.admin-action-group {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
+/* Unified Compact Admin Action Icon Button System */
+.admin-btn-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.875rem;
+  height: 1.875rem;
+  border-radius: 0.375rem;
+  border: 1px solid #CBD5E1;
+  background-color: #FFFFFF;
+  color: #475569;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  text-decoration: none !important;
+  box-sizing: border-box;
+}
+
+.admin-btn-action:hover {
+  background-color: #EAF4FF;
+  border-color: #0B4F9C;
+  color: #0B4F9C;
+  box-shadow: 0 1px 2px rgba(11, 79, 156, 0.1);
+}
+
+.admin-btn-action:focus-visible {
+  outline: 2px solid #0B4F9C;
+  outline-offset: 1px;
+}
+
+/* Destructive / Delete action button */
+.admin-btn-action.action-delete {
+  border-color: #FECACA;
+  background-color: #FFF5F5;
+  color: #DC2626;
+}
+
+.admin-btn-action.action-delete:hover {
+  background-color: #FEE2E2;
+  border-color: #EF4444;
+  color: #B91C1C;
+  box-shadow: 0 1px 2px rgba(220, 38, 38, 0.15);
+}
+
+/* Special / Corrigendum action button */
+.admin-btn-action.action-special {
+  border-color: #FDE68A;
+  background-color: #FFFDF0;
+  color: #B45309;
+}
+
+.admin-btn-action.action-special:hover {
+  background-color: #FEF3C7;
+  border-color: #F59E0B;
+  color: #92400E;
+}
+
+/* Download / Document action button */
+.admin-btn-action.action-download {
+  border-color: #CBD5E1;
+  background-color: #F8FAFC;
+  color: #0B4F9C;
+}
+
+.admin-btn-action.action-download:hover {
+  background-color: #EAF4FF;
+  border-color: #0B4F9C;
+  color: #073B75;
+}
+
+/* Standardized Restrained Admin Semantic Badges */
+.admin-badge,
+.admin-badge-success,
+.admin-badge-warning,
+.admin-badge-danger,
+.admin-badge-info,
+.admin-badge-neutral {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  line-height: 1.35;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.admin-badge-success {
+  background-color: #ECFDF5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+}
+
+.admin-badge-warning {
+  background-color: #FFFBEB;
+  color: #92400E;
+  border: 1px solid #FDE68A;
+}
+
+.admin-badge-danger {
+  background-color: #FEF2F2;
+  color: #991B1B;
+  border: 1px solid #FECACA;
+}
+
+.admin-badge-info {
+  background-color: #EFF6FF;
+  color: #1E40AF;
+  border: 1px solid #BFDBFE;
+}
+
+.admin-badge-neutral {
+  background-color: #F1F5F9;
+  color: #475569;
+  border: 1px solid #CBD5E1;
+}
+
+/* Wrapped or constrained badges for long statuses (prevents table breakage) */
+.admin-badge-constrained {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Common Admin Header & Toolbar Utilities */
+.admin-page-header {
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .admin-page-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
   }
+}
+
+.admin-toolbar {
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+/* Standardized Admin Global Buttons */
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1rem;
+  padding: 0.4375rem 0.875rem;
+  border-radius: 0.375rem;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  text-decoration: none !important;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.admin-btn:focus-visible {
+  outline: 2px solid #0B4F9C;
+  outline-offset: 1px;
+}
+
+.admin-btn-primary {
+  background-color: #0B4F9C;
+  color: #FFFFFF;
+  border-color: #0B4F9C;
+  box-shadow: 0 1px 2px rgba(11, 79, 156, 0.12);
+}
+
+.admin-btn-primary:hover {
+  background-color: #083D7A;
+  border-color: #083D7A;
+  color: #FFFFFF;
+}
+
+.admin-btn-secondary {
+  background-color: #F8FAFC;
+  color: #334155;
+  border-color: #CBD5E1;
+}
+
+.admin-btn-secondary:hover {
+  background-color: #F1F5F9;
+  border-color: #94A3B8;
+  color: #0F172A;
+}
+
+.admin-btn-danger {
+  background-color: #FEF2F2;
+  color: #DC2626;
+  border-color: #FECACA;
+}
+
+.admin-btn-danger:hover {
+  background-color: #FEE2E2;
+  border-color: #EF4444;
+  color: #B91C1C;
+}
+
+/* Standardized Admin Typography Hierarchy */
+.admin-page-title {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: #0B4F9C;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.admin-page-subtitle {
+  font-size: 0.75rem;
+  color: #64748B;
+  font-weight: 500;
+  line-height: 1.35;
+  margin-top: 0.2rem;
+}
+
+/* Prevent broken words across table cells */
+.table-data th,
+.table-data td,
+.admin-table th,
+.admin-table td {
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  hyphens: manual !important;
 }
 
 /* --- ALERT/CALLOUT COMPONENTS --- */
@@ -1097,6 +1520,7 @@ tbody tr:hover {
   color: #0B4F9C !important;
   margin-top: 1rem !important;
   margin-bottom: 0.5rem !important;
+  text-wrap: wrap !important;
 }
 
 .prose-gov blockquote {
@@ -1137,6 +1561,23 @@ tbody tr:hover {
   overflow-x: hidden !important;
 }
 
+/* Ensure headings and blocks inside Quill rich text editor span full row width without premature wrapping */
+.ql-editor h1,
+.ql-editor h2,
+.ql-editor h3,
+.ql-editor h4,
+.ql-editor h5,
+.ql-editor h6,
+.ql-editor p,
+.ql-editor ol,
+.ql-editor ul,
+.ql-editor li,
+.ql-editor blockquote {
+  text-wrap: wrap !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
 .ql-editor:focus {
   outline: none !important;
   box-shadow: none !important;
@@ -1162,4 +1603,40 @@ tbody tr:hover {
   outline: none !important;
   border-color: #60A5FA !important;
   box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.5) !important;
+}
+
+/* ── Home Page: Vertical Upward Feed with Zebra Rows ─────────────────────── */
+@keyframes feed-vertical {
+  0% {
+    transform: translate3d(0, 280px, 0);
+  }
+
+  100% {
+    transform: translate3d(0, calc(280px - 50%), 0);
+  }
+}
+
+.feed-scroll-track {
+  display: flex;
+  flex-direction: column;
+  animation: feed-vertical 10s linear infinite !important;
+  will-change: transform;
+}
+
+.feed-scroll-track:hover {
+  animation-play-state: paused !important;
+}
+
+.feed-row {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #CBD5E1;
+  text-align: left;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.feed-row:hover {
+  background-color: #EDF4FD !important;
 }

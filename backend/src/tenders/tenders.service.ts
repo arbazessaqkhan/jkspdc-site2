@@ -12,25 +12,50 @@ export class TendersService {
     private readonly auditLogsService: AuditLogsService,
   ) {}
 
-  async findAll(): Promise<Tender[]> {
-    return this.prisma.tender.findMany({
-      orderBy: { publishDate: 'desc' },
-    });
+  private formatTender(tender: Tender | null): any {
+    if (!tender) return tender;
+    let corrs: any[] = [];
+    if (tender.corrigendums) {
+      if (Array.isArray(tender.corrigendums)) {
+        corrs = tender.corrigendums;
+      } else if (typeof tender.corrigendums === 'string') {
+        try {
+          corrs = JSON.parse(tender.corrigendums);
+        } catch (e) {
+          corrs = [];
+        }
+      }
+    }
+    return {
+      ...tender,
+      corrigendums: corrs,
+    };
   }
 
-  async findOne(id: string): Promise<Tender> {
+  async findAll(): Promise<any[]> {
+    const tenders = await this.prisma.tender.findMany({
+      orderBy: { publishDate: 'desc' },
+    });
+    return tenders.map((t) => this.formatTender(t));
+  }
+
+  async findOne(id: string): Promise<any> {
     const tender = await this.prisma.tender.findUnique({ where: { id } });
     if (!tender) {
       throw new NotFoundException(`Tender with ID ${id} not found`);
     }
-    return tender;
+    return this.formatTender(tender);
   }
 
-  async create(data: CreateTenderDto, user: { userId: string }, ip: string, ua: string): Promise<Tender> {
+  async create(data: CreateTenderDto, user: { userId: string }, ip: string, ua: string): Promise<any> {
     const { referenceNo, title, description, documentType, workCategory, locationTag, closingDate, bidOpeningDate, documentUrl, fileSizeBytes, status, corrigendums } = data;
     if (!referenceNo || !title || !documentUrl) {
       throw new Error('Missing required fields');
     }
+
+    const serializedCorrs = corrigendums !== undefined
+      ? (typeof corrigendums === 'string' ? corrigendums : JSON.stringify(corrigendums))
+      : null;
 
     const tender = await this.prisma.tender.create({
       data: {
@@ -45,7 +70,7 @@ export class TendersService {
         documentUrl,
         fileSizeBytes: fileSizeBytes ? parseInt(fileSizeBytes.toString(), 10) : 0,
         status: status || 'Active',
-        corrigendums: corrigendums ? JSON.parse(JSON.stringify(corrigendums)) : [],
+        corrigendums: serializedCorrs,
       },
     });
 
@@ -57,10 +82,10 @@ export class TendersService {
       { tenderId: tender.id, referenceNo: tender.referenceNo, title: tender.title }
     );
 
-    return tender;
+    return this.formatTender(tender);
   }
 
-  async update(id: string, data: UpdateTenderDto, user: { userId: string }, ip: string, ua: string): Promise<Tender> {
+  async update(id: string, data: UpdateTenderDto, user: { userId: string }, ip: string, ua: string): Promise<any> {
     const oldTender = await this.findOne(id);
     
     // Cleanup main document file if changed
@@ -71,7 +96,9 @@ export class TendersService {
     // Cleanup deleted corrigenda files
     if (data.corrigendums !== undefined) {
       try {
-        const oldCorrigendums = oldTender.corrigendums ? JSON.parse(oldTender.corrigendums) : [];
+        const oldCorrigendums = Array.isArray(oldTender.corrigendums)
+          ? oldTender.corrigendums
+          : (oldTender.corrigendums ? JSON.parse(oldTender.corrigendums) : []);
         const newCorrigendums = typeof data.corrigendums === 'string' ? JSON.parse(data.corrigendums) : data.corrigendums;
         if (Array.isArray(oldCorrigendums) && Array.isArray(newCorrigendums)) {
           const newUrls = new Set(newCorrigendums.map((c: any) => c.documentUrl).filter(Boolean));
@@ -85,6 +112,10 @@ export class TendersService {
         console.error('Error cleaning up corrigendums during update:', e);
       }
     }
+
+    const serializedCorrs = data.corrigendums !== undefined
+      ? (typeof data.corrigendums === 'string' ? data.corrigendums : JSON.stringify(data.corrigendums))
+      : undefined;
 
     const tender = await this.prisma.tender.update({
       where: { id },
@@ -100,7 +131,7 @@ export class TendersService {
         documentUrl: data.documentUrl,
         fileSizeBytes: data.fileSizeBytes !== undefined ? parseInt(data.fileSizeBytes.toString(), 10) : undefined,
         status: data.status,
-        corrigendums: data.corrigendums ? JSON.parse(JSON.stringify(data.corrigendums)) : undefined,
+        corrigendums: serializedCorrs,
       },
     });
 
@@ -112,7 +143,7 @@ export class TendersService {
       { tenderId: tender.id, referenceNo: tender.referenceNo }
     );
 
-    return tender;
+    return this.formatTender(tender);
   }
 
   async remove(id: string, user: { userId: string }, ip: string, ua: string): Promise<{ success: boolean }> {
@@ -124,7 +155,9 @@ export class TendersService {
     // Delete all associated corrigenda files
     if (tender.corrigendums) {
       try {
-        const corrigendums = JSON.parse(tender.corrigendums);
+        const corrigendums = Array.isArray(tender.corrigendums)
+          ? tender.corrigendums
+          : JSON.parse(tender.corrigendums);
         if (Array.isArray(corrigendums)) {
           corrigendums.forEach((c: any) => {
             if (c.documentUrl) {

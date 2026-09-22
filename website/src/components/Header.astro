@@ -4,48 +4,70 @@ import AccessibilityBar from './AccessibilityBar.astro';
 import Ticker from './Ticker.astro';
 ---
 
-<header class="bg-[#EAF4FF] border-b-2 border-[#0B4F9C] shadow-sm">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between">
-    <!-- Left Logo -->
-    <a href="/" class="flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C] rounded p-1 lg:-ml-[22px]" aria-label="JKSPDCL Home">
-      <img src="/logo.png" alt="JKSPDCL Logo" class="h-12 w-auto object-contain" />
-    </a>
+<header class="bg-white border-t-[3px] border-[#0B4F9C] border-b border-slate-200/90 shadow-2xs relative z-[60]" style="position: relative; z-index: 60;">
+  <div class="max-w-[1400px] mx-auto px-3 sm:px-5 lg:px-6 py-2.5 sm:py-3 flex flex-col md:flex-row items-center justify-between gap-3 md:gap-6">
+    <!-- Left: Official Institutional Identity Lockup -->
+    <div class="flex items-center gap-3 sm:gap-4 min-w-0 flex-1 w-full md:w-auto">
+      <!-- Official Logo -->
+      <a href="/" class="flex-shrink-0 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C] rounded-lg p-0.5 transition-transform duration-150 hover:scale-[1.02]" aria-label="JKSPDCL Official Portal Home">
+        <img src="/logo.png" alt="JKSPDCL Official Emblem" class="h-12 sm:h-14 md:h-15 lg:h-16 w-auto object-contain" />
+      </a>
 
-    <!-- Centered Organization Name -->
-    <div class="flex-1 text-center px-1 sm:px-2 min-w-0">
-      <h1 class="font-extrabold text-[#0B4F9C] leading-tight whitespace-nowrap tracking-tight" style="white-space: nowrap !important; font-size: clamp(0.95rem, 1.45vw, 1.4rem);">
-        Jammu &amp; Kashmir State Power Development Corporation Limited
-      </h1>
-      <p class="font-bold text-[#0B4F9C] mt-0.5 whitespace-nowrap" style="white-space: nowrap !important; font-size: clamp(0.8rem, 1.1vw, 1.05rem);">(JKSPDCL)</p>
-      <p class="text-[#0B4F9C] font-bold mt-0.5 whitespace-nowrap" style="white-space: nowrap !important; font-size: clamp(0.75rem, 1.05vw, 0.95rem);" lang="hi">
-        जम्मू और कश्मीर राज्य विद्युत विकास निगम लिमिटेड (जेकेएसपीडीसीएल)
-      </p>
+      <!-- Subtle Institutional Divider -->
+      <div class="w-px h-11 sm:h-12 bg-slate-200/90 hidden sm:block shrink-0"></div>
+
+      <!-- Official Organization Typography -->
+      <div class="flex flex-col min-w-0 justify-center text-left">
+        <h1 class="font-extrabold text-[#0B4F9C] text-[14px] sm:text-[16px] md:text-[17px] lg:text-[18.5px] xl:text-[19.5px] leading-tight tracking-tight">
+          Jammu &amp; Kashmir State Power Development Corporation Limited
+        </h1>
+        <div class="flex items-center gap-1.5 sm:gap-2 mt-0.5 flex-wrap">
+          <span class="text-slate-600 font-semibold text-[11px] sm:text-xs tracking-wide">
+            A Government of J&amp;K Undertaking
+          </span>
+          <span class="text-slate-300 hidden sm:inline">•</span>
+          <span class="text-[#073B75] font-bold text-[11px] sm:text-xs">
+            (JKSPDCL)
+          </span>
+        </div>
+        <p class="text-slate-700 font-medium text-[11px] sm:text-xs leading-snug mt-0.5 font-devanagari" lang="hi">
+          जम्मू और कश्मीर राज्य विद्युत विकास निगम लिमिटेड (जेकेएसपीडीसीएल)
+        </p>
+      </div>
     </div>
 
-    <!-- Right Accessibility Controls & Search Bar -->
-    <div class="flex flex-col items-end gap-1.5 flex-shrink-0">
+    <!-- Right: Utility Controls & Integrated Search Toolbar -->
+    <div class="flex flex-col items-center md:items-end gap-2 shrink-0 w-full md:w-auto">
       <!-- Accessibility Controls Component -->
       <AccessibilityBar />
 
-      <!-- Search Form -->
+      <!-- Integrated Government Search Form -->
       <form action="/search" method="GET" class="flex items-center w-full justify-end relative" id="header-search-form" autocomplete="off">
-        <div class="relative flex items-center">
-          <label for="header-search" class="sr-only">Search portal pages</label>
-          <input 
-            type="search" 
-            name="q" 
-            id="header-search" 
-            placeholder="Search…" 
-            class="bg-white hover:bg-slate-50 focus-visible:bg-white text-xs text-slate-850 focus-visible:text-slate-900 px-2.5 py-1.5 rounded-l-md border border-slate-300 border-r-0 focus-visible:border-[#0B4F9C] focus-visible:outline-none transition-[background-color,border-color,color] duration-150 w-28 sm:w-32 lg:w-36 placeholder-slate-400 shadow-sm" 
-            required
-          />
+        <div class="relative flex items-center w-full max-w-full md:max-w-[270px] lg:max-w-[290px]">
+          <label for="header-search" class="sr-only">Search portal pages, tenders, notifications</label>
+          <div class="flex items-center w-full bg-white hover:bg-slate-50/50 focus-within:bg-white border border-slate-300 focus-within:border-[#0B4F9C] rounded-lg pl-2.5 pr-1 py-0.5 transition-all duration-150 shadow-2xs outline-none focus-within:outline-none ring-0 focus-within:ring-0">
+            <Icon name="search" size={13} strokeWidth={2.2} class="text-slate-400 shrink-0 mr-1.5" />
+            <input 
+              type="search" 
+              name="q" 
+              id="header-search" 
+              placeholder="Search portal, tenders…" 
+              class="w-full bg-transparent text-xs text-slate-700 placeholder:text-slate-400 font-normal py-1 px-1 outline-none focus:outline-none border-0 focus:ring-0" 
+              style="outline: none !important; box-shadow: none !important; border: none !important; font-weight: 400 !important;"
+              required
+            />
+            <button 
+              type="submit" 
+              class="shrink-0 px-2.5 py-1 bg-[#0B4F9C] hover:bg-[#073B75] text-white text-[11px] font-semibold rounded-md transition-colors duration-150 shadow-2xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0B4F9C] cursor-pointer" 
+              aria-label="Submit Search"
+            >
+              Search
+            </button>
+          </div>
           <!-- Suggestions Dropdown Container -->
-          <div id="header-search-suggestions" class="absolute left-0 right-0 top-full mt-1 bg-white text-slate-850 border border-slate-200 rounded-md shadow-xl hidden z-[9999] max-h-60 overflow-y-auto text-left py-1 w-full lg:w-48">
+          <div id="header-search-suggestions" class="absolute left-0 right-0 top-full mt-1 bg-white text-slate-800 border border-slate-200 rounded-lg shadow-2xl hidden z-[9999] max-h-72 overflow-y-auto text-left py-1 w-full sm:w-[320px] sm:left-auto sm:right-0">
           </div>
         </div>
-        <button type="submit" class="p-1.5 bg-[#1a5276] hover:bg-[#084A8F] rounded-r-md text-xs text-white font-bold flex items-center justify-center border border-transparent transition-[background-color,border-color] duration-150 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C]/50 cursor-pointer" aria-label="Submit Search">
-          <Icon name="search" size={14} strokeWidth={2.5} />
-        </button>
       </form>
     </div>
   </div>
@@ -59,14 +81,14 @@ import Ticker from './Ticker.astro';
       <ul class="flex flex-nowrap w-full justify-between items-center text-[13px] sm:text-[13.5px] lg:text-[13.5px] xl:text-[14.5px] 2xl:text-[15.5px] font-bold whitespace-nowrap min-w-0">
         <!-- Home -->
         <li>
-          <a href="/" class="block px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 text-white hover:bg-white/10 transition-all duration-200 border-b-2 border-transparent hover:border-white/60 focus-visible:outline-none focus-visible:bg-white/15">
+          <a href="/" class="block px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 text-white hover:bg-white/10 transition-all duration-150 border-b-2 border-transparent hover:border-white/60 focus-visible:outline-none focus-visible:bg-white/15">
             Home
           </a>
         </li>
 
         <!-- About Us -->
         <li class="relative group">
-          <button class="flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent group-hover:border-white/60 text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
+          <button class="flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 hover:bg-white/10 group-hover:bg-white/10 transition-all duration-150 border-b-2 border-transparent group-hover:border-white/60 text-white focus-visible:outline-none focus-visible:bg-white/15" aria-haspopup="true" aria-expanded="false">
             About Us
             <svg class="w-2.5 h-2.5 transition-transform duration-200 group-hover:rotate-180 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
           </button>
@@ -78,14 +100,14 @@ import Ticker from './Ticker.astro';
               <li><a href="/about-us/management/board" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Board Of Director</a></li>
               <li><a href="/about-us/explore/gstin-registration" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">GSTIN Registration Details</a></li>
               <li><a href="/about-us/explore/policies" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Policies</a></li>
-              <li><a href="/sustainability/csr/overview" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">CSR</a></li>
+              <li><a href="/sustainability/csr/policy" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">CSR Policy</a></li>
             </ul>
           </div>
         </li>
 
         <!-- Projects -->
         <li class="relative group">
-          <button class="flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent group-hover:border-white/60 text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
+          <button class="flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 hover:bg-white/10 group-hover:bg-white/10 transition-all duration-150 border-b-2 border-transparent group-hover:border-white/60 text-white focus-visible:outline-none focus-visible:bg-white/15" aria-haspopup="true" aria-expanded="false">
             Projects
             <svg class="w-2.5 h-2.5 transition-transform duration-200 group-hover:rotate-180 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
           </button>
@@ -100,7 +122,7 @@ import Ticker from './Ticker.astro';
 
         <!-- Tenders -->
         <li class="relative group">
-          <button class="flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent group-hover:border-white/60 text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
+          <button class="flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 hover:bg-white/10 group-hover:bg-white/10 transition-all duration-150 border-b-2 border-transparent group-hover:border-white/60 text-white focus-visible:outline-none focus-visible:bg-white/15" aria-haspopup="true" aria-expanded="false">
             Tenders
             <svg class="w-2.5 h-2.5 transition-transform duration-200 group-hover:rotate-180 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
           </button>
@@ -117,26 +139,26 @@ import Ticker from './Ticker.astro';
 
         <!-- Notifications -->
         <li>
-          <a href="/stakeholders/investors/announcement" class="block px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 text-white hover:bg-[#084A8F] transition-colors border-b-2 border-transparent hover:border-white/60">Notifications</a>
+          <a href="/stakeholders/investors/announcement" class="block px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 text-white hover:bg-white/10 transition-all duration-150 border-b-2 border-transparent hover:border-white/60 focus-visible:outline-none focus-visible:bg-white/15">Notifications</a>
         </li>
 
         <!-- Investors Corner -->
         <li class="relative group">
-          <button class="flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent group-hover:border-white/60 text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
+          <button class="flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 hover:bg-white/10 group-hover:bg-white/10 transition-all duration-150 border-b-2 border-transparent group-hover:border-white/60 text-white focus-visible:outline-none focus-visible:bg-white/15" aria-haspopup="true" aria-expanded="false">
             Investors Corner
             <svg class="w-2.5 h-2.5 transition-transform duration-200 group-hover:rotate-180 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
           </button>
           <div class="absolute left-0 mt-0 hidden group-hover:block group-focus-within:block bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[230px]">
             <ul class="flex flex-col gap-0.5 text-xs px-2">
-              <li><a href="/stakeholders/investors/announcement" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Annual General Meetings</a></li>
-              <li><a href="/stakeholders/investors/more" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">IPP Project</a></li>
+              <li><a href="/stakeholders/investors/agm" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Annual General Meetings</a></li>
+              <li><a href="/stakeholders/investors/ipp-projects" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">IPP Projects</a></li>
             </ul>
           </div>
         </li>
 
         <!-- RTI -->
         <li class="relative group">
-          <button class="flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent group-hover:border-white/60 text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
+          <button class="flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 hover:bg-white/10 group-hover:bg-white/10 transition-all duration-150 border-b-2 border-transparent group-hover:border-white/60 text-white focus-visible:outline-none focus-visible:bg-white/15" aria-haspopup="true" aria-expanded="false">
             RTI
             <svg class="w-2.5 h-2.5 transition-transform duration-200 group-hover:rotate-180 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
           </button>
@@ -149,17 +171,17 @@ import Ticker from './Ticker.astro';
 
         <!-- Gallery -->
         <li>
-          <a href="/media/gallery" class="block px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 text-white hover:bg-[#084A8F] transition-colors border-b-2 border-transparent hover:border-white/60">Gallery</a>
+          <a href="/media/gallery" class="block px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 text-white hover:bg-white/10 transition-all duration-150 border-b-2 border-transparent hover:border-white/60 focus-visible:outline-none focus-visible:bg-white/15">Gallery</a>
         </li>
 
         <!-- Downloads -->
         <li>
-          <a href="/media/downloads" class="block px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 text-white hover:bg-[#084A8F] transition-colors border-b-2 border-transparent hover:border-white/60">Downloads</a>
+          <a href="/media/downloads" class="block px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 text-white hover:bg-white/10 transition-all duration-150 border-b-2 border-transparent hover:border-white/60 focus-visible:outline-none focus-visible:bg-white/15">Downloads</a>
         </li>
 
         <!-- Employees Corner -->
         <li class="relative group">
-          <button class="flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent group-hover:border-white/60 text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
+          <button class="flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 hover:bg-white/10 group-hover:bg-white/10 transition-all duration-150 border-b-2 border-transparent group-hover:border-white/60 text-white focus-visible:outline-none focus-visible:bg-white/15" aria-haspopup="true" aria-expanded="false">
             Employees Corner
             <svg class="w-2.5 h-2.5 transition-transform duration-200 group-hover:rotate-180 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
           </button>
@@ -178,7 +200,7 @@ import Ticker from './Ticker.astro';
 
         <!-- Contact Us -->
         <li class="relative group">
-          <button class="flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent group-hover:border-white/60 text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
+          <button class="flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 hover:bg-white/10 group-hover:bg-white/10 transition-all duration-150 border-b-2 border-transparent group-hover:border-white/60 text-white focus-visible:outline-none focus-visible:bg-white/15" aria-haspopup="true" aria-expanded="false">
             Contact Us
             <svg class="w-2.5 h-2.5 transition-transform duration-200 group-hover:rotate-180 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
           </button>
@@ -192,4 +214,165 @@ import Ticker from './Ticker.astro';
       </ul>
     </div>
   </nav>
+
+  <!-- Header Search Autocomplete Script -->
+  <script is:inline>
+    (function() {
+      var searchForm = document.getElementById('header-search-form');
+      var searchInput = document.getElementById('header-search');
+      var suggestionsBox = document.getElementById('header-search-suggestions');
+      var searchIndex = [];
+      var loadPromise = null;
+
+      function closeLangDropdown() {
+        var langMenu = document.getElementById('lang-dropdown-menu');
+        var langArrow = document.getElementById('lang-arrow');
+        var langBtn = document.getElementById('lang-dropdown-btn');
+        if (langMenu && !langMenu.classList.contains('hidden')) {
+          langMenu.classList.add('hidden');
+          if (langBtn) langBtn.setAttribute('aria-expanded', 'false');
+          if (langArrow) langArrow.classList.remove('rotate-180');
+        }
+      }
+
+      async function loadIndex() {
+        try {
+          var sitemapRes = await fetch('/search-index.json');
+          if (sitemapRes.ok) {
+            searchIndex = await sitemapRes.json();
+          }
+        } catch(err) {
+          console.error('Failed to load sitemap search index:', err);
+        }
+        try {
+          var projectsRes = await fetch('http://localhost:3000/api/projects');
+          if (projectsRes.ok) {
+            var projects = await projectsRes.json();
+            projects.forEach(function(p) {
+              searchIndex.push({
+                title: p.name,
+                url: '/our-business/power-station-details?id=' + p.id,
+                description: 'About ' + p.name + ' - Capacity: ' + p.capacityMw + ' MW, Location: ' + (p.location || 'J&K') + '. Status: ' + p.status + '.'
+              });
+            });
+          }
+        } catch(e) {
+          // Ignore optional project lookup error
+        }
+      }
+
+      function renderSuggestions(query) {
+        if (!query) {
+          suggestionsBox.innerHTML = '';
+          suggestionsBox.classList.add('hidden');
+          return;
+        }
+
+        var matches = searchIndex.filter(function(item) {
+          return (item.title && item.title.toLowerCase().indexOf(query) !== -1) ||
+                 (item.description && item.description.toLowerCase().indexOf(query) !== -1);
+        }).slice(0, 8);
+
+        if (matches.length > 0) {
+          suggestionsBox.innerHTML = matches.map(function(item) {
+            var titleRegex = new RegExp('(' + query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + ')', 'gi');
+            var highlightedTitle = (item.title || '').replace(titleRegex, '<mark style="background-color: #fef08a; color: #1e293b; font-weight: 700; padding: 0px 2px; border-radius: 2px;">$1</mark>');
+            return '<button type="button" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 transition-colors block cursor-pointer border-b border-slate-50 last:border-0" data-url="' + item.url + '" style="font-size: 11px; outline: none; border-bottom: 1px solid #f1f5f9; display: block; background: transparent; border-left: 0; border-right: 0; border-top: 0; font-family: inherit; margin: 0; padding: 6px 12px; width: 100%; text-align: left;">' +
+                   '<span style="color: #0B4F9C; font-weight: 700; display: block;">' + highlightedTitle + '</span>' +
+                   '<span style="font-size: 9.5px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; margin-top: 2px;">' + (item.description || '') + '</span>' +
+                   '</button>';
+          }).join('');
+          suggestionsBox.classList.remove('hidden');
+        } else {
+          suggestionsBox.innerHTML = '';
+          suggestionsBox.classList.add('hidden');
+        }
+      }
+
+      function handleInput() {
+        var query = searchInput.value.toLowerCase().trim();
+        if (!query) {
+          suggestionsBox.innerHTML = '';
+          suggestionsBox.classList.add('hidden');
+          return;
+        }
+
+        if (searchIndex.length === 0) {
+          if (!loadPromise) loadPromise = loadIndex();
+          loadPromise.then(function() {
+            renderSuggestions(query);
+          });
+        } else {
+          renderSuggestions(query);
+        }
+      }
+
+      if (searchInput && searchForm && suggestionsBox) {
+        // Preload index immediately
+        loadPromise = loadIndex();
+
+        searchInput.addEventListener('focus', function() {
+          closeLangDropdown();
+          if (searchInput.value.trim()) {
+            handleInput();
+          }
+        });
+
+        searchInput.addEventListener('input', function() {
+          closeLangDropdown();
+          handleInput();
+        });
+
+        suggestionsBox.addEventListener('click', function(e) {
+          var btn = e.target.closest('button');
+          if (btn && btn.dataset.url) {
+            window.location.href = btn.dataset.url;
+          }
+        });
+
+        document.addEventListener('click', function(e) {
+          if (!e.target.closest('#header-search-form')) {
+            suggestionsBox.classList.add('hidden');
+          }
+        });
+
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape') {
+            suggestionsBox.classList.add('hidden');
+          }
+        });
+
+        searchForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          var query = searchInput.value.trim();
+          if (!query) return;
+
+          var lowerQuery = query.toLowerCase();
+          var bestMatch = null;
+          
+          for (var i = 0; i < searchIndex.length; i++) {
+            if (searchIndex[i].title && searchIndex[i].title.toLowerCase() === lowerQuery) {
+              bestMatch = searchIndex[i];
+              break;
+            }
+          }
+          
+          if (!bestMatch) {
+            for (var i = 0; i < searchIndex.length; i++) {
+              if (searchIndex[i].title && searchIndex[i].title.toLowerCase().indexOf(lowerQuery) !== -1) {
+                bestMatch = searchIndex[i];
+                break;
+              }
+            }
+          }
+
+          if (bestMatch) {
+            window.location.href = bestMatch.url;
+          } else {
+            window.location.href = '/search?q=' + encodeURIComponent(query);
+          }
+        });
+      }
+    })();
+  </script>
 </header>

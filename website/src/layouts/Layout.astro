@@ -15,6 +15,26 @@ interface Props {
 const { title, description, canonicalUrl, isHome = false } = Astro.props;
 const canonical = canonicalUrl || Astro.url.href;
 const currentYear = new Date().getFullYear();
+const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
+
+function isSectionActive(section: string): boolean {
+  if (section === 'home') return currentPath === '/' || isHome;
+  if (section === 'about') {
+    return (currentPath.startsWith('/about-us') || currentPath.startsWith('/sustainability/csr')) && 
+           !currentPath.includes('/about-us/explore/rti') && 
+           !currentPath.includes('/about-us/others/contact');
+  }
+  if (section === 'projects') return currentPath.startsWith('/our-business') || currentPath.startsWith('/power-trading');
+  if (section === 'tenders') return currentPath.startsWith('/stakeholders/vendors') || currentPath.startsWith('/tenders');
+  if (section === 'notifications') return currentPath.startsWith('/notifications');
+  if (section === 'investors') return currentPath.startsWith('/stakeholders/investors');
+  if (section === 'rti') return currentPath.includes('/rti');
+  if (section === 'gallery') return currentPath.startsWith('/media/gallery');
+  if (section === 'downloads') return currentPath.startsWith('/media/downloads');
+  if (section === 'employees') return currentPath.startsWith('/employees');
+  if (section === 'contact') return currentPath.includes('/contact') || currentPath === '/feedback';
+  return false;
+}
 
 function getDocUrl(url?: string) {
   if (!url) return undefined;
@@ -216,6 +236,32 @@ if (tickerItems.length === 0) {
         transform: rotate(0deg) !important;
       }
 
+      /* ── Nav Item Active & Interactive Highlight System ──── */
+      .nav-dropdown-item:hover > .nav-dropdown-btn:not(.nav-item-active),
+      .nav-dropdown-item.is-open > .nav-dropdown-btn:not(.nav-item-active),
+      .nav-link:hover:not(.nav-item-active) {
+        background-color: rgba(255, 255, 255, 0.10) !important;
+        border-bottom-color: rgba(255, 255, 255, 0.6) !important;
+      }
+
+      .nav-item-active,
+      .nav-dropdown-btn.nav-item-active,
+      .nav-dropdown-item.is-open > .nav-dropdown-btn.nav-item-active,
+      .nav-dropdown-item:hover > .nav-dropdown-btn.nav-item-active {
+        border-bottom-color: #D8681B !important;
+        border-bottom-width: 3px !important;
+        border-bottom-style: solid !important;
+        background-color: rgba(255, 255, 255, 0.12) !important;
+        color: #ffffff !important;
+      }
+
+      .nav-sublink-active {
+        background-color: #EFF6FF !important;
+        color: #0B4F9C !important;
+        font-weight: 700 !important;
+        border-left: 4px solid #0B4F9C !important;
+      }
+
       /* ── Navigation Bar Horizontal Scrolling ─────────────────── */
       .nav-scroll-container {
         overflow-x: auto;
@@ -278,14 +324,24 @@ if (tickerItems.length === 0) {
       }
 
       function toggleLangDropdown(event) {
-        if (event) event.stopPropagation();
+        if (event) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
         var menu = document.getElementById('lang-dropdown-menu');
         var btn = document.getElementById('lang-dropdown-btn');
         var arrow = document.getElementById('lang-arrow');
         if (!menu) return;
         
+        // Immediately close and clear search suggestions if open
+        var searchSuggestions = document.getElementById('header-search-suggestions');
+        if (searchSuggestions) {
+          searchSuggestions.innerHTML = '';
+          searchSuggestions.classList.add('hidden');
+        }
+
         var isHidden = menu.classList.toggle('hidden');
-        if (btn) btn.setAttribute('aria-expanded', !isHidden);
+        if (btn) btn.setAttribute('aria-expanded', String(!isHidden));
         if (arrow) {
           if (isHidden) {
             arrow.classList.remove('rotate-180');
@@ -294,6 +350,8 @@ if (tickerItems.length === 0) {
           }
         }
       }
+      window.toggleLangDropdown = toggleLangDropdown;
+      window.toggleLanguageDropdown = toggleLangDropdown;
 
       (function() {
         try {
@@ -319,11 +377,6 @@ if (tickerItems.length === 0) {
           document.addEventListener('DOMContentLoaded', function() {
             var labelEl = document.getElementById('current-lang-label');
             if (labelEl) labelEl.textContent = labelText;
-            
-            var btn = document.getElementById('lang-dropdown-btn');
-            if (btn) {
-              btn.addEventListener('click', toggleLangDropdown);
-            }
             
             // Navigation Menu Toggle & Smart Viewport Edge Alignment Logic
             var navItems = document.querySelectorAll('.nav-dropdown-item');
@@ -448,95 +501,152 @@ if (tickerItems.length === 0) {
       </div>
     </noscript>
 
-    <header class="bg-[#EAF4FF] border-b-2 border-[#0B4F9C] shadow-sm">
-      <div class="max-w-[1400px] mx-auto px-3 sm:px-5 lg:px-6 py-1.5 flex items-center justify-between gap-3">
-        <!-- Left Logo -->
-        <a href="/" class="flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C] rounded p-0.5" aria-label="JKSPDCL Home">
-          <img src="/logo.png" alt="JKSPDCL Logo" class="h-11 sm:h-12 md:h-13 lg:h-14 w-auto object-contain" />
-        </a>
+    <header class="bg-white border-t-[3px] border-[#0B4F9C] border-b border-slate-200/90 shadow-2xs relative z-[60]" style="position: relative; z-index: 60;">
+      <div class="max-w-[1400px] mx-auto px-3 sm:px-5 lg:px-6 py-2.5 sm:py-3 flex flex-col md:flex-row items-center justify-between gap-3 md:gap-6">
+        
+        <!-- Left: Official Institutional Identity Lockup -->
+        <div class="flex items-center gap-3 sm:gap-4 min-w-0 flex-1 w-full md:w-auto">
+          <!-- Official Logo -->
+          <a href="/" class="flex-shrink-0 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C] rounded-lg p-0.5 transition-transform duration-150 hover:scale-[1.02]" aria-label="JKSPDCL Official Portal Home">
+            <img src="/logo.png" alt="JKSPDCL Official Emblem" class="h-12 sm:h-14 md:h-15 lg:h-16 w-auto object-contain" />
+          </a>
 
-        <!-- Centered Organization Name -->
-        <div class="flex-1 text-center px-1 sm:px-2 min-w-0">
-          <h1 class="font-extrabold text-[#0B4F9C] leading-tight whitespace-nowrap tracking-tight" style="white-space: nowrap !important; font-size: clamp(0.95rem, 1.45vw, 1.4rem);">
-            Jammu &amp; Kashmir State Power Development Corporation Limited
-          </h1>
-          <p class="font-bold text-[#0B4F9C] mt-0.5 whitespace-nowrap" style="white-space: nowrap !important; font-size: clamp(0.8rem, 1.1vw, 1.05rem);">(JKSPDCL)</p>
-          <p class="text-[#0B4F9C] font-bold mt-0.5 whitespace-nowrap" style="white-space: nowrap !important; font-size: clamp(0.75rem, 1.05vw, 0.95rem);" lang="hi">
-            जम्मू और कश्मीर राज्य विद्युत विकास निगम लिमिटेड (जेकेएसपीडीसीएल)
-          </p>
+          <!-- Subtle Institutional Divider -->
+          <div class="w-px h-11 sm:h-12 bg-slate-200/90 hidden sm:block shrink-0"></div>
+
+          <!-- Official Organization Typography -->
+          <div class="flex flex-col min-w-0 justify-center text-left">
+            <h1 class="font-extrabold text-[#0B4F9C] text-[14px] sm:text-[16px] md:text-[17px] lg:text-[18.5px] xl:text-[19.5px] leading-tight tracking-tight">
+              Jammu &amp; Kashmir State Power Development Corporation Limited
+            </h1>
+            <div class="flex items-center gap-1.5 sm:gap-2 mt-0.5 flex-wrap">
+              <span class="text-slate-600 font-semibold text-[11px] sm:text-xs tracking-wide">
+                A Government of J&amp;K Undertaking
+              </span>
+              <span class="text-slate-300 hidden sm:inline">•</span>
+              <span class="text-[#073B75] font-bold text-[11px] sm:text-xs">
+                (JKSPDCL)
+              </span>
+            </div>
+            <p class="text-slate-700 font-medium text-[11px] sm:text-xs leading-snug mt-0.5 font-devanagari" lang="hi">
+              जम्मू और कश्मीर राज्य विद्युत विकास निगम लिमिटेड (जेकेएसपीडीसीएल)
+            </p>
+          </div>
         </div>
 
-        <!-- Right Accessibility Controls & Search Bar -->
-        <div class="flex flex-col items-end gap-1.5 flex-shrink-0">
-          <!-- Accessibility Controls -->
-          <div class="flex items-center gap-1.5 sm:gap-2 text-xs text-slate-700 select-none">
-            <!-- Font Sizing -->
-            <div class="flex items-center gap-1" aria-label="Font Size Controls" role="group">
-              <button class="flex items-center gap-1 px-1.5 py-0.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-xs font-bold text-slate-700 transition-colors cursor-pointer" onclick="adjustFontSize('dec')" aria-label="Decrease Font Size" title="Decrease Font Size">
-                <Icon name="minus" size={9} strokeWidth={2.5} /> A
+        <!-- Right: Utility Controls & Integrated Search Toolbar -->
+        <div class="flex flex-col items-center md:items-end gap-2 shrink-0 w-full md:w-auto">
+          
+          <!-- Accessibility Controls & Language Cluster -->
+          <div class="flex items-center justify-between md:justify-end gap-2 w-full md:w-auto text-xs text-slate-700 select-none">
+            
+            <!-- Font Sizing (Segmented Pill) -->
+            <div class="inline-flex items-center bg-slate-100/90 hover:bg-slate-100 p-0.5 rounded-lg border border-slate-200/80 shadow-2xs" role="group" aria-label="Font Size Controls">
+              <button 
+                type="button"
+                class="flex items-center gap-0.5 px-2 py-1 bg-transparent hover:bg-white text-slate-700 hover:text-[#0B4F9C] rounded-md text-[11px] font-bold transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0B4F9C]" 
+                onclick="adjustFontSize('dec')" 
+                aria-label="Decrease Font Size" 
+                title="Decrease font size (-A)"
+              >
+                <Icon name="minus" size={8} strokeWidth={2.5} /> A
               </button>
-              <button class="flex items-center px-2 py-0.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-xs font-bold text-slate-700 transition-colors cursor-pointer" onclick="adjustFontSize('reset')" aria-label="Reset Font Size" title="Reset Font Size">A</button>
-              <button class="flex items-center gap-1 px-1.5 py-0.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-xs font-bold text-slate-700 transition-colors cursor-pointer" onclick="adjustFontSize('inc')" aria-label="Increase Font Size" title="Increase Font Size">
-                <Icon name="plus" size={9} strokeWidth={2.5} /> A
+              <div class="w-px h-3.5 bg-slate-200"></div>
+              <button 
+                type="button"
+                class="px-2.5 py-1 bg-transparent hover:bg-white text-slate-700 hover:text-[#0B4F9C] rounded-md text-[11px] font-bold transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0B4F9C]" 
+                onclick="adjustFontSize('reset')" 
+                aria-label="Reset Font Size" 
+                title="Reset font size (A)"
+              >
+                A
+              </button>
+              <div class="w-px h-3.5 bg-slate-200"></div>
+              <button 
+                type="button"
+                class="flex items-center gap-0.5 px-2 py-1 bg-transparent hover:bg-white text-slate-700 hover:text-[#0B4F9C] rounded-md text-[11px] font-bold transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0B4F9C]" 
+                onclick="adjustFontSize('inc')" 
+                aria-label="Increase Font Size" 
+                title="Increase font size (+A)"
+              >
+                <Icon name="plus" size={8} strokeWidth={2.5} /> A
               </button>
             </div>
-            <span class="text-slate-300">|</span>
+
             <!-- Contrast Switcher -->
-            <button class="flex items-center gap-1 px-2 py-0.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-xs font-bold text-slate-700 transition-colors cursor-pointer" onclick="toggleHighContrast()" aria-label="Toggle High Contrast Mode">
-              <Icon name="eye" size={12} strokeWidth={2.5} /> Contrast
+            <button 
+              type="button"
+              class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100/90 hover:bg-white text-slate-700 hover:text-[#0B4F9C] border border-slate-200/80 hover:border-[#0B4F9C]/30 rounded-lg text-[11px] font-bold transition-all duration-150 cursor-pointer shadow-2xs hover:shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0B4F9C]" 
+              onclick="toggleHighContrast()" 
+              aria-label="Toggle High Contrast Mode"
+              title="Toggle high contrast"
+            >
+              <Icon name="eye" size={12} strokeWidth={2.2} class="text-[#0B4F9C]" />
+              <span>Contrast</span>
             </button>
-            <span class="text-slate-300">|</span>
-            <!-- Language Switcher -->
+
+            <!-- Language Switcher Dropdown -->
             <div class="relative" id="lang-dropdown-wrapper">
               <button
                 type="button"
                 id="lang-dropdown-btn"
-                class="flex items-center gap-1 px-2 py-0.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-xs font-bold text-slate-700 transition-colors cursor-pointer"
+                class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100/90 hover:bg-white text-slate-700 hover:text-[#0B4F9C] border border-slate-200/80 hover:border-[#0B4F9C]/30 rounded-lg text-[11px] font-bold transition-all duration-150 cursor-pointer shadow-2xs hover:shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0B4F9C]"
                 aria-haspopup="true"
                 aria-expanded="false"
                 aria-controls="lang-dropdown-menu"
-                onclick="toggleLanguageDropdown()"
+                onclick="toggleLangDropdown(event)"
+                title="Select language"
               >
-                <Icon name="globe" size={12} strokeWidth={2.5} />
-                <span id="current-lang-text">English</span>
-                <Icon name="chevron-down" size={10} strokeWidth={2.5} />
+                <Icon name="globe" size={12} strokeWidth={2.2} class="text-[#0B4F9C]" />
+                <span id="current-lang-label">English</span>
+                <Icon name="chevron-down" size={10} strokeWidth={2.5} class="text-slate-400" id="lang-arrow" />
               </button>
               <div
                 id="lang-dropdown-menu"
-                class="absolute right-0 mt-1 w-36 bg-white text-slate-800 rounded shadow-xl border border-slate-200/85 hidden z-[9999] py-1 text-left"
+                class="absolute right-0 mt-1.5 w-44 bg-white text-slate-800 rounded-lg shadow-xl border border-slate-200/90 hidden z-[10000] py-1 text-left"
+                style="z-index: 10000;"
                 role="menu"
                 aria-orientation="vertical"
                 aria-labelledby="lang-dropdown-btn"
               >
-                <button class="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-100 font-semibold transition-colors block cursor-pointer" role="menuitem" onclick="changeLanguage('en')">English</button>
-                <button class="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-100 font-semibold transition-colors block cursor-pointer" role="menuitem" onclick="changeLanguage('hi')">हिन्दी (Hindi)</button>
-                <button class="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-100 font-semibold transition-colors block cursor-pointer" role="menuitem" onclick="changeLanguage('ur')">اردو (Urdu)</button>
-                <button class="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-100 font-semibold transition-colors block cursor-pointer" role="menuitem" onclick="changeLanguage('ks')">کٲشُر (Kashmiri)</button>
-                <button class="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-100 font-semibold transition-colors block cursor-pointer" role="menuitem" onclick="changeLanguage('doi')">डोगरी (Dogri)</button>
+                <button class="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-50 hover:text-[#0B4F9C] font-semibold transition-colors block cursor-pointer" role="menuitem" onclick="changeLanguage('en')">English</button>
+                <button class="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-50 hover:text-[#0B4F9C] font-semibold transition-colors block cursor-pointer" role="menuitem" onclick="changeLanguage('hi')">हिन्दी (Hindi)</button>
+                <button class="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-50 hover:text-[#0B4F9C] font-semibold transition-colors block cursor-pointer" role="menuitem" onclick="changeLanguage('ur')">اردو (Urdu)</button>
+                <button class="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-50 hover:text-[#0B4F9C] font-semibold transition-colors block cursor-pointer" role="menuitem" onclick="changeLanguage('ks')">کٲشُر (Kashmiri)</button>
+                <button class="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-50 hover:text-[#0B4F9C] font-semibold transition-colors block cursor-pointer" role="menuitem" onclick="changeLanguage('doi')">डोगरी (Dogri)</button>
               </div>
             </div>
           </div>
 
-          <!-- Search Form -->
+          <!-- Integrated Government Search Form -->
           <form action="/search" method="GET" class="flex items-center w-full justify-end relative" id="header-search-form" autocomplete="off">
-            <div class="relative flex items-center">
-              <label for="header-search" class="sr-only">Search portal pages</label>
-              <input 
-                type="search" 
-                name="q" 
-                id="header-search" 
-                placeholder="Search…" 
-                class="bg-white hover:bg-slate-50 focus-visible:bg-white text-xs text-slate-850 focus-visible:text-slate-900 px-2.5 py-1.5 rounded-l-md border border-slate-300 border-r-0 focus-visible:border-[#0B4F9C] focus-visible:outline-none transition-[background-color,border-color,color] duration-150 w-28 sm:w-32 lg:w-36 placeholder-slate-400 shadow-sm" 
-                required
-              />
+            <div class="relative flex items-center w-full max-w-full md:max-w-[270px] lg:max-w-[290px]">
+              <label for="header-search" class="sr-only">Search portal pages, tenders, notifications</label>
+              <div class="flex items-center w-full bg-white hover:bg-slate-50/50 focus-within:bg-white border border-slate-300 focus-within:border-[#0B4F9C] rounded-lg pl-2.5 pr-1 py-0.5 transition-all duration-150 shadow-2xs outline-none focus-within:outline-none ring-0 focus-within:ring-0">
+                <Icon name="search" size={13} strokeWidth={2.2} class="text-slate-400 shrink-0 mr-1.5" />
+                <input 
+                  type="search" 
+                  name="q" 
+                  id="header-search" 
+                  placeholder="Search portal, tenders…" 
+                  class="w-full bg-transparent text-xs text-slate-700 placeholder:text-slate-400 font-normal py-1 px-1 outline-none focus:outline-none border-0 focus:ring-0" 
+                  style="outline: none !important; box-shadow: none !important; border: none !important; font-weight: 400 !important;"
+                  required
+                />
+                <button 
+                  type="submit" 
+                  class="shrink-0 px-2.5 py-1 bg-[#0B4F9C] hover:bg-[#073B75] text-white text-[11px] font-semibold rounded-md transition-colors duration-150 shadow-2xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0B4F9C] cursor-pointer" 
+                  aria-label="Submit Search"
+                >
+                  Search
+                </button>
+              </div>
               <!-- Suggestions Dropdown Container -->
-              <div id="header-search-suggestions" class="absolute left-0 right-0 top-full mt-1 bg-white text-slate-850 border border-slate-200 rounded-md shadow-xl hidden z-[9999] max-h-60 overflow-y-auto text-left py-1 w-full lg:w-48">
+              <div id="header-search-suggestions" class="absolute left-0 right-0 top-full mt-1 bg-white text-slate-800 border border-slate-200 rounded-lg shadow-2xl hidden z-[9999] max-h-72 overflow-y-auto text-left py-1 w-full sm:w-[320px] sm:left-auto sm:right-0">
               </div>
             </div>
-            <button type="submit" class="p-1.5 bg-[#1a5276] hover:bg-[#084A8F] rounded-r-md text-xs text-white font-bold flex items-center justify-center border border-transparent transition-[background-color,border-color] duration-150 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C]/50 cursor-pointer" aria-label="Submit Search">
-              <Icon name="search" size={14} strokeWidth={2.5} />
-            </button>
           </form>
+
         </div>
       </div>
 
@@ -585,55 +695,85 @@ if (tickerItems.length === 0) {
           <ul class="flex flex-nowrap w-full justify-between items-center text-[13px] sm:text-[13.5px] lg:text-[13.5px] xl:text-[14.5px] 2xl:text-[15.5px] font-bold whitespace-nowrap min-w-0">
             <!-- Home -->
             <li>
-              <a href="/" class="block px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 text-white hover:bg-white/10 transition-all duration-200 border-b-2 border-transparent hover:border-white/60 focus-visible:outline-none focus-visible:bg-white/15">
+              <a 
+                href="/" 
+                class={`nav-link block px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 text-white transition-all duration-150 border-b-[3px] focus-visible:outline-none focus-visible:bg-white/15 ${
+                  isSectionActive('home')
+                    ? 'border-[#D8681B] bg-white/10 font-bold nav-item-active' 
+                    : 'border-transparent hover:border-white/60 hover:bg-white/10'
+                }`}
+              >
                 Home
               </a>
             </li>
 
             <!-- About Us -->
             <li class="relative nav-dropdown-item">
-              <button class="nav-dropdown-btn flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
+              <button 
+                class={`nav-dropdown-btn flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 transition-all duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
+                  isSectionActive('about')
+                    ? 'border-[#D8681B] bg-white/10 font-bold nav-item-active'
+                    : 'border-transparent hover:border-white/60 hover:bg-white/10'
+                }`} 
+                aria-haspopup="true" 
+                aria-expanded="false"
+              >
                 About Us
                 <svg class="dropdown-arrow w-2.5 h-2.5 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
               </button>
               <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[260px]">
                 <ul class="flex flex-col gap-0.5 text-xs px-2">
-                  <li><a href="/about-us/explore/overview" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">About Us</a></li>
-                  <li><a href="/about-us/explore/association-memorandum" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">MoA &amp; AoA</a></li>
-                  <li><a href="/about-us/explore/organization-chart" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Organizational Structure</a></li>
-                  <li><a href="/about-us/management/board" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Board Of Director</a></li>
-                  <li><a href="/about-us/explore/gstin-registration" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">GSTIN Registration Details</a></li>
-                  <li><a href="/about-us/explore/policies" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Policies</a></li>
-                  <li><a href="/sustainability/csr/policy" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">CSR Policy</a></li>
+                  <li><a href="/about-us/explore/overview" class={`block p-2 rounded transition-colors ${currentPath === '/about-us/explore/overview' ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B4F9C]'}`}>About Us</a></li>
+                  <li><a href="/about-us/explore/association-memorandum" class={`block p-2 rounded transition-colors ${currentPath === '/about-us/explore/association-memorandum' ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B4F9C]'}`}>MoA &amp; AoA</a></li>
+                  <li><a href="/about-us/explore/organization-chart" class={`block p-2 rounded transition-colors ${currentPath === '/about-us/explore/organization-chart' ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B4F9C]'}`}>Organizational Structure</a></li>
+                  <li><a href="/about-us/management/board" class={`block p-2 rounded transition-colors ${currentPath === '/about-us/management/board' ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B4F9C]'}`}>Board Of Director</a></li>
+                  <li><a href="/about-us/explore/gstin-registration" class={`block p-2 rounded transition-colors ${currentPath === '/about-us/explore/gstin-registration' ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B4F9C]'}`}>GSTIN Registration Details</a></li>
+                  <li><a href="/about-us/explore/policies" class={`block p-2 rounded transition-colors ${currentPath === '/about-us/explore/policies' ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B4F9C]'}`}>Policies</a></li>
+                  <li><a href="/sustainability/csr/policy" class={`block p-2 rounded transition-colors ${currentPath === '/sustainability/csr/policy' ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B4F9C]'}`}>CSR Policy</a></li>
                 </ul>
               </div>
             </li>
 
             <!-- Projects -->
             <li class="relative nav-dropdown-item">
-              <button class="nav-dropdown-btn flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
+              <button 
+                class={`nav-dropdown-btn flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 transition-all duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
+                  isSectionActive('projects')
+                    ? 'border-[#D8681B] bg-white/10 font-bold nav-item-active'
+                    : 'border-transparent hover:border-white/60 hover:bg-white/10'
+                }`} 
+                aria-haspopup="true" 
+                aria-expanded="false"
+              >
                 Projects
                 <svg class="dropdown-arrow w-2.5 h-2.5 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
               </button>
               <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[240px]">
                 <ul class="flex flex-col gap-0.5 text-xs px-2">
-                  <li><a href="/our-business/power-stations" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Operational Projects</a></li>
-                  <li><a href="/our-business/construction" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Projects Under Construction</a></li>
-                  <li><a href="/our-business/under-development" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Upcoming Projects</a></li>
-                  <li><a href="/power-trading" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Power Trading Cell</a></li>
+                  <li><a href="/our-business/power-stations" class={`block p-2 rounded transition-colors ${currentPath.startsWith('/our-business/power-stations') ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B4F9C]'}`}>Operational Projects</a></li>
+                  <li><a href="/our-business/construction" class={`block p-2 rounded transition-colors ${currentPath.startsWith('/our-business/construction') ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B4F9C]'}`}>Projects Under Construction</a></li>
+                  <li><a href="/our-business/under-development" class={`block p-2 rounded transition-colors ${currentPath.startsWith('/our-business/under-development') ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B4F9C]'}`}>Upcoming Projects</a></li>
                 </ul>
               </div>
             </li>
 
             <!-- Tenders -->
             <li class="relative nav-dropdown-item">
-              <button class="nav-dropdown-btn flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
+              <button 
+                class={`nav-dropdown-btn flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 transition-all duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
+                  isSectionActive('tenders')
+                    ? 'border-[#D8681B] bg-white/10 font-bold nav-item-active'
+                    : 'border-transparent hover:border-white/60 hover:bg-white/10'
+                }`} 
+                aria-haspopup="true" 
+                aria-expanded="false"
+              >
                 Tenders
                 <svg class="dropdown-arrow w-2.5 h-2.5 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
               </button>
               <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[240px]">
                 <ul class="flex flex-col gap-0.5 text-xs px-2">
-                  <li><a href="/stakeholders/vendors/tender-bids" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Live Tenders &amp; Notices</a></li>
+                  <li><a href="/stakeholders/vendors/tender-bids" class={`block p-2 rounded transition-colors ${currentPath.startsWith('/stakeholders/vendors') || currentPath.startsWith('/tenders') ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B4F9C]'}`}>Live Tenders &amp; Notices</a></li>
                   <li><a href="https://jktenders.gov.in/nicgep/app" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">JK Tenders Portal<span class="sr-only"> (opens in new tab)</span></a></li>
                 </ul>
               </div>
@@ -641,49 +781,100 @@ if (tickerItems.length === 0) {
 
             <!-- Notifications -->
             <li>
-              <a href="/notifications" class="block px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 text-white hover:bg-[#084A8F] transition-colors border-b-2 border-transparent hover:border-white/60">Notifications</a>
+              <a 
+                href="/notifications" 
+                class={`nav-link block px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 text-white transition-all duration-150 border-b-[3px] focus-visible:outline-none focus-visible:bg-white/15 ${
+                  isSectionActive('notifications')
+                    ? 'border-[#D8681B] bg-white/10 font-bold nav-item-active'
+                    : 'border-transparent hover:border-white/60 hover:bg-white/10'
+                }`}
+              >
+                Notifications
+              </a>
             </li>
 
             <!-- Investors Corner -->
             <li class="relative nav-dropdown-item">
-              <button class="nav-dropdown-btn flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
+              <button 
+                class={`nav-dropdown-btn flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 transition-all duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
+                  isSectionActive('investors')
+                    ? 'border-[#D8681B] bg-white/10 font-bold nav-item-active'
+                    : 'border-transparent hover:border-white/60 hover:bg-white/10'
+                }`} 
+                aria-haspopup="true" 
+                aria-expanded="false"
+              >
                 Investors Corner
                 <svg class="dropdown-arrow w-2.5 h-2.5 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
               </button>
               <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[230px]">
                 <ul class="flex flex-col gap-0.5 text-xs px-2">
-                  <li><a href="/stakeholders/investors/agm" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Annual General Meetings</a></li>
-                  <li><a href="/stakeholders/investors/ipp-projects" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">IPP Projects</a></li>
+                  <li><a href="/stakeholders/investors/agm" class={`block p-2 rounded transition-colors ${currentPath.startsWith('/stakeholders/investors/agm') ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B4F9C]'}`}>Annual General Meetings</a></li>
+                  <li><a href="/stakeholders/investors/ipp-projects" class={`block p-2 rounded transition-colors ${currentPath.startsWith('/stakeholders/investors/ipp') ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B4F9C]'}`}>IPP Projects</a></li>
                 </ul>
               </div>
             </li>
 
             <!-- RTI -->
             <li class="relative nav-dropdown-item">
-              <button class="nav-dropdown-btn flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
+              <button 
+                class={`nav-dropdown-btn flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 transition-all duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
+                  isSectionActive('rti')
+                    ? 'border-[#D8681B] bg-white/10 font-bold nav-item-active'
+                    : 'border-transparent hover:border-white/60 hover:bg-white/10'
+                }`} 
+                aria-haspopup="true" 
+                aria-expanded="false"
+              >
                 RTI
                 <svg class="dropdown-arrow w-2.5 h-2.5 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
               </button>
               <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[210px]">
                 <ul class="flex flex-col gap-0.5 text-xs px-2">
-                  <li><a href="/about-us/explore/rti" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">RTI Act (Sec 4)</a></li>
+                  <li><a href="/about-us/explore/rti" class={`block p-2 rounded transition-colors ${currentPath.includes('/rti') ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B4F9C]'}`}>RTI Act (Sec 4)</a></li>
                 </ul>
               </div>
             </li>
 
             <!-- Gallery -->
             <li>
-              <a href="/media/gallery" class="block px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 text-white hover:bg-[#084A8F] transition-colors border-b-2 border-transparent hover:border-white/60">Gallery</a>
+              <a 
+                href="/media/gallery" 
+                class={`nav-link block px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 text-white transition-all duration-150 border-b-[3px] focus-visible:outline-none focus-visible:bg-white/15 ${
+                  isSectionActive('gallery')
+                    ? 'border-[#D8681B] bg-white/10 font-bold nav-item-active'
+                    : 'border-transparent hover:border-white/60 hover:bg-white/10'
+                }`}
+              >
+                Gallery
+              </a>
             </li>
 
             <!-- Downloads -->
             <li>
-              <a href="/media/downloads" class="block px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 text-white hover:bg-[#084A8F] transition-colors border-b-2 border-transparent hover:border-white/60">Downloads</a>
+              <a 
+                href="/media/downloads" 
+                class={`nav-link block px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 text-white transition-all duration-150 border-b-[3px] focus-visible:outline-none focus-visible:bg-white/15 ${
+                  isSectionActive('downloads')
+                    ? 'border-[#D8681B] bg-white/10 font-bold nav-item-active'
+                    : 'border-transparent hover:border-white/60 hover:bg-white/10'
+                }`}
+              >
+                Downloads
+              </a>
             </li>
 
             <!-- Employees Corner -->
             <li class="relative nav-dropdown-item">
-              <button class="nav-dropdown-btn flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
+              <button 
+                class={`nav-dropdown-btn flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 transition-all duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
+                  isSectionActive('employees')
+                    ? 'border-[#D8681B] bg-white/10 font-bold nav-item-active'
+                    : 'border-transparent hover:border-white/60 hover:bg-white/10'
+                }`} 
+                aria-haspopup="true" 
+                aria-expanded="false"
+              >
                 Employees Corner
                 <svg class="dropdown-arrow w-2.5 h-2.5 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
               </button>
@@ -703,14 +894,22 @@ if (tickerItems.length === 0) {
 
             <!-- Contact Us -->
             <li class="relative nav-dropdown-item">
-              <button class="nav-dropdown-btn flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 hover:bg-[#084A8F] transition-[background-color,border-color] duration-150 border-b-2 border-transparent text-white focus-visible:outline-none focus-visible:bg-[#073A80]" aria-haspopup="true" aria-expanded="false">
+              <button 
+                class={`nav-dropdown-btn flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 transition-all duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
+                  isSectionActive('contact')
+                    ? 'border-[#D8681B] bg-white/10 font-bold nav-item-active'
+                    : 'border-transparent hover:border-white/60 hover:bg-white/10'
+                }`} 
+                aria-haspopup="true" 
+                aria-expanded="false"
+              >
                 Contact Us
                 <svg class="dropdown-arrow w-2.5 h-2.5 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
               </button>
               <div class="nav-dropdown-menu absolute right-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[200px]">
                 <ul class="flex flex-col gap-0.5 text-xs px-2">
-                  <li><a href="/about-us/others/contact" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Contact Us</a></li>
-                  <li><a href="/feedback" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Feedback</a></li>
+                  <li><a href="/about-us/others/contact" class={`block p-2 rounded transition-colors ${currentPath === '/about-us/others/contact' ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B4F9C]'}`}>Contact Us</a></li>
+                  <li><a href="/feedback" class={`block p-2 rounded transition-colors ${currentPath === '/feedback' ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B4F9C]'}`}>Feedback</a></li>
                 </ul>
               </div>
             </li>
@@ -723,157 +922,153 @@ if (tickerItems.length === 0) {
       <slot />
     </main>
 
-    <!-- Footer Section (Professional Dark Slate) -->
-    <footer class="bg-[#083B73] text-slate-200 border-t-4 border-[#0B4F9C] pt-10 pb-6 text-sm">
+    <!-- Footer Section (Professional Government PSU Dark Blue) -->
+    <footer class="bg-[#083B73] text-slate-200 border-t-4 border-[#0B4F9C] pt-3 sm:pt-3.5 pb-2.5 text-xs">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <!-- Government Portal Identity Bar (GIGW Mandatory) -->
-        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-600 pb-4 mb-6">
-          <div class="flex items-center gap-3">
-            <img src="/logo.png" alt="JKSPDCL Official Logo" class="h-10 w-auto object-contain" />
+        <div class="flex flex-wrap items-center justify-between gap-2.5 border-b border-white/15 pb-2 mb-3">
+          <div class="flex items-center gap-2.5">
+            <img src="/logo.png" alt="JKSPDCL Official Logo" class="h-6 sm:h-7 w-auto object-contain" />
             <div>
-              <p class="text-white font-bold text-xs leading-tight">Jammu &amp; Kashmir State Power Development Corporation Limited</p>
-              <p class="text-slate-400 text-[10px] mt-0.5">A Government of J&amp;K Undertaking | CIN: [CONTENT REQUIRED FROM JKSPDC]</p>
+              <p class="text-white font-bold text-xs leading-tight tracking-wide">Jammu &amp; Kashmir State Power Development Corporation Limited</p>
+              <p class="text-slate-300 text-[9.5px] mt-0.5">A Government of J&amp;K Undertaking | CIN: U40101JK1995SGC001418</p>
             </div>
           </div>
-          <div class="flex items-center gap-4 text-[10px] text-slate-400">
-            <a href="https://india.gov.in" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1 hover:text-white transition-colors font-semibold">
+          <div class="flex items-center gap-3 text-[10px] text-slate-300">
+            <a href="https://india.gov.in" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1 hover:text-white transition-colors font-medium">
               <span>🇮🇳</span> National Portal of India<span class="sr-only"> (opens in new tab)</span>
             </a>
-            <span class="text-slate-600">|</span>
-            <a href="https://jkgov.nic.in" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors font-semibold">J&amp;K Government<span class="sr-only"> (opens in new tab)</span></a>
+            <span class="text-white/30">|</span>
+            <a href="https://jkgov.nic.in" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors font-medium">J&amp;K Government<span class="sr-only"> (opens in new tab)</span></a>
           </div>
         </div>
 
         <!-- Footer Core Columns -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 border-b border-slate-700 pb-8 mb-6 items-start">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pb-2.5 items-start">
 
-          <!-- Column 1: About Corporate -->
-          <div class="flex flex-col gap-4">
-            <div class="inline-flex items-center justify-center bg-white p-3 rounded-xl shadow-md border border-white/20 self-start">
-              <img src="/logo.png" alt="JKSPDCL logo" class="h-16 md:h-20 w-auto object-contain" />
-            </div>
+          <!-- Column 1: Corporate Summary -->
+          <div class="flex flex-col">
+            <h2 class="font-bold text-white uppercase tracking-wider text-xs mb-2 pb-1 border-b border-white/20">About JKSPDCL</h2>
             <p class="text-xs text-slate-300 leading-relaxed">
-              JKSPDCL is a wholly owned PSU of the Government of J&K, mandated with harnessing power potential across the region since 1995.
+              Jammu &amp; Kashmir State Power Development Corporation Limited is a wholly owned Government PSU incorporated in 1995, mandated with planning, constructing, operating and maintaining power generating assets across J&amp;K.
             </p>
-            <a href="/about-us/explore/overview" class="text-xs text-[#7FB3E8] hover:text-white font-semibold flex items-center gap-1 mt-1 transition-colors duration-200">
-              Read Our History &rarr;
-            </a>
+            <div class="mt-2">
+              <a href="/about-us/explore/overview" class="text-xs text-[#7FB3E8] hover:text-white font-semibold inline-flex items-center gap-1 transition-colors duration-200">
+                Read Corporate Profile &rarr;
+              </a>
+            </div>
           </div>
 
-          <!-- Column 2: Site Utilities & GIGW Mandatory Links -->
-          <div class="flex flex-col gap-1">
-            <h2 class="font-bold text-white uppercase tracking-wider text-xs mb-4 pb-2 border-b border-slate-600">Site Utilities</h2>
-            <div class="flex flex-col gap-2 text-xs text-slate-300">
-              <a href="/about-us/explore/policies" class="hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
-                <span class="text-slate-500" aria-hidden="true">›</span> Policies
+          <!-- Column 2: Site Utilities & GIGW Mandatory Policies -->
+          <div class="flex flex-col">
+            <h2 class="font-bold text-white uppercase tracking-wider text-xs mb-2 pb-1 border-b border-white/20">Compliance &amp; Utilities</h2>
+            <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-slate-300">
+              <a href="/about-us/explore/policies" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
+                <span class="text-slate-400" aria-hidden="true">›</span> Policies
               </a>
-              <a href="/sitemap" class="hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
-                <span class="text-slate-500" aria-hidden="true">›</span> Sitemap
+              <a href="/copyright" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
+                <span class="text-slate-400" aria-hidden="true">›</span> Copyright
               </a>
-              <a href="/help" class="hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
-                <span class="text-slate-500" aria-hidden="true">›</span> Help &amp; FAQ
+              <a href="/accessibility-statement" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
+                <span class="text-slate-400" aria-hidden="true">›</span> Accessibility
               </a>
-              <a href="/feedback" class="hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
-                <span class="text-slate-500" aria-hidden="true">›</span> Feedback
+              <a href="/hyperlinking-policy" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
+                <span class="text-slate-400" aria-hidden="true">›</span> Hyperlinking
               </a>
-              <a href="/accessibility-statement" class="hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
-                <span class="text-slate-500" aria-hidden="true">›</span> Accessibility Statement
+              <a href="/privacy-policy" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
+                <span class="text-slate-400" aria-hidden="true">›</span> Privacy Policy
               </a>
-              <a href="/terms-conditions" class="hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
-                <span class="text-slate-500" aria-hidden="true">›</span> Terms &amp; Conditions
+              <a href="/sitemap" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
+                <span class="text-slate-400" aria-hidden="true">›</span> Sitemap
               </a>
-              <a href="/privacy-policy" class="hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
-                <span class="text-slate-500" aria-hidden="true">›</span> Privacy Policy
+              <a href="/terms-conditions" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
+                <span class="text-slate-400" aria-hidden="true">›</span> Terms of Use
               </a>
-              <a href="/disclaimer" class="hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
-                <span class="text-slate-500" aria-hidden="true">›</span> Disclaimer
+              <a href="/help" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
+                <span class="text-slate-400" aria-hidden="true">›</span> Help &amp; FAQ
               </a>
-              <a href="/copyright" class="hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
-                <span class="text-slate-500" aria-hidden="true">›</span> Copyright Policy
+              <a href="/disclaimer" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
+                <span class="text-slate-400" aria-hidden="true">›</span> Disclaimer
               </a>
-              <a href="/hyperlinking-policy" class="hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
-                <span class="text-slate-500" aria-hidden="true">›</span> Hyperlinking Policy
+              <a href="/feedback" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
+                <span class="text-slate-400" aria-hidden="true">›</span> Feedback
               </a>
             </div>
           </div>
 
           <!-- Column 3: Contact Directory -->
-          <div class="flex flex-col gap-1 text-xs text-slate-300">
-            <h2 class="font-bold text-white uppercase tracking-wider text-xs mb-4 pb-2 border-b border-slate-600">Contact Directory</h2>
-            <div class="space-y-2">
-              <p class="font-semibold text-slate-200 text-xs uppercase tracking-wide">Srinagar Office</p>
-              <p class="leading-relaxed">Exhibition Grounds, Jahangir Chowk,<br/>Srinagar — 190009</p>
+          <div class="flex flex-col text-xs text-slate-300">
+            <h2 class="font-bold text-white uppercase tracking-wider text-xs mb-2 pb-1 border-b border-white/20">Contact Directory</h2>
+            <div class="space-y-0.5">
+              <p class="font-semibold text-slate-200 text-xs">Srinagar Corporate Office</p>
+              <p class="text-[11px] leading-snug text-slate-300">Exhibition Grounds, Jahangir Chowk, Srinagar — 190009</p>
               <p>
-                <a href="tel:+911942451665" class="hover:text-white transition-colors inline-flex items-center gap-1.5">
-                  <Icon name="phone" size={13} strokeWidth={2} />
+                <a href="tel:+911942451665" class="hover:text-white transition-colors inline-flex items-center gap-1 text-[11px] text-slate-300">
+                  <Icon name="phone" size={11} strokeWidth={2} />
                   +91 194 2451665
                 </a>
               </p>
             </div>
-            <div class="space-y-2 mt-4 pt-3 border-t border-slate-700">
-              <p class="font-semibold text-slate-200 text-xs uppercase tracking-wide">Jammu Office</p>
-              <p class="leading-relaxed">Ashok Nagar, Satwari,<br/>Jammu (J&K) — 180004</p>
+            <div class="space-y-0.5 mt-2 pt-1.5 border-t border-white/10">
+              <p class="font-semibold text-slate-200 text-xs">Jammu Regional Office</p>
+              <p class="text-[11px] leading-snug text-slate-300">Ashok Nagar, Satwari, Jammu (J&amp;K) — 180004</p>
               <p>
-                <a href="tel:+911912430548" class="hover:text-white transition-colors inline-flex items-center gap-1.5">
-                  <Icon name="phone" size={13} strokeWidth={2} />
+                <a href="tel:+911912430548" class="hover:text-white transition-colors inline-flex items-center gap-1 text-[11px] text-slate-300">
+                  <Icon name="phone" size={11} strokeWidth={2} />
                   +91 191 2430548 / 2439039
                 </a>
               </p>
             </div>
           </div>
 
-          <!-- Column 4: Quick Links -->
-          <div class="flex flex-col gap-1 text-xs text-slate-300">
-            <h2 class="font-bold text-white uppercase tracking-wider text-xs mb-4 pb-2 border-b border-slate-600">Quick Navigation</h2>
-            <div class="flex flex-col gap-2">
-              <a href="/our-business/power-stations" class="hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
-                <Icon name="zap" size={13} strokeWidth={2} class="text-[#7FB3E8]" /> Installed Power Stations
+          <!-- Column 4: Quick Navigation & Reach Us -->
+          <div class="flex flex-col text-xs text-slate-300">
+            <h2 class="font-bold text-white uppercase tracking-wider text-xs mb-2 pb-1 border-b border-white/20">Quick Navigation</h2>
+            <div class="flex flex-col gap-1">
+              <a href="/our-business/power-stations" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1.5">
+                <Icon name="zap" size={12} strokeWidth={2} class="text-[#7FB3E8]" /> Operating Power Stations
               </a>
-              <a href="/stakeholders/vendors/tender-bids" class="hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
-                <Icon name="file-text" size={13} strokeWidth={2} class="text-[#7FB3E8]" /> Tenders &amp; Bid Registry
+              <a href="/stakeholders/vendors/tender-bids" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1.5">
+                <Icon name="file-text" size={12} strokeWidth={2} class="text-[#7FB3E8]" /> Tenders &amp; Bid Registry
               </a>
-              <a href="/commercial/overview" class="hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
-                <Icon name="briefcase" size={13} strokeWidth={2} class="text-[#7FB3E8]" /> Commercial Cell
-              </a>
-              <a href="/sustainability/environment/preamble" class="hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
-                <Icon name="leaf" size={13} strokeWidth={2} class="text-[#7FB3E8]" /> Environment Clearances
-              </a>
-              <a href="/media/gallery" class="hover:text-white hover:translate-x-1 transition-all duration-200 inline-flex items-center gap-1.5">
-                <Icon name="image" size={13} strokeWidth={2} class="text-[#7FB3E8]" /> Photo &amp; Video Gallery
+              <a href="/media/gallery" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1.5">
+                <Icon name="image" size={12} strokeWidth={2} class="text-[#7FB3E8]" /> Photo &amp; Video Gallery
               </a>
             </div>
-            <div class="mt-4 pt-3 border-t border-slate-700">
-              <p class="font-semibold text-slate-300 text-[11px] mb-1.5">Official Email</p>
-              <a href="mailto:md-jkspdcl@jk.gov.in" class="text-slate-300 hover:text-white hover:underline transition-colors inline-flex items-center gap-1.5 text-[11px]">
-                <Icon name="mail" size={12} strokeWidth={2} />
+            <div class="mt-2 pt-1.5 border-t border-white/10">
+              <p class="font-semibold text-slate-200 text-xs mb-0.5">Official Email</p>
+              <a href="mailto:md-jkspdcl@jk.gov.in" class="text-slate-300 hover:text-white hover:underline transition-colors inline-flex items-center gap-1 text-[11px]">
+                <Icon name="mail" size={11} strokeWidth={2} />
                 md-jkspdcl[at]jk[dot]gov[dot]in
               </a>
             </div>
-            <!-- Social/Connect Row — GIGW NOTE: Update with official JKSPDC social handles when confirmed -->
-            <div class="mt-4 pt-3 border-t border-slate-700">
-              <p class="font-semibold text-slate-300 text-[11px] mb-2">Official Social Media</p>
-              <p class="text-[10px] text-slate-500 italic">[OFFICIAL JKSPDC SOCIAL MEDIA HANDLES TO BE CONFIRMED AND UPDATED]</p>
+          </div>
+
+        </div>
+
+        <!-- Unified Bottom Compliance & Copyright Bar (GIGW 3.0 Mandatory) -->
+        <div class="border-t border-white/15 pt-2 mt-0.5">
+          <!-- WIM & Governance Row -->
+          <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[10.5px] text-slate-300 pb-1.5">
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-0.5">
+              <span><strong class="text-white font-semibold">Web Information Manager:</strong> [Nomination in Process, JKSPDCL]</span>
+              <span class="text-white/30 hidden sm:inline">|</span>
+              <span><strong class="text-white font-semibold">Technical Team:</strong> IT Cell, JKSPDCL, Srinagar / Jammu</span>
+            </div>
+            <div class="text-slate-400 text-[10px]">
+              <span>Last Reviewed: {new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long' })}</span>
             </div>
           </div>
 
-        </div>
-
-        <!-- WIM (Web Information Manager) — GIGW 3.0 Mandatory -->
-        <div class="border-t border-slate-700 pt-4 pb-3 text-[11px] text-slate-400">
-          <div class="flex flex-wrap gap-x-6 gap-y-1">
-            <span><strong class="text-slate-300">Web Information Manager:</strong> [WIM TO BE FORMALLY NOMINATED BY JKSPDC]</span>
-            <span><strong class="text-slate-300">Technical Team:</strong> IT Cell, JKSPDCL, Srinagar / Jammu</span>
-          </div>
-        </div>
-
-        <!-- Copyright and Compliance Info -->
-        <div class="flex flex-col md:flex-row justify-between items-center gap-3 text-[11px] text-slate-400 border-t border-slate-700 pt-4">
-          <p>&copy; {currentYear} Jammu &amp; Kashmir State Power Development Corporation Limited. All rights reserved.</p>
-          <div class="flex items-center gap-3 flex-wrap justify-center md:justify-end">
-            <span>Designed and Developed by <span class="text-slate-300 font-semibold">IT Cell, JKSPDCL</span></span>
-            <span class="text-slate-600">|</span>
-            <span>Last Reviewed: {new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long' })}</span>
+          <!-- Copyright Row -->
+          <div class="border-t border-white/10 pt-1.5 flex flex-col sm:flex-row items-center justify-between gap-1 text-[10px] text-slate-400">
+            <p>&copy; {currentYear} Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL). All rights reserved.</p>
+            <div class="flex items-center gap-2.5">
+              <span>Designed and Developed by <span class="text-slate-200 font-medium">IT Cell, JKSPDCL</span></span>
+              <span class="text-slate-600">|</span>
+              <span>Government of Jammu &amp; Kashmir</span>
+            </div>
           </div>
         </div>
 
@@ -944,18 +1139,83 @@ if (tickerItems.length === 0) {
     <!-- Active Nav Indicator (GIGW 3.0 Requirement) -->
     <script is:inline>
       (function() {
-        var path = window.location.pathname;
-        var navLinks = document.querySelectorAll('nav a[href]');
-        navLinks.forEach(function(link) {
-          var href = link.getAttribute('href');
-          if (!href || href === '#') return;
-          var isActive = (href === '/' && path === '/') || (href !== '/' && path.startsWith(href));
-          if (isActive) {
-            link.style.borderBottomColor = '#D8681B';
-            link.style.borderBottomWidth = '3px';
-            link.style.borderBottomStyle = 'solid';
+        function updateActiveNav() {
+          var path = window.location.pathname.replace(/\/$/, '') || '/';
+
+          // Reset all inline borders
+          document.querySelectorAll('nav .nav-link, nav .nav-dropdown-btn').forEach(function(el) {
+            el.style.borderBottomColor = '';
+            el.style.borderBottomWidth = '';
+            el.style.borderBottomStyle = '';
+          });
+
+          // Match section rules
+          var activeSection = '';
+          if (path === '/') {
+            activeSection = 'home';
+          } else if (path.includes('/rti')) {
+            activeSection = 'rti';
+          } else if (path.includes('/contact') || path === '/feedback') {
+            activeSection = 'contact';
+          } else if (path.startsWith('/about-us') || path.startsWith('/sustainability/csr')) {
+            activeSection = 'about';
+          } else if (path.startsWith('/our-business') || path.startsWith('/power-trading')) {
+            activeSection = 'projects';
+          } else if (path.startsWith('/stakeholders/vendors') || path.startsWith('/tenders')) {
+            activeSection = 'tenders';
+          } else if (path.startsWith('/notifications')) {
+            activeSection = 'notifications';
+          } else if (path.startsWith('/stakeholders/investors')) {
+            activeSection = 'investors';
+          } else if (path.startsWith('/media/gallery')) {
+            activeSection = 'gallery';
+          } else if (path.startsWith('/media/downloads')) {
+            activeSection = 'downloads';
+          } else if (path.startsWith('/employees')) {
+            activeSection = 'employees';
           }
-        });
+
+          var items = [
+            { key: 'home', selector: 'nav a[href="/"]' },
+            { key: 'about', selector: 'nav li:nth-child(2) > .nav-dropdown-btn' },
+            { key: 'projects', selector: 'nav li:nth-child(3) > .nav-dropdown-btn' },
+            { key: 'tenders', selector: 'nav li:nth-child(4) > .nav-dropdown-btn' },
+            { key: 'notifications', selector: 'nav a[href="/notifications"]' },
+            { key: 'investors', selector: 'nav li:nth-child(6) > .nav-dropdown-btn' },
+            { key: 'rti', selector: 'nav li:nth-child(7) > .nav-dropdown-btn' },
+            { key: 'gallery', selector: 'nav a[href="/media/gallery"]' },
+            { key: 'downloads', selector: 'nav a[href="/media/downloads"]' },
+            { key: 'employees', selector: 'nav li:nth-child(10) > .nav-dropdown-btn' },
+            { key: 'contact', selector: 'nav li:nth-child(11) > .nav-dropdown-btn' }
+          ];
+
+          items.forEach(function(item) {
+            var el = document.querySelector(item.selector);
+            if (!el) return;
+            if (item.key === activeSection) {
+              el.classList.add('nav-item-active');
+              el.style.borderBottomColor = '#D8681B';
+              el.style.borderBottomWidth = '3px';
+              el.style.borderBottomStyle = 'solid';
+            } else {
+              el.classList.remove('nav-item-active');
+              el.style.borderBottomColor = 'transparent';
+            }
+          });
+
+          // Highlight matching sublink in dropdowns
+          document.querySelectorAll('nav .nav-dropdown-menu a[href]').forEach(function(sublink) {
+            var href = (sublink.getAttribute('href') || '').replace(/\/$/, '');
+            if (href && (path === href || path.startsWith(href + '/') || path.startsWith(href + '?'))) {
+              sublink.classList.add('nav-sublink-active');
+            } else {
+              sublink.classList.remove('nav-sublink-active');
+            }
+          });
+        }
+
+        updateActiveNav();
+        window.addEventListener('popstate', updateActiveNav);
       })();
     </script>
 
@@ -966,6 +1226,18 @@ if (tickerItems.length === 0) {
         var searchInput = document.getElementById('header-search');
         var suggestionsBox = document.getElementById('header-search-suggestions');
         var searchIndex = [];
+        var loadPromise = null;
+
+        function closeLangDropdown() {
+          var langMenu = document.getElementById('lang-dropdown-menu');
+          var langArrow = document.getElementById('lang-arrow');
+          var langBtn = document.getElementById('lang-dropdown-btn');
+          if (langMenu && !langMenu.classList.contains('hidden')) {
+            langMenu.classList.add('hidden');
+            if (langBtn) langBtn.setAttribute('aria-expanded', 'false');
+            if (langArrow) langArrow.classList.remove('rotate-180');
+          }
+        }
 
         async function loadIndex() {
           try {
@@ -973,6 +1245,10 @@ if (tickerItems.length === 0) {
             if (sitemapRes.ok) {
               searchIndex = await sitemapRes.json();
             }
+          } catch(err) {
+            console.error('Failed to load sitemap search index:', err);
+          }
+          try {
             var projectsRes = await fetch('http://localhost:3000/api/projects');
             if (projectsRes.ok) {
               var projects = await projectsRes.json();
@@ -984,8 +1260,36 @@ if (tickerItems.length === 0) {
                 });
               });
             }
-          } catch(err) {
-            console.error('Failed to load sitemap search index:', err);
+          } catch(e) {
+            // Ignore optional project lookup error
+          }
+        }
+
+        function renderSuggestions(query) {
+          if (!query) {
+            suggestionsBox.innerHTML = '';
+            suggestionsBox.classList.add('hidden');
+            return;
+          }
+
+          var matches = searchIndex.filter(function(item) {
+            return (item.title && item.title.toLowerCase().indexOf(query) !== -1) ||
+                   (item.description && item.description.toLowerCase().indexOf(query) !== -1);
+          }).slice(0, 8);
+
+          if (matches.length > 0) {
+            suggestionsBox.innerHTML = matches.map(function(item) {
+              var titleRegex = new RegExp('(' + query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + ')', 'gi');
+              var highlightedTitle = (item.title || '').replace(titleRegex, '<mark style="background-color: #fef08a; color: #1e293b; font-weight: 700; padding: 0px 2px; border-radius: 2px;">$1</mark>');
+              return '<button type="button" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 transition-colors block cursor-pointer border-b border-slate-50 last:border-0" data-url="' + item.url + '" style="font-size: 11px; outline: none; border-bottom: 1px solid #f1f5f9; display: block; background: transparent; border-left: 0; border-right: 0; border-top: 0; font-family: inherit; margin: 0; padding: 6px 12px; width: 100%; text-align: left;">' +
+                     '<span style="color: #0B4F9C; font-weight: 700; display: block;">' + highlightedTitle + '</span>' +
+                     '<span style="font-size: 9.5px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; margin-top: 2px;">' + (item.description || '') + '</span>' +
+                     '</button>';
+            }).join('');
+            suggestionsBox.classList.remove('hidden');
+          } else {
+            suggestionsBox.innerHTML = '';
+            suggestionsBox.classList.add('hidden');
           }
         }
 
@@ -997,32 +1301,31 @@ if (tickerItems.length === 0) {
             return;
           }
 
-          var matches = searchIndex.filter(function(item) {
-            return item.title.toLowerCase().indexOf(query) !== -1 ||
-                   item.description.toLowerCase().indexOf(query) !== -1;
-          }).slice(0, 8);
-
-          if (matches.length > 0) {
-            suggestionsBox.innerHTML = matches.map(function(item) {
-              var titleRegex = new RegExp('(' + query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + ')', 'gi');
-              var highlightedTitle = item.title.replace(titleRegex, '<mark style="background-color: #fef08a; color: #1e293b; font-weight: 700; padding: 0px 2px; border-radius: 2px;">$1</mark>');
-              return '<button type="button" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 transition-colors block cursor-pointer border-b border-slate-50 last:border-0" data-url="' + item.url + '" style="font-size: 11px; outline: none; border-bottom: 1px solid #f1f5f9; display: block; background: transparent; border-left: 0; border-right: 0; border-top: 0; font-family: inherit; margin: 0; padding: 6px 12px; width: 100%;">' +
-                     '<span style="color: #0B4F9C; font-weight: 700; display: block;">' + highlightedTitle + '</span>' +
-                     '<span style="font-size: 9px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; margin-top: 2px;">' + item.description + '</span>' +
-                     '</button>';
-            }).join('');
-            suggestionsBox.classList.remove('hidden');
+          if (searchIndex.length === 0) {
+            if (!loadPromise) loadPromise = loadIndex();
+            loadPromise.then(function() {
+              renderSuggestions(query);
+            });
           } else {
-            suggestionsBox.innerHTML = '';
-            suggestionsBox.classList.add('hidden');
+            renderSuggestions(query);
           }
         }
 
         if (searchInput && searchForm && suggestionsBox) {
+          // Preload index immediately
+          loadPromise = loadIndex();
+
           searchInput.addEventListener('focus', function() {
-            if (searchIndex.length === 0) loadIndex();
+            closeLangDropdown();
+            if (searchInput.value.trim()) {
+              handleInput();
+            }
           });
-          searchInput.addEventListener('input', handleInput);
+
+          searchInput.addEventListener('input', function() {
+            closeLangDropdown();
+            handleInput();
+          });
 
           suggestionsBox.addEventListener('click', function(e) {
             var btn = e.target.closest('button');
@@ -1037,6 +1340,12 @@ if (tickerItems.length === 0) {
             }
           });
 
+          document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+              suggestionsBox.classList.add('hidden');
+            }
+          });
+
           searchForm.addEventListener('submit', function(e) {
             e.preventDefault();
             var query = searchInput.value.trim();
@@ -1046,7 +1355,7 @@ if (tickerItems.length === 0) {
             var bestMatch = null;
             
             for (var i = 0; i < searchIndex.length; i++) {
-              if (searchIndex[i].title.toLowerCase() === lowerQuery) {
+              if (searchIndex[i].title && searchIndex[i].title.toLowerCase() === lowerQuery) {
                 bestMatch = searchIndex[i];
                 break;
               }
@@ -1054,7 +1363,7 @@ if (tickerItems.length === 0) {
             
             if (!bestMatch) {
               for (var i = 0; i < searchIndex.length; i++) {
-                if (searchIndex[i].title.toLowerCase().indexOf(lowerQuery) !== -1) {
+                if (searchIndex[i].title && searchIndex[i].title.toLowerCase().indexOf(lowerQuery) !== -1) {
                   bestMatch = searchIndex[i];
                   break;
                 }

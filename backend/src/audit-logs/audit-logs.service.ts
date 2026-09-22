@@ -13,7 +13,7 @@ export class AuditLogsService {
           action,
           ipAddress,
           userAgent,
-          details: details ? JSON.parse(JSON.stringify(details)) : null,
+          details: details ? (typeof details === 'string' ? details : JSON.stringify(details)) : null,
         },
       });
     } catch (e) {

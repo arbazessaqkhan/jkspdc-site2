@@ -48,8 +48,6 @@ try {
   const tenderRes = await fetch('http://127.0.0.1:3000/api/tenders');
   if (tenderRes.ok) {
     tenders = await tenderRes.json();
-    tenders.sort((a: any, b: any) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
-    tenders = tenders.slice(0, 5);
   }
 
   // Fetch projects
@@ -63,8 +61,6 @@ try {
   const notifRes = await fetch('http://127.0.0.1:3000/api/public/notifications');
   if (notifRes.ok) {
     notifications = await notifRes.json();
-    notifications.sort((a: any, b: any) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
-    notifications = notifications.slice(0, 5);
   }
 
   // Fetch gallery items
@@ -215,10 +211,18 @@ const heroSlides = displaySlides.map((p, index) => {
   const slug = p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   let img = '/slider1.jpg';
   
-  if (slug === 'ganderbal' || slug === 'ushp-i' || slug === 'sewa-iii') {
+  if (p.documentUrl && p.documentUrl.trim() !== '') {
+    if (p.documentUrl.startsWith('/uploads/')) {
+      img = `http://localhost:3000${p.documentUrl}`;
+    } else {
+      img = p.documentUrl;
+    }
+  } else if (slug === 'ganderbal' || slug === 'ushp-i' || slug === 'sewa-iii') {
     img = `/projects/${slug}.png`;
-  } else {
+  } else if (['bhaderwah', 'bhep-i', 'bhep-ii', 'chep-i', 'chep-ii', 'chep-iii', 'karnah', 'ljhp', 'mhep-pahalgam', 'ushp-ii'].includes(slug)) {
     img = `/projects/${slug}.jpg`;
+  } else {
+    img = '/slider1.jpg';
   }
 
   return {
@@ -261,54 +265,126 @@ const corpStats = [
 
 const fallbackNotifications = [
   {
+    id: "notif-seed-1",
+    title: "Extension Notice-I: Corrigendum & Bid Submission Extension for eNIT 03 of 2026-27",
+    publishDate: "2026-07-26",
+    documentUrl: "/notifications",
+    isNew: true
+  },
+  {
+    id: "notif-seed-2",
+    title: "Circular: Adoption and Deployment of EETMS Portal across Generating Stations",
+    publishDate: "2026-07-24",
+    documentUrl: "/notifications",
+    isNew: true
+  },
+  {
+    id: "notif-seed-3",
+    title: "Advisory: Compliance with MeitY Cyber Security & Information Security Guidelines",
+    publishDate: "2026-07-22",
+    documentUrl: "/notifications",
+    isNew: true
+  },
+  {
+    id: "notif-seed-4",
     title: "Cancellation notice of NIT no. 03 of 2026 dated 20.05.2026 and 05 of 2026 dated 16.06.2026",
     publishDate: "2026-07-01",
     documentUrl: "/notifications"
   },
   {
+    id: "notif-seed-5",
     title: "NOTICE FOR PUBLIC HEARING - Proposed 20MW Solar Power Installation in Samba district",
     publishDate: "2026-06-29",
     documentUrl: "/notifications"
   },
   {
+    id: "notif-seed-6",
     title: "Corrigendum-II: Extension of Bid Submission Date for Design, Engineering & Commissioning of Pahalgam HEP",
     publishDate: "2026-06-25",
     documentUrl: "/notifications"
   },
   {
+    id: "notif-seed-7",
     title: "Appointment of Senior Consultants for Environmental Impact Assessment of upcoming Hydro Projects",
     publishDate: "2026-06-20",
     documentUrl: "/notifications"
   },
   {
+    id: "notif-seed-8",
     title: "Public Notice: Schedule of Board of Directors Meeting on Corporate Capital Restructuring",
     publishDate: "2026-06-15",
+    documentUrl: "/notifications"
+  },
+  {
+    id: "notif-seed-9",
+    title: "Office Memorandum: Revised Guidelines for Procurement of Spares & Generation Consumables",
+    publishDate: "2026-06-08",
+    documentUrl: "/notifications"
+  },
+  {
+    id: "notif-seed-10",
+    title: "Statutory Annual Compliance Filing under Right to Information Act Section 4(1)(b)",
+    publishDate: "2026-06-01",
     documentUrl: "/notifications"
   }
 ];
 
 const fallbackTenders = [
   {
+    id: "tender-seed-3",
+    referenceNo: "JKSPDCL/eNIT/2026/IT/09",
+    title: "Development of SCADA Integration & Real-time Telemetry Data Portal",
+    description: "IT and telemetry integration across operational hydroelectric power houses in J&K.",
+    publishDate: "2026-07-25",
+    closingDate: "2026-09-01",
+    documentUrl: "/stakeholders/vendors/tender-bids",
+    status: "Active",
+    isNew: true
+  },
+  {
+    id: "tender-seed-2",
+    referenceNo: "JKSPDCL/eNIT/2026/EM/04",
+    title: "Supply and Installation of 132kV Switchyard Equipment at USHP II Kangan",
+    description: "Electro-mechanical retrofitting and circuit breaker replacement for Upper Sindh Hydel Project Stage II.",
+    publishDate: "2026-07-20",
+    closingDate: "2026-09-15",
+    documentUrl: "/stakeholders/vendors/tender-bids",
+    status: "Active",
+    isNew: true
+  },
+  {
+    id: "tender-seed-1",
+    referenceNo: "JKSPDCL/eNIT/2026/CIVIL/02",
+    title: "Construction & Slope Stabilization Works for Kirthai HEP Stage-1 Access Road",
+    description: "Civil infrastructure and hill slope stabilization along river Chenab gorge.",
+    publishDate: "2026-07-15",
+    closingDate: "2026-08-30",
+    documentUrl: "/stakeholders/vendors/tender-bids",
+    status: "Active",
+    isNew: true
+  },
+  {
+    id: "tender-seed-4",
     referenceNo: "TEST-NIT-100",
     title: "eNIT No 03 GD BHEP I 2026 27",
     description: "Power House Chanderkote Ramban JandK",
     publishDate: "2026-07-13",
     closingDate: "2026-08-13",
     documentUrl: "/stakeholders/vendors/tender-bids",
-    status: "Active",
-    isNew: true
+    status: "Active"
   },
   {
+    id: "tender-seed-5",
     referenceNo: "NIT/JKSPDCL/LJHP-202",
     title: "Annual Maintenance Contract of Electro-Mechanical Assets of Lower Jhelum Hydel Project",
     description: "LJHP Power House Gantamulla Baramulla",
     publishDate: "2026-07-12",
     closingDate: "2026-08-10",
     documentUrl: "/stakeholders/vendors/tender-bids",
-    status: "Active",
-    isNew: true
+    status: "Active"
   },
   {
+    id: "tender-seed-6",
     referenceNo: "JKSPDCL/SLD-05",
     title: "Supply, Installation and Commissioning of Grid-Connected Rooftop Solar Power Plants",
     description: "Various corporate locations in Jammu and Srinagar",
@@ -318,11 +394,42 @@ const fallbackTenders = [
     status: "Active"
   },
   {
+    id: "tender-seed-7",
     referenceNo: "NIT/CIVIL/BHEP-45",
     title: "Restoration of River Banks and Slope Stabilization near Baglihar Intake Structure",
     description: "Baglihar Dam Site Ramban",
     publishDate: "2026-07-05",
     closingDate: "2026-07-28",
+    documentUrl: "/stakeholders/vendors/tender-bids",
+    status: "Active"
+  },
+  {
+    id: "tender-seed-8",
+    referenceNo: "JKSPDCL/PROC/GAND-12",
+    title: "Procurement of Turbine Runner Blades & Spare Components for Ganderbal Hydel Station",
+    description: "Essential mechanical replacement components for 15 MW Ganderbal plant.",
+    publishDate: "2026-06-28",
+    closingDate: "2026-07-25",
+    documentUrl: "/stakeholders/vendors/tender-bids",
+    status: "Active"
+  },
+  {
+    id: "tender-seed-9",
+    referenceNo: "JKSPDCL/TL/PAH-07",
+    title: "Design, Supply and Erection of 33kV Evacuation Transmission Line for Pahalgam HEP",
+    description: "Power evacuation line construction in Anantnag district.",
+    publishDate: "2026-06-22",
+    closingDate: "2026-07-20",
+    documentUrl: "/stakeholders/vendors/tender-bids",
+    status: "Active"
+  },
+  {
+    id: "tender-seed-10",
+    referenceNo: "JKSPDCL/SURVEY/CHEN-14",
+    title: "Comprehensive Hydrological Survey & Sedimentation Profiling for Chenab River Basin",
+    description: "River discharge measurement and silt profiling across Chenab cascade.",
+    publishDate: "2026-06-15",
+    closingDate: "2026-07-15",
     documentUrl: "/stakeholders/vendors/tender-bids",
     status: "Active"
   }
@@ -359,44 +466,76 @@ const getDocUrl = (url?: string) => {
 const mergedTenderItems: any[] = [];
 if (tenders.length > 0) {
   tenders.forEach((t: any) => {
+    // 1. Add the tender itself (strictly original publishDate/createdAt, NEVER updatedAt so updating an existing tender does not bump it)
     mergedTenderItems.push({
       id: t.id,
       title: t.title,
       referenceNo: t.referenceNo,
-      publishDate: t.publishDate,
+      publishDate: t.publishDate || t.createdAt,
+      closingDate: t.closingDate,
       documentUrl: t.documentUrl,
       isCorrigendum: false,
     });
 
-    const corrs = t.corrigendums && Array.isArray(t.corrigendums) ? t.corrigendums : [];
-    corrs.forEach((c: any) => {
+    // 2. Unpack any attached corrigendums (handles JSON string or Array from database)
+    let corrs: any[] = [];
+    if (t.corrigendums) {
+      if (Array.isArray(t.corrigendums)) {
+        corrs = t.corrigendums;
+      } else if (typeof t.corrigendums === 'string') {
+        try {
+          corrs = JSON.parse(t.corrigendums);
+        } catch (e) {
+          corrs = [];
+        }
+      }
+    }
+
+    corrs.forEach((c: any, cIdx: number) => {
+      // Newly uploaded corrigendums have their own recent publishDate/createdAt
+      // Updated corrigendums preserve their initial publishDate/createdAt
       mergedTenderItems.push({
-        id: c.id || t.id,
+        id: c.id || `${t.id}-corr-${cIdx}`,
         parentTenderId: t.id,
         title: c.title,
         parentTitle: t.title,
         referenceNo: t.referenceNo,
-        publishDate: c.publishDate || t.publishDate,
+        publishDate: c.publishDate || c.createdAt || t.publishDate,
+        closingDate: c.extendedClosingDate || t.closingDate,
         documentUrl: c.documentUrl || t.documentUrl,
         isCorrigendum: true,
       });
     });
   });
-  mergedTenderItems.sort((a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
 }
 
-const displayNotifications = notifications.length > 0 ? notifications : fallbackNotifications;
+// Use actual active database tenders/corrigendums, or clean fallback if empty
 const displayTenders = mergedTenderItems.length > 0 ? mergedTenderItems : fallbackTenders;
+displayTenders.sort((a, b) => new Date(b.publishDate || 0).getTime() - new Date(a.publishDate || 0).getTime());
+// Recent 10 tenders and attached corrigendums
+const feedTenders = displayTenders.slice(0, 10).map((item: any, rankIdx: number) => ({
+  ...item,
+  isNew: rankIdx === 0,
+}));
+
+// Use actual active database notifications, or clean fallback if empty
+const displayNotifs = notifications.length > 0 ? notifications : fallbackNotifications;
+displayNotifs.sort((a, b) => new Date(b.publishDate || 0).getTime() - new Date(a.publishDate || 0).getTime());
+// Recent 10 notifications
+const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: number) => ({
+  ...item,
+  isNew: rankIdx === 0,
+}));
 ---
 
 <Layout title="Home | JKSPDC Official Portal" description="Official enterprise portal of Jammu and Kashmir State Power Development Corporation Ltd. Powering the future of J&K through clean, sustainable, and reliable energy generation." isHome={true}>
 
   <!-- HERO SLIDER -->
-  <section id="home" class="relative w-full overflow-hidden bg-[#084A8F]" style="min-height: 500px; height: 520px; max-height: 540px;">
+  <section id="home" class="relative w-full overflow-hidden bg-slate-900" style="min-height: 500px; height: 520px; max-height: 540px;">
     <div id="hero-slides" class="absolute inset-0">
       {heroSlides.map((slide, i) => (
-        <div id={`slide-${slide.id}`} class={`absolute inset-0 transition-opacity duration-700 ${i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
-          <img src={slide.img} alt={slide.title} class="absolute inset-0 w-full h-full object-cover" />
+        <div id={`slide-${slide.id}`} class={`absolute inset-0 transition-opacity duration-500 ${i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}>
+          <img src={slide.img} alt={slide.title} class="absolute inset-0 w-full h-full object-cover" fetchpriority={i === 0 ? 'high' : 'auto'} loading={i === 0 || i === 1 || i === heroSlides.length - 1 ? 'eager' : 'lazy'} onerror="this.onerror=null; this.src='/slider1.jpg';" />
           <div class="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-transparent z-10"></div>
           <div class="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent z-10"></div>
 
@@ -558,52 +697,54 @@ const displayTenders = mergedTenderItems.length > 0 ? mergedTenderItems : fallba
 
         <!-- Tenders Card Container -->
         <div class="bg-white border border-slate-200 rounded-xl overflow-hidden flex flex-col justify-between flex-grow h-[320px] shadow-xs">
-          <div class="relative flex-grow overflow-hidden px-4 py-3">
+          <div class="relative flex-grow overflow-hidden">
             <div class="absolute left-0 right-0 top-0 h-4 bg-gradient-to-b from-[#ffffff] to-transparent z-10 pointer-events-none"></div>
             <div class="absolute left-0 right-0 bottom-0 h-4 bg-gradient-to-t from-[#ffffff] to-transparent z-10 pointer-events-none"></div>
 
-            <div class="scroll-track animate-marquee-vertical flex flex-col gap-2.5" style={`--marquee-duration: ${displayTenders.length * 8}s`}>
-              {displayTenders.map((tender: any) => {
-                const isCorr = tender.isCorrigendum;
-                const tenderDetailsUrl = `/stakeholders/vendors/tender-details?id=${tender.parentTenderId || tender.id}`;
-                return (
-                  <a href={tenderDetailsUrl} class="block p-3 bg-slate-50/50 border border-slate-200/70 hover:border-slate-300 hover:bg-slate-100/60 rounded-lg shadow-xs text-left transition-all duration-150">
-                    <div class="text-[10px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1.5 flex-wrap">
-                      <span>📅</span>
-                      <span>{formatRefDate(tender.publishDate)}</span>
-                      {isCorr && (
-                        <span class="px-1.5 py-0.2 rounded bg-amber-100 text-amber-900 font-extrabold uppercase text-[9px] border border-amber-300">
-                          Corrigendum
-                        </span>
-                      )}
-                    </div>
-                    <h4 class="font-bold text-slate-800 text-xs leading-snug line-clamp-2">
-                      {isCorr ? `Corrigendum: ${tender.title} — ${tender.parentTitle || ''}` : tender.title}
-                    </h4>
-                  </a>
-                );
-              })}
-              {/* Duplicate for marquee */}
-              {displayTenders.map((tender: any) => {
-                const isCorr = tender.isCorrigendum;
-                const tenderDetailsUrl = `/stakeholders/vendors/tender-details?id=${tender.parentTenderId || tender.id}`;
-                return (
-                  <a href={tenderDetailsUrl} tabindex="-1" aria-hidden="true" class="block p-3 bg-slate-50/50 border border-slate-200/70 hover:border-slate-300 hover:bg-slate-100/60 rounded-lg shadow-xs text-left transition-all duration-150">
-                    <div class="text-[10px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1.5 flex-wrap">
-                      <span>📅</span>
-                      <span>{formatRefDate(tender.publishDate)}</span>
-                      {isCorr && (
-                        <span class="px-1.5 py-0.2 rounded bg-amber-100 text-amber-900 font-extrabold uppercase text-[9px] border border-amber-300">
-                          Corrigendum
-                        </span>
-                      )}
-                    </div>
-                    <h4 class="font-bold text-slate-800 text-xs leading-snug line-clamp-2">
-                      {isCorr ? `Corrigendum: ${tender.title} — ${tender.parentTitle || ''}` : tender.title}
-                    </h4>
-                  </a>
-                );
-              })}
+            <div id="home-tenders-track" class="feed-scroll-track flex flex-col">
+              {[1, 2].map(() => (
+                <>
+                  {feedTenders.map((tender: any, index: number) => {
+                    const isCorr = tender.isCorrigendum;
+                    const isNew = tender.isNew;
+                    const tenderDetailsUrl = `/stakeholders/vendors/tender-details?id=${tender.parentTenderId || tender.id}${isCorr && tender.id ? `#corrigendum-${tender.id}` : ''}`;
+                    return (
+                      <a 
+                        href={tenderDetailsUrl} 
+                        onclick="this.blur()"
+                        class="feed-row block px-4 py-2.5 border-b border-slate-200 transition-colors duration-150 text-left select-none group"
+                        style={index % 2 === 0 ? 'background-color: #FFFFFF;' : 'background-color: #F8FAFC;'}
+                      >
+                        <div class="flex items-center gap-2 mb-1 flex-wrap">
+                          <span class="text-[10px] text-[#0C58B6] font-bold flex items-center gap-1">
+                            <span>📅</span>
+                            <span>{formatRefDate(tender.publishDate)}</span>
+                          </span>
+                          {isNew && (
+                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wide bg-[#D8681B] text-white shadow-xs">
+                              NEW
+                            </span>
+                          )}
+                          {isCorr && (
+                            <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-extrabold uppercase tracking-wide bg-amber-100 text-amber-900 border border-amber-300">
+                              Corrigendum
+                            </span>
+                          )}
+                          {tender.referenceNo && (
+                            <span class="text-[10px] text-slate-400 font-mono hidden sm:inline">
+                              {tender.referenceNo}
+                            </span>
+                          )}
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-xs leading-snug line-clamp-2 group-hover:text-[#0B4F9C] transition-colors">
+                          {isCorr ? (tender.title && tender.title.toLowerCase().startsWith('corrigendum') ? `${tender.title}${tender.parentTitle ? ` — ${tender.parentTitle}` : ''}` : `Corrigendum: ${tender.title}${tender.parentTitle ? ` — ${tender.parentTitle}` : ''}`) : tender.title}
+                        </h4>
+                      </a>
+                    );
+                  })}
+                  <div class="h-[280px] flex-shrink-0" aria-hidden="true"></div>
+                </>
+              ))}
             </div>
           </div>
           <div class="bg-slate-100/70 border-t border-slate-200/50 py-2.5 text-center text-xs font-bold flex-shrink-0">
@@ -623,40 +764,45 @@ const displayTenders = mergedTenderItems.length > 0 ? mergedTenderItems : fallba
 
         <!-- Notices Card Container -->
         <div class="bg-white border border-slate-200 rounded-xl overflow-hidden flex flex-col justify-between flex-grow h-[320px] shadow-xs">
-          <div class="relative flex-grow overflow-hidden px-4 py-3">
+          <div class="relative flex-grow overflow-hidden">
             <div class="absolute left-0 right-0 top-0 h-4 bg-gradient-to-b from-[#ffffff] to-transparent z-10 pointer-events-none"></div>
             <div class="absolute left-0 right-0 bottom-0 h-4 bg-gradient-to-t from-[#ffffff] to-transparent z-10 pointer-events-none"></div>
 
-            <div class="scroll-track animate-marquee-vertical flex flex-col gap-2.5" style={`--marquee-duration: ${displayNotifications.length * 7}s`}>
-              {displayNotifications.map((notif: any) => {
-                const docUrl = getDocUrl(notif.documentUrl) || `/notifications`;
-                return (
-                  <a href={docUrl} target="_blank" rel="noopener noreferrer" class="block p-3 bg-slate-50/50 border border-slate-200/70 hover:border-slate-300 hover:bg-slate-100/60 rounded-lg shadow-xs text-left transition-all duration-150">
-                    <div class="text-[10px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
-                      <span>📅</span>
-                      <span>{formatRefDate(notif.publishDate)}</span>
-                    </div>
-                    <h4 class="font-bold text-slate-800 text-xs leading-snug line-clamp-2">
-                      {notif.title}
-                    </h4>
-                  </a>
-                );
-              })}
-              {/* Duplicate for marquee */}
-              {displayNotifications.map((notif: any) => {
-                const docUrl = getDocUrl(notif.documentUrl) || `/notifications`;
-                return (
-                  <a href={docUrl} target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true" class="block p-3 bg-slate-50/50 border border-slate-200/70 hover:border-slate-300 hover:bg-slate-100/60 rounded-lg shadow-xs text-left transition-all duration-150">
-                    <div class="text-[10px] text-[#0C58B6] font-bold mb-1 flex items-center gap-1">
-                      <span>📅</span>
-                      <span>{formatRefDate(notif.publishDate)}</span>
-                    </div>
-                    <h4 class="font-bold text-slate-800 text-xs leading-snug line-clamp-2">
-                      {notif.title}
-                    </h4>
-                  </a>
-                );
-              })}
+            <div id="home-notifications-track" class="feed-scroll-track flex flex-col">
+              {[1, 2].map(() => (
+                <>
+                  {feedNotifications.map((notif: any, index: number) => {
+                    const isNew = notif.isNew;
+                    const docUrl = getDocUrl(notif.documentUrl) || `/notifications`;
+                    return (
+                      <a 
+                        href={docUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        onclick="this.blur()"
+                        class="feed-row block px-4 py-2.5 border-b border-slate-200 transition-colors duration-150 text-left select-none group"
+                        style={index % 2 === 0 ? 'background-color: #FFFFFF;' : 'background-color: #F8FAFC;'}
+                      >
+                        <div class="flex items-center gap-2 mb-1 flex-wrap">
+                          <span class="text-[10px] text-[#0C58B6] font-bold flex items-center gap-1">
+                            <span>📅</span>
+                            <span>{formatRefDate(notif.publishDate)}</span>
+                          </span>
+                          {isNew && (
+                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wide bg-[#D8681B] text-white shadow-xs">
+                              NEW
+                            </span>
+                          )}
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-xs leading-snug line-clamp-2 group-hover:text-[#0B4F9C] transition-colors">
+                          {notif.title}
+                        </h4>
+                      </a>
+                    );
+                  })}
+                  <div class="h-[280px] flex-shrink-0" aria-hidden="true"></div>
+                </>
+              ))}
             </div>
           </div>
           <div class="bg-slate-100/70 border-t border-slate-200/50 py-2.5 text-center text-xs font-bold flex-shrink-0">
@@ -837,70 +983,124 @@ const displayTenders = mergedTenderItems.length > 0 ? mergedTenderItems : fallba
         <div class="px-8 md:px-12 pt-8 pb-0">
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-5">
             <p class="text-sm text-slate-500 max-w-xl leading-relaxed">Discover operational hydroelectric plants, ongoing constructions and upcoming renewable projects across J&K.</p>
-            <div class="flex items-center gap-2 flex-shrink-0">
-              <div class="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs text-slate-700 font-semibold shadow-xs">
+            <div class="flex items-center gap-2 flex-wrap flex-shrink-0">
+              <div class="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-700 font-semibold shadow-xs">
                 <span class="w-2 h-2 rounded-full bg-emerald-500"></span> {projects.filter((p: any) => p.status === 'Operational').length} Operational
               </div>
-              <div class="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs text-slate-700 font-semibold shadow-xs">
-                <span class="w-2 h-2 rounded-full bg-[#0B4F9C]"></span> {projects.filter((p: any) => p.status === 'Under Construction').length} Under Construction
+              <div class="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-700 font-semibold shadow-xs">
+                <span class="w-2 h-2 rounded-full bg-amber-500"></span> {projects.filter((p: any) => p.status === 'Under Construction').length} Under Construction
+              </div>
+              <div class="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-700 font-semibold shadow-xs">
+                <span class="w-2 h-2 rounded-full bg-[#0B4F9C]"></span> {projects.filter((p: any) => p.status === 'Upcoming').length} Upcoming
               </div>
             </div>
           </div>
         </div>
 
-      <!-- Filters + Search -->
-      <div class="px-8 md:px-12 pt-6">
-        <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-          <div class="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg p-1 flex-wrap">
-            {['All', 'Operational', 'Under Construction', 'Upcoming'].map((tab) => (
-              <button data-tab={tab} class={`project-tab px-4 py-1.5 rounded-md text-xs font-semibold transition-all ${tab === 'All' ? 'bg-[#0B4F9C] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}>
-                {tab === 'All' ? 'All Projects' : tab}
-              </button>
-            ))}
-          </div>
-          <div class="relative sm:ml-auto">
-            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 flex items-center">
-              <Icon name="search" size={13} strokeWidth={2} />
-            </span>
-            <input id="project-search" type="text" placeholder="Search projects…" class="w-full sm:w-56 pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C]/40 bg-white" />
+        <!-- Filters + Search -->
+        <div class="px-8 md:px-12 pt-6">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div class="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg p-1 flex-wrap" role="tablist" aria-label="Project Categories">
+              {['All', 'Operational', 'Under Construction', 'Upcoming'].map((tab) => (
+                <button 
+                  type="button" 
+                  role="tab" 
+                  aria-selected={tab === 'All' ? 'true' : 'false'} 
+                  data-tab={tab} 
+                  class={`project-tab px-4 py-1.5 rounded-md text-xs font-semibold transition-all ${tab === 'All' ? 'bg-[#0B4F9C] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}
+                >
+                  {tab === 'All' ? 'All Projects' : tab}
+                </button>
+              ))}
+            </div>
+            <div class="relative sm:ml-auto">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 flex items-center pointer-events-none">
+                <Icon name="search" size={13} strokeWidth={2} />
+              </span>
+              <input 
+                id="project-search" 
+                type="text" 
+                placeholder="Search projects…" 
+                class="w-full sm:w-56 pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C]/40 bg-white" 
+                aria-label="Search projects by name, river basin, or location"
+              />
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Project Cards Grid -->
-      <div class="px-8 md:px-12 pt-6 pb-3">
-        <div id="projects-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {projects.map((p) => (
-            <a href={`/our-business/power-station-details?id=${p.id}`} class="project-card block bg-white rounded-xl border border-slate-200 p-5 hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C] group" data-status={p.status} data-type={p.type} data-name={p.name.toLowerCase()}>
-              <div class="flex items-start justify-between mb-4">
-                <div class="flex-1 min-w-0 pr-3">
-                  <div class="font-bold text-slate-900 text-sm leading-snug group-hover:text-[#0B4F9C] transition-colors">{formatProjectName(p.name)}</div>
-                  {(p.location || p.basin) && (
-                    <div class="text-xs text-slate-400 mt-1">{p.location}{p.location && p.basin ? ' — ' : ''}{p.basin ? `${p.basin} Basin` : ''}</div>
+        <!-- Project Cards Grid -->
+        <div class="px-8 md:px-12 pt-6 pb-3">
+          <div id="projects-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {projects.map((p) => (
+              <a 
+                href={`/our-business/power-station-details?id=${p.id}`} 
+                class="project-card block bg-white rounded-xl border border-slate-200 p-5 hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C] group" 
+                data-status={p.status} 
+                data-type={p.type} 
+                data-name={p.name.toLowerCase()} 
+                data-search={`${p.name} ${formatProjectName(p.name)} ${p.location || ''} ${p.basin || ''} ${p.type || ''} ${p.status}`.toLowerCase()}
+              >
+                <div class="flex items-start justify-between gap-2 mb-3">
+                  <div class="flex-1 min-w-0 pr-1">
+                    <div class="font-bold text-slate-900 text-sm leading-snug group-hover:text-[#0B4F9C] transition-colors">{formatProjectName(p.name)}</div>
+                    {(p.location || p.basin) && (
+                      <div class="text-xs text-slate-400 mt-1">{p.location}{p.location && p.basin ? ' • ' : ''}{p.basin ? (p.basin.toLowerCase().includes('basin') ? p.basin : `${p.basin} Basin`) : ''}</div>
+                    )}
+                  </div>
+                  <span class={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full whitespace-nowrap flex-shrink-0 ${p.status === 'Operational' ? 'bg-emerald-100 text-emerald-800' : p.status === 'Under Construction' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'}`}>{p.status}</span>
+                </div>
+
+                <div class="flex items-baseline justify-between mb-3.5 pt-1 border-t border-slate-100">
+                  <div class="flex items-baseline gap-1.5">
+                    <span class="text-3xl font-extrabold text-[#0B4F9C] leading-none tabular-nums">{p.capacityMw || 0}</span>
+                    <span class="text-xs text-[#0B4F9C] font-bold">MW</span>
+                  </div>
+                  {p.configuration && (
+                    <span class="text-[11px] text-slate-500 font-medium">{p.configuration}</span>
                   )}
                 </div>
-                <span class={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-full whitespace-nowrap flex-shrink-0 ${p.status === 'Operational' ? 'bg-emerald-100 text-emerald-700' : p.status === 'Under Construction' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600'}`}>{p.status}</span>
-              </div>
-              <div class="flex items-end gap-1.5 mb-4">
-                <span class="text-3xl font-extrabold text-[#0B4F9C] leading-none tabular-nums">{p.capacityMw || 0}</span>
-                <span class="text-sm text-[#0B4F9C] font-semibold mb-0.5">MW</span>
-              </div>
-              <div class="flex items-center justify-between text-xs text-slate-500">
-                <span class={`font-medium flex items-center gap-1 ${p.type === 'Solar' ? 'text-orange-600' : 'text-blue-600'}`}>
-                  <Icon name={p.type === 'Solar' ? 'sun' : 'droplets'} size={12} strokeWidth={2} />
-                  {p.type}
-                </span>
-                <span class="text-slate-400">Est. {p.yearOfCommissioning || '—'}</span>
-                <span class="text-[#0B4F9C] font-semibold group-hover:underline">Details &rarr;</span>
-              </div>
-            </a>
-          ))}
-        </div>
-      </div>
 
-      <!-- View All -->
-      <div class="px-8 md:px-12 pt-8 pb-10 text-center">
-        <a href="/our-business/power-stations" class="inline-flex items-center gap-2 bg-[#1B3A6B] hover:bg-[#0B4F9C] text-white px-8 py-3 rounded-lg text-sm font-semibold transition-colors shadow-md">View All Projects &rarr;</a>
+                <div class="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-100">
+                  <span class={`font-medium flex items-center gap-1 ${p.type === 'Solar' ? 'text-orange-600' : 'text-blue-600'}`}>
+                    <Icon name={p.type === 'Solar' ? 'sun' : 'droplets'} size={12} strokeWidth={2} />
+                    {p.type || 'Hydro'}
+                  </span>
+                  <span class="text-slate-400 text-[11px]">
+                    {p.yearOfCommissioning ? (p.status === 'Operational' ? `COD: ${p.yearOfCommissioning}` : `Est. ${p.yearOfCommissioning}`) : (p.status === 'Upcoming' ? 'Pre-Construction' : '—')}
+                  </span>
+                  <span class="text-[#0B4F9C] font-semibold group-hover:underline text-[11px]">Details &rarr;</span>
+                </div>
+              </a>
+            ))}
+          </div>
+
+          <!-- Compact Empty State for Category with Zero Records -->
+          <div id="project-empty-category" class="hidden py-12 px-6 text-center max-w-lg mx-auto">
+            <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-500 border border-slate-200 flex items-center justify-center mx-auto mb-2.5">
+              <Icon name="building" size={18} />
+            </div>
+            <p class="text-sm font-bold text-slate-700">No projects currently under construction</p>
+            <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+              Hydroelectric projects in survey, detailed project report (DPR) formulation, and statutory clearances are catalogued under Upcoming Projects.
+            </p>
+          </div>
+
+          <!-- Empty State for Search Filter with Zero Matches -->
+          <div id="project-empty-search" class="hidden py-12 px-6 text-center max-w-md mx-auto">
+            <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-400 border border-slate-200 flex items-center justify-center mx-auto mb-2.5">
+              <Icon name="search" size={18} />
+            </div>
+            <p class="text-sm font-bold text-slate-700">No projects found</p>
+            <p class="text-xs text-slate-500 mt-1">Try adjusting your search keywords or switching category tabs.</p>
+          </div>
+        </div>
+
+        <!-- View All Action Footer -->
+        <div class="px-8 md:px-12 pt-6 pb-10 text-center border-t border-slate-100 mt-4">
+          <a id="project-view-all-btn" href="#projects" class="inline-flex items-center gap-2 bg-[#1B3A6B] hover:bg-[#0B4F9C] text-white px-8 py-3 rounded-lg text-sm font-semibold transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C] cursor-pointer">
+            Show All Projects ({projects.length}) &darr;
+          </a>
+        </div>
       </div>
     </section>
 
@@ -944,66 +1144,180 @@ const displayTenders = mergedTenderItems.length > 0 ? mergedTenderItems : fallba
     <!-- ============================================================ -->
     <!-- QUICK LINKS LOGO MARQUEE SECTION                             -->
     <!-- ============================================================ -->
-    <section id="quick-links-marquee" aria-labelledby="marquee-heading" class="text-left mt-8">
+    <section id="quick-links-section" aria-labelledby="marquee-heading" class="text-left mt-10 mb-4">
       <!-- Section Header -->
-      <div class="text-left mb-4 flex-shrink-0">
-        <span class="inline-block text-[10px] uppercase tracking-[0.12em] text-[#1B3A6B] font-bold bg-transparent px-3 py-1 rounded-full border border-[#1B3A6B] mb-2.5">External Portals</span>
-        <h2 id="marquee-heading" class="text-xl md:text-2xl font-extrabold text-[#1B2A41]">Important Quick Links</h2>
-        <div class="w-10 h-0.5 bg-[#D8681B] mt-2.5 rounded-full"></div>
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-4">
+        <div>
+          <span class="inline-block text-[10px] uppercase tracking-[0.12em] text-[#0B4F9C] font-bold bg-[#0B4F9C]/5 px-3 py-1 rounded-full border border-[#0B4F9C]/20 mb-2">Government &amp; Regulatory Portals</span>
+          <h2 id="marquee-heading" class="text-xl md:text-2xl font-extrabold text-[#1B2A41]">Important Quick Links</h2>
+          <div class="w-10 h-0.5 bg-[#D8681B] mt-2 rounded-full"></div>
+        </div>
+        <p class="text-xs text-slate-500 max-w-md">Official portals of key central and state power sector authorities, ministries, and regulatory commissions.</p>
       </div>
 
-      <!-- Scrolling Marquee Row (Directly on section background) -->
-      <div class="relative w-full overflow-hidden py-2">
-        <div class="marquee-track flex">
-          <!-- Slide List (duplicated for infinite loop) -->
-          <div class="marquee-content flex items-center gap-6 pr-6 flex-shrink-0">
-            <a href="https://cea.nic.in/" target="_blank" rel="noopener noreferrer" title="Central Electricity Authority" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all duration-200 w-[160px] h-[80px]">
-              <img src="/logos/cea.webp" alt="Central Electricity Authority" title="Central Electricity Authority" class="max-w-full max-h-full object-contain" />
-            </a>
-            <a href="https://moef.gov.in/" target="_blank" rel="noopener noreferrer" title="Ministry of Environment, Forest and Climate Change" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all duration-200 w-[160px] h-[80px]">
-              <img src="/logos/moef.png" alt="Ministry of Environment, Forest and Climate Change" title="Ministry of Environment, Forest and Climate Change" class="max-w-full max-h-full object-contain" />
-            </a>
-            <a href="https://www.india.gov.in/" target="_blank" rel="noopener noreferrer" title="National Portal of India" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all duration-200 w-[160px] h-[80px]">
-              <img src="/logos/india.svg" alt="National Portal of India" title="National Portal of India" class="max-w-full max-h-full object-contain" />
-            </a>
-            <a href="https://mnre.gov.in/" target="_blank" rel="noopener noreferrer" title="Ministry of New and Renewable Energy" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all duration-200 w-[160px] h-[80px]">
-              <img src="/logos/mnre.svg" alt="Ministry of New and Renewable Energy" title="Ministry of New and Renewable Energy" class="max-w-full max-h-full object-contain" />
-            </a>
-            <a href="https://pdd.jk.gov.in/" target="_blank" rel="noopener noreferrer" title="Power Development Department J&K" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all duration-200 w-[160px] h-[80px]">
-              <img src="/logos/pdd.svg" alt="Power Development Department J&K" title="Power Development Department J&K" class="max-w-full max-h-full object-contain p-0.5" />
-            </a>
-            <a href="https://cwc.gov.in/" target="_blank" rel="noopener noreferrer" title="Central Water Commission" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all duration-200 w-[160px] h-[80px]">
-              <img src="/logos/cwc.png" alt="Central Water Commission" title="Central Water Commission" class="max-w-full max-h-full object-contain" />
-            </a>
-            <a href="https://jercjkl.jk.gov.in/AboutUs.html" target="_blank" rel="noopener noreferrer" title="J&K Joint Electricity Regulatory Commission" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all duration-200 w-[160px] h-[80px]">
-              <img src="/logos/jerc.png" alt="J&K Joint Electricity Regulatory Commission" title="J&K Joint Electricity Regulatory Commission" class="max-w-full max-h-full object-contain" />
-            </a>
+      <!-- Visible Responsive Cards Grid (No Horizontal Overflow or Clipping) -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2.5 sm:gap-3">
+        
+        <!-- 1. Central Electricity Authority -->
+        <a 
+          href="https://cea.nic.in/" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          title="Central Electricity Authority (opens in new tab)"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl p-2.5 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full"
+        >
+          <div class="h-11 w-full flex items-center justify-center mb-1.5">
+            <img src="/logos/cea.webp" alt="Central Electricity Authority Emblem" class="max-h-9 max-w-[85%] object-contain group-hover:scale-105 transition-transform duration-200" />
           </div>
-          <!-- Duplicate for infinite looping -->
-          <div class="marquee-content flex items-center gap-6 pr-6 flex-shrink-0" aria-hidden="true">
-            <a href="https://cea.nic.in/" target="_blank" rel="noopener noreferrer" title="Central Electricity Authority" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all duration-200 w-[160px] h-[80px]">
-              <img src="/logos/cea.webp" alt="Central Electricity Authority" title="Central Electricity Authority" class="max-w-full max-h-full object-contain" />
-            </a>
-            <a href="https://moef.gov.in/" target="_blank" rel="noopener noreferrer" title="Ministry of Environment, Forest and Climate Change" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all duration-200 w-[160px] h-[80px]">
-              <img src="/logos/moef.png" alt="Ministry of Environment, Forest and Climate Change" title="Ministry of Environment, Forest and Climate Change" class="max-w-full max-h-full object-contain" />
-            </a>
-            <a href="https://www.india.gov.in/" target="_blank" rel="noopener noreferrer" title="National Portal of India" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all duration-200 w-[160px] h-[80px]">
-              <img src="/logos/india.svg" alt="National Portal of India" title="National Portal of India" class="max-w-full max-h-full object-contain" />
-            </a>
-            <a href="https://mnre.gov.in/" target="_blank" rel="noopener noreferrer" title="Ministry of New and Renewable Energy" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all duration-200 w-[160px] h-[80px]">
-              <img src="/logos/mnre.svg" alt="Ministry of New and Renewable Energy" title="Ministry of New and Renewable Energy" class="max-w-full max-h-full object-contain" />
-            </a>
-            <a href="https://pdd.jk.gov.in/" target="_blank" rel="noopener noreferrer" title="Power Development Department J&K" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all duration-200 w-[160px] h-[80px]">
-              <img src="/logos/pdd.svg" alt="Power Development Department J&K" title="Power Development Department J&K" class="max-w-full max-h-full object-contain p-0.5" />
-            </a>
-            <a href="https://cwc.gov.in/" target="_blank" rel="noopener noreferrer" title="Central Water Commission" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all duration-200 w-[160px] h-[80px]">
-              <img src="/logos/cwc.png" alt="Central Water Commission" title="Central Water Commission" class="max-w-full max-h-full object-contain" />
-            </a>
-            <a href="https://jercjkl.jk.gov.in/AboutUs.html" target="_blank" rel="noopener noreferrer" title="J&K Joint Electricity Regulatory Commission" class="marquee-item flex-shrink-0 flex items-center justify-center bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:border-slate-300 hover:shadow-sm transition-all duration-200 w-[160px] h-[80px]">
-              <img src="/logos/jerc.png" alt="J&K Joint Electricity Regulatory Commission" title="J&K Joint Electricity Regulatory Commission" class="max-w-full max-h-full object-contain" />
-            </a>
+          <div class="w-full flex-1 flex flex-col justify-between">
+            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[11px] leading-[1.3] transition-colors break-words">
+              Central Electricity Authority
+            </p>
+            <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[10px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
+              <span class="font-medium truncate">cea.nic.in</span>
+              <svg class="w-2.5 h-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+            </div>
           </div>
-        </div>
+          <span class="sr-only">(opens in new tab)</span>
+        </a>
+
+        <!-- 2. Ministry of Environment, Forest and Climate Change -->
+        <a 
+          href="https://moef.gov.in/" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          title="Ministry of Environment, Forest and Climate Change (opens in new tab)"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl p-2.5 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full"
+        >
+          <div class="h-11 w-full flex items-center justify-center mb-1.5">
+            <img src="/logos/moef.png" alt="Ministry of Environment, Forest and Climate Change Emblem" class="max-h-9 max-w-[85%] object-contain group-hover:scale-105 transition-transform duration-200" />
+          </div>
+          <div class="w-full flex-1 flex flex-col justify-between">
+            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[11px] leading-[1.3] transition-colors break-words">
+              Ministry of Environment &amp; Forests
+            </p>
+            <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[10px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
+              <span class="font-medium truncate">moef.gov.in</span>
+              <svg class="w-2.5 h-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+            </div>
+          </div>
+          <span class="sr-only">(opens in new tab)</span>
+        </a>
+
+        <!-- 3. National Portal of India -->
+        <a 
+          href="https://www.india.gov.in/" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          title="National Portal of India (opens in new tab)"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl p-2.5 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full"
+        >
+          <div class="h-11 w-full flex items-center justify-center mb-1.5">
+            <img src="/logos/india.svg" alt="National Portal of India Emblem" class="max-h-8 max-w-[85%] object-contain group-hover:scale-105 transition-transform duration-200" />
+          </div>
+          <div class="w-full flex-1 flex flex-col justify-between">
+            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[11px] leading-[1.3] transition-colors break-words">
+              National Portal of India
+            </p>
+            <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[10px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
+              <span class="font-medium truncate">india.gov.in</span>
+              <svg class="w-2.5 h-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+            </div>
+          </div>
+          <span class="sr-only">(opens in new tab)</span>
+        </a>
+
+        <!-- 4. Ministry of New and Renewable Energy -->
+        <a 
+          href="https://mnre.gov.in/" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          title="Ministry of New and Renewable Energy (opens in new tab)"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl p-2.5 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full"
+        >
+          <div class="h-11 w-full flex items-center justify-center mb-1.5">
+            <img src="/logos/mnre.svg" alt="Ministry of New and Renewable Energy Emblem" class="max-h-9 max-w-[85%] object-contain group-hover:scale-105 transition-transform duration-200" />
+          </div>
+          <div class="w-full flex-1 flex flex-col justify-between">
+            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[11px] leading-[1.3] transition-colors break-words">
+              Ministry of New &amp; Renewable Energy
+            </p>
+            <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[10px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
+              <span class="font-medium truncate">mnre.gov.in</span>
+              <svg class="w-2.5 h-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+            </div>
+          </div>
+          <span class="sr-only">(opens in new tab)</span>
+        </a>
+
+        <!-- 5. Power Development Department J&K -->
+        <a 
+          href="https://pdd.jk.gov.in/" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          title="Power Development Department, Government of J&K (opens in new tab)"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl p-2.5 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full"
+        >
+          <div class="h-11 w-full flex items-center justify-center mb-1.5">
+            <img src="/logos/pdd.svg" alt="Power Development Department Emblem" class="max-h-9 max-w-[85%] object-contain p-0.5 group-hover:scale-105 transition-transform duration-200" />
+          </div>
+          <div class="w-full flex-1 flex flex-col justify-between">
+            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[11px] leading-[1.3] transition-colors break-words">
+              Power Development Dept (J&amp;K)
+            </p>
+            <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[10px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
+              <span class="font-medium truncate">pdd.jk.gov.in</span>
+              <svg class="w-2.5 h-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+            </div>
+          </div>
+          <span class="sr-only">(opens in new tab)</span>
+        </a>
+
+        <!-- 6. Central Water Commission -->
+        <a 
+          href="https://cwc.gov.in/" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          title="Central Water Commission (opens in new tab)"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl p-2.5 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full"
+        >
+          <div class="h-11 w-full flex items-center justify-center mb-1.5">
+            <img src="/logos/cwc.png" alt="Central Water Commission Emblem" class="max-h-9 max-w-[85%] object-contain group-hover:scale-105 transition-transform duration-200" />
+          </div>
+          <div class="w-full flex-1 flex flex-col justify-between">
+            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[11px] leading-[1.3] transition-colors break-words">
+              Central Water Commission
+            </p>
+            <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[10px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
+              <span class="font-medium truncate">cwc.gov.in</span>
+              <svg class="w-2.5 h-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+            </div>
+          </div>
+          <span class="sr-only">(opens in new tab)</span>
+        </a>
+
+        <!-- 7. J&K Joint Electricity Regulatory Commission -->
+        <a 
+          href="https://jercjkl.jk.gov.in/AboutUs.html" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          title="J&K Joint Electricity Regulatory Commission (opens in new tab)"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl p-2.5 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full"
+        >
+          <div class="h-11 w-full flex items-center justify-center mb-1.5">
+            <img src="/logos/jerc.png" alt="J&K Joint Electricity Regulatory Commission Emblem" class="max-h-9 max-w-[85%] object-contain group-hover:scale-105 transition-transform duration-200" />
+          </div>
+          <div class="w-full flex-1 flex flex-col justify-between">
+            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[11px] leading-[1.3] transition-colors break-words">
+              J&amp;K Electricity Regulatory Commission
+            </p>
+            <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[10px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
+              <span class="font-medium truncate">jercjkl.jk.gov.in</span>
+              <svg class="w-2.5 h-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+            </div>
+          </div>
+          <span class="sr-only">(opens in new tab)</span>
+        </a>
       </div>
     </section>
 
@@ -1015,22 +1329,76 @@ const displayTenders = mergedTenderItems.length > 0 ? mergedTenderItems : fallba
 <script is:inline>
 (function () {
   /* ── HERO SLIDER ─────────────────────────────────────────── */
-  var slideEls = document.querySelectorAll('[id^="slide-"]');
+  var heroContainer = document.getElementById('hero-slides');
+  var slideEls = heroContainer ? Array.from(heroContainer.children) : [];
   var total = slideEls.length;
-  var cur = 0, dots = document.querySelectorAll('[data-dot]');
+  var cur = 0;
+  var dots = Array.from(document.querySelectorAll('[data-dot]'));
+  var timer = null;
 
   function goTo(n) {
-    if (slideEls[cur]) { slideEls[cur].classList.replace('opacity-100','opacity-0'); slideEls[cur].classList.replace('z-10','z-0'); }
-    if (dots[cur]) dots[cur].className = 'h-1.5 rounded-full transition-all duration-300 w-4 bg-white/40';
+    if (total <= 1) return;
+
+    if (slideEls[cur]) {
+      slideEls[cur].classList.remove('opacity-100', 'z-10');
+      slideEls[cur].classList.add('opacity-0', 'z-0', 'pointer-events-none');
+    }
+    if (dots[cur]) {
+      dots[cur].className = 'h-1.5 rounded-full transition-all duration-300 w-4 bg-white/40';
+    }
+
     cur = ((n % total) + total) % total;
-    if (slideEls[cur]) { slideEls[cur].classList.replace('opacity-0','opacity-100'); slideEls[cur].classList.replace('z-0','z-10'); }
-    if (dots[cur]) dots[cur].className = 'h-1.5 rounded-full transition-all duration-300 w-10 bg-[#D8681B]';
+
+    if (slideEls[cur]) {
+      var img = slideEls[cur].querySelector('img');
+      if (img && img.loading === 'lazy') {
+        img.loading = 'eager';
+      }
+      slideEls[cur].classList.remove('opacity-0', 'z-0', 'pointer-events-none');
+      slideEls[cur].classList.add('opacity-100', 'z-10');
+    }
+    if (dots[cur]) {
+      dots[cur].className = 'h-1.5 rounded-full transition-all duration-300 w-10 bg-[#D8681B]';
+    }
   }
 
-  var prev = document.getElementById('hero-prev'); if (prev) prev.onclick = function() { goTo(cur-1); };
-  var next = document.getElementById('hero-next'); if (next) next.onclick = function() { goTo(cur+1); };
-  dots.forEach(function(d) { d.onclick = function() { goTo(parseInt(d.dataset.dot, 10)); }; });
-  setInterval(function() { goTo(cur+1); }, 6000);
+  function startTimer() {
+    if (timer) clearInterval(timer);
+    timer = setInterval(function () {
+      goTo(cur + 1);
+    }, 6000);
+  }
+
+  var prev = document.getElementById('hero-prev');
+  if (prev) {
+    prev.onclick = function (e) {
+      if (e) e.preventDefault();
+      goTo(cur - 1);
+      startTimer();
+    };
+  }
+
+  var next = document.getElementById('hero-next');
+  if (next) {
+    next.onclick = function (e) {
+      if (e) e.preventDefault();
+      goTo(cur + 1);
+      startTimer();
+    };
+  }
+
+  dots.forEach(function (d) {
+    d.onclick = function (e) {
+      if (e) e.preventDefault();
+      var idx = parseInt(d.dataset.dot, 10);
+      if (!isNaN(idx)) {
+        goTo(idx);
+        startTimer();
+      }
+    };
+  });
+
+  startTimer();
 
   /* ── OFFICE GALLERY CAROUSEL (Top Section) ───────────────── */
   var oSlides = document.querySelectorAll('.office-slide');
@@ -1098,31 +1466,157 @@ const displayTenders = mergedTenderItems.length > 0 ? mergedTenderItems : fallba
   });
   setInterval(function() { goToProject(pCur + 1); }, 5500);
 
-  /* ── PROJECT FILTER ──────────────────────────────────────── */
-  var cards = document.querySelectorAll('.project-card');
-  var tabBtns = document.querySelectorAll('.project-tab');
+  /* ── PROJECT FILTER & CATEGORY PREVIEW ───────────────────── */
+  var cards = Array.from(document.querySelectorAll('.project-card'));
+  var tabBtns = Array.from(document.querySelectorAll('.project-tab'));
   var searchEl = document.getElementById('project-search');
+  var projectsGrid = document.getElementById('projects-grid');
+  var emptyCategoryEl = document.getElementById('project-empty-category');
+  var emptySearchEl = document.getElementById('project-empty-search');
+  var viewAllBtn = document.getElementById('project-view-all-btn');
+
+  var PREVIEW_LIMIT = 6;
+  var isExpandedAll = false;
+
+  var categoryNav = {
+    'All': {
+      text: function() {
+        return isExpandedAll 
+          ? 'Show Fewer Projects ↑' 
+          : 'Show All Projects (' + cards.length + ') ↓';
+      },
+      href: '#projects'
+    },
+    'Operational': {
+      text: function() { return 'View All Operational Projects →'; },
+      href: '/our-business/power-stations'
+    },
+    'Under Construction': {
+      text: function() { return 'View All Under Construction Projects →'; },
+      href: '/our-business/construction'
+    },
+    'Upcoming': {
+      text: function() { return 'View All Upcoming Projects →'; },
+      href: '/our-business/under-development'
+    }
+  };
+
   var activeTab = 'All';
 
-  function filterProjects() {
-    var q = searchEl ? searchEl.value.toLowerCase() : '';
-    cards.forEach(function(c) {
-      var tabOk = activeTab === 'All' || c.dataset.status === activeTab;
-      c.style.display = (tabOk && (!q || c.dataset.name.includes(q))) ? '' : 'none';
+  // Read URL query param if present (e.g. ?status=operational or ?status=upcoming)
+  var urlParams = new URLSearchParams(window.location.search);
+  var statusParam = urlParams.get('status');
+  if (statusParam) {
+    var cleanStatus = statusParam.trim().toLowerCase().replace(/[-_]/g, ' ');
+    if (cleanStatus === 'operational') activeTab = 'Operational';
+    else if (cleanStatus === 'under construction') activeTab = 'Under Construction';
+    else if (cleanStatus === 'upcoming') activeTab = 'Upcoming';
+    else if (cleanStatus === 'all') activeTab = 'All';
+  }
+
+  function updateTabUI() {
+    tabBtns.forEach(function(btn) {
+      var isCurrent = btn.dataset.tab === activeTab;
+      if (isCurrent) {
+        btn.className = 'project-tab px-4 py-1.5 rounded-md text-xs font-semibold transition-all bg-[#0B4F9C] text-white shadow-sm';
+        btn.setAttribute('aria-selected', 'true');
+      } else {
+        btn.className = 'project-tab px-4 py-1.5 rounded-md text-xs font-semibold transition-all text-slate-600 hover:bg-slate-100';
+        btn.setAttribute('aria-selected', 'false');
+      }
     });
+
+    if (viewAllBtn && categoryNav[activeTab]) {
+      viewAllBtn.textContent = categoryNav[activeTab].text();
+      viewAllBtn.setAttribute('href', categoryNav[activeTab].href);
+    }
+  }
+
+  function filterProjects() {
+    var q = searchEl ? searchEl.value.trim().toLowerCase() : '';
+
+    // Filter projects belonging strictly to active category
+    var categoryCards = cards.filter(function(c) {
+      return activeTab === 'All' || c.dataset.status === activeTab;
+    });
+
+    // Zero records in category (e.g. Under Construction)
+    if (categoryCards.length === 0) {
+      if (projectsGrid) projectsGrid.style.display = 'none';
+      if (emptyCategoryEl) emptyCategoryEl.style.display = 'block';
+      if (emptySearchEl) emptySearchEl.style.display = 'none';
+      cards.forEach(function(c) { c.style.display = 'none'; });
+      return;
+    }
+
+    if (emptyCategoryEl) emptyCategoryEl.style.display = 'none';
+
+    // Match with search query if typed
+    var matchedCards = categoryCards.filter(function(c) {
+      if (!q) return true;
+      var searchContent = c.dataset.search || (c.dataset.name + ' ' + (c.dataset.status || ''));
+      return searchContent.toLowerCase().includes(q);
+    });
+
+    // Zero matches from search
+    if (q && matchedCards.length === 0) {
+      if (projectsGrid) projectsGrid.style.display = 'none';
+      if (emptySearchEl) emptySearchEl.style.display = 'block';
+      cards.forEach(function(c) { c.style.display = 'none'; });
+      return;
+    }
+
+    if (emptySearchEl) emptySearchEl.style.display = 'none';
+    if (projectsGrid) projectsGrid.style.display = '';
+
+    // Show preview count when not searching and not expanded
+    var shownCount = 0;
+    var shouldLimit = !q && (!isExpandedAll || activeTab !== 'All');
+
+    cards.forEach(function(c) {
+      var isMatch = matchedCards.indexOf(c) !== -1;
+      if (isMatch) {
+        if (shouldLimit && shownCount >= PREVIEW_LIMIT) {
+          c.style.display = 'none';
+        } else {
+          c.style.display = '';
+          shownCount++;
+        }
+      } else {
+        c.style.display = 'none';
+      }
+    });
+  }
+
+  if (viewAllBtn) {
+    viewAllBtn.onclick = function(e) {
+      if (activeTab === 'All') {
+        e.preventDefault();
+        isExpandedAll = !isExpandedAll;
+        updateTabUI();
+        filterProjects();
+        if (!isExpandedAll) {
+          document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    };
   }
 
   tabBtns.forEach(function(btn) {
     btn.onclick = function() {
-      tabBtns.forEach(function(t) {
-        t.className = 'project-tab px-4 py-1.5 rounded-md text-xs font-semibold transition-all text-slate-600 hover:bg-slate-100';
-      });
-      btn.className = 'project-tab px-4 py-1.5 rounded-md text-xs font-semibold transition-all bg-[#0B4F9C] text-white shadow-sm';
       activeTab = btn.dataset.tab;
+      isExpandedAll = false;
+      updateTabUI();
       filterProjects();
     };
   });
-  if (searchEl) searchEl.oninput = filterProjects;
+
+  if (searchEl) {
+    searchEl.oninput = filterProjects;
+  }
+
+  updateTabUI();
+  filterProjects();
 })();
 </script>
 
@@ -1148,27 +1642,64 @@ const displayTenders = mergedTenderItems.length > 0 ? mergedTenderItems : fallba
     animation-play-state: paused !important;
   }
 
-  @keyframes marquee-horizontal {
+
+  /* ── HOME TENDERS & NOTIFICATIONS VERTICAL FEED WITH ZEBRA ROWS ── */
+  @keyframes feed-vertical {
     0% {
-      transform: translate3d(0, 0, 0);
+      transform: translate3d(0, 280px, 0);
     }
     100% {
-      transform: translate3d(-50%, 0, 0);
+      transform: translate3d(0, calc(280px - 50%), 0);
     }
   }
 
-  .marquee-track {
-    display: inline-flex !important;
-    width: max-content !important;
-    white-space: nowrap !important;
-    gap: 0;
-    animation: marquee-horizontal 25s linear infinite !important;
+  .feed-scroll-track {
+    display: flex;
+    flex-direction: column;
+    animation: feed-vertical 10s linear infinite !important;
     will-change: transform;
   }
 
-  .marquee-track:hover {
+  .feed-scroll-track:hover {
     animation-play-state: paused !important;
   }
 
+  .feed-row {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #CBD5E1;
+    text-align: left;
+    text-decoration: none;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  .feed-row:hover {
+    background-color: #EDF4FD !important;
+  }
+
 </style>
+
+<script is:inline>
+  (function() {
+    function ensureFeedRunning() {
+      var tracks = document.querySelectorAll('.feed-scroll-track');
+      tracks.forEach(function(t) {
+        if (document.activeElement && t.contains(document.activeElement)) {
+          document.activeElement.blur();
+        }
+        t.style.animationPlayState = 'running';
+      });
+    }
+
+    document.addEventListener('astro:page-load', ensureFeedRunning);
+    window.addEventListener('pageshow', ensureFeedRunning);
+    window.addEventListener('focus', ensureFeedRunning);
+    document.addEventListener('visibilitychange', function() {
+      if (!document.hidden) {
+        ensureFeedRunning();
+      }
+    });
+  })();
+</script>
 

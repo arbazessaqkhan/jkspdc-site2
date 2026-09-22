@@ -21,9 +21,9 @@ import Layout from '../../../layouts/Layout.astro';
     </div>
 
     <!-- Content -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fadeInUp delay-200">
+    <div class="animate-fadeInUp delay-200">
       <!-- Org Chart Render -->
-      <article class="lg:col-span-2 prose-gov">
+      <article class="prose-gov">
         <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm flex flex-col items-center">
           <img 
             src="/about-us/organisational-structure.png" 
@@ -32,18 +32,6 @@ import Layout from '../../../layouts/Layout.astro';
           />
         </div>
       </article>
-
-      <!-- Sidebar -->
-      <aside class="space-y-5 animate-fadeIn delay-300">
-        <div class="card-static">
-          <h3 class="sidebar-card-title">Quick Navigation</h3>
-          <ul class="flex flex-col gap-2 text-xs font-semibold text-[#0B4F9C]">
-            <li><a href="/about-us/explore/overview" class="sidebar-link">Corporate Overview</a></li>
-            <li><a href="/about-us/explore/roles-responsibility" class="sidebar-link">Roles &amp; Responsibilities</a></li>
-            <li><a href="/about-us/management/board" class="sidebar-link">Board of Directors</a></li>
-          </ul>
-        </div>
-      </aside>
     </div>
   </div>
 </Layout>

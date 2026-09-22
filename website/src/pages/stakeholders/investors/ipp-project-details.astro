@@ -239,41 +239,54 @@ const activePhaseData = phaseDatabase[phaseParam] || {
           </h3>
         </div>
 
+        <!-- Select Phase # dropdown matching Image 1 -->
+        <div class="flex items-center gap-3 pb-1">
+          <label for="select-phase-dropdown-details" class="text-xs font-bold text-slate-700">Select Phase #</label>
+          <select 
+            id="select-phase-dropdown-details" 
+            onchange="if(this.value) window.location.href='/stakeholders/investors/ipp-project-details?phase=' + this.value;"
+            class="bg-white border border-slate-300 rounded px-2.5 py-1 text-xs font-bold text-slate-800 outline-none focus:ring-2 focus:ring-[#0B4F9C]"
+          >
+            {Object.keys(phaseDatabase).map((key) => {
+              const p = phaseDatabase[key];
+              return (
+                <option value={p.id} selected={p.id === activePhaseData.id}>
+                  {p.name.toUpperCase().replace('PHASE ', 'PHASE-')}
+                </option>
+              );
+            })}
+          </select>
+        </div>
+
         <div class="table-wrapper">
           <table class="table-data min-w-full">
             <thead>
-              <tr>
-                <th scope="col" class="text-left">S.No</th>
-                <th scope="col" class="text-left">Project Name</th>
-                <th scope="col" class="text-left">River Basin / District</th>
-                <th scope="col" class="text-left">Capacity</th>
-                <th scope="col" class="text-left">LoI / Allotment Date</th>
-                <th scope="col" class="text-left">DPR / Clearance Stage</th>
-                <th scope="col" class="text-left">Developer / Allotted IPP</th>
-                <th scope="col" class="text-left">Remarks & Status</th>
+              <tr class="bg-[#2D60A6] text-white">
+                <th scope="col" class="text-left py-3 px-4 text-xs font-bold">Project</th>
+                <th scope="col" class="text-center py-3 px-4 text-xs font-bold whitespace-nowrap">Installed Capacity in MW</th>
+                <th scope="col" class="text-left py-3 px-4 text-xs font-bold">Status</th>
+                <th scope="col" class="text-left py-3 px-4 text-xs font-bold">Awarded To</th>
+              </tr>
+              <tr class="bg-[#4176B8] text-white font-extrabold text-center text-xs tracking-wider uppercase">
+                <th colspan="4" class="py-2.5 text-center">{activePhaseData.name.toUpperCase().replace('PHASE ', 'PHASE-')} PROJECTS</th>
               </tr>
             </thead>
             <tbody>
               {activePhaseData.projects.length > 0 ? (
-                activePhaseData.projects.map((proj: any, idx: number) => (
-                  <tr class="hover:bg-slate-50/80 transition-colors">
-                    <td class="text-left font-bold text-xs">{idx + 1}</td>
-                    <td class="font-bold text-left text-xs text-[#0B4F9C]">{proj.name}</td>
-                    <td class="text-left text-xs">{proj.location}<br/><span class="text-[11px] text-slate-500">{proj.basin}</span></td>
-                    <td class="font-bold text-slate-800 text-left text-xs">{proj.capacityMw} MW</td>
-                    <td class="text-left text-xs font-medium text-slate-600">{proj.loiDate}</td>
-                    <td class="text-left text-xs">
-                      <span class="inline-block bg-blue-50 text-[#0B4F9C] border border-blue-200 px-2 py-0.5 rounded text-[11px] font-bold">
-                        {proj.dprStatus}
-                      </span>
+                activePhaseData.projects.map((proj: any) => (
+                  <tr class="hover:bg-slate-50/80 transition-colors border-b border-slate-200">
+                    <td class="text-left py-3 px-4 text-xs">
+                      <div class="text-slate-800 font-medium">{proj.name}</div>
+                      <div class="text-slate-900 font-bold mt-0.5">{proj.location}</div>
                     </td>
-                    <td class="text-left text-xs text-slate-700 font-semibold">{proj.developer}</td>
-                    <td class="text-left text-xs text-slate-500">{proj.remarks}</td>
+                    <td class="text-center font-semibold text-slate-700 text-xs py-3 px-4">{proj.capacityMw}</td>
+                    <td class="text-left text-xs text-slate-700 py-3 px-4">{proj.status}</td>
+                    <td class="text-left text-xs text-slate-700 py-3 px-4">{proj.developer}</td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colspan="8" class="text-center py-8 text-sm text-slate-500 font-semibold">
+                  <td colspan="4" class="text-center py-8 text-sm text-slate-500 font-semibold">
                     No projects are registered under this allotment phase yet.
                   </td>
                 </tr>

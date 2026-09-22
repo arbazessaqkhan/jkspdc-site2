@@ -26,14 +26,19 @@ try {
 // Check if we have an image asset for this project
 const getProjectPhotoUrl = (proj: any) => {
   if (!proj) return null;
-  const slug = proj.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-  if (slug === 'kirthai-hep-stage-1') {
-    return '/logo.png';
+  if (proj.documentUrl && proj.documentUrl.trim() !== '') {
+    return proj.documentUrl.startsWith('http://localhost:3000/uploads/')
+      ? proj.documentUrl.replace('http://localhost:3000', '')
+      : proj.documentUrl;
   }
+  const slug = proj.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   if (slug === 'ganderbal' || slug === 'ushp-i' || slug === 'sewa-iii') {
     return `/projects/${slug}.png`;
   }
-  return `/projects/${slug}.jpg`;
+  if (['bhaderwah', 'bhep-i', 'bhep-ii', 'chep-i', 'chep-ii', 'chep-iii', 'karnah', 'ljhp', 'mhep-pahalgam', 'ushp-ii'].includes(slug)) {
+    return `/projects/${slug}.jpg`;
+  }
+  return '/slider1.jpg';
 };
 const photoUrl = getProjectPhotoUrl(project);
 const formattedTitle = project ? formatProjectName(project.name) : "Power Station Details";
@@ -50,44 +55,68 @@ const getSalientSpecs = (proj: any) => {
   if (proj.status) specs.push({ label: 'Operational / Development Status', value: proj.status });
   if (proj.basin) specs.push({ label: 'River Basin System', value: proj.basin });
   if (proj.location) specs.push({ label: 'District Location', value: proj.location });
-  if (proj.sector) specs.push({ label: 'Ownership Sector', value: `${proj.sector} Sector (JKSPDCL)` });
+  if (proj.sector) specs.push({ label: 'Ownership Sector', value: `${proj.sector === 'JV' ? 'Joint Venture (JV)' : proj.sector} Sector (JKSPDCL)` });
   if (proj.designEnergy) specs.push({ label: 'Annual Design Energy', value: `${proj.designEnergy} Million Units (MU)` });
   if (proj.yearOfCommissioning) specs.push({ label: 'Year of Commercial Operation (COD)', value: `Year ${proj.yearOfCommissioning}` });
 
   // Extract extra items from salientFeatures string
   const raw = proj.salientFeatures || '';
   
-  // Extract <li> elements
+  // 1. Extract <li> elements
   const liMatches = raw.match(/<li[^>]*>(.*?)<\/li>/gi);
   if (liMatches) {
     liMatches.forEach((li: string) => {
       const clean = li.replace(/<[^>]+>/g, '').trim();
-      if (clean.includes(':')) {
-        const parts = clean.split(':');
-        const key = parts[0].replace(/^-\s*/, '').trim();
-        const val = parts.slice(1).join(':').trim();
-        if (key && val && !specs.some(s => s.label.toLowerCase() === key.toLowerCase())) {
+      const delim = clean.includes(':') ? ':' : (clean.includes(' - ') ? ' - ' : (clean.includes('-') ? '-' : null));
+      if (delim) {
+        const parts = clean.split(delim);
+        const key = parts[0].replace(/^[-•*]\s*/, '').trim();
+        const val = parts.slice(1).join(delim).trim();
+        if (key && val && key.length < 50 && !specs.some(s => s.label.toLowerCase() === key.toLowerCase())) {
           specs.push({ label: key, value: val });
         }
       }
     });
   }
 
-  // Extract bold paragraph key-values
-  const boldMatches = raw.match(/(?:<strong>|<b>)(.*?)(?:<\/strong>|<\/b>)\s*:?\s*([^<]+)/gi);
+  // 2. Extract bold paragraph key-values
+  const boldMatches = raw.match(/(?:<strong>|<b>)(.*?)(?:<\/strong>|<\/b>)\s*[:\-]?\s*([^<]+)/gi);
   if (boldMatches) {
     boldMatches.forEach((bm: string) => {
       const clean = bm.replace(/<[^>]+>/g, ':').replace(/\s+/g, ' ').trim();
       const parts = clean.split(':').map(s => s.trim()).filter(Boolean);
       if (parts.length >= 2) {
-        const key = parts[0];
-        const val = parts.slice(1).join(' ');
-        if (key && val && key.length < 40 && !key.toLowerCase().includes('salient') && !specs.some(s => s.label.toLowerCase() === key.toLowerCase())) {
+        const key = parts[0].replace(/^[-•*]\s*/, '').trim();
+        const val = parts.slice(1).join(' ').trim();
+        if (key && val && key.length < 50 && !key.toLowerCase().includes('salient') && !specs.some(s => s.label.toLowerCase() === key.toLowerCase())) {
           specs.push({ label: key, value: val });
         }
       }
     });
   }
+
+  // 3. Extract plain text lines / semicolon-delimited entries
+  const plainText = raw.replace(/<[^>]+>/g, '\n').replace(/&nbsp;/g, ' ');
+  const rawSegments = plainText.split(/[;\n\r]+/).map((s: string) => s.trim()).filter(Boolean);
+  rawSegments.forEach((segment: string) => {
+    if (segment.length > 150) return;
+    const delim = segment.includes(':') ? ':' : (segment.includes(' - ') ? ' - ' : (segment.includes('-') ? '-' : null));
+    if (delim) {
+      const parts = segment.split(delim);
+      const key = parts[0].replace(/^[-•*]\s*/, '').trim();
+      const val = parts.slice(1).join(delim).trim();
+      if (
+        key && 
+        val && 
+        key.length < 45 && 
+        !key.toLowerCase().includes('salient feature') &&
+        !key.toLowerCase().includes('salient features') &&
+        !specs.some(s => s.label.toLowerCase() === key.toLowerCase())
+      ) {
+        specs.push({ label: key, value: val });
+      }
+    }
+  });
 
   return specs;
 };
@@ -120,13 +149,13 @@ const salientSpecs = getSalientSpecs(project);
     )}
 
     {project && (
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div class="mt-6">
         <!-- Main Info -->
-        <article class="lg:col-span-2 space-y-6">
+        <article class="w-full space-y-6">
           <header class="border-b border-gray-200 pb-4">
             <div class="flex flex-wrap items-center gap-2 mb-2">
               <span class="px-2.5 py-0.5 bg-[#0B4F9C]/10 rounded border border-[#0B4F9C]/20 text-[10px] font-bold text-[#0B4F9C] uppercase tracking-wide">
-                {project.sector || 'State'} Sector
+                {project.sector === 'JV' ? 'Joint Venture (JV)' : (project.sector || 'State')} Sector
               </span>
               <span class="px-2.5 py-0.5 bg-emerald-50 rounded border border-emerald-200 text-[10px] font-bold text-emerald-700 uppercase tracking-wide">
                 {project.basin || 'Basin'}
@@ -273,21 +302,21 @@ const salientSpecs = getSalientSpecs(project);
                 </div>
 
                 <div class="table-wrapper">
-                  <table class="table-data min-w-full">
+                  <table class="table-data min-w-full" aria-label="Specifications Matrix">
                     <thead>
                       <tr>
-                        <th scope="col" class="w-12 text-center text-[11px]">#</th>
-                        <th scope="col" class="w-5/12 text-left text-[11px]">Salient Feature</th>
-                        <th scope="col" class="text-left text-[11px]">Technical Specification</th>
+                        <th scope="col" class="w-12 text-center">#</th>
+                        <th scope="col" class="w-5/12 text-left">Salient Feature</th>
+                        <th scope="col" class="text-left">Technical Specification</th>
                       </tr>
                     </thead>
                     <tbody>
                       {salientSpecs.length > 0 ? (
                         salientSpecs.map((spec: any, idx: number) => (
-                          <tr class="hover:bg-[#EAF4FF]/80 transition-colors">
-                            <td class="text-center font-bold text-[11px] text-slate-400 py-2.5">{idx + 1}</td>
-                            <td class="font-extrabold text-xs text-slate-800 text-left py-2.5">{spec.label}</td>
-                            <td class="font-bold text-xs text-[#0B4F9C] text-left py-2.5">{spec.value}</td>
+                          <tr class="transition-colors">
+                            <td class="text-center font-bold text-slate-400">{idx + 1}</td>
+                            <td class="font-bold text-slate-800 text-left">{spec.label}</td>
+                            <td class="font-semibold text-[#0B4F9C] text-left">{spec.value}</td>
                           </tr>
                         ))
                       ) : (
@@ -325,18 +354,6 @@ const salientSpecs = getSalientSpecs(project);
           )}
         </article>
 
-        <!-- Sidebar Navigation -->
-        <aside class="space-y-6">
-          <div class="card-static bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-            <h3 class="font-bold text-gray-900 mb-2 border-b border-gray-100 pb-2">Business Sectors</h3>
-            <ul class="flex flex-col gap-2 text-xs font-semibold text-[#0B4F9C]">
-              <li><a href="/our-business/power-stations" class="hover:underline block py-1">&rarr; Operating Power Stations</a></li>
-              <li><a href="/our-business/construction" class="hover:underline block py-1">&rarr; Construction Projects</a></li>
-              <li><a href="/our-business/under-development" class="hover:underline block py-1">&rarr; Projects Under Development</a></li>
-              <li><a href="/our-business/jv-subsidiary-projects" class="hover:underline block py-1">&rarr; JV & Subsidiary Projects</a></li>
-            </ul>
-          </div>
-        </aside>
       </div>
     )}
   </div>

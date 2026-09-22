@@ -16,16 +16,33 @@ try {
   errorMessage = 'Failed to connect to the backend server.';
 }
 
+function normalizeBasin(rawBasin?: string): string {
+  if (!rawBasin) return 'Unspecified Basin';
+  const lower = rawBasin.toLowerCase().trim();
+  if (lower.includes('jhelum')) return 'Jhelum Basin';
+  if (lower.includes('chenab')) return 'Chenab Basin';
+  if (lower.includes('ravi')) return 'Ravi Basin';
+  if (lower.includes('indus')) return 'Indus Basin';
+  return rawBasin.includes('Basin') ? rawBasin : `${rawBasin} Basin`;
+}
+
+const sectorLabels: Record<string, string> = {
+  'state': 'State Sector',
+  'jv': 'Joint Venture (JV) Sector',
+};
+
+// JKSPDCL operates solely under State Sector and Joint Venture (JV) Sector
+const allowedSectors = ['State', 'JV'];
+
 // Group projects dynamically by sector and then by basin
-const sectors = ['State', 'Central'];
-const sectorGroups = sectors.map(secName => {
+const sectorGroups = allowedSectors.map(secName => {
   const sectorProjects = projects.filter(p => (p.sector || 'State').toLowerCase() === secName.toLowerCase());
   
   // Find unique basins in this sector
-  const uniqueBasins = [...new Set(sectorProjects.map(p => p.basin || 'Unspecified Basin'))];
+  const uniqueBasins = [...new Set(sectorProjects.map(p => normalizeBasin(p.basin)))];
   
-  // Sort basins: Jhelum Basin first, then Chenab, then Ravi, then others
-  const basinOrder = ['jhelum', 'chenab', 'ravi'];
+  // Sort basins: Jhelum Basin first, then Chenab, then Ravi, then Indus, then others
+  const basinOrder = ['jhelum', 'chenab', 'ravi', 'indus'];
   uniqueBasins.sort((a, b) => {
     const idxA = basinOrder.findIndex(o => a.toLowerCase().includes(o));
     const idxB = basinOrder.findIndex(o => b.toLowerCase().includes(o));
@@ -36,11 +53,11 @@ const sectorGroups = sectors.map(secName => {
   });
 
   const basinsData = uniqueBasins.map(basinName => {
-    const basinProjects = sectorProjects.filter(p => (p.basin || 'Unspecified Basin') === basinName);
+    const basinProjects = sectorProjects.filter(p => normalizeBasin(p.basin) === basinName);
     
     basinProjects.sort((a, b) => (b.capacityMw || 0) - (a.capacityMw || 0));
 
-    const totalCapacity = basinProjects.reduce((sum, p) => sum + p.capacityMw, 0);
+    const totalCapacity = basinProjects.reduce((sum, p) => sum + (p.capacityMw || 0), 0);
 
     return {
       name: basinName,
@@ -49,17 +66,19 @@ const sectorGroups = sectors.map(secName => {
     };
   });
 
-  const totalCapacity = sectorProjects.reduce((sum, p) => sum + p.capacityMw, 0);
+  const totalCapacity = sectorProjects.reduce((sum, p) => sum + (p.capacityMw || 0), 0);
+  const displayName = sectorLabels[secName.toLowerCase()] || `${secName} Sector`;
 
   return {
     name: secName,
+    displayName,
     basins: basinsData,
-    totalCapacity: Number(totalCapacity.toFixed(1))
+    totalCapacity: Number(totalCapacity.toFixed(1)),
+    projectCount: sectorProjects.length
   };
 });
 
-const stateGroup = sectorGroups.find(g => g.name === 'State') || { name: 'State', basins: [], totalCapacity: 0 };
-const centralGroup = sectorGroups.find(g => g.name === 'Central') || { name: 'Central', basins: [], totalCapacity: 0 };
+const visibleSectorGroups = sectorGroups;
 ---
 
 <Layout 
@@ -81,9 +100,9 @@ const centralGroup = sectorGroups.find(g => g.name === 'Central') || { name: 'Ce
     </div>
 
     <!-- Content -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fadeInUp delay-200">
+    <div class="animate-fadeInUp delay-200 mt-6">
       <!-- Stations List -->
-      <article class="lg:col-span-2 space-y-8">
+      <article class="w-full space-y-8">
         
         {errorMessage && (
           <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 text-xs font-semibold">
@@ -91,130 +110,65 @@ const centralGroup = sectorGroups.find(g => g.name === 'Central') || { name: 'Ce
           </div>
         )}
 
-        <!-- STATE SECTOR -->
-        <div class="space-y-0">
-          <div class="border-b border-[#0B4F9C]/20 pb-2 flex items-center justify-between">
-            <h3 class="text-lg font-bold text-[#0B4F9C] uppercase tracking-wider">State Sector</h3>
-            <span class="bg-[#0B4F9C] text-white text-xs font-bold px-3 py-1 rounded-full shadow-xs">
-              Total: {stateGroup.totalCapacity} MW
-            </span>
-          </div>
-
-          {stateGroup.basins.length === 0 ? (
-            <div class="bg-slate-50 border border-slate-200 text-slate-500 rounded-xl p-6 text-center text-xs font-semibold italic">
-              No state sector projects are currently operational.
+        <!-- SECTOR GROUPS -->
+        {visibleSectorGroups.map((group, groupIdx) => (
+          <div class={`space-y-6 ${groupIdx > 0 ? 'pt-4' : ''}`}>
+            <div class="border-b border-[#0B4F9C]/20 pb-2 flex items-center justify-between">
+              <h3 class="text-lg font-bold text-[#0B4F9C] uppercase tracking-wider">{group.displayName}</h3>
+              <span class="bg-[#0B4F9C] text-white text-xs font-bold px-3 py-1 rounded-full shadow-xs">
+                Total: {group.totalCapacity} MW
+              </span>
             </div>
-          ) : (
-            stateGroup.basins.map((basin) => (
-              <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs p-4 space-y-3">
-                <h4 class="text-xs font-extrabold text-slate-700 bg-slate-100 px-3 py-2 rounded uppercase tracking-wider flex justify-between">
-                  <span>{basin.name}</span>
-                  <span class="text-[#0B4F9C]">{basin.totalCapacity} MW</span>
-                </h4>
-                <div class="table-wrapper">
-                  <table class="table-data" role="table" aria-label={`Operating Power Stations - ${basin.name}`}>
-                    <thead>
-                      <tr>
-                        <th scope="col" class="text-center w-12">#</th>
-                        <th scope="col">Name of Power House</th>
-                        <th scope="col">Configuration</th>
-                        <th scope="col">Installed Capacity</th>
-                        <th scope="col">Design Energy</th>
-                        <th scope="col">Commissioning</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {basin.projects.map((p, idx) => (
-                        <tr class="cursor-pointer" onclick={`window.location.href='/our-business/power-station-details?id=${p.id}'`}>
-                          <td class="text-center font-bold text-slate-500">{idx + 1}</td>
-                          <td class="font-bold text-[#0B4F9C]">
-                            <a href={`/our-business/power-station-details?id=${p.id}`} class="text-[#0B4F9C] hover:underline" onclick="event.stopPropagation();">
-                              {formatProjectName(p.name)}
-                            </a>
-                          </td>
-                          <td class="text-slate-600">{p.configuration || '—'}</td>
-                          <td class="font-bold text-slate-700">{p.capacityMw} MW</td>
-                          <td class="text-slate-600">{p.designEnergy ? `${p.designEnergy} MU` : '—'}</td>
-                          <td class="text-slate-600">{p.yearOfCommissioning || '—'}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
 
-        <!-- CENTRAL SECTOR -->
-        <div class="space-y-6 pt-4">
-          <div class="border-b border-slate-300 pb-2 flex items-center justify-between">
-            <h3 class="text-lg font-bold text-slate-600 uppercase tracking-wider">Central Sector</h3>
-            <span class="bg-slate-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-xs">
-              Total: {centralGroup.totalCapacity} MW
-            </span>
+            {group.basins.length === 0 ? (
+              <div class="bg-slate-50 border border-slate-200 text-slate-500 rounded-xl p-6 text-center text-xs font-semibold italic">
+                No {group.displayName.toLowerCase()} projects are currently operational.
+              </div>
+            ) : (
+              group.basins.map((basin) => (
+                <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs p-4 space-y-3">
+                  <h4 class="text-xs font-extrabold text-slate-700 bg-slate-100 px-3 py-2 rounded uppercase tracking-wider flex justify-between">
+                    <span>{basin.name}</span>
+                    <span class="text-[#0B4F9C]">{basin.totalCapacity} MW</span>
+                  </h4>
+                  <div class="table-wrapper">
+                    <table class="table-data" role="table" aria-label={`Operating Power Stations - ${basin.name}`}>
+                      <thead>
+                        <tr>
+                          <th scope="col" class="text-center w-12">#</th>
+                          <th scope="col">Name of Power House</th>
+                          <th scope="col">Configuration</th>
+                          <th scope="col">Installed Capacity</th>
+                          <th scope="col">Design Energy</th>
+                          <th scope="col">Commissioning</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {basin.projects.map((p, idx) => (
+                          <tr class="cursor-pointer" onclick={`window.location.href='/our-business/power-station-details?id=${p.id}'`}>
+                            <td class="text-center font-bold text-slate-500">{idx + 1}</td>
+                            <td class="font-bold text-[#0B4F9C]">
+                              <a href={`/our-business/power-station-details?id=${p.id}`} class="text-[#0B4F9C] hover:underline" onclick="event.stopPropagation();">
+                                {formatProjectName(p.name)}
+                              </a>
+                            </td>
+                            <td class="text-slate-600">{p.configuration || '—'}</td>
+                            <td class="font-bold text-slate-700">{p.capacityMw} MW</td>
+                            <td class="text-slate-600">{p.designEnergy ? `${p.designEnergy} MU` : '—'}</td>
+                            <td class="text-slate-600">{p.yearOfCommissioning || '—'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
-
-          {centralGroup.basins.length === 0 ? (
-            <div class="bg-slate-50 border border-slate-200 text-slate-500 rounded-xl p-6 text-center text-xs font-semibold italic">
-              No central sector projects are currently operational.
-            </div>
-          ) : (
-            centralGroup.basins.map((basin) => (
-              <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs p-4 space-y-3">
-                <h4 class="text-xs font-extrabold text-slate-700 bg-slate-100 px-3 py-2 rounded uppercase tracking-wider flex justify-between">
-                  <span>{basin.name}</span>
-                  <span class="text-[#0B4F9C]">{basin.totalCapacity} MW</span>
-                </h4>
-                <div class="table-wrapper">
-                  <table class="table-data" role="table" aria-label={`Operating Power Stations - ${basin.name}`}>
-                    <thead>
-                      <tr>
-                        <th scope="col" class="text-center w-12">#</th>
-                        <th scope="col">Name of Power House</th>
-                        <th scope="col">Configuration</th>
-                        <th scope="col">Installed Capacity</th>
-                        <th scope="col">Design Energy</th>
-                        <th scope="col">Commissioning</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {basin.projects.map((p, idx) => (
-                        <tr class="cursor-pointer" onclick={`window.location.href='/our-business/power-station-details?id=${p.id}'`}>
-                          <td class="text-center font-bold text-slate-500">{idx + 1}</td>
-                          <td class="font-bold text-[#0B4F9C]">
-                            <a href={`/our-business/power-station-details?id=${p.id}`} class="text-[#0B4F9C] hover:underline" onclick="event.stopPropagation();">
-                              {formatProjectName(p.name)}
-                            </a>
-                          </td>
-                          <td class="text-slate-600">{p.configuration || '—'}</td>
-                          <td class="font-bold text-slate-700">{p.capacityMw} MW</td>
-                          <td class="text-slate-600">{p.designEnergy ? `${p.designEnergy} MU` : '—'}</td>
-                          <td class="text-slate-600">{p.yearOfCommissioning || '—'}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
+        ))}
 
       </article>
 
-      <!-- Sidebar -->
-      <aside class="space-y-5 animate-fadeIn delay-300">
-        <div class="card-static">
-          <h3 class="sidebar-card-title">Business Sectors</h3>
-          <ul class="flex flex-col gap-2 text-xs font-semibold text-[#0B4F9C]">
-            <li><a href="/our-business/construction" class="sidebar-link">Construction Projects</a></li>
-            <li><a href="/our-business/under-development" class="sidebar-link">Projects Under Development</a></li>
-            <li><a href="/our-business/jv-subsidiary-projects" class="sidebar-link">JV & Subsidiary Projects</a></li>
-            <li><a href="/our-business/consultancy" class="sidebar-link">Consultancy Wings</a></li>
-          </ul>
-        </div>
-      </aside>
     </div>
   </div>
 </Layout>

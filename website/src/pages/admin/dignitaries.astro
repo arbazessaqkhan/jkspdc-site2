@@ -133,127 +133,130 @@ try {
     )}
 
     <!-- VIEW 1: TABLE VIEW -->
-    <div id="dignitaries-table-view" class="flex flex-col gap-6">
+    <div id="dignitaries-table-view" class="flex flex-col gap-5">
       
-      <!-- Header banner -->
-      <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <!-- Standard Admin Page Header -->
+      <div class="admin-page-header">
         <div>
-          <h2 class="text-xl font-bold text-[#0B4F9C]">JKSPDCL Dignitaries Management</h2>
-          <p class="text-xs text-slate-500 mt-1">Add, edit, or remove state dignitaries. Configured profiles automatically generate public profile pages.</p>
+          <h1 class="text-lg font-extrabold text-[#0B4F9C] tracking-tight">Dignitaries Management</h1>
+          <p class="text-xs text-slate-500 mt-0.5">Manage state dignitaries, ministers, and top leadership profiles displayed across the portal.</p>
         </div>
         <button 
           id="open-add-form-btn" 
           type="button"
-          class="btn-primary flex items-center gap-2 self-start md:self-auto cursor-pointer px-4 py-2.5 text-xs font-bold text-white bg-[#0B4F9C] hover:bg-[#1B3A6B] rounded-lg shadow-sm transition-all"
+          class="btn-primary flex items-center gap-1.5 text-xs py-2 px-3.5 self-start md:self-auto cursor-pointer"
         >
-          <Icon name="plus" size={14} /> Add New Dignitary
+          <Icon name="plus" size={13} strokeWidth={2.5} />
+          <span>Add New Dignitary</span>
         </button>
       </div>
 
-      <!-- Table Card -->
-      <div class="bg-white rounded-xl border border-slate-200 shadow-md overflow-hidden w-full">
-        <div class="table-wrapper">
-          <table class="table-data min-w-full divide-y divide-slate-200">
-            <thead>
-              <tr class="bg-slate-50">
-                <th scope="col" class="w-14 text-center py-3.5 text-xs font-bold uppercase tracking-wider text-slate-500">S.No</th>
-                <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Dignitary Photo &amp; Name</th>
-                <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Designation &amp; Subtitle</th>
-                <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Classification Badge</th>
-                <th scope="col" class="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Service &amp; Qualifications</th>
-                <th scope="col" class="px-4 py-3.5 text-center text-xs font-bold uppercase tracking-wider text-slate-500 w-36">Actions</th>
+      <!-- Administrative Data Table -->
+      <div class="admin-table-container">
+        <table class="table-data min-w-full text-left">
+          <thead>
+            <tr>
+              <th scope="col" class="w-12 text-center">S.No</th>
+              <th scope="col" class="min-w-[190px]">Dignitary</th>
+              <th scope="col" class="min-w-[220px]">Designation &amp; Subtitle</th>
+              <th scope="col" class="w-32 text-center">Classification</th>
+              <th scope="col" class="w-44">Service &amp; Qualifications</th>
+              <th scope="col" class="w-24 text-center sticky-col-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {dignitaries.length === 0 ? (
+              <tr>
+                <td colspan="6" class="px-6 py-12 text-center text-slate-500 text-xs italic font-semibold">
+                  No dignitaries found in database. Click "Add New Dignitary" to add one.
+                </td>
               </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100 bg-white">
-              {dignitaries.length === 0 ? (
-                <tr>
-                  <td colspan="6" class="px-6 py-12 text-center text-slate-400 text-xs italic">
-                    No dignitaries found in database. Click "Add New Dignitary" to add one.
-                  </td>
-                </tr>
-              ) : (
-                dignitaries.map((dig: any) => {
-                  const initials = dig.name
-                    ? dig.name
-                        .replace(/Shri\s*|Smt\s*|Dr\s*|Er\s*|\(IAS\)/gi, '')
-                        .trim()
-                        .split(' ')
-                        .map((n: string) => n[0])
-                        .join('')
-                        .toUpperCase()
-                        .slice(0, 2)
-                    : 'DG';
+            ) : (
+              dignitaries.map((dig: any) => {
+                const initials = dig.name
+                  ? dig.name
+                      .replace(/Shri\s*|Smt\s*|Dr\s*|Er\s*|\(IAS\)/gi, '')
+                      .trim()
+                      .split(' ')
+                      .map((n: string) => n[0])
+                      .join('')
+                      .toUpperCase()
+                      .slice(0, 2)
+                  : 'DG';
 
-                  return (
-                    <tr class="hover:bg-slate-50/80 transition-colors">
-                      <td class="py-4 text-center text-xs font-bold text-slate-600">{dig.sNo}</td>
-                      <td class="px-4 py-4">
-                        <div class="flex items-center gap-3">
-                          {dig.imageUrl ? (
-                            <img src={dig.imageUrl} alt={dig.name} class="w-10 h-10 rounded-full object-cover object-top border border-slate-200 shrink-0" />
-                          ) : (
-                            <div class="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-xs font-extrabold text-[#0B4F9C] shrink-0">
-                              {initials}
-                            </div>
-                          )}
-                          <div>
-                            <p class="font-bold text-slate-800 text-xs">{dig.name}</p>
-                            <p class="text-[10px] text-slate-400 mt-0.5">S.No: {dig.sNo}</p>
+                return (
+                  <tr class="transition-colors">
+                    <td class="text-center text-xs font-bold text-slate-500">{dig.sNo}</td>
+                    <td>
+                      <div class="flex items-center gap-2.5">
+                        {dig.imageUrl ? (
+                          <img src={dig.imageUrl} alt={dig.name} class="w-8 h-8 rounded-full object-cover object-top border border-slate-200 shrink-0" />
+                        ) : (
+                          <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-[11px] font-bold text-[#0B4F9C] shrink-0">
+                            {initials}
                           </div>
+                        )}
+                        <div class="min-w-0">
+                          <p class="font-bold text-slate-900 text-xs leading-tight">{dig.name}</p>
+                          <p class="text-[10px] text-slate-400 mt-0.5">Order: {dig.sNo}</p>
                         </div>
-                      </td>
-                      <td class="px-4 py-4 max-w-xs">
-                        <p class="text-xs text-slate-700 leading-snug font-bold">{dig.position}</p>
-                        {dig.subTitle && <p class="text-[11px] text-slate-500 mt-0.5 font-medium">{dig.subTitle}</p>}
-                      </td>
-                      <td class="px-4 py-4">
-                        <span class="inline-block px-2.5 py-1 text-[10px] font-extrabold tracking-wide uppercase rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          {dig.role || dig.position}
-                        </span>
-                      </td>
-                      <td class="px-4 py-4 text-xs text-slate-600">
-                        <p class="font-semibold text-slate-700">{dig.iasBatch || '—'}</p>
-                        <p class="text-[10px] text-slate-400">{dig.education || '—'}</p>
-                      </td>
-                      <td class="px-4 py-4 text-center">
-                        <div class="flex items-center justify-center gap-2">
+                      </div>
+                    </td>
+                    <td class="max-w-xs">
+                      <p class="text-xs text-slate-800 leading-snug font-bold">{dig.position}</p>
+                      {dig.subTitle && <p class="text-[11px] text-slate-500 mt-0.5 font-medium">{dig.subTitle}</p>}
+                    </td>
+                    <td class="text-center">
+                      <span class="admin-badge-success">
+                        {dig.role || dig.position}
+                      </span>
+                    </td>
+                    <td class="text-xs text-slate-600">
+                      <p class="font-semibold text-slate-700">{dig.iasBatch || '—'}</p>
+                      <p class="text-[10px] text-slate-400">{dig.education || '—'}</p>
+                    </td>
+                    <td class="td-actions sticky-col-right">
+                      <div class="admin-action-group">
+                        <button
+                          type="button"
+                          class="edit-dignitary-btn admin-btn-action cursor-pointer"
+                          data-id={dig.id}
+                          data-name={dig.name}
+                          data-position={dig.position}
+                          data-subtitle={dig.subTitle || ''}
+                          data-role={dig.role || ''}
+                          data-sno={dig.sNo}
+                          data-imageurl={dig.imageUrl || ''}
+                          data-iasbatch={dig.iasBatch || ''}
+                          data-education={dig.education || ''}
+                          data-officelocation={dig.officeLocation || ''}
+                          data-description={dig.description || ''}
+                          data-keyresponsibilities={dig.keyResponsibilities || ''}
+                          title={`Edit ${dig.name}`}
+                          aria-label={`Edit ${dig.name}`}
+                        >
+                          <Icon name="pencil" size={13} />
+                        </button>
+                        <form method="POST" class="inline m-0 p-0" onsubmit="return confirm('Are you sure you want to delete this dignitary?');">
+                          <input type="hidden" name="_action" value="delete" />
+                          <input type="hidden" name="id" value={dig.id} />
                           <button
-                            type="button"
-                            class="edit-dignitary-btn cursor-pointer px-2.5 py-1 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded border border-slate-300"
-                            data-id={dig.id}
-                            data-name={dig.name}
-                            data-position={dig.position}
-                            data-subtitle={dig.subTitle || ''}
-                            data-role={dig.role || ''}
-                            data-sno={dig.sNo}
-                            data-imageurl={dig.imageUrl || ''}
-                            data-iasbatch={dig.iasBatch || ''}
-                            data-education={dig.education || ''}
-                            data-officelocation={dig.officeLocation || ''}
-                            data-description={dig.description || ''}
-                            data-keyresponsibilities={dig.keyResponsibilities || ''}
+                            type="submit"
+                            class="admin-btn-action action-delete cursor-pointer"
+                            title={`Delete ${dig.name}`}
+                            aria-label={`Delete ${dig.name}`}
                           >
-                            Edit
+                            <Icon name="trash-2" size={13} />
                           </button>
-                          <form method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this dignitary?');">
-                            <input type="hidden" name="_action" value="delete" />
-                            <input type="hidden" name="id" value={dig.id} />
-                            <button
-                              type="submit"
-                              class="cursor-pointer px-2.5 py-1 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded border border-red-200"
-                            >
-                              Delete
-                            </button>
-                          </form>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
           </table>
-        </div>
       </div>
 
     </div>
@@ -452,7 +455,7 @@ try {
               Key Responsibilities &amp; Portfolio (Rich Text Editor)
             </label>
             <input type="hidden" name="keyResponsibilities" id="field-keyResponsibilities" value="" />
-            <div data-rich-editor="field-keyResponsibilities" data-placeholder="Key responsibilities and bullet points..." class="bg-white rounded-lg border border-slate-300 h-32 max-h-32 overflow-hidden text-xs"></div>
+            <div data-rich-editor="field-keyResponsibilities" data-placeholder="Key responsibilities and bullet points..." class="bg-white rounded-lg border border-slate-300 h-40 max-h-40 overflow-hidden text-xs"></div>
           </div>
 
           <!-- Form Buttons -->

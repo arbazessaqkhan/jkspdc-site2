@@ -31,6 +31,7 @@ import { SiteSettingsModule } from './site-settings/site-settings.module';
 import { DignitariesModule } from './dignitaries/dignitaries.module';
 import { OfficialContactsModule } from './official-contacts/official-contacts.module';
 import { ContactSubOfficesModule } from './contact-sub-offices/contact-sub-offices.module';
+import { IppProjectsModule } from './ipp-projects/ipp-projects.module';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { ContactSubOfficesModule } from './contact-sub-offices/contact-sub-offic
     SiteSettingsModule,
     OfficialContactsModule,
     ContactSubOfficesModule,
+    IppProjectsModule,
   ],
   controllers: [
     ContactController,
@@ -80,4 +82,4 @@ import { ContactSubOfficesModule } from './contact-sub-offices/contact-sub-offic
     PublicApiService,
   ],
 })
-export class AppModule {}
+export class AppModule { }

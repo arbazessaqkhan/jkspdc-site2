@@ -31,6 +31,8 @@ async function bootstrap() {
         includeSubDomains: true,
         preload: true,
       },
+      // Cross-Origin-Resource-Policy — allow static assets and uploads to be loaded from frontend
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
       // Content-Security-Policy — permissive policy for government SSR site
       contentSecurityPolicy: {
         directives: {
@@ -38,7 +40,7 @@ async function bootstrap() {
           scriptSrc: ["'self'", "'unsafe-inline'"], // Inline scripts used in Astro SSR
           styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
           fontSrc: ["'self'", 'https://fonts.gstatic.com'],
-          imgSrc: ["'self'", 'data:', 'blob:'],
+          imgSrc: ["'self'", 'data:', 'blob:', 'http:', 'https:'],
           connectSrc: [
             "'self'",
             'https://translation-plugin.bhashini.co.in', // Bhashini translation API
@@ -72,6 +74,8 @@ async function bootstrap() {
     '/uploads',
     express.static(uploadsDir, {
       setHeaders: (res, filePath) => {
+        res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+        res.setHeader('Access-Control-Allow-Origin', '*');
         if (filePath.toLowerCase().endsWith('.pdf')) {
           res.setHeader('Content-Disposition', 'inline');
           res.setHeader('Content-Type', 'application/pdf');

@@ -132,48 +132,63 @@ const totalCount = parsedSubmissions.length;
   <div class="flex flex-col gap-6">
     
     <!-- Page Header -->
-    <div class="bg-white rounded-lg border border-slate-200/85 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 select-none">
+    <div class="admin-page-header">
       <div>
         <div class="flex items-center gap-2 mb-1">
-          <h2 class="text-xl font-bold text-[#0B4F9C]">Feedbacks &amp; Citizen Inquiries</h2>
-          <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-[#0B4F9C]">
+          <h1 class="admin-page-title">Feedbacks &amp; Citizen Inquiries</h1>
+          <span class="admin-badge admin-badge-info">
             {totalCount} Total
           </span>
         </div>
-        <p class="text-xs text-slate-500">
+        <p class="admin-page-subtitle">
           Review, filter, and respond to portal website user feedback, bug reports, and official citizen inquiries.
         </p>
       </div>
     </div>
 
-    <!-- Filter Tabs -->
-    <div class="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
-      <button 
-        type="button" 
-        data-filter="all" 
-        data-active="true"
-        class="filter-tab px-4 py-2 rounded-md text-xs font-bold border cursor-pointer select-none"
-      >
-        All Submissions ({totalCount})
-      </button>
+    <!-- Toolbar: Search & Filter Tabs -->
+    <div class="admin-toolbar flex-wrap">
+      <div class="flex flex-wrap items-center gap-2">
+        <button 
+          type="button" 
+          data-filter="all" 
+          data-active="true"
+          class="filter-tab px-3 py-1.5 rounded text-xs font-semibold border cursor-pointer select-none"
+        >
+          All Submissions ({totalCount})
+        </button>
 
-      <button 
-        type="button" 
-        data-filter="website" 
-        data-active="false"
-        class="filter-tab px-4 py-2 rounded-md text-xs font-bold border cursor-pointer select-none"
-      >
-        🌐 Website Feedback ({websiteFeedbackCount})
-      </button>
+        <button 
+          type="button" 
+          data-filter="website" 
+          data-active="false"
+          class="filter-tab px-3 py-1.5 rounded text-xs font-semibold border cursor-pointer select-none"
+        >
+          Website Feedback ({websiteFeedbackCount})
+        </button>
 
-      <button 
-        type="button" 
-        data-filter="citizen" 
-        data-active="false"
-        class="filter-tab px-4 py-2 rounded-md text-xs font-bold border cursor-pointer select-none"
-      >
-        🏛️ Citizen Inquiries ({citizenInquiryCount})
-      </button>
+        <button 
+          type="button" 
+          data-filter="citizen" 
+          data-active="false"
+          class="filter-tab px-3 py-1.5 rounded text-xs font-semibold border cursor-pointer select-none"
+        >
+          Citizen Inquiries ({citizenInquiryCount})
+        </button>
+      </div>
+
+      <!-- Quick Search -->
+      <div class="relative w-full sm:w-64">
+        <input 
+          type="text" 
+          id="search-input" 
+          placeholder="Search name, email, subject..." 
+          class="w-full bg-white border border-slate-300 rounded text-xs text-slate-800 pl-8 pr-3 py-1.5 focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none"
+        />
+        <div class="absolute left-2.5 top-2 text-slate-400">
+          <Icon name="search" size={13} />
+        </div>
+      </div>
     </div>
 
     <!-- Alerts -->
@@ -188,157 +203,192 @@ const totalCount = parsedSubmissions.length;
       </div>
     )}
 
-    <!-- Empty State for Filtered View -->
-    <div id="filter-empty" class="hidden bg-white border border-slate-200 rounded-lg p-12 text-center text-slate-500 font-semibold italic text-xs select-none">
-      No submissions found under this filter.
+    <!-- Administrative Data Table -->
+    <div class="admin-table-container">
+      <table class="admin-table min-w-full" id="contacts-table">
+        <thead>
+          <tr>
+            <th scope="col" class="w-12 text-center">#</th>
+            <th scope="col" class="w-32">Category</th>
+            <th scope="col" class="min-w-[200px]">Submitter Info</th>
+            <th scope="col" class="min-w-[280px]">Subject &amp; Message</th>
+            <th scope="col" class="w-32 whitespace-nowrap">Submitted</th>
+            <th scope="col" class="w-28 text-center sticky-col-right">Action</th>
+          </tr>
+        </thead>
+        <tbody id="contacts-table-body">
+          {parsedSubmissions.length === 0 ? (
+            <tr id="empty-row">
+              <td colspan="6" class="text-center py-12 text-slate-500 text-xs font-semibold italic">
+                No inquiries or feedback submissions found.
+              </td>
+            </tr>
+          ) : (
+            parsedSubmissions.map((sub, idx) => {
+              const hasEmail = sub.email && sub.email !== 'Not provided' && sub.email.includes('@');
+              const searchContent = `${sub.name} ${sub.email} ${sub.phone || ''} ${sub.subject || ''} ${sub.cleanDetails || ''} ${sub.type || ''} ${sub.category || ''}`.toLowerCase();
+              return (
+                <tr 
+                  key={sub.id} 
+                  data-kind={sub.kind}
+                  data-search={searchContent}
+                  class="submission-row transition-colors"
+                >
+                  <td class="text-center font-bold text-slate-400 text-xs row-index">{totalCount - idx}</td>
+                  
+                  <td>
+                    {sub.isWebsiteFeedback ? (
+                      <div class="flex flex-col gap-1 items-start">
+                        <span class="admin-badge admin-badge-success">Feedback</span>
+                        {sub.type && <span class="text-[10px] text-slate-600 font-semibold">{sub.type}</span>}
+                        {sub.rating && sub.rating !== 'Not rated' && (
+                          <span class="text-[10px] text-amber-800 font-bold">★ {sub.rating}/5</span>
+                        )}
+                      </div>
+                    ) : sub.isCitizenInquiry ? (
+                      <div class="flex flex-col gap-1 items-start">
+                        <span class="admin-badge admin-badge-info">Inquiry</span>
+                        {sub.category && <span class="text-[10px] text-slate-600 font-semibold">{sub.category}</span>}
+                      </div>
+                    ) : (
+                      <span class="admin-badge admin-badge-neutral">General</span>
+                    )}
+                  </td>
+
+                  <td>
+                    <div class="flex flex-col">
+                      <span class="font-bold text-slate-900 text-xs leading-snug">{sub.name}</span>
+                      {hasEmail ? (
+                        <span class="text-xs text-[#0B4F9C] font-mono mt-0.5">{sub.email}</span>
+                      ) : (
+                        <span class="text-[11px] text-slate-400 italic mt-0.5">No email</span>
+                      )}
+                      {sub.phone && sub.phone !== 'Not provided' && (
+                        <span class="text-[10px] text-slate-500 font-mono mt-0.5">Ph: {sub.phone}</span>
+                      )}
+                    </div>
+                  </td>
+
+                  <td>
+                    <div class="flex flex-col gap-0.5 max-w-md">
+                      {sub.subject && (
+                        <span class="font-bold text-xs text-slate-900 leading-snug">{sub.subject}</span>
+                      )}
+                      {sub.page && (
+                        <span class="text-[10px] text-[#0B4F9C] font-mono">Page: {sub.page}</span>
+                      )}
+                      <p class="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                        {sub.cleanDetails}
+                      </p>
+                    </div>
+                  </td>
+
+                  <td class="whitespace-nowrap text-xs text-slate-600 font-medium">
+                    {new Date(sub.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    <span class="block text-[10px] text-slate-400">{new Date(sub.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
+                  </td>
+
+                  <td class="td-actions sticky-col-right text-center">
+                    <div class="admin-action-group justify-center">
+                      <button 
+                        type="button" 
+                        class="admin-btn-action btn-view-submission"
+                        data-submission={JSON.stringify(sub)}
+                        aria-label="View Full Submission"
+                        title="View Full Submission"
+                      >
+                        <Icon name="eye" size={13} />
+                      </button>
+
+                      {hasEmail ? (
+                        <a 
+                          href={`mailto:${sub.email}?subject=${encodeURIComponent(sub.isWebsiteFeedback ? `RE: JKSPDCL Website Feedback (${sub.type || 'General'})` : `RE: JKSPDCL Portal Inquiry (${sub.subject || 'General'})`)}`}
+                          class="admin-btn-action"
+                          aria-label="Reply via Email"
+                          title="Reply via Email"
+                        >
+                          <Icon name="mail" size={13} />
+                        </a>
+                      ) : null}
+
+                      <form method="POST" class="inline m-0 p-0" onsubmit="return confirm('Are you sure you want to delete this submission?');">
+                        <input type="hidden" name="id" value={sub.id} />
+                        <input type="hidden" name="_action" value="delete" />
+                        <button 
+                          type="submit" 
+                          class="admin-btn-action action-delete"
+                          aria-label="Delete Submission"
+                          title="Delete Submission"
+                        >
+                          <Icon name="trash-2" size={13} />
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })
+          )}
+          <tr id="no-matching-contacts-row" style="display: none;">
+            <td colspan="6" class="text-center py-12 text-slate-500 text-xs font-semibold italic">
+              No inquiries or feedback submissions found matching your search or filter criteria.
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <!-- Submissions List -->
-    <div id="submissions-container" class="flex flex-col gap-4">
-      {parsedSubmissions.length === 0 ? (
-        <div class="bg-white border border-slate-200 rounded-lg p-12 text-center text-slate-500 font-semibold italic text-xs select-none">
-          No inquiries or feedback submissions found.
+    <!-- Detail View Modal -->
+    <div id="detail-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden animate-fadeInUp">
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/70 shrink-0">
+          <div class="flex items-center gap-2">
+            <span id="modal-badge"></span>
+            <h3 class="text-base font-extrabold text-[#0B4F9C] tracking-tight">Submission Details</h3>
+          </div>
+          <button type="button" id="modal-close-btn" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 flex items-center justify-center text-lg font-bold cursor-pointer transition-colors">&times;</button>
         </div>
-      ) : (
-        parsedSubmissions.map((sub, idx) => {
-          const hasEmail = sub.email && sub.email !== 'Not provided' && sub.email.includes('@');
-          return (
-            <div 
-              key={sub.id} 
-              data-kind={sub.kind}
-              class={`submission-card bg-white rounded-lg border shadow-sm p-5 flex flex-col md:flex-row gap-5 justify-between items-start transition-all duration-150 ${
-                sub.isWebsiteFeedback ? 'border-emerald-200 hover:border-emerald-300' : 'border-slate-200/85 hover:border-blue-300'
-              }`}
-            >
-              <div class="flex flex-col gap-2.5 flex-grow w-full">
-                
-                <!-- Info & Badges Header -->
-                <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
-                  <span class="text-slate-400 font-bold text-xs select-none">#{totalCount - idx}</span>
 
-                  <!-- Category Type Badge -->
-                  {sub.isWebsiteFeedback ? (
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
-                      🌐 Website Feedback
-                    </span>
-                  ) : sub.isCitizenInquiry ? (
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-black bg-blue-100 text-blue-800 border border-blue-300">
-                      🏛️ Citizen Inquiry
-                    </span>
-                  ) : (
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-black bg-slate-100 text-slate-800 border border-slate-300">
-                      ✉️ General Submission
-                    </span>
-                  )}
-
-                  <!-- Submitter Name & Email -->
-                  <span class="text-sm font-extrabold text-[#0B4F9C]">{sub.name}</span>
-                  {hasEmail ? (
-                    <span class="text-xs text-slate-500 font-medium font-mono">&lt;{sub.email}&gt;</span>
-                  ) : (
-                    <span class="text-xs text-slate-400 italic font-medium">No email provided</span>
-                  )}
-
-                  <span class="text-slate-300 select-none">|</span>
-                  <span class="text-[11px] text-slate-500 font-medium">
-                    Submitted: {new Date(sub.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
-                  </span>
-
-                  {sub.ipAddress && (
-                    <>
-                      <span class="text-slate-300 select-none">|</span>
-                      <span class="text-[10px] text-slate-400 font-mono">IP: {sub.ipAddress}</span>
-                    </>
-                  )}
-                </div>
-
-                <!-- Structured Metadata Strip for Website Feedback -->
-                {sub.isWebsiteFeedback && (
-                  <div class="flex flex-wrap items-center gap-2 pt-0.5">
-                    {sub.type && (
-                      <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800">
-                        <span class="text-slate-500 font-semibold">Feedback Type:</span> {sub.type}
-                      </span>
-                    )}
-
-                    {sub.page && (
-                      <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-slate-100 border border-slate-200 text-xs font-medium text-slate-700">
-                        <span class="text-slate-500 font-semibold">Page:</span> 
-                        <span class="font-mono text-[#0B4F9C]">{sub.page}</span>
-                      </span>
-                    )}
-
-                    {sub.rating && sub.rating !== 'Not rated' && (
-                      <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-amber-50 border border-amber-200 text-xs font-bold text-amber-800">
-                        <span>⭐ Rating:</span> {sub.rating} / 5
-                      </span>
-                    )}
-                  </div>
-                )}
-
-                <!-- Structured Metadata Strip for Citizen Inquiry -->
-                {sub.isCitizenInquiry && (
-                  <div class="flex flex-wrap items-center gap-2 pt-0.5">
-                    {sub.category && (
-                      <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-blue-50 border border-blue-200 text-xs font-bold text-blue-800">
-                        <span class="text-slate-500 font-semibold">Category:</span> {sub.category}
-                      </span>
-                    )}
-
-                    {sub.subject && (
-                      <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-indigo-50 border border-indigo-200 text-xs font-bold text-indigo-800">
-                        <span class="text-slate-500 font-semibold">Subject:</span> {sub.subject}
-                      </span>
-                    )}
-
-                    {sub.phone && sub.phone !== 'Not provided' && (
-                      <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-slate-100 border border-slate-200 text-xs font-medium text-slate-700">
-                        <span>📞 Phone:</span> <span class="font-mono">{sub.phone}</span>
-                      </span>
-                    )}
-                  </div>
-                )}
-
-                <!-- Message Body -->
-                <div class={`rounded border p-4 mt-1 ${sub.isWebsiteFeedback ? 'bg-emerald-50/25 border-emerald-100' : 'bg-slate-50/70 border-slate-200/60'}`}>
-                  <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
-                    {sub.isWebsiteFeedback ? 'Feedback / Issue Details' : 'Inquiry Message'}
-                  </div>
-                  <p class="text-xs text-slate-800 font-normal leading-relaxed whitespace-pre-wrap">{sub.cleanDetails}</p>
-                </div>
-
-              </div>
-
-              <!-- Action Controls -->
-              <div class="flex md:flex-col gap-2 shrink-0 self-end md:self-start w-full md:w-auto mt-2 md:mt-0">
-                {hasEmail ? (
-                  <a 
-                    href={`mailto:${sub.email}?subject=${encodeURIComponent(sub.isWebsiteFeedback ? `RE: JKSPDCL Website Feedback (${sub.type || 'General'})` : `RE: JKSPDCL Portal Inquiry (${sub.subject || 'General'})`)}`}
-                    class="w-full px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded text-xs font-bold border border-blue-200 flex items-center justify-center gap-1.5 transition-colors"
-                  >
-                    <Icon name="mail" size={13} /> Reply
-                  </a>
-                ) : (
-                  <span class="w-full px-3 py-1.5 bg-slate-100 text-slate-400 rounded text-xs font-semibold border border-slate-200 flex items-center justify-center gap-1 select-none">
-                    No Email
-                  </span>
-                )}
-                
-                <form method="POST" class="w-full" onsubmit="return confirm('Are you sure you want to delete this submission?');">
-                  <input type="hidden" name="id" value={sub.id} />
-                  <input type="hidden" name="_action" value="delete" />
-                  <button 
-                    type="submit" 
-                    class="w-full px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded text-xs font-bold border border-red-200 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                  >
-                    <Icon name="x" size={13} strokeWidth={2.5} /> Delete
-                  </button>
-                </form>
-              </div>
+        <div class="p-6 flex flex-col gap-4 overflow-y-auto text-xs text-slate-700 leading-relaxed">
+          <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+            <div>
+              <span class="text-[10px] uppercase font-bold text-slate-400 block">Submitter Name</span>
+              <span id="modal-name" class="font-extrabold text-slate-900 text-sm"></span>
             </div>
-          );
-        })
-      )}
+            <div>
+              <span class="text-[10px] uppercase font-bold text-slate-400 block">Email Address</span>
+              <span id="modal-email" class="font-mono text-[#0B4F9C] font-semibold"></span>
+            </div>
+            <div>
+              <span class="text-[10px] uppercase font-bold text-slate-400 block">Phone</span>
+              <span id="modal-phone" class="font-mono text-slate-800"></span>
+            </div>
+            <div>
+              <span class="text-[10px] uppercase font-bold text-slate-400 block">Date &amp; Time</span>
+              <span id="modal-date" class="text-slate-700 font-semibold"></span>
+            </div>
+          </div>
+
+          <div id="modal-meta-row" class="flex flex-wrap gap-2"></div>
+
+          <div>
+            <span class="text-[10px] uppercase font-bold text-slate-400 block mb-1">Message Content</span>
+            <div id="modal-message" class="bg-white border border-slate-200 rounded-xl p-4 text-slate-900 font-normal whitespace-pre-wrap leading-relaxed shadow-inner"></div>
+          </div>
+        </div>
+
+        <div class="px-6 py-3 border-t border-slate-200 flex items-center justify-between bg-slate-50/70 shrink-0">
+          <span id="modal-ip" class="text-[10px] font-mono text-slate-400"></span>
+          <div class="flex items-center gap-2">
+            <a id="modal-reply-btn" href="#" class="px-4 py-2 bg-[#0B4F9C] hover:bg-[#084A8F] text-white text-xs font-bold rounded-lg transition-colors inline-flex items-center gap-1.5">
+              <Icon name="mail" size={13} /> Reply via Email
+            </a>
+            <button type="button" id="modal-dismiss-btn" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-lg transition-colors cursor-pointer">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -371,38 +421,123 @@ const totalCount = parsedSubmissions.length;
   }
 </style>
 
-<script>
-  // Client-side interactive filter tabs
-  const tabs = document.querySelectorAll('.filter-tab');
-  const cards = document.querySelectorAll('.submission-card');
-  const emptyNotice = document.getElementById('filter-empty');
+<script is:inline>
+  function initContactsPage() {
+    var tabs = document.querySelectorAll('.filter-tab');
+    var rows = document.querySelectorAll('.submission-row');
+    var searchInput = document.getElementById('search-input');
+    var modal = document.getElementById('detail-modal');
+    var modalClose = document.getElementById('modal-close-btn');
+    var modalDismiss = document.getElementById('modal-dismiss-btn');
 
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      // Toggle data-active state
-      tabs.forEach(t => t.setAttribute('data-active', 'false'));
-      tab.setAttribute('data-active', 'true');
+    var currentFilter = 'all';
 
-      const filter = tab.getAttribute('data-filter');
-      let visibleCount = 0;
+    function applyFilterAndSearch() {
+      var query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+      var visibleCount = 0;
+      var emptyRow = document.getElementById('no-matching-contacts-row');
 
-      cards.forEach(card => {
-        const kind = card.getAttribute('data-kind');
-        if (filter === 'all' || kind === filter) {
-          (card as HTMLElement).style.display = 'flex';
+      rows.forEach(function(row) {
+        var kind = row.getAttribute('data-kind') || '';
+        var searchData = row.getAttribute('data-search') || '';
+
+        var matchesFilter = (currentFilter === 'all' || kind === currentFilter);
+        var matchesQuery = !query || searchData.includes(query);
+
+        if (matchesFilter && matchesQuery) {
+          row.style.display = '';
           visibleCount++;
+          var indexCell = row.querySelector('.row-index');
+          if (indexCell) indexCell.textContent = visibleCount.toString();
         } else {
-          (card as HTMLElement).style.display = 'none';
+          row.style.display = 'none';
         }
       });
 
-      if (emptyNotice) {
-        if (visibleCount === 0 && cards.length > 0) {
-          emptyNotice.classList.remove('hidden');
-        } else {
-          emptyNotice.classList.add('hidden');
-        }
+      if (emptyRow) {
+        emptyRow.style.display = (visibleCount === 0 && rows.length > 0) ? 'table-row' : 'none';
       }
+    }
+
+    tabs.forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        tabs.forEach(function(t) { t.setAttribute('data-active', 'false'); });
+        tab.setAttribute('data-active', 'true');
+        currentFilter = tab.getAttribute('data-filter') || 'all';
+        applyFilterAndSearch();
+      });
     });
-  });
+
+    if (searchInput) {
+      searchInput.addEventListener('input', applyFilterAndSearch);
+    }
+
+    // Modal view handlers
+    document.querySelectorAll('.btn-view-submission').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var dataStr = btn.getAttribute('data-submission');
+        if (!dataStr) return;
+        try {
+          var sub = JSON.parse(dataStr);
+          document.getElementById('modal-name').textContent = sub.name || '—';
+          document.getElementById('modal-email').textContent = sub.email || '—';
+          document.getElementById('modal-phone').textContent = sub.phone || '—';
+          document.getElementById('modal-date').textContent = new Date(sub.createdAt).toLocaleString('en-IN');
+          document.getElementById('modal-message').textContent = sub.cleanDetails || sub.message || '—';
+          document.getElementById('modal-ip').textContent = sub.ipAddress ? ('IP: ' + sub.ipAddress) : '';
+
+          var metaContainer = document.getElementById('modal-meta-row');
+          metaContainer.innerHTML = '';
+          if (sub.isWebsiteFeedback) {
+            if (sub.type) {
+              metaContainer.innerHTML += '<span class="admin-badge-success">Type: ' + sub.type + '</span>';
+            }
+            if (sub.page) {
+              metaContainer.innerHTML += '<span class="admin-badge-neutral">Page: ' + sub.page + '</span>';
+            }
+            if (sub.rating && sub.rating !== 'Not rated') {
+              metaContainer.innerHTML += '<span class="admin-badge-warning">Rating: ' + sub.rating + ' / 5</span>';
+            }
+          } else if (sub.isCitizenInquiry) {
+            if (sub.category) {
+              metaContainer.innerHTML += '<span class="admin-badge-info">Category: ' + sub.category + '</span>';
+            }
+            if (sub.subject) {
+              metaContainer.innerHTML += '<span class="admin-badge-neutral">Subject: ' + sub.subject + '</span>';
+            }
+          }
+
+          var replyBtn = document.getElementById('modal-reply-btn');
+          if (sub.email && sub.email.includes('@')) {
+            replyBtn.href = 'mailto:' + sub.email + '?subject=RE: JKSPDCL Portal Submission';
+            replyBtn.style.display = 'inline-flex';
+          } else {
+            replyBtn.style.display = 'none';
+          }
+
+          modal.classList.remove('hidden');
+        } catch (e) {
+          console.error('Error opening submission modal:', e);
+        }
+      });
+    });
+
+    function closeModal() {
+      if (modal) modal.classList.add('hidden');
+    }
+
+    if (modalClose) modalClose.onclick = closeModal;
+    if (modalDismiss) modalDismiss.onclick = closeModal;
+    if (modal) {
+      modal.onclick = function(e) {
+        if (e.target === modal) closeModal();
+      };
+    }
+    window.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeModal();
+    });
+  }
+
+  document.addEventListener('astro:page-load', initContactsPage);
+  initContactsPage();
 </script>

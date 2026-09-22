@@ -35,10 +35,10 @@ try {
   <div class="flex flex-col gap-6">
     
     <!-- Page Header -->
-    <div class="bg-white rounded-lg border border-slate-200 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="admin-page-header">
       <div>
-        <h2 class="text-xl font-bold text-[#0B4F9C]">Security Audit Logs</h2>
-        <p class="text-xs text-slate-500 mt-0.5">Review chronological registry of admin CRUD actions and security events under GIGW 3.0 auditing guidelines.</p>
+        <h1 class="admin-page-title">Security Audit Logs</h1>
+        <p class="admin-page-subtitle">Review chronological registry of admin CRUD operations and security events under GIGW 3.0 guidelines.</p>
       </div>
     </div>
 
@@ -50,61 +50,51 @@ try {
     )}
 
     <!-- Logs Table -->
-    <div class="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
-      <div class="table-wrapper overflow-x-auto">
-        <table class="table-data min-w-full text-left border-collapse">
-          <thead>
-            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
-              <th scope="col" class="p-4 w-12 text-center">#</th>
-              <th scope="col" class="p-4">Timestamp</th>
-              <th scope="col" class="p-4">Administrator ID</th>
-              <th scope="col" class="p-4">Action</th>
-              <th scope="col" class="p-4">IP Address</th>
-              <th scope="col" class="p-4">User Agent</th>
-              <th scope="col" class="p-4">Details</th>
+    <div class="admin-table-container">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th scope="col" class="w-12 text-center">#</th>
+            <th scope="col" class="w-40 whitespace-nowrap">Timestamp</th>
+            <th scope="col" class="min-w-[160px]">Administrator ID</th>
+            <th scope="col" class="w-32">Action</th>
+            <th scope="col" class="w-32">IP Address</th>
+            <th scope="col" class="min-w-[180px] max-w-xs">User Agent</th>
+            <th scope="col" class="min-w-[200px] max-w-sm">Details</th>
+          </tr>
+        </thead>
+        <tbody class="text-xs">
+          {logs.length === 0 ? (
+            <tr>
+              <td colspan="7" class="text-center text-slate-500 py-12 text-xs font-semibold italic">
+                <Icon name="folder" size={32} class="mx-auto text-slate-300 mb-2" />
+                No activity logs found.
+              </td>
             </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-200 text-[11px] font-medium text-slate-700">
-            {logs.length === 0 ? (
-              <tr>
-                <td colspan="7" class="text-center text-slate-500 py-10 font-semibold italic">
-                  No activity logs found.
+          ) : (
+            logs.map((log: any, idx: number) => (
+              <tr key={log.id} class="transition-colors">
+                <td class="font-mono text-[11px] text-slate-400 text-center">{idx + 1}</td>
+                <td class="whitespace-nowrap font-mono text-[11px] text-slate-500">
+                  {new Date(log.timestamp).toLocaleString('en-IN', {
+                    day: '2-digit', month: 'short', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit', second: '2-digit'
+                  })}
+                </td>
+                <td class="font-bold text-slate-800">{log.action}</td>
+                <td class="text-slate-600 font-medium">{log.module}</td>
+                <td class="font-mono text-[11px] text-slate-600">{log.ipAddress}</td>
+                <td class="text-slate-500 text-xs max-w-xs truncate" title={log.userAgent}>
+                  {log.userAgent}
+                </td>
+                <td class="font-mono text-[11px] text-slate-600 max-w-sm truncate" title={JSON.stringify(log.details)}>
+                  {log.details ? JSON.stringify(log.details) : '—'}
                 </td>
               </tr>
-            ) : (
-              logs.map((log, idx) => (
-                <tr key={log.id} class="hover:bg-slate-50/50 transition-colors">
-                  <td class="p-4 text-center font-bold text-slate-400">{idx + 1}</td>
-                  <td class="p-4 text-slate-600 whitespace-nowrap font-bold">
-                    {new Date(log.createdAt).toLocaleString('en-IN', {
-                      dateStyle: 'short',
-                      timeStyle: 'medium'
-                    })}
-                  </td>
-                  <td class="p-4 text-[#0B4F9C] truncate max-w-xs">{log.userId}</td>
-                  <td class="p-4">
-                    <span class={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wide border ${
-                      log.action.includes('CREATE') ? 'bg-green-50 text-green-700 border-green-200' :
-                      log.action.includes('UPDATE') ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                      log.action.includes('DELETE') ? 'bg-red-50 text-red-700 border-red-200' :
-                      'bg-slate-100 text-slate-600 border-slate-200'
-                    }`}>
-                      {log.action}
-                    </span>
-                  </td>
-                  <td class="p-4 font-mono text-[10px] text-slate-500">{log.ipAddress}</td>
-                  <td class="p-4 text-slate-400 max-w-xs truncate" title={log.userAgent}>
-                    {log.userAgent}
-                  </td>
-                  <td class="p-4 font-mono text-[10px] text-slate-500 max-w-sm truncate" title={JSON.stringify(log.details)}>
-                    {log.details ? JSON.stringify(log.details) : 'N/A'}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+            ))
+          )}
+        </tbody>
+      </table>
     </div>
   </div>
 </AdminLayout>

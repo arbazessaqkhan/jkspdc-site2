@@ -293,18 +293,18 @@ function formatEmail(email?: string | null) {
       </div>
 
       <!-- Responsive Corporate Contacts Table -->
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs sm:text-sm text-slate-800 border-collapse">
-          <thead class="bg-slate-100/90 text-slate-900 font-bold border-b border-slate-200 select-none">
+      <div class="table-wrapper">
+        <table class="table-data w-full text-left" aria-label="Corporate Office Officials and Contacts">
+          <thead>
             <tr>
-              <th scope="col" class="py-3 px-4 sm:px-6 w-2/5 border-r border-slate-200">Name of the Official with designation</th>
-              <th scope="col" class="py-3 px-4 sm:px-6 w-3/10 border-r border-slate-200 text-center">Corporate office, Srinagar</th>
-              <th scope="col" class="py-3 px-4 sm:px-6 w-3/10 text-center">Corporate office, Jammu</th>
+              <th scope="col" class="w-2/5 border-r border-[#073B75]">Name of the Official with designation</th>
+              <th scope="col" class="w-3/10 border-r border-[#073B75] text-center">Corporate office, Srinagar</th>
+              <th scope="col" class="w-3/10 text-center">Corporate office, Jammu</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-200 font-normal">
+          <tbody class="font-normal">
             {officialContacts.map((c: any) => (
-              <tr class="hover:bg-slate-50/75 transition-colors">
+              <tr class="transition-colors">
                 <!-- Name, Designation, Email -->
                 <td class="py-3.5 px-4 sm:px-6 border-r border-slate-200 text-center">
                   <p class="font-bold text-slate-900 text-xs sm:text-sm">{c.name}</p>
@@ -351,18 +351,18 @@ function formatEmail(email?: string | null) {
       </div>
 
       <!-- Responsive Wing Contacts Table -->
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs sm:text-sm text-slate-800 border-collapse">
-          <thead class="bg-slate-100/90 text-slate-900 font-bold border-b border-slate-200 select-none">
+      <div class="table-wrapper">
+        <table class="table-data w-full text-left" aria-label="Wing Officials and Contacts">
+          <thead>
             <tr>
-              <th scope="col" class="py-3 px-4 sm:px-6 w-1/4 border-r border-slate-200 text-center">Wing</th>
-              <th scope="col" class="py-3 px-4 sm:px-6 w-1/2 border-r border-slate-200 text-center">Official with designation</th>
-              <th scope="col" class="py-3 px-4 sm:px-6 w-1/4 text-center">Phone</th>
+              <th scope="col" class="w-1/4 border-r border-[#073B75] text-center">Wing</th>
+              <th scope="col" class="w-1/2 border-r border-[#073B75] text-center">Official with designation</th>
+              <th scope="col" class="w-1/4 text-center">Phone</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-200 font-normal">
+          <tbody class="font-normal">
             {wingContacts.map((w: any) => (
-              <tr class="hover:bg-slate-50/75 transition-colors">
+              <tr class="transition-colors">
                 <!-- Wing -->
                 <td class="py-3.5 px-4 sm:px-6 border-r border-slate-200 text-center font-bold text-slate-900">
                   {w.wing}

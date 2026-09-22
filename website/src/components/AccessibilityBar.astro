@@ -52,6 +52,7 @@ import Icon from './Icon.astro';
       class="flex items-center gap-1 px-2.5 py-0.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-xs font-bold text-slate-700 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400"
       aria-expanded="false"
       aria-haspopup="true"
+      onclick="toggleLangDropdown(event)"
     >
       <Icon name="globe" size={11} strokeWidth={2.5} />
       <span id="current-lang-label">English</span>
@@ -62,7 +63,8 @@ import Icon from './Icon.astro';
     
     <div
       id="lang-dropdown-menu"
-      class="absolute right-0 mt-1 w-36 bg-white text-slate-800 rounded shadow-xl border border-slate-200/85 hidden z-[9999] py-1 text-left"
+      class="absolute right-0 mt-1 w-44 bg-white text-slate-800 rounded shadow-xl border border-slate-200/85 hidden z-[10000] py-1 text-left"
+      style="z-index: 10000;"
       role="menu"
       aria-orientation="vertical"
       aria-labelledby="lang-dropdown-btn"

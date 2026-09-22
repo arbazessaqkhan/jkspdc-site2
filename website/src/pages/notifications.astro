@@ -61,10 +61,10 @@ const formatDate = (dateStr: string) => {
     )}
 
     <!-- Content Layout -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="mt-6">
       
       <!-- Main Content -->
-      <article class="lg:col-span-2 space-y-6">
+      <article class="w-full space-y-6">
         
         <!-- Dynamic Segregation & Filter Bar -->
         <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-4">
@@ -128,7 +128,7 @@ const formatDate = (dateStr: string) => {
         <!-- Notifications List -->
         <div class="space-y-3" id="notifications-list">
           {notifications.length === 0 ? (
-            <div class="bg-gray-50 border border-gray-200 text-gray-700 rounded-lg p-6 text-center text-xs font-semibold italic">
+            <div class="bg-slate-50 border border-slate-200 text-slate-500 rounded-xl p-6 text-center text-xs font-semibold italic">
               No official notifications or circulars published yet.
             </div>
           ) : (
@@ -166,36 +166,12 @@ const formatDate = (dateStr: string) => {
           )}
 
           <!-- Empty State Container when 0 results match filters -->
-          <div id="notif-empty-state" class="hidden text-center py-12 bg-slate-50 border border-slate-200 border-dashed rounded-xl text-slate-400 font-semibold italic text-xs">
-            No notifications or circulars found matching the filters.
+          <div id="notif-empty-state" class="hidden text-center py-12 bg-slate-50 border border-slate-200 border-dashed rounded-xl text-slate-500 font-semibold italic text-xs">
+            No notifications or circulars found matching your search or filter criteria.
           </div>
         </div>
       </article>
 
-      <!-- Sidebar Focused Strictly on Related Notices & Verification -->
-      <aside class="space-y-4">
-        <!-- Quick Links Card -->
-        <div class="card-static">
-          <h3 class="font-bold text-gray-900 mb-2 border-b border-gray-100 pb-2">Related Notices &amp; Portals</h3>
-          <ul class="flex flex-col gap-2 text-xs font-semibold text-[#0B4F9C]">
-            <li><a href="/commercial/commercial-notices" class="hover:underline block py-1">&rarr; Commercial Notices &amp; Circulars</a></li>
-            <li><a href="/stakeholders/vendors/tender-bids" class="hover:underline block py-1">&rarr; Tenders &amp; Bids Notices</a></li>
-            <li><a href="/media/gallery" class="hover:underline block py-1">&rarr; Media &amp; Photo Gallery</a></li>
-            <li><a href="/media/downloads" class="hover:underline block py-1">&rarr; Policy &amp; Public Downloads</a></li>
-          </ul>
-        </div>
-
-        <!-- Verification Notice Card -->
-        <div class="bg-blue-50/70 border border-blue-100 rounded-xl p-4 space-y-2">
-          <div class="flex items-center gap-2 text-[#0B4F9C] font-bold text-xs">
-            <Icon name="shield-check" size={16} />
-            <span>Notice Authentication</span>
-          </div>
-          <p class="text-[11px] text-slate-600 leading-relaxed">
-            All notifications, orders, and circulars published on this page are officially issued by JKSPDCL. Downloads are served in authenticated PDF format.
-          </p>
-        </div>
-      </aside>
     </div>
   </div>
 </Layout>

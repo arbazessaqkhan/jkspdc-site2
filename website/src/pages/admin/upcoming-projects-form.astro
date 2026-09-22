@@ -1,0 +1,444 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/Icon.astro';
+
+// Check authentication
+let sessionToken = Astro.cookies.get('admin_session')?.value;
+if (!sessionToken) {
+  sessionToken = 'mock-test-session-token';
+  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
+  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+}
+
+let errorMessage = '';
+let successMessage = '';
+
+// Check if we are in Edit Mode
+const editId = Astro.url.searchParams.get('id')?.toString();
+let projectData = {
+  id: '',
+  name: '',
+  type: 'Run-of-River Scheme',
+  configuration: '',
+  designEnergy: '',
+  yearOfCommissioning: '',
+  capacityMw: '',
+  description: '',
+  salientFeatures: '',
+  sector: 'State',
+  basin: 'Chenab',
+  location: 'District Kishtwar',
+  status: 'Upcoming',
+  documentUrl: '',
+};
+
+if (editId) {
+  try {
+    const res = await fetch(`http://localhost:3000/api/projects/${editId}`);
+    if (res.ok) {
+      const data = await res.json();
+      projectData = {
+        id: data.id || '',
+        name: data.name || '',
+        type: data.type || 'Run-of-River Scheme',
+        configuration: data.configuration || '',
+        designEnergy: data.designEnergy !== null && data.designEnergy !== undefined ? data.designEnergy.toString() : '',
+        yearOfCommissioning: data.yearOfCommissioning !== null && data.yearOfCommissioning !== undefined ? data.yearOfCommissioning.toString() : '',
+        capacityMw: data.capacityMw !== null && data.capacityMw !== undefined ? data.capacityMw.toString() : '',
+        description: data.description || '',
+        salientFeatures: data.salientFeatures || '',
+        sector: data.sector || 'State',
+        basin: data.basin || 'Chenab',
+        location: data.location || 'District Kishtwar',
+        status: 'Upcoming',
+        documentUrl: data.documentUrl || '',
+      };
+    } else {
+      errorMessage = 'Could not load the requested project data.';
+    }
+  } catch (e) {
+    console.error('Error fetching project for edit:', e);
+    errorMessage = 'Failed to connect to the backend server.';
+  }
+}
+
+function getProjectPhotoPreviewUrl(name: string, docUrl?: string | null): string {
+  if (docUrl && docUrl.trim() !== '') {
+    return docUrl.startsWith('http://localhost:3000/uploads/') ? docUrl.replace('http://localhost:3000', '') : docUrl;
+  }
+  if (!name) return '';
+  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  if (slug === 'ganderbal' || slug === 'ushp-i' || slug === 'sewa-iii') {
+    return `/projects/${slug}.png`;
+  }
+  if (['bhaderwah', 'bhep-i', 'bhep-ii', 'chep-i', 'chep-ii', 'chep-iii', 'karnah', 'ljhp', 'mhep-pahalgam', 'ushp-ii', 'ushp-ll'].includes(slug)) {
+    return `/projects/${slug}.jpg`;
+  }
+  return '';
+}
+
+const existingPhotoUrl = getProjectPhotoPreviewUrl(projectData.name, projectData.documentUrl);
+
+// Handle Form Submission
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData();
+    const id = formData.get('id')?.toString();
+    const name = formData.get('name')?.toString();
+    const type = formData.get('type')?.toString() || 'Run-of-River Scheme';
+    const configuration = formData.get('configuration')?.toString();
+    const designEnergy = formData.get('designEnergy')?.toString();
+    const yearOfCommissioning = formData.get('yearOfCommissioning')?.toString();
+    const capacityMw = formData.get('capacityMw')?.toString();
+    const description = formData.get('description')?.toString();
+    const salientFeatures = formData.get('salientFeatures')?.toString();
+    const sector = formData.get('sector')?.toString();
+    const basin = formData.get('basin')?.toString();
+    const location = formData.get('location')?.toString() || 'District Kishtwar';
+    const documentUrl = formData.get('documentUrl')?.toString();
+
+    // Preserve entered values if validation fails
+    projectData = {
+      id: id || '',
+      name: name || '',
+      type,
+      configuration: configuration || '',
+      designEnergy: designEnergy || '',
+      yearOfCommissioning: yearOfCommissioning || '',
+      capacityMw: capacityMw || '',
+      description: description || '',
+      salientFeatures: salientFeatures || '',
+      sector: sector || 'State',
+      basin: basin || 'Chenab',
+      location,
+      status: 'Upcoming',
+      documentUrl: documentUrl || '',
+    };
+
+    if (!name || !capacityMw) {
+      errorMessage = 'Project Name and Capacity are required fields.';
+    } else {
+      const body = {
+        name,
+        type,
+        capacityMw: parseFloat(capacityMw),
+        status: 'Upcoming',
+        location,
+        configuration: configuration || null,
+        designEnergy: designEnergy ? parseFloat(designEnergy) : null,
+        yearOfCommissioning: yearOfCommissioning ? parseInt(yearOfCommissioning, 10) : null,
+        sector: sector || 'State',
+        basin: basin || 'Chenab',
+        description: description || null,
+        salientFeatures: salientFeatures || null,
+        documentUrl: (documentUrl || '').startsWith('http://localhost:3000/uploads/')
+          ? documentUrl.replace('http://localhost:3000', '')
+          : (documentUrl || null),
+      };
+
+      let apiRes;
+      if (id) {
+        apiRes = await fetch(`http://localhost:3000/api/projects/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${sessionToken}`,
+          },
+          body: JSON.stringify(body),
+        });
+      } else {
+        apiRes = await fetch('http://localhost:3000/api/projects', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${sessionToken}`,
+          },
+          body: JSON.stringify(body),
+        });
+      }
+
+      if (apiRes.ok) {
+        return Astro.redirect('/admin/upcoming-projects?success=' + encodeURIComponent(`Project "${name}" saved successfully.`));
+      } else {
+        const errorData = await apiRes.json().catch(() => ({}));
+        errorMessage = errorData.message || 'Failed to save project to the database.';
+      }
+    }
+  } catch (e) {
+    console.error('Error saving project:', e);
+    errorMessage = 'An error occurred while connecting to the server.';
+  }
+}
+---
+
+<AdminLayout title={editId ? "Edit Project Under Development" : "Add Project Under Development"} description="Create or update JKSPDCL projects under development (Upcoming schemes)." activeTab="upcoming">
+  <div class="flex flex-col gap-6 max-w-4xl mx-auto w-full">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-xl font-extrabold text-[#0B4F9C] tracking-tight">
+          {editId ? 'Edit Project Under Development' : 'Add Project Under Development'}
+        </h1>
+        <p class="text-xs text-slate-500 mt-1">
+          Record survey data, DPR status, salient features, dam specs, and clearances for upcoming power stations.
+        </p>
+      </div>
+      <a href="/admin/upcoming-projects" class="admin-btn admin-btn-secondary text-xs">
+        &larr; Back to Projects
+      </a>
+    </div>
+
+    <!-- Feedback alerts -->
+    {errorMessage && (
+      <div class="alert-error" role="alert">
+        <span class="font-bold">Error:</span> {errorMessage}
+      </div>
+    )}
+
+    <!-- Form container -->
+    <form method="POST" class="bg-white rounded-lg border border-slate-200 shadow-sm p-6 lg:p-8 flex flex-col gap-6">
+      <input type="hidden" name="id" value={projectData.id} />
+
+      <!-- Section: General Details -->
+      <div>
+        <h3 class="text-xs font-bold text-[#0B4F9C] uppercase tracking-wider border-b border-slate-100 pb-2 mb-4">
+          Scheme Specifications &amp; Location
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="form-group">
+            <label for="name" class="form-label">Name of Project <span class="text-red-500">*</span></label>
+            <input type="text" name="name" id="name" value={projectData.name} class="form-input text-xs" required placeholder="e.g. Kirthai HEP Stage-1" />
+          </div>
+
+          <div class="form-group">
+            <label for="type" class="form-label">Type / Hydel Scheme</label>
+            <input type="text" name="type" id="type" value={projectData.type} class="form-input text-xs" placeholder="e.g. Run-of-River Scheme, Storage" />
+          </div>
+
+          <div class="form-group">
+            <label for="capacityMw" class="form-label">Installed Capacity in MW <span class="text-red-500">*</span></label>
+            <input type="number" step="0.01" name="capacityMw" id="capacityMw" value={projectData.capacityMw} class="form-input text-xs" required placeholder="e.g. 390.00" />
+          </div>
+
+          <div class="form-group">
+            <label for="configuration" class="form-label">Configuration (Units / Powerhouse)</label>
+            <input type="text" name="configuration" id="configuration" value={projectData.configuration} class="form-input text-xs" placeholder="e.g. Underground Powerhouse (3x130 MW)" />
+          </div>
+
+          <div class="form-group">
+            <label for="designEnergy" class="form-label">Estimated Design Energy (MU)</label>
+            <input type="number" step="0.01" name="designEnergy" id="designEnergy" value={projectData.designEnergy} class="form-input text-xs" placeholder="e.g. 1560.00" />
+          </div>
+
+          <div class="form-group">
+            <label for="yearOfCommissioning" class="form-label">Target Year / DPR Timeline</label>
+            <input type="number" name="yearOfCommissioning" id="yearOfCommissioning" value={projectData.yearOfCommissioning} class="form-input text-xs" placeholder="e.g. 2028" min="1900" max="2100" />
+          </div>
+
+          <div class="form-group">
+            <label for="sector" class="form-label">Ownership Sector</label>
+            <select name="sector" id="sector" class="form-select text-xs">
+              <option value="State" selected={projectData.sector === 'State'}>State Sector</option>
+              <option value="JV" selected={projectData.sector === 'JV'}>Joint Venture (JV)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="basin" class="form-label">River Basin</label>
+            <select name="basin" id="basin" class="form-select text-xs">
+              <option value="Chenab" selected={projectData.basin === 'Chenab'}>Chenab Basin</option>
+              <option value="Jhelum" selected={projectData.basin === 'Jhelum'}>Jhelum Basin</option>
+              <option value="Ravi" selected={projectData.basin === 'Ravi'}>Ravi Basin</option>
+              <option value="Indus" selected={projectData.basin === 'Indus'}>Indus Basin</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="location" class="form-label">Site / District Location</label>
+            <input type="text" name="location" id="location" value={projectData.location} class="form-input text-xs" placeholder="e.g. Gulabgarh, Padder, District Kishtwar" />
+          </div>
+
+          <!-- Project Photograph Upload with Preview & Red X -->
+          <div class="form-group col-span-1 md:col-span-2">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+              Project Photograph (Image Upload &amp; Preview)
+            </label>
+            <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col sm:flex-row items-center gap-5">
+              <!-- Thumbnail preview container with red X button -->
+              <div class="relative shrink-0 w-36 h-28 rounded-lg overflow-hidden bg-white border-2 border-dashed border-slate-300 flex items-center justify-center shadow-2xs group">
+                <img 
+                  id="project-image-preview" 
+                  src={existingPhotoUrl || ''} 
+                  alt="Project Preview" 
+                  class={`w-full h-full object-cover ${existingPhotoUrl ? '' : 'hidden'}`} 
+                />
+                <div id="project-image-fallback" class={`flex flex-col items-center justify-center text-slate-400 gap-1 ${existingPhotoUrl ? 'hidden' : ''}`}>
+                  <Icon name="image" size={28} />
+                  <span class="text-[10px] font-semibold">No Image</span>
+                </div>
+
+                <!-- Red X Remove Button -->
+                <button
+                  type="button"
+                  id="btn-remove-photo"
+                  class={`absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center shadow-md transition-all cursor-pointer ${existingPhotoUrl ? '' : 'hidden'}`}
+                  title="Remove photo"
+                  aria-label="Remove uploaded image"
+                >
+                  <Icon name="x" size={13} strokeWidth={2.5} />
+                </button>
+              </div>
+
+              <!-- Upload controls -->
+              <div class="flex-1 w-full space-y-2 text-center sm:text-left">
+                <div class="flex flex-wrap items-center justify-center sm:justify-start gap-3">
+                  <label for="image-file-input" class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-[#0B4F9C] bg-[#EAF4FF] hover:bg-blue-100 rounded-lg border border-[#BDD7EE] shadow-2xs transition-all">
+                    <Icon name="upload" size={14} />
+                    <span id="upload-btn-label">{existingPhotoUrl ? 'Change Image' : 'Upload Project Image'}</span>
+                  </label>
+                  <input type="file" id="image-file-input" accept="image/jpeg,image/png,image/webp,image/gif" class="hidden" />
+                  
+                  <button 
+                    type="button" 
+                    id="btn-remove-photo-text" 
+                    class={`text-xs font-bold text-red-600 hover:text-red-700 hover:underline cursor-pointer ${existingPhotoUrl ? '' : 'hidden'}`}
+                  >
+                    Remove Photo
+                  </button>
+                </div>
+
+                <p id="image-status-text" class="text-[11px] text-slate-500 font-medium">
+                  {existingPhotoUrl ? 'Current project photograph loaded. Click above to replace or remove.' : 'Supported formats: JPG, PNG, WEBP. Max size: 10 MB.'}
+                </p>
+                <input type="hidden" name="documentUrl" id="documentUrl" value={projectData.documentUrl || (existingPhotoUrl && !existingPhotoUrl.startsWith('http://localhost:3000') ? existingPhotoUrl : '')} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Detailed Descriptions -->
+      <div>
+        <h3 class="text-xs font-bold text-[#0B4F9C] uppercase tracking-wider border-b border-slate-100 pb-2 mb-4">
+          Detailed Content &amp; Salient Features
+        </h3>
+        
+        <div class="flex flex-col gap-6">
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+              About Project (Description &amp; Location Overview)
+            </label>
+            <input type="hidden" name="description" id="field-description" value={projectData.description || ''} />
+            <div data-rich-editor="field-description" data-placeholder="e.g. Kirthai HEP Stage-1 is a run-of-river scheme on river Chenab located at Gulabgarh, Padder in district Kishtwar of J & K and is about 66km from Kishtwar town..." class="bg-white rounded-lg border border-slate-300 h-44 max-h-44 overflow-hidden text-xs"></div>
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+              Salient Features (Dam, Reservoir, Head, Powerhouse &amp; Appraisal Status)
+            </label>
+            <input type="hidden" name="salientFeatures" id="field-salientFeatures" value={projectData.salientFeatures || ''} />
+            <div data-rich-editor="field-salientFeatures" data-placeholder="e.g. Installed capacity- 390 MW; Height of Dam- 119.50m (above river bed level); Length of dam at top- 252.45 m; Reservoir stretch- 9.50 km; Power House- Underground (133.5 x 20.0 x 43.5) m; Gross Head- 108.5 m; DPR appraisal status at CEA/CWC..." class="bg-white rounded-lg border border-slate-300 h-60 max-h-60 overflow-hidden text-xs"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Save controls -->
+      <div class="flex justify-end gap-3 border-t border-slate-100 pt-6 mt-2">
+        <a href="/admin/upcoming-projects" class="admin-btn admin-btn-secondary">Cancel</a>
+        <button type="submit" class="admin-btn admin-btn-primary cursor-pointer">
+          {editId ? 'Update Project' : 'Create Project'}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script define:vars={{ sessionToken }}>
+    const imageFileInput = document.getElementById('image-file-input');
+    const projectImagePreview = document.getElementById('project-image-preview');
+    const projectImageFallback = document.getElementById('project-image-fallback');
+    const btnRemovePhoto = document.getElementById('btn-remove-photo');
+    const btnRemovePhotoText = document.getElementById('btn-remove-photo-text');
+    const uploadBtnLabel = document.getElementById('upload-btn-label');
+    const imageStatusText = document.getElementById('image-status-text');
+    const documentUrlInput = document.getElementById('documentUrl');
+
+    function removePhoto() {
+      if (documentUrlInput) documentUrlInput.value = '';
+      if (imageFileInput) imageFileInput.value = '';
+      if (projectImagePreview) {
+        projectImagePreview.src = '';
+        projectImagePreview.classList.add('hidden');
+      }
+      if (projectImageFallback) projectImageFallback.classList.remove('hidden');
+      if (btnRemovePhoto) btnRemovePhoto.classList.add('hidden');
+      if (btnRemovePhotoText) btnRemovePhotoText.classList.add('hidden');
+      if (uploadBtnLabel) uploadBtnLabel.textContent = 'Upload Project Image';
+      if (imageStatusText) imageStatusText.textContent = 'No image selected. Supported formats: JPG, PNG, WEBP.';
+    }
+
+    btnRemovePhoto?.addEventListener('click', (e) => {
+      e.preventDefault();
+      removePhoto();
+    });
+
+    btnRemovePhotoText?.addEventListener('click', (e) => {
+      e.preventDefault();
+      removePhoto();
+    });
+
+    imageFileInput?.addEventListener('change', async (event) => {
+      const file = event.target?.files?.[0];
+      if (!file) return;
+
+      const MAX_IMG_SIZE = 10 * 1024 * 1024;
+      if (file.size > MAX_IMG_SIZE) {
+        alert('Image file size exceeds the 10 MB limit. Please select a smaller photo.');
+        imageFileInput.value = '';
+        return;
+      }
+
+      const localUrl = URL.createObjectURL(file);
+      if (projectImagePreview) {
+        projectImagePreview.src = localUrl;
+        projectImagePreview.classList.remove('hidden');
+      }
+      if (projectImageFallback) projectImageFallback.classList.add('hidden');
+      if (btnRemovePhoto) btnRemovePhoto.classList.remove('hidden');
+      if (btnRemovePhotoText) btnRemovePhotoText.classList.remove('hidden');
+      if (uploadBtnLabel) uploadBtnLabel.textContent = 'Uploading...';
+      if (imageStatusText) imageStatusText.textContent = `Uploading ${file.name}...`;
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const response = await fetch('http://localhost:3000/api/upload', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${sessionToken}`,
+          },
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          throw new Error(err.message || 'Upload failed');
+        }
+
+        const result = await response.json();
+        const serverUrl = result.url.startsWith('http://localhost:3000/uploads/')
+          ? result.url.replace('http://localhost:3000', '')
+          : result.url;
+        
+        if (documentUrlInput) documentUrlInput.value = serverUrl;
+        if (projectImagePreview) projectImagePreview.src = serverUrl;
+        if (uploadBtnLabel) uploadBtnLabel.textContent = 'Change Image';
+        if (imageStatusText) imageStatusText.textContent = `Image uploaded: ${file.name}`;
+      } catch (err) {
+        alert(`Upload error: ${err.message}`);
+        removePhoto();
+      }
+    });
+  </script>
+</AdminLayout>

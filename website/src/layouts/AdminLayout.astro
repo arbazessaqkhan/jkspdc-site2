@@ -74,8 +74,12 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
         max-height: 160px !important;
       }
       [data-rich-editor="field-keyResponsibilities"] {
-        height: 130px !important;
-        max-height: 130px !important;
+        height: 160px !important;
+        max-height: 160px !important;
+      }
+      [data-rich-editor="field-salientFeatures"] {
+        height: 220px !important;
+        max-height: 220px !important;
       }
 
       .ql-container.ql-snow .ql-editor,
@@ -85,6 +89,29 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
         overflow-y: auto !important;
         overflow-x: hidden !important;
         box-sizing: border-box !important;
+      }
+
+      /* Ensure headings and content blocks in Quill editors span full 100% row width without balanced premature wrapping */
+      .ql-editor,
+      .ql-editor * {
+        box-sizing: border-box !important;
+      }
+      .ql-editor h1,
+      .ql-editor h2,
+      .ql-editor h3,
+      .ql-editor h4,
+      .ql-editor h5,
+      .ql-editor h6,
+      .ql-editor p,
+      .ql-editor ol,
+      .ql-editor ul,
+      .ql-editor li,
+      .ql-editor blockquote {
+        text-wrap: wrap !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        word-break: normal !important;
+        overflow-wrap: break-word !important;
       }
 
       .admin-page textarea {
@@ -191,42 +218,8 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
       }
     </style>
     <script is:inline>
-      function adjustFontSize(action) {
-        var html = document.documentElement;
-        var cur = parseFloat(window.getComputedStyle(html).fontSize) || 16;
-        var nextSize = cur;
-        if (action === 'inc') {
-          if (cur < 24) nextSize = cur + 1;
-        } else if (action === 'dec') {
-          if (cur > 12) nextSize = cur - 1;
-        } else {
-          nextSize = 16;
-        }
-        var sizeStr = nextSize + 'px';
-        html.style.fontSize = sizeStr;
-        try {
-          localStorage.setItem('preferred-font-size', sizeStr);
-        } catch (e) {}
-      }
-
-      function toggleHighContrast() {
-        var html = document.documentElement;
-        var isDark = html.classList.toggle('high-contrast');
-        try {
-          localStorage.setItem('high-contrast', isDark ? 'true' : 'false');
-        } catch (e) {}
-      }
-
       (function() {
         try {
-          var savedSize = localStorage.getItem('preferred-font-size');
-          if (savedSize) {
-            document.documentElement.style.fontSize = savedSize;
-          }
-          var savedContrast = localStorage.getItem('high-contrast');
-          if (savedContrast === 'true') {
-            document.documentElement.classList.add('high-contrast');
-          }
           var savedCollapsed = localStorage.getItem('admin-sidebar-collapsed');
           if (savedCollapsed === 'true') {
             document.documentElement.classList.add('sidebar-collapsed-preload');
@@ -235,7 +228,7 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
       })();
     </script>
   </head>
-  <body class="admin-page min-h-screen flex bg-slate-50 text-slate-800 font-sans transition-colors duration-150 h-full">
+  <body class="admin-page min-h-screen flex bg-slate-50 text-slate-800 font-sans transition-colors duration-150 h-full overflow-x-hidden">
     <a href="#main-admin-content" class="skip-link">Skip to Main Content</a>
 
     <!-- Sidebar Navigation -->
@@ -295,6 +288,11 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
           <a href="/admin/upcoming-projects" title="Projects Under Development" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'upcoming' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
             <Icon name="rocket" size={15} class={activeTab === 'upcoming' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
             <span class="sidebar-label">Projects Under Development</span>
+          </a>
+
+          <a href="/admin/ipp-projects" title="IPP Projects" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'ipp' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+            <Icon name="building" size={15} class={activeTab === 'ipp' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+            <span class="sidebar-label">IPP Projects</span>
           </a>
         </div>
 
@@ -421,21 +419,7 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
         </h2>
 
         <!-- Right Utilities & Profile Session -->
-        <div class="flex items-center gap-4 ml-auto">
-          
-          <!-- Accessibility Adjustments -->
-          <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg border border-slate-200" aria-label="Font Controls" role="group">
-            <button class="px-2 py-0.5 bg-white hover:bg-slate-100 rounded text-xs font-bold text-slate-700 shadow-xs border border-slate-200 transition-colors cursor-pointer" onclick="adjustFontSize('dec')" aria-label="Decrease Font Size" title="Decrease Font">A-</button>
-            <button class="px-2.5 py-0.5 bg-white hover:bg-slate-100 rounded text-xs font-bold text-slate-700 shadow-xs border border-slate-200 transition-colors cursor-pointer" onclick="adjustFontSize('reset')" aria-label="Reset Font Size" title="Reset Font">A</button>
-            <button class="px-2 py-0.5 bg-white hover:bg-slate-100 rounded text-xs font-bold text-slate-700 shadow-xs border border-slate-200 transition-colors cursor-pointer" onclick="adjustFontSize('inc')" aria-label="Increase Font Size" title="Increase Font">A+</button>
-          </div>
-
-          <button class="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold cursor-pointer transition-colors border border-slate-200" onclick="toggleHighContrast()" aria-label="Toggle Contrast Mode">
-            <Icon name="contrast" size={12} strokeWidth={2} /> Contrast
-          </button>
-          
-          <span class="text-slate-300">|</span>
-
+        <div class="flex items-center gap-3 ml-auto">
           <!-- Profile Badge -->
           <span class="bg-[#EAF4FF] text-[#0B4F9C] px-3 py-1.5 rounded-full border border-[#BDD7EE] text-[11px] font-bold flex items-center gap-1.5 select-none">
             <span class="h-2 w-2 bg-emerald-500 rounded-full ring-2 ring-emerald-200 animate-pulse"></span>
@@ -449,7 +433,7 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
       </header>
 
       <!-- Main Slot Content -->
-      <main id="main-admin-content" transition:animate="fade" class="flex-1 min-w-0 overflow-y-auto p-6 md:p-8 bg-slate-50 focus:outline-none" tabindex="-1">
+      <main id="main-admin-content" transition:animate="fade" class="flex-1 min-w-0 overflow-y-auto overflow-x-hidden p-5 sm:p-6 md:p-8 bg-slate-50 focus:outline-none" tabindex="-1">
         <slot />
       </main>
 
@@ -632,9 +616,20 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
           var targetInputId = container.dataset.richEditor;
           var targetInput = document.getElementById(targetInputId);
 
+          function formatInitialValue(val) {
+            if (!val) return '';
+            var str = String(val).trim();
+            if (/<[a-z][\s\S]*>/i.test(str)) {
+              return str;
+            }
+            return str.split(/\r?\n\s*\r?\n/).map(function(p) {
+              return '<p>' + p.replace(/\r?\n/g, '<br>') + '</p>';
+            }).join('');
+          }
+
           if (container.dataset.quillInitialized === 'true') {
             if (container.__quill && targetInput) {
-              container.__quill.root.innerHTML = targetInput.value || '';
+              container.__quill.root.innerHTML = formatInitialValue(targetInput.value);
             }
             return;
           }
@@ -653,7 +648,7 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
           });
 
           if (targetInput && targetInput.value) {
-            quill.root.innerHTML = targetInput.value;
+            quill.root.innerHTML = formatInitialValue(targetInput.value);
           }
 
           quill.on('text-change', function() {
@@ -676,18 +671,6 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
         });
       };
       setTimeout(function() { if (window.initQuillRichEditors) window.initQuillRichEditors(); }, 100);
-
-      // Blur Quill editors when clicking anywhere outside
-      document.addEventListener('click', function(e) {
-        if (!e.target.closest('.ql-container, .ql-toolbar')) {
-          var activeQuills = document.querySelectorAll('[data-rich-editor]');
-          activeQuills.forEach(function(c) {
-            if (c.__quill) {
-              c.__quill.blur();
-            }
-          });
-        }
-      });
     </script>
   </body>
 </html>

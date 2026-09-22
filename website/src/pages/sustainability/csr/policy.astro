@@ -51,9 +51,9 @@ try {
     </div>
 
     <!-- Content -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fadeInUp delay-200">
+    <div class="animate-fadeInUp delay-200">
       <!-- Main Content Area: CSR Table -->
-      <article class="lg:col-span-2 space-y-6">
+      <article class="w-full space-y-6">
         
         <!-- Table Header Title (Styled to match screenshot & site theme) -->
         <div class="text-center mb-6">
@@ -63,66 +63,53 @@ try {
         </div>
 
         <!-- CSR Document Table -->
-        <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-xs md:text-sm">
-              <thead>
-                <tr class="bg-slate-50 border-b border-slate-200 text-slate-800 font-bold">
-                  <th scope="col" class="p-3.5 w-12 text-center border-r border-slate-200">#</th>
-                  <th scope="col" class="p-3.5 border-r border-slate-200">Document</th>
-                  <th scope="col" class="p-3.5 w-32 border-r border-slate-200">Type</th>
-                  <th scope="col" class="p-3.5 w-40 text-center">Download</th>
+        <div class="table-wrapper">
+          <table class="table-data min-w-full" aria-label="CSR Policy Documents">
+            <thead>
+              <tr>
+                <th scope="col" class="w-12 text-center">#</th>
+                <th scope="col">Document Title</th>
+                <th scope="col" class="w-44">Category / Type</th>
+                <th scope="col" class="w-36 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {csrDocuments.length === 0 ? (
+                <tr>
+                  <td colspan="4" class="text-center text-slate-500 py-10 text-xs italic">
+                    No CSR documents currently published. Please check back later.
+                  </td>
                 </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-200">
-                {csrDocuments.length === 0 ? (
-                  <tr>
-                    <td colspan="4" class="text-center text-slate-500 py-10 text-xs italic">
-                      No CSR documents currently published. Please check back later.
-                    </td>
-                  </tr>
-                ) : (
-                  csrDocuments.map((doc: any, idx: number) => {
-                    const docUrl = getDocUrl(doc.documentUrl);
-                    const docType = doc.description || 'Policy';
-                    return (
-                      <tr class="hover:bg-slate-50/80 transition-colors duration-150">
-                        <td class="p-3.5 text-center font-bold text-slate-600 border-r border-slate-200">{idx + 1}</td>
-                        <td class="p-3.5 font-semibold text-slate-800 border-r border-slate-200">{doc.title}</td>
-                        <td class="p-3.5 text-slate-700 font-medium border-r border-slate-200">{docType}</td>
-                        <td class="p-3.5 text-center">
-                          <a 
-                            href={docUrl} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            class="text-[#0B4F9C] hover:underline font-extrabold inline-flex items-center gap-1 cursor-pointer"
-                          >
-                            View / Download
-                          </a>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
+              ) : (
+                csrDocuments.map((doc: any, idx: number) => {
+                  const docUrl = getDocUrl(doc.documentUrl);
+                  const docType = doc.description || 'Policy';
+                  return (
+                    <tr class="hover:bg-[#EAF4FF]/80 transition-colors duration-150">
+                      <td class="text-center font-bold text-slate-500">{idx + 1}</td>
+                      <td class="font-semibold text-slate-900">{doc.title}</td>
+                      <td class="text-slate-600 font-medium">{docType}</td>
+                      <td class="text-center">
+                        <a 
+                          href={docUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          class="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 border border-[#0B4F9C] hover:bg-[#0B4F9C] hover:text-white text-[#0B4F9C] rounded text-xs font-bold transition-all"
+                        >
+                          <Icon name="file-text" size={12} />
+                          <span>View PDF</span>
+                          <span class="sr-only"> (opens in new tab)</span>
+                        </a>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
         </div>
 
       </article>
-
-      <!-- Sidebar -->
-      <aside class="space-y-5 animate-fadeIn delay-300">
-        <div class="card-static">
-          <h3 class="sidebar-card-title">CSR Portal</h3>
-          <ul class="flex flex-col gap-2 text-xs font-semibold text-[#0B4F9C]">
-            <li><a href="/sustainability/csr/overview" class="sidebar-link">Overview</a></li>
-            <li><a href="/sustainability/csr/communication-policy" class="sidebar-link">CSR Communication Policy</a></li>
-            <li><a href="/sustainability/csr/plans" class="sidebar-link">Annual CSR Plans</a></li>
-            <li><a href="/sustainability/csr/reports" class="sidebar-link">Activities Reports</a></li>
-          </ul>
-        </div>
-      </aside>
     </div>
   </div>
 </Layout>

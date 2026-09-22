@@ -56,6 +56,26 @@ if (editId) {
   }
 }
 
+function getProjectPhotoPreviewUrl(name: string, docUrl?: string | null): string {
+  if (docUrl && docUrl.trim() !== '') {
+    // Always return the full backend URL for uploaded files so the <img> preview loads correctly
+    if (docUrl.startsWith('http://localhost:3000/uploads/')) return docUrl;
+    if (docUrl.startsWith('/uploads/')) return 'http://localhost:3000' + docUrl;
+    return docUrl;
+  }
+  if (!name) return '';
+  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  if (slug === 'ganderbal' || slug === 'ushp-i' || slug === 'sewa-iii') {
+    return `/projects/${slug}.png`;
+  }
+  if (['bhaderwah', 'bhep-i', 'bhep-ii', 'chep-i', 'chep-ii', 'chep-iii', 'karnah', 'ljhp', 'mhep-pahalgam', 'ushp-ii', 'ushp-ll'].includes(slug)) {
+    return `/projects/${slug}.jpg`;
+  }
+  return '';
+}
+
+const existingPhotoUrl = getProjectPhotoPreviewUrl(projectData.name, projectData.documentUrl);
+
 // Handle Form Submission
 if (Astro.request.method === 'POST') {
   try {
@@ -103,7 +123,9 @@ if (Astro.request.method === 'POST') {
         basin: basin || 'Chenab',
         description: description || null,
         salientFeatures: salientFeatures || null,
-        documentUrl: documentUrl || null,
+        documentUrl: (documentUrl || '').startsWith('http://localhost:3000/uploads/')
+          ? documentUrl.replace('http://localhost:3000', '')
+          : (documentUrl || null),
       };
 
       const url = id 
@@ -128,45 +150,58 @@ if (Astro.request.method === 'POST') {
         errorMessage = errData.message || 'Failed to save operational project details.';
       }
     }
-  } catch (error) {
-    console.error('Error saving operational project:', error);
-    errorMessage = 'An error occurred while saving. Please ensure the backend is active.';
+  } catch (e) {
+    console.error('Error saving operational project:', e);
+    errorMessage = 'An error occurred while saving. Check backend connection.';
   }
 }
 ---
 
-<AdminLayout title={editId ? "Edit Operational Project" : "Add Operational Project"} description="Operational project form for JKSPDCL." activeTab="operational">
-  <div class="flex flex-col gap-6">
+<AdminLayout 
+  title={editId ? `Edit Operational Project: ${projectData.name}` : 'Add Operational Project'} 
+  description="Configure operational specifications, river basin, sector, and capacity attributes." 
+  activeTab="operational"
+>
+  <div class="flex flex-col gap-5">
     
-    <!-- Top breadcrumb and back button -->
-    <div class="flex items-center justify-between">
-      <a href="/admin/operational-projects" class="text-xs text-[#0B4F9C] hover:underline font-semibold flex items-center gap-1.5">
-        &larr; Back to Projects List
+    <!-- Standard Admin Page Header -->
+    <div class="admin-page-header">
+      <div>
+        <h1 class="text-lg font-extrabold text-[#0B4F9C] tracking-tight">
+          {editId ? `Edit ${projectData.name}` : 'Register Power Station'}
+        </h1>
+        <p class="text-xs text-slate-500 mt-0.5">
+          Configure operational specifications, river basin, sector, and capacity attributes.
+        </p>
+      </div>
+      <a 
+        href="/admin/operational-projects"
+        class="admin-btn admin-btn-secondary text-xs py-2 px-3.5 flex items-center gap-1.5"
+      >
+        <span>&larr; Back to Projects</span>
       </a>
-      <h2 class="text-base font-bold text-slate-700">
-        {editId ? 'Modify Power Station' : 'Register Power Station'}
-      </h2>
     </div>
 
-    <!-- Feedback alerts -->
+    <!-- Alerts -->
     {errorMessage && (
-      <div class="alert-error" role="alert">
-        <span class="font-bold">Error:</span> {errorMessage}
+      <div class="p-3 bg-red-50 border border-red-200 text-xs font-semibold text-red-700 rounded flex items-center gap-2" role="alert">
+        <Icon name="info" size={14} class="text-red-600 shrink-0" /> {errorMessage}
       </div>
     )}
 
-    <!-- Form container -->
-    <form method="POST" class="bg-white rounded-lg border border-slate-200 shadow-sm p-6 lg:p-8 flex flex-col gap-6">
+    <!-- Form Container -->
+    <form method="POST" id="operational-project-form" class="space-y-6">
       <input type="hidden" name="id" value={projectData.id} />
 
-      <!-- Section: General Details -->
-      <div>
-        <h3 class="text-xs font-bold text-[#0B4F9C] uppercase tracking-wider border-b border-slate-100 pb-2 mb-4">General Specifications</h3>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="admin-form-card">
+        <div class="admin-form-card-header">
+          General Specifications
+        </div>
+        <div class="admin-form-card-body grid grid-cols-1 md:grid-cols-2 gap-4">
+          
           <div class="form-group">
             <label for="name" class="form-label">Name of Power House <span class="text-red-500">*</span></label>
-            <input type="text" name="name" id="name" value={projectData.name} class="form-input text-xs" required placeholder="e.g. Baghliar Hydroelectric Project" />
+            <input type="text" name="name" id="name" value={projectData.name} class="form-input text-xs" required placeholder="e.g. Baglihar Hydroelectric Project" />
           </div>
 
           <div class="form-group">
@@ -186,16 +221,14 @@ if (Astro.request.method === 'POST') {
 
           <div class="form-group">
             <label for="yearOfCommissioning" class="form-label">Year of Commissioning</label>
-            <input type="number" name="yearOfCommissioning" id="yearOfCommissioning" value={projectData.yearOfCommissioning} class="form-input text-xs" placeholder="e.g. 2008" min="1900" max="2100" />
+            <input type="number" name="yearOfCommissioning" id="yearOfCommissioning" value={projectData.yearOfCommissioning} class="form-input text-xs" placeholder="e.g. 2008" />
           </div>
 
           <div class="form-group">
             <label for="sector" class="form-label">Sector</label>
             <select name="sector" id="sector" class="form-select text-xs">
               <option value="State" selected={projectData.sector === 'State'}>State Sector</option>
-              <option value="Private" selected={projectData.sector === 'Private'}>Private Sector</option>
               <option value="JV" selected={projectData.sector === 'JV'}>Joint Venture (JV)</option>
-              <option value="Subsidiary" selected={projectData.sector === 'Subsidiary'}>Subsidiary</option>
             </select>
           </div>
 
@@ -210,35 +243,59 @@ if (Astro.request.method === 'POST') {
           </div>
 
           <div class="form-group col-span-1 md:col-span-2">
-            <label class="form-label">Document Attachment</label>
-            <div id="upload-container" class="border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-lg p-6 bg-slate-50 flex flex-col items-center justify-center gap-2 hover:bg-blue-50/20 transition-all cursor-pointer relative">
-              <input type="file" id="file-uploader" class="absolute inset-0 opacity-0 cursor-pointer" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" />
-              <Icon name="upload" size={24} class="text-slate-400" />
-              <span class="text-xs text-slate-600 font-semibold" id="upload-status-text">Click to choose or drag document file here</span>
-              <span class="text-[10px] text-slate-400">PDF, JPG, PNG, DOCX, XLSX (Max 20MB / 100MB if Important)</span>
-            </div>
-
-            <label class="flex items-center gap-2 p-2 bg-amber-50/70 border border-amber-200/80 rounded-lg cursor-pointer hover:bg-amber-50 transition-colors select-none mt-1">
-              <input type="checkbox" id="is-important-checkbox" class="w-4 h-4 rounded text-[#0B4F9C] border-slate-300 focus:ring-[#0B4F9C] cursor-pointer" />
-              <span class="text-xs font-bold text-amber-900 flex items-center gap-1">★ Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+              Project Photograph (Image Upload &amp; Preview)
             </label>
-            
-            <!-- Attached file details -->
-            <div id="attached-file-info" class={`p-3 bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 rounded flex items-center justify-between gap-2 mt-2 ${projectData.documentUrl ? '' : 'hidden'}`}>
-              <div class="flex items-center gap-2 min-w-0">
-                <Icon name="info" size={16} class="text-emerald-600 shrink-0" />
-                <span class="font-semibold truncate" id="attached-filename">
-                  {projectData.documentUrl ? projectData.documentUrl.substring(projectData.documentUrl.lastIndexOf('/') + 1) : 'No file attached'}
-                </span>
+            <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col sm:flex-row items-center gap-5">
+              <!-- Live Preview Thumbnail Container with red X button -->
+              <div class="relative shrink-0 w-36 h-28 rounded-lg overflow-hidden bg-white border-2 border-dashed border-slate-300 flex items-center justify-center shadow-2xs group">
+                <img 
+                  id="project-image-preview" 
+                  src={existingPhotoUrl || ''} 
+                  alt="Project Preview" 
+                  class={`w-full h-full object-cover ${existingPhotoUrl ? '' : 'hidden'}`} 
+                />
+                <div id="project-image-fallback" class={`flex flex-col items-center justify-center text-slate-400 gap-1 ${existingPhotoUrl ? 'hidden' : ''}`}>
+                  <Icon name="image" size={28} />
+                  <span class="text-[10px] font-semibold">No Image</span>
+                </div>
+
+                <!-- Red X Remove Button -->
+                <button
+                  type="button"
+                  id="btn-remove-photo"
+                  class={`absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center shadow-md transition-all cursor-pointer ${existingPhotoUrl ? '' : 'hidden'}`}
+                  title="Remove photo"
+                  aria-label="Remove uploaded image"
+                >
+                  <Icon name="x" size={13} strokeWidth={2.5} />
+                </button>
               </div>
-              {projectData.documentUrl && (
-                <a href={projectData.documentUrl} target="_blank" class="text-emerald-700 hover:text-emerald-900 underline font-bold shrink-0">
-                  View File
-                </a>
-              )}
+
+              <!-- Upload Controller & Details -->
+              <div class="flex-1 w-full space-y-2 text-center sm:text-left">
+                <div class="flex flex-wrap items-center justify-center sm:justify-start gap-3">
+                  <label for="image-file-input" class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-[#0B4F9C] bg-[#EAF4FF] hover:bg-blue-100 rounded-lg border border-[#BDD7EE] shadow-2xs transition-all">
+                    <Icon name="upload" size={14} />
+                    <span id="upload-btn-label">{existingPhotoUrl ? 'Change Image' : 'Upload Project Image'}</span>
+                  </label>
+                  <input type="file" id="image-file-input" accept="image/jpeg,image/png,image/webp,image/gif" class="hidden" />
+                  
+                  <button 
+                    type="button" 
+                    id="btn-remove-photo-text"
+                    class={`text-xs font-bold text-red-600 hover:text-red-700 hover:underline cursor-pointer ${existingPhotoUrl ? '' : 'hidden'}`}
+                  >
+                    Remove Photo
+                  </button>
+                </div>
+
+                <p id="image-status-text" class="text-[11px] text-slate-500 font-medium">
+                  {existingPhotoUrl ? 'Current project photograph loaded. Click above to replace or remove.' : 'Supported formats: JPG, PNG, WEBP. Max size: 10 MB.'}
+                </p>
+                <input type="hidden" name="documentUrl" id="documentUrl" value={projectData.documentUrl || (existingPhotoUrl && !existingPhotoUrl.startsWith('http://localhost:3000') ? existingPhotoUrl : '')} />
+              </div>
             </div>
-            
-            <input type="hidden" name="documentUrl" id="documentUrl" value={projectData.documentUrl} />
           </div>
         </div>
       </div>
@@ -247,23 +304,29 @@ if (Astro.request.method === 'POST') {
       <div>
         <h3 class="text-xs font-bold text-[#0B4F9C] uppercase tracking-wider border-b border-slate-100 pb-2 mb-4">Detailed Content</h3>
         
-        <div class="flex flex-col gap-4">
-          <div class="form-group">
-            <label for="description" class="form-label">About Project (Description)</label>
-            <textarea name="description" id="description" rows="5" class="form-input text-xs font-sans" placeholder="Detailed description of the project history, site, operational status...">{projectData.description}</textarea>
+        <div class="flex flex-col gap-6">
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+              About Project (Description)
+            </label>
+            <input type="hidden" name="description" id="field-description" value={projectData.description || ''} />
+            <div data-rich-editor="field-description" data-placeholder="Detailed description of the project history, site, operational status..." class="bg-white rounded-lg border border-slate-300 h-44 max-h-44 overflow-hidden text-xs"></div>
           </div>
 
-          <div class="form-group">
-            <label for="salientFeatures" class="form-label">Salient Features (Details / Summary)</label>
-            <textarea name="salientFeatures" id="salientFeatures" rows="6" class="form-input text-xs font-sans" placeholder="Salient features including water conductor system, dam specs, powerhouse specifics...">{projectData.salientFeatures}</textarea>
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+              Salient Features (Details / Summary)
+            </label>
+            <input type="hidden" name="salientFeatures" id="field-salientFeatures" value={projectData.salientFeatures || ''} />
+            <div data-rich-editor="field-salientFeatures" data-placeholder="Salient features including water conductor system, dam specs, powerhouse specifics..." class="bg-white rounded-lg border border-slate-300 h-56 max-h-56 overflow-hidden text-xs"></div>
           </div>
         </div>
       </div>
 
       <!-- Save controls -->
       <div class="flex justify-end gap-3 border-t border-slate-100 pt-6 mt-2">
-        <a href="/admin/operational-projects" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-semibold border border-slate-300 transition-colors">Cancel</a>
-        <button type="submit" class="btn-primary text-xs font-bold shadow-md cursor-pointer">
+        <a href="/admin/operational-projects" class="admin-btn admin-btn-secondary">Cancel</a>
+        <button type="submit" class="admin-btn admin-btn-primary cursor-pointer">
           {editId ? 'Update Power Station' : 'Create Power Station'}
         </button>
       </div>
@@ -271,41 +334,64 @@ if (Astro.request.method === 'POST') {
   </div>
 
   <script define:vars={{ sessionToken }}>
-    const fileUploader = document.getElementById('file-uploader');
-    const uploadStatusText = document.getElementById('upload-status-text');
-    const attachedFileInfo = document.getElementById('attached-file-info');
-    const attachedFilename = document.getElementById('attached-filename');
+    const imageFileInput = document.getElementById('image-file-input');
+    const projectImagePreview = document.getElementById('project-image-preview');
+    const projectImageFallback = document.getElementById('project-image-fallback');
+    const btnRemovePhoto = document.getElementById('btn-remove-photo');
+    const btnRemovePhotoText = document.getElementById('btn-remove-photo-text');
+    const uploadBtnLabel = document.getElementById('upload-btn-label');
+    const imageStatusText = document.getElementById('image-status-text');
     const documentUrlInput = document.getElementById('documentUrl');
-    const uploadContainer = document.getElementById('upload-container');
 
-    fileUploader?.addEventListener('change', async (event) => {
+    function removePhoto() {
+      if (documentUrlInput) documentUrlInput.value = '';
+      if (imageFileInput) imageFileInput.value = '';
+      if (projectImagePreview) {
+        projectImagePreview.src = '';
+        projectImagePreview.classList.add('hidden');
+      }
+      if (projectImageFallback) projectImageFallback.classList.remove('hidden');
+      if (btnRemovePhoto) btnRemovePhoto.classList.add('hidden');
+      if (btnRemovePhotoText) btnRemovePhotoText.classList.add('hidden');
+      if (uploadBtnLabel) uploadBtnLabel.textContent = 'Upload Project Image';
+      if (imageStatusText) imageStatusText.textContent = 'No image selected. Supported formats: JPG, PNG, WEBP.';
+    }
+
+    btnRemovePhoto?.addEventListener('click', (e) => {
+      e.preventDefault();
+      removePhoto();
+    });
+
+    btnRemovePhotoText?.addEventListener('click', (e) => {
+      e.preventDefault();
+      removePhoto();
+    });
+
+    imageFileInput?.addEventListener('change', async (event) => {
       const file = event.target?.files?.[0];
       if (!file) return;
 
-      const isImportant = document.getElementById('is-important-checkbox')?.checked || false;
-      const MAX_STANDARD = 20 * 1024 * 1024;
-      const MAX_IMPORTANT = 100 * 1024 * 1024;
-
-      if (!isImportant && file.size > MAX_STANDARD) {
-        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-        alert(`File size (${sizeMB} MB) exceeds the standard 20 MB limit.\n\nPlease check "Mark as Important" to allow uploading files up to 100 MB.`);
-        fileUploader.value = '';
+      const MAX_IMG_SIZE = 10 * 1024 * 1024; // 10MB
+      if (file.size > MAX_IMG_SIZE) {
+        alert('Image file size exceeds the 10 MB limit. Please select a smaller photo.');
+        imageFileInput.value = '';
         return;
       }
 
-      if (file.size > MAX_IMPORTANT) {
-        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-        alert(`File size (${sizeMB} MB) exceeds the maximum allowed limit of 100 MB.`);
-        fileUploader.value = '';
-        return;
+      // Show instant temporary local preview
+      const localUrl = URL.createObjectURL(file);
+      if (projectImagePreview) {
+        projectImagePreview.src = localUrl;
+        projectImagePreview.classList.remove('hidden');
       }
-
-      uploadStatusText.textContent = `Uploading ${file.name}...`;
-      uploadContainer.classList.add('opacity-60', 'pointer-events-none');
+      if (projectImageFallback) projectImageFallback.classList.add('hidden');
+      if (btnRemovePhoto) btnRemovePhoto.classList.remove('hidden');
+      if (btnRemovePhotoText) btnRemovePhotoText.classList.remove('hidden');
+      if (uploadBtnLabel) uploadBtnLabel.textContent = 'Uploading...';
+      if (imageStatusText) imageStatusText.textContent = `Uploading ${file.name}...`;
 
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('isImportant', isImportant ? 'true' : 'false');
 
       try {
         const response = await fetch('http://localhost:3000/api/upload', {
@@ -317,36 +403,26 @@ if (Astro.request.method === 'POST') {
         });
 
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.message || 'Upload failed');
+          const err = await response.json().catch(() => ({}));
+          throw new Error(err.message || 'Upload failed');
         }
 
         const result = await response.json();
-        
-        // Update inputs
-        documentUrlInput.value = result.url;
-
-        // Update UI
-        uploadStatusText.textContent = 'Change attached file';
-        attachedFileInfo.classList.remove('hidden');
-        attachedFilename.textContent = result.filename;
-        
-        // If there is an anchor, update its href
-        let viewLink = attachedFileInfo.querySelector('a');
-        if (!viewLink) {
-          viewLink = document.createElement('a');
-          viewLink.target = '_blank';
-          viewLink.className = 'text-emerald-700 hover:text-emerald-900 underline font-bold shrink-0';
-          viewLink.textContent = 'View File';
-          attachedFileInfo.appendChild(viewLink);
-        }
-        viewLink.href = result.url;
-
-      } catch (error) {
-        alert(`Upload error: ${error.message}`);
-        uploadStatusText.textContent = 'Click to choose or drag document file here';
-      } finally {
-        uploadContainer.classList.remove('opacity-60', 'pointer-events-none');
+        const serverUrl = result.url.startsWith('http://localhost:3000/uploads/')
+          ? result.url.replace('http://localhost:3000', '')
+          : result.url;
+        // Store relative URL in hidden input for form submission
+        if (documentUrlInput) documentUrlInput.value = serverUrl;
+        // Use full backend URL for preview so the image loads correctly
+        const previewUrl = serverUrl.startsWith('/uploads/')
+          ? 'http://localhost:3000' + serverUrl
+          : serverUrl;
+        if (projectImagePreview) projectImagePreview.src = previewUrl;
+        if (uploadBtnLabel) uploadBtnLabel.textContent = 'Change Image';
+        if (imageStatusText) imageStatusText.textContent = `Image uploaded: ${file.name}`;
+      } catch (err) {
+        alert(`Upload error: ${err.message}`);
+        removePhoto();
       }
     });
   </script>

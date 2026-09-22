@@ -1,16 +1,14 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
-import type { Stats, ProjectDto, DirectorDto, TenderDto, ContactSubmissionDto, AuditLogDto } from './types';
+import type { Stats } from './types';
 
 function asArray<T>(value: unknown): T[] {
-  return Array.isArray(value) ? (value as T[]) : [];
-}
-
-function toDateOrNull(value: unknown): Date | null {
-  if (typeof value !== 'string') return null;
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? null : d;
+  if (Array.isArray(value)) return value as T[];
+  if (value && typeof value === 'object' && 'value' in value && Array.isArray((value as { value: unknown }).value)) {
+    return (value as { value: T[] }).value;
+  }
+  return [];
 }
 
 const sessionToken = Astro.cookies.get('admin_session')?.value || '';
@@ -30,10 +28,11 @@ const stats: Stats = {
   inquiriesCount: 0,
   usersCount: 0,
   logsCount: 0,
+  officialContactsCount: 0,
+  subOfficesCount: 0,
+  ippCount: 0,
 };
 
-let recentInquiries: ContactSubmissionDto[] = [];
-let recentLogs: AuditLogDto[] = [];
 let errorMessage = '';
 
 const formattedDate = new Date().toLocaleDateString('en-GB', {
@@ -53,22 +52,8 @@ async function fetchJson<T>(url: string, options?: RequestInit): Promise<T | nul
   }
 }
 
-let projectsData: unknown = [];
-let tendersData: unknown = [];
-
 try {
-  let directorsData: unknown = [];
-  let dignitariesData: unknown = [];
-  let notificationsData: unknown = [];
-  let downloadsData: unknown = [];
-  let agmData: unknown = [];
-  let policiesData: unknown = [];
-  let galleryData: unknown = [];
-  let submissionsData: unknown = [];
-  let logsData: unknown = [];
-  let usersData: unknown = [];
-
-  [
+  const [
     projectsData,
     directorsData,
     dignitariesData,
@@ -78,9 +63,12 @@ try {
     agmData,
     policiesData,
     galleryData,
+    officialContactsData,
+    subOfficesData,
     submissionsData,
     logsData,
-    usersData
+    usersData,
+    ippProjectsData,
   ] = await Promise.all([
     fetchJson<unknown>('http://localhost:3000/api/projects'),
     fetchJson<unknown>('http://localhost:3000/api/directors'),
@@ -91,15 +79,18 @@ try {
     fetchJson<unknown>('http://localhost:3000/api/agm'),
     fetchJson<unknown>('http://localhost:3000/api/policies'),
     fetchJson<unknown>('http://localhost:3000/api/gallery'),
+    fetchJson<unknown>('http://localhost:3000/api/official-contacts'),
+    fetchJson<unknown>('http://localhost:3000/api/contact-sub-offices'),
     sessionToken ? fetchJson<unknown>('http://localhost:3000/api/contact', { headers: { Authorization: `Bearer ${sessionToken}` } }) : null,
     sessionToken ? fetchJson<unknown>('http://localhost:3000/api/audit-logs', { headers: { Authorization: `Bearer ${sessionToken}` } }) : null,
     sessionToken ? fetchJson<unknown>('http://localhost:3000/api/users', { headers: { Authorization: `Bearer ${sessionToken}` } }) : null,
+    fetchJson<unknown>('http://localhost:3000/api/ipp-projects'),
   ]);
 
   const projectArray = asArray<{ id?: string; status?: string }>(projectsData);
   stats.operationalCount = projectArray.filter((p) => p.status === 'Operational').length;
   stats.constructionCount = projectArray.filter((p) => p.status === 'Under Construction').length;
-  stats.upcomingCount = projectArray.filter((p) => p.status === 'Under Development').length;
+  stats.upcomingCount = projectArray.filter((p) => p.status === 'Upcoming' || p.status === 'Under Development').length;
   stats.directorsCount = asArray(directorsData).length;
   stats.dignitariesCount = asArray(dignitariesData).length;
   stats.tendersCount = asArray<{ status?: string }>(tendersData).filter((t) => t.status === 'Active').length;
@@ -108,372 +99,186 @@ try {
   stats.agmCount = asArray(agmData).length;
   stats.policiesCount = asArray(policiesData).length;
   stats.galleryCount = asArray(galleryData).length;
+  stats.officialContactsCount = asArray(officialContactsData).length;
+  stats.subOfficesCount = asArray(subOfficesData).length;
   stats.inquiriesCount = asArray(submissionsData).length;
   stats.usersCount = asArray(usersData).length;
   stats.logsCount = asArray(logsData).length;
-
-  if (submissionsData) {
-    recentInquiries = asArray<ContactSubmissionDto>(submissionsData).slice(0, 5);
-  }
-  if (logsData) {
-    recentLogs = asArray<AuditLogDto>(logsData).slice(0, 5);
-  }
+  stats.ippCount = asArray(ippProjectsData).length;
 } catch (e) {
   console.error('Error fetching dashboard statistics:', e);
   errorMessage = 'Failed to retrieve latest portal statistics. Ensure the backend REST service is online.';
 }
 
-interface ProjectRecord {
-  id?: string;
-  name?: string;
-  type?: string;
-  capacityMw?: number;
-  status?: string;
-  location?: string;
-  designEnergy?: number;
-  basin?: string;
-  sector?: string;
-}
-
-interface TenderRecord {
-  id?: string;
-  referenceNo?: string;
-  title?: string;
-  status?: string;
-  workCategory?: string;
-  locationTag?: string;
-  publishDate?: string;
-  closingDate?: string;
-}
-
-// 1. Hydro & Energy Analytics (Real Live Data)
-const rawProjects = asArray<ProjectRecord>(projectsData);
-let totalCapacityMw = 0;
-let operationalCapacityMw = 0;
-let pipelineCapacityMw = 0;
-let totalDesignEnergyMu = 0;
-const basinMap: Record<string, { mw: number; count: number }> = {};
-
-rawProjects.forEach((p) => {
-  const mw = Number(p.capacityMw) || 0;
-  const energy = Number(p.designEnergy) || 0;
-  totalCapacityMw += mw;
-  totalDesignEnergyMu += energy;
-
-  if (p.status === 'Operational') {
-    operationalCapacityMw += mw;
-  } else {
-    pipelineCapacityMw += mw;
-  }
-
-  let rawBasin = (p.basin || 'Other Basins').trim();
-  if (rawBasin === 'Chenab') rawBasin = 'Chenab Basin';
-  if (rawBasin === 'Jhelum' || rawBasin === 'Jhelum River') rawBasin = 'Jhelum River Basin';
-  if (rawBasin === 'Ravi') rawBasin = 'Ravi Basin';
-  if (!basinMap[rawBasin]) basinMap[rawBasin] = { mw: 0, count: 0 };
-  basinMap[rawBasin].mw += mw;
-  basinMap[rawBasin].count += 1;
-});
-
-const operationalPct = totalCapacityMw > 0 ? Math.round((operationalCapacityMw / totalCapacityMw) * 100) : 0;
-const pipelinePct = totalCapacityMw > 0 ? (100 - operationalPct) : 0;
-
-const basinStats = Object.entries(basinMap)
-  .map(([basin, data]) => ({
-    name: basin,
-    mw: Math.round(data.mw * 10) / 10,
-    count: data.count,
-    pct: totalCapacityMw > 0 ? Math.round((data.mw / totalCapacityMw) * 100) : 0,
-  }))
-  .sort((a, b) => b.mw - a.mw);
-
-// 2. Tenders & Procurement Analytics (Real Live Data)
-const rawTenders = asArray<TenderRecord>(tendersData);
-const tenderCategories: Record<string, number> = {};
-rawTenders.forEach((t) => {
-  const cat = t.workCategory || 'General Civil';
-  tenderCategories[cat] = (tenderCategories[cat] || 0) + 1;
-});
-const tenderCatStats = Object.entries(tenderCategories)
-  .map(([cat, count]) => ({
-    category: cat,
-    count,
-    pct: rawTenders.length > 0 ? Math.round((count / rawTenders.length) * 100) : 0,
-  }))
-  .sort((a, b) => b.count - a.count);
-
-// 3. Corporate Documentation & Compliance Health (Real Live Data)
-const totalCorporateDocs = 
-  (stats.downloadsCount || 0) +
-  (stats.agmCount || 0) +
-  (stats.policiesCount || 0) +
-  (stats.notificationsCount || 0);
-
-const docBreakdown = [
-  { label: 'AGM Notices & Filings', count: stats.agmCount || 0, href: '/admin/agm' },
-  { label: 'Orders & Circulars', count: stats.notificationsCount || 0, href: '/admin/notifications' },
-  { label: 'Corporate Policies, CSR, MoA/AoA & Downloads', count: stats.policiesCount || 0, href: '/admin/policies' },
-];
-
 const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Administrator';
 
-// Top High-Level Executive Summary Cards
-const statCards = [
-  {
-    label: 'Operational Hydro',
-    badge: 'Live',
-    count: stats.operationalCount,
-    href: '/admin/operational-projects',
-    icon: 'zap',
-    bg: 'bg-gradient-to-br from-blue-50/90 via-white to-blue-100/40',
-    border: 'border-blue-200 hover:border-[#0B4F9C]',
-    topBar: 'bg-[#0B4F9C]',
-    iconBg: 'bg-[#0B4F9C] text-white',
-    badgeBg: 'bg-blue-100 text-[#0B4F9C] border-blue-200',
-    textColor: 'text-[#0B4F9C]',
-  },
-  {
-    label: 'Projects Pipeline',
-    badge: 'Pipeline',
-    count: stats.constructionCount + (stats.upcomingCount || 0),
-    href: '/admin/under-construction',
-    icon: 'hardhat',
-    bg: 'bg-gradient-to-br from-amber-50/90 via-white to-orange-100/40',
-    border: 'border-amber-200 hover:border-amber-500',
-    topBar: 'bg-amber-500',
-    iconBg: 'bg-amber-500 text-white',
-    badgeBg: 'bg-amber-100 text-amber-900 border-amber-200',
-    textColor: 'text-amber-800',
-  },
-  {
-    label: 'Active Tenders',
-    badge: 'Bids',
-    count: stats.tendersCount,
-    href: '/admin/tenders',
-    icon: 'file-text',
-    bg: 'bg-gradient-to-br from-violet-50/90 via-white to-purple-100/40',
-    border: 'border-violet-200 hover:border-violet-600',
-    topBar: 'bg-violet-600',
-    iconBg: 'bg-violet-600 text-white',
-    badgeBg: 'bg-violet-100 text-violet-900 border-violet-200',
-    textColor: 'text-violet-800',
-  },
-  {
-    label: 'AGM Documents',
-    badge: 'Investors',
-    count: stats.agmCount || 0,
-    href: '/admin/agm',
-    icon: 'scroll-text',
-    bg: 'bg-gradient-to-br from-cyan-50/90 via-white to-sky-100/40',
-    border: 'border-cyan-200 hover:border-cyan-600',
-    topBar: 'bg-cyan-600',
-    iconBg: 'bg-cyan-600 text-white',
-    badgeBg: 'bg-cyan-100 text-cyan-900 border-cyan-200',
-    textColor: 'text-cyan-800',
-  },
-  {
-    label: 'Notifications',
-    badge: 'Orders',
-    count: stats.notificationsCount,
-    href: '/admin/notifications',
-    icon: 'bell',
-    bg: 'bg-gradient-to-br from-emerald-50/90 via-white to-teal-100/40',
-    border: 'border-emerald-200 hover:border-emerald-600',
-    topBar: 'bg-emerald-600',
-    iconBg: 'bg-emerald-600 text-white',
-    badgeBg: 'bg-emerald-100 text-emerald-900 border-emerald-200',
-    textColor: 'text-emerald-800',
-  },
-  {
-    label: 'Public Inquiries',
-    badge: 'Feedback',
-    count: stats.inquiriesCount,
-    href: '/admin/contacts',
-    icon: 'mail',
-    bg: 'bg-gradient-to-br from-indigo-50/90 via-white to-blue-100/40',
-    border: 'border-indigo-200 hover:border-indigo-600',
-    topBar: 'bg-indigo-600',
-    iconBg: 'bg-indigo-600 text-white',
-    badgeBg: 'bg-indigo-100 text-indigo-900 border-indigo-200',
-    textColor: 'text-indigo-800',
-  },
-];
+interface ModuleCard {
+  title: string;
+  count: number | string;
+  unit: string;
+  href: string;
+  icon: string;
+}
 
-// All Modules Directory (Comprehensive, Categorized & Non-Redundant)
-const moduleGroups = [
+interface ModuleGroup {
+  title: string;
+  modules: ModuleCard[];
+}
+
+const moduleGroups: ModuleGroup[] = [
   {
     title: 'Projects & Infrastructure',
-    subtitle: 'Power generation, ongoing execution & project development pipeline',
     modules: [
       {
         title: 'Operational Projects',
-        desc: 'Active power stations, capacity, design energy & basins',
-        count: `${stats.operationalCount} Active`,
+        count: stats.operationalCount,
+        unit: 'Active Projects',
         href: '/admin/operational-projects',
-        addHref: '/admin/operational-projects-form',
-        addLabel: '+ Add Station',
         icon: 'zap',
-        color: 'text-[#0B4F9C]',
-        iconBg: 'bg-blue-100 text-[#0B4F9C]',
       },
       {
         title: 'Under Construction',
-        desc: 'Hydro projects in active civil & electrical execution',
-        count: `${stats.constructionCount} Active`,
+        count: stats.constructionCount,
+        unit: 'In Execution',
         href: '/admin/under-construction',
         icon: 'hardhat',
-        color: 'text-amber-700',
-        iconBg: 'bg-amber-100 text-amber-700',
       },
       {
         title: 'Projects Under Development',
-        desc: 'Upcoming schemes, surveys, DPRs & pre-construction stages',
-        count: `${stats.upcomingCount || 0} In Pipeline`,
+        count: stats.upcomingCount ?? 0,
+        unit: 'In Pipeline',
         href: '/admin/upcoming-projects',
         icon: 'rocket',
-        color: 'text-teal-700',
-        iconBg: 'bg-teal-100 text-teal-700',
       },
       {
-        title: 'IPP Projects (Investors)',
-        desc: 'Phase I–IX Independent Power Producer allotments',
-        count: 'Phase I–IX',
-        href: '/stakeholders/investors/ipp-projects',
+        title: 'IPP Projects',
+        count: stats.ippCount ?? 0,
+        unit: 'Allotted Projects',
+        href: '/admin/ipp-projects',
         icon: 'building',
-        color: 'text-indigo-700',
-        iconBg: 'bg-indigo-100 text-indigo-700',
-        isExternal: false,
       },
     ],
   },
   {
     title: 'Tenders & Procurement',
-    subtitle: 'Procurement tenders, corrigenda & contractor notifications',
     modules: [
       {
         title: 'Tenders & Bids',
-        desc: 'Manage NITs, RFPs, work categories & attach corrigenda',
-        count: `${stats.tendersCount} Active Bids`,
+        count: stats.tendersCount,
+        unit: 'Active Tenders',
         href: '/admin/tenders',
-        addHref: '/admin/tenders-form',
-        addLabel: '+ Publish NIT',
         icon: 'file-text',
-        color: 'text-violet-700',
-        iconBg: 'bg-violet-100 text-violet-700',
       },
     ],
   },
   {
-    title: 'Corporate Governance & Legal',
-    subtitle: 'Leadership, statutory filings & official circulars',
+    title: 'Corporate Governance',
     modules: [
       {
         title: 'Dignitaries',
-        desc: 'Profiles, portfolios & bios for Hon\'ble LG, CM, Minister, MD',
-        count: `${stats.dignitariesCount} Profiles`,
+        count: stats.dignitariesCount ?? 0,
+        unit: 'Profiles',
         href: '/admin/dignitaries',
         icon: 'award',
-        color: 'text-amber-700',
-        iconBg: 'bg-amber-100 text-amber-700',
       },
       {
         title: 'Board of Directors',
-        desc: 'Official Board members, roles, executive appointments',
-        count: `${stats.directorsCount} Members`,
+        count: stats.directorsCount ?? 0,
+        unit: 'Board Members',
         href: '/admin/board-of-directors',
         icon: 'users',
-        color: 'text-emerald-700',
-        iconBg: 'bg-emerald-100 text-emerald-700',
       },
       {
         title: 'AGM Documents',
-        desc: 'Annual General Meeting reports, notices & proxy filings',
-        count: `${stats.agmCount} Documents`,
+        count: stats.agmCount ?? 0,
+        unit: 'Documents',
         href: '/admin/agm',
         icon: 'scroll-text',
-        color: 'text-cyan-700',
-        iconBg: 'bg-cyan-100 text-cyan-700',
       },
       {
-        title: 'Notifications & Circulars',
-        desc: 'Official government circulars, office orders & gazette orders',
-        count: `${stats.notificationsCount} Orders`,
+        title: 'Notifications',
+        count: stats.notificationsCount ?? 0,
+        unit: 'Notifications',
         href: '/admin/notifications',
         icon: 'bell',
-        color: 'text-rose-700',
-        iconBg: 'bg-rose-100 text-rose-700',
       },
     ],
   },
   {
     title: 'Media, Publications & Resources',
-    subtitle: 'Galleries, citizen resources & compliance policies',
     modules: [
       {
         title: 'Media Gallery',
-        desc: 'High-resolution photo albums & project visual archives',
-        count: `${stats.galleryCount} Photos`,
+        count: stats.galleryCount ?? 0,
+        unit: 'Photo Albums',
         href: '/admin/gallery',
-        addHref: '/admin/gallery-form',
-        addLabel: '+ Add Photo',
         icon: 'image',
-        color: 'text-emerald-700',
-        iconBg: 'bg-emerald-100 text-emerald-700',
       },
       {
-        title: 'Corporate Policies, CSR, MoA / AoA & Downloads',
-        desc: 'Corporate governance policies, CSR initiatives, MoA/AoA, and general downloads',
-        count: `${stats.policiesCount} Documents`,
+        title: 'Downloads & Resources',
+        count: stats.downloadsCount ?? 0,
+        unit: 'Documents',
+        href: '/admin/resources',
+        icon: 'download',
+      },
+      {
+        title: 'Corporate Policies & CSR',
+        count: stats.policiesCount ?? 0,
+        unit: 'Policies',
         href: '/admin/policies',
-        addHref: '/admin/policies-form',
-        addLabel: '+ Add Document',
         icon: 'file-text',
-        color: 'text-slate-700',
-        iconBg: 'bg-slate-100 text-slate-700',
       },
     ],
   },
   {
-    title: 'Citizen Services, Security & Administration',
-    subtitle: 'Citizen feedback, user management, audit trails & portal configurations',
+    title: 'Contact Directory',
+    modules: [
+      {
+        title: 'Official Contacts',
+        count: stats.officialContactsCount ?? 0,
+        unit: 'Key Contacts',
+        href: '/admin/official-contacts',
+        icon: 'phone',
+      },
+      {
+        title: 'Contact Sub-Offices',
+        count: stats.subOfficesCount ?? 0,
+        unit: 'Field Offices',
+        href: '/admin/contact-sub-offices',
+        icon: 'map-pin',
+      },
+    ],
+  },
+  {
+    title: 'Citizen Services & Administration',
     modules: [
       {
         title: 'Public Inquiries & Feedback',
-        desc: 'Review and respond to citizen submissions & contact form queries',
-        count: `${stats.inquiriesCount} Inquiries`,
+        count: stats.inquiriesCount ?? 0,
+        unit: 'Inquiries',
         href: '/admin/contacts',
         icon: 'mail',
-        color: 'text-blue-700',
-        iconBg: 'bg-blue-100 text-blue-700',
       },
       {
         title: 'User Accounts & Roles',
-        desc: 'Manage portal administrator accounts, roles & access permissions',
-        count: `${stats.usersCount} Users`,
+        count: stats.usersCount ?? 0,
+        unit: 'Users',
         href: '/admin/users',
-        addHref: '/admin/users-form',
-        addLabel: '+ Add User',
         icon: 'shield-check',
-        color: 'text-purple-700',
-        iconBg: 'bg-purple-100 text-purple-700',
       },
       {
         title: 'System Audit Logs',
-        desc: 'Real-time security audit trails, IP tracking & administrative actions',
-        count: `${stats.logsCount} Events`,
+        count: stats.logsCount ?? 0,
+        unit: 'Audit Events',
         href: '/admin/audit-logs',
         icon: 'scroll-text',
-        color: 'text-amber-700',
-        iconBg: 'bg-amber-100 text-amber-700',
       },
       {
         title: 'Site Settings',
-        desc: 'HQ contact numbers, emails, office address & global preferences',
-        count: 'Configured',
+        count: 1,
+        unit: 'Configured',
         href: '/admin/site-settings',
         icon: 'settings',
-        color: 'text-slate-700',
-        iconBg: 'bg-slate-100 text-slate-700',
       },
     ],
   },
@@ -481,474 +286,82 @@ const moduleGroups = [
 ---
 
 <AdminLayout title="Dashboard" description="JKSPDCL Administrative Control Panel Dashboard" activeTab="dashboard">
-  <div class="flex flex-col gap-6">
+  <div class="flex flex-col gap-6 max-w-7xl">
     
-    <!-- Welcome Header Banner -->
-    <div class="bg-gradient-to-r from-blue-50/90 via-white to-[#EAF4FF]/50 rounded-xl border border-blue-200/90 border-t-3 border-t-[#0B4F9C] p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <!-- Dashboard Header -->
+    <div class="admin-page-header">
       <div>
         <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-100 animate-pulse"></span>
-          <h1 class="text-xl font-extrabold text-[#0B4F9C] tracking-tight">Welcome back, {adminUserName}</h1>
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          <h1 class="admin-page-title">Welcome back, {adminUserName}</h1>
         </div>
-        <p class="text-xs text-slate-700 font-medium mt-1">{formattedDate} &mdash; Administrative control &amp; content management hub for the JKSPDC web portal.</p>
+        <p class="admin-page-subtitle">{formattedDate} &mdash; Administrative control &amp; module status overview for the JKSPDC web portal.</p>
       </div>
-      <div class="flex items-center gap-2 self-start md:self-auto">
-        <span class="text-[11px] font-bold text-[#0B4F9C] bg-white px-3.5 py-1.5 rounded-lg border border-[#BDD7EE] shadow-2xs flex items-center gap-1.5">
-          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-          Console Status: <span class="text-emerald-700 font-extrabold">Online</span>
+      <div class="flex items-center gap-2 self-start sm:self-auto">
+        <span class="admin-badge admin-badge-success">
+          Console Status: Online
         </span>
       </div>
     </div>
 
     {errorMessage && (
-      <div class="p-4 bg-amber-50 border-l-4 border-amber-500 rounded-lg text-xs text-amber-800 font-semibold shadow-xs flex items-start gap-2.5" role="alert">
-        <Icon name="info" size={16} class="text-amber-600 shrink-0 mt-0.5" />
-        <div class="flex flex-col gap-0.5">
-          <span>Backend Notification:</span>
-          <span class="text-[11px] font-normal text-amber-700">{errorMessage}</span>
-        </div>
+      <div class="p-3 bg-red-50 border border-red-200 rounded text-xs text-red-700 font-semibold flex items-center gap-2" role="alert">
+        <Icon name="info" size={14} class="text-red-600 shrink-0" />
+        <span>{errorMessage}</span>
       </div>
     )}
 
-    <!-- Top Executive Overview KPI Cards (High-Level Operational Status) -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
-      {statCards.map((card) => (
-        <a 
-          href={card.href} 
-          class={`group rounded-xl border p-4 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between min-h-[148px] relative overflow-hidden ${card.bg} ${card.border}`}
-        >
-          <!-- Top Accent Bar -->
-          <div class={`absolute top-0 inset-x-0 h-1.5 ${card.topBar}`}></div>
-
-          <!-- Top Row: Icon Badge & Category Tag -->
-          <div class="flex items-center justify-between gap-2 pt-0.5">
-            <div class={`w-10 h-10 rounded-xl flex items-center justify-center shadow-xs shrink-0 ${card.iconBg} group-hover:scale-105 transition-transform duration-200`}>
-              <Icon name={card.icon} size={18} strokeWidth={2.2} />
-            </div>
-            <span class={`text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md border shadow-2xs ${card.badgeBg}`}>
-              {card.badge}
-            </span>
-          </div>
-
-          <!-- Middle Row: Big Metric Count & Full-Width Label -->
-          <div class="my-2">
-            <div class="text-2xl font-black text-slate-900 tracking-tight leading-none group-hover:translate-x-0.5 transition-transform">
-              {card.count}
-            </div>
-            <div class={`text-[11px] font-black uppercase tracking-wider mt-1 truncate ${card.textColor}`} title={card.label}>
-              {card.label}
-            </div>
-          </div>
-
-          <!-- Bottom Row: Clean Action Bar -->
-          <div class="pt-2 border-t border-slate-200/70 flex items-center justify-between text-[11px] font-bold text-slate-700 group-hover:text-slate-900 transition-colors">
-            <span>Manage</span>
-            <Icon name="arrow-right" size={12} class="group-hover:translate-x-1 transition-transform duration-200" strokeWidth={2.5} />
-          </div>
-        </a>
-      ))}
-    </div>
-
-    <!-- REAL-TIME ENTERPRISE STATISTICS & OPERATIONAL INTELLIGENCE -->
-    <section class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 flex flex-col gap-6 relative overflow-hidden" aria-label="Enterprise Operational Statistics">
-      
-      <!-- Top Section Header with Title & Live Telemetry Badge & Toggle -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-        <div>
-          <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-lg bg-[#EAF4FF] text-[#0B4F9C] flex items-center justify-center font-bold shrink-0">
-              <Icon name="bar-chart" size={16} strokeWidth={2.5} />
-            </div>
-            <div>
-              <h2 class="text-sm font-black text-[#0B4F9C] uppercase tracking-wider">
-                Enterprise Statistics &amp; Operational Analytics
-              </h2>
-              <p class="text-xs text-slate-500 font-medium">Real-time analytical telemetry synthesized directly from live JKSPDC corporate databases</p>
-            </div>
-          </div>
-        </div>
-        
-        <div class="flex items-center gap-3">
-          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            Live DB Telemetry
-          </span>
-          <button 
-            id="toggle-stats-panel-btn"
-            type="button"
-            class="text-[11px] font-bold text-slate-600 hover:text-[#0B4F9C] bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg border border-slate-200 cursor-pointer transition-colors select-none"
-          >
-            <span id="stats-toggle-label">Hide Statistics</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Main 3-Pillar Analytics Grid -->
-      <div id="stats-panel-content" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-        <!-- PILLAR 1: Hydro Generation & Capacity Portfolio -->
-        <div class="bg-slate-50/70 rounded-xl border border-slate-200/80 p-5 flex flex-col justify-between gap-5 relative group hover:border-[#0B4F9C]/50 transition-colors">
-          <div class="flex flex-col gap-3">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-black text-[#0B4F9C] uppercase tracking-wide flex items-center gap-1.5">
-                <Icon name="zap" size={14} class="text-[#0B4F9C]" strokeWidth={2.5} /> Hydro Power Capacity
-              </span>
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-[#0B4F9C] border border-blue-200">
-                {rawProjects.length} Stations
-              </span>
-            </div>
-
-            <!-- Big Stat Figures -->
-            <div class="grid grid-cols-2 gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
-              <div>
-                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Total Monitored</span>
-                <span class="text-xl font-black text-slate-900 tracking-tight">{totalCapacityMw.toLocaleString('en-IN', { maximumFractionDigits: 1 })} <span class="text-xs font-bold text-slate-500">MW</span></span>
-              </div>
-              <div>
-                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Design Potential</span>
-                <span class="text-xl font-black text-[#0B4F9C] tracking-tight">{totalDesignEnergyMu.toLocaleString('en-IN', { maximumFractionDigits: 1 })} <span class="text-xs font-bold text-slate-500">MU</span></span>
-              </div>
-            </div>
-
-            <!-- Proportional Portfolio Progress Bar -->
-            <div class="flex flex-col gap-1.5 pt-1">
-              <div class="flex justify-between text-[11px] font-bold">
-                <span class="text-[#0B4F9C] flex items-center gap-1">
-                  <span class="w-2 h-2 rounded-full bg-[#0B4F9C]"></span> Operational ({operationalCapacityMw.toLocaleString('en-IN', { maximumFractionDigits: 1 })} MW)
-                </span>
-                <span class="text-amber-700 flex items-center gap-1">
-                  <span class="w-2 h-2 rounded-full bg-amber-500"></span> Pipeline ({pipelineCapacityMw.toLocaleString('en-IN', { maximumFractionDigits: 1 })} MW)
-                </span>
-              </div>
-              <div class="h-2.5 w-full bg-slate-200 rounded-full overflow-hidden flex shadow-inner">
-                <div class="bg-[#0B4F9C] h-full transition-all duration-500" style={`width: ${operationalPct}%`} title={`Operational: ${operationalPct}%`}></div>
-                <div class="bg-amber-500 h-full transition-all duration-500" style={`width: ${pipelinePct}%`} title={`Pipeline: ${pipelinePct}%`}></div>
-              </div>
-              <div class="flex justify-between text-[10px] text-slate-500 font-semibold px-0.5">
-                <span>{operationalPct}% Commissioned</span>
-                <span>{pipelinePct}% Development Pipeline</span>
-              </div>
-            </div>
-
-            <!-- Basin Allocation Breakdown -->
-            <div class="flex flex-col gap-2 pt-2 border-t border-slate-200/80">
-              <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">River Basin Distribution</span>
-              <div class="flex flex-col gap-2">
-                {basinStats.map((basin) => (
-                  <div class="flex flex-col gap-1">
-                    <div class="flex justify-between text-[11px] font-semibold text-slate-700">
-                      <span class="font-bold text-slate-900 truncate">{basin.name} ({basin.count})</span>
-                      <span>{basin.mw} MW <span class="text-slate-400 font-normal">({basin.pct}%)</span></span>
-                    </div>
-                    <div class="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
-                      <div class="bg-blue-600 h-full rounded-full" style={`width: ${basin.pct}%`}></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <a href="/admin/operational-projects" class="inline-flex items-center justify-between text-xs font-bold text-[#0B4F9C] hover:text-[#084A8F] pt-2 border-t border-slate-200 group-hover:translate-x-0.5 transition-all">
-            <span>Explore Hydro Generating Stations</span>
-            <Icon name="arrow-right" size={12} strokeWidth={2.5} />
-          </a>
-        </div>
-
-        <!-- PILLAR 2: Procurement & Tendering Analytics -->
-        <div class="bg-slate-50/70 rounded-xl border border-slate-200/80 p-5 flex flex-col justify-between gap-5 relative group hover:border-violet-500/50 transition-colors">
-          <div class="flex flex-col gap-3">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-black text-violet-800 uppercase tracking-wide flex items-center gap-1.5">
-                <Icon name="file-text" size={14} class="text-violet-700" strokeWidth={2.5} /> Procurement &amp; Bids
-              </span>
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-violet-100 text-violet-900 border border-violet-200">
-                {rawTenders.length} Total NITs
-              </span>
-            </div>
-
-            <!-- Big Stat Figures -->
-            <div class="grid grid-cols-2 gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
-              <div>
-                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Live Active Bids</span>
-                <span class="text-xl font-black text-violet-700 tracking-tight">{stats.tendersCount} <span class="text-xs font-bold text-slate-500">Active</span></span>
-              </div>
-              <div>
-                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Closed / Archived</span>
-                <span class="text-xl font-black text-slate-700 tracking-tight">{Math.max(0, rawTenders.length - stats.tendersCount)} <span class="text-xs font-bold text-slate-500">Bids</span></span>
-              </div>
-            </div>
-
-            <!-- Work Category Breakdown -->
-            <div class="flex flex-col gap-2 pt-2 border-t border-slate-200/80">
-              <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Tender Work Categories</span>
-              <div class="flex flex-col gap-2">
-                {tenderCatStats.length > 0 ? (
-                  tenderCatStats.map((cat) => (
-                    <div class="flex flex-col gap-1">
-                      <div class="flex justify-between text-[11px] font-semibold text-slate-700">
-                        <span class="font-bold text-slate-900">{cat.category}</span>
-                        <span>{cat.count} NITs <span class="text-slate-400 font-normal">({cat.pct}%)</span></span>
-                      </div>
-                      <div class="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
-                        <div class="bg-violet-600 h-full rounded-full" style={`width: ${cat.pct}%`}></div>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p class="text-xs text-slate-400 italic">No category data available</p>
-                )}
-              </div>
-            </div>
-
-            <!-- Fast Status Badges -->
-            <div class="p-3 bg-white rounded-lg border border-slate-200 flex items-center justify-between text-xs">
-              <span class="text-slate-600 font-medium">Bidding Status</span>
-              <span class="text-emerald-700 font-bold flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> All Active NITs Current
-              </span>
-            </div>
-          </div>
-
-          <a href="/admin/tenders" class="inline-flex items-center justify-between text-xs font-bold text-violet-700 hover:text-violet-900 pt-2 border-t border-slate-200 group-hover:translate-x-0.5 transition-all">
-            <span>Manage Tender Notices &amp; Bids</span>
-            <Icon name="arrow-right" size={12} strokeWidth={2.5} />
-          </a>
-        </div>
-
-        <!-- PILLAR 3: Corporate Governance & Digital Records -->
-        <div class="bg-slate-50/70 rounded-xl border border-slate-200/80 p-5 flex flex-col justify-between gap-5 relative group hover:border-emerald-500/50 transition-colors">
-          <div class="flex flex-col gap-3">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-black text-emerald-800 uppercase tracking-wide flex items-center gap-1.5">
-                <Icon name="shield-check" size={14} class="text-emerald-700" strokeWidth={2.5} /> Compliance &amp; Records
-              </span>
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-900 border border-emerald-200">
-                100% GIGW 3.0
-              </span>
-            </div>
-
-            <!-- Big Stat Figures -->
-            <div class="grid grid-cols-2 gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
-              <div>
-                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Published Records</span>
-                <span class="text-xl font-black text-emerald-700 tracking-tight">{totalCorporateDocs} <span class="text-xs font-bold text-slate-500">Docs</span></span>
-              </div>
-              <div>
-                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Security Events</span>
-                <span class="text-xl font-black text-slate-900 tracking-tight">{stats.logsCount || 0} <span class="text-xs font-bold text-slate-500">Logged</span></span>
-              </div>
-            </div>
-
-            <!-- Document Category Registry Breakdown -->
-            <div class="flex flex-col gap-1.5 pt-2 border-t border-slate-200/80">
-              <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-0.5">Mandatory Corporate Registers</span>
-              <div class="grid grid-cols-2 gap-2">
-                {docBreakdown.map((item) => (
-                  <a href={item.href} class="p-2 bg-white rounded-lg border border-slate-200 hover:border-[#0B4F9C] flex items-center justify-between transition-colors shadow-2xs">
-                    <span class="text-[11px] font-bold text-slate-700 truncate pr-1" title={item.label}>{item.label}</span>
-                    <span class="text-xs font-black text-[#0B4F9C] shrink-0 bg-blue-50 px-1.5 py-0.5 rounded">{item.count}</span>
-                  </a>
-                ))}
-              </div>
-            </div>
-
-            <!-- Citizen Inquiries Status -->
-            <div class="p-3 bg-white rounded-lg border border-slate-200 flex items-center justify-between text-xs">
-              <span class="text-slate-600 font-medium">Citizen Inquiries</span>
-              <span class="font-bold text-[#0B4F9C] flex items-center gap-1.5">
-                <Icon name="mail" size={12} class="text-[#0B4F9C]" />
-                {stats.inquiriesCount || 0} Submissions
-              </span>
-            </div>
-          </div>
-
-          <a href="/admin/site-settings" class="inline-flex items-center justify-between text-xs font-bold text-emerald-700 hover:text-emerald-900 pt-2 border-t border-slate-200 group-hover:translate-x-0.5 transition-all">
-            <span>Corporate Compliance &amp; Settings</span>
-            <Icon name="arrow-right" size={12} strokeWidth={2.5} />
-          </a>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- Complete Portal Modules Directory (Categorized & Non-Redundant) -->
+    <!-- Module Groups with Compact Module Count Cards -->
     <div class="flex flex-col gap-6">
-      <div class="flex items-center justify-between border-b border-slate-200 pb-2">
-        <div>
-          <h2 class="text-sm font-extrabold text-[#0B4F9C] uppercase tracking-wider flex items-center gap-2">
-            <Icon name="landmark" size={16} class="text-[#0B4F9C]" /> All Portal Modules &amp; Management Hub
-          </h2>
-          <p class="text-xs text-slate-500 mt-0.5">Direct administrative access to all portal services, content managers, and governance registers.</p>
-        </div>
-      </div>
-
       {moduleGroups.map((group) => (
-        <div class="bg-white rounded-xl border border-slate-200/90 shadow-xs p-5 flex flex-col gap-4">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-slate-100 pb-2.5">
-            <div>
-              <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wide flex items-center gap-2">
-                <span class="w-1.5 h-3.5 bg-[#0B4F9C] rounded-xs"></span>
-                {group.title}
-              </h3>
-              <p class="text-[11px] text-slate-500 font-medium ml-3.5">{group.subtitle}</p>
-            </div>
+        <section class="flex flex-col gap-2.5" aria-label={group.title}>
+          <div class="flex items-center gap-2 pb-1.5 border-b border-slate-200">
+            <span class="w-1.5 h-3.5 bg-[#0B4F9C] rounded-xs"></span>
+            <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider">
+              {group.title}
+            </h2>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
             {group.modules.map((mod) => (
-              <div class="group border border-slate-200/90 hover:border-[#0B4F9C] rounded-xl p-4 bg-slate-50/40 hover:bg-white transition-all duration-200 shadow-2xs hover:shadow-xs flex flex-col justify-between gap-3">
-                <div class="flex items-start gap-3">
-                  <div class={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform ${mod.iconBg}`}>
-                    <Icon name={mod.icon} size={18} strokeWidth={2.2} />
+              <a 
+                href={mod.href}
+                class="group bg-white rounded-lg border border-slate-200 hover:border-[#0B4F9C] hover:shadow-xs p-4 flex flex-col justify-between min-h-[128px] transition-all duration-150 focus:outline-none focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C]"
+                aria-label={`Open ${mod.title} - ${mod.count} ${mod.unit}`}
+              >
+                <!-- Top Row: Icon & Module Name -->
+                <div class="flex items-start gap-2.5 min-w-0">
+                  <div class="w-8 h-8 rounded bg-slate-50 text-[#0B4F9C] border border-slate-200 flex items-center justify-center shrink-0 group-hover:bg-[#0B4F9C] group-hover:text-white group-hover:border-[#0B4F9C] transition-colors duration-150">
+                    <Icon name={mod.icon} size={15} strokeWidth={2} />
                   </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-center justify-between gap-1">
-                      <h4 class="text-xs font-bold text-slate-900 group-hover:text-[#0B4F9C] transition-colors truncate" title={mod.title}>
-                        {mod.title}
-                      </h4>
-                      {mod.count && (
-                        <span class="text-[10px] font-extrabold bg-white border border-slate-200 px-1.5 py-0.5 rounded text-slate-700 shrink-0">
-                          {mod.count}
-                        </span>
-                      )}
+                  <div class="min-w-0 flex-1 pt-0.5">
+                    <h3 class="text-xs font-bold text-slate-800 leading-snug group-hover:text-[#0B4F9C] transition-colors break-normal">
+                      {mod.title}
+                    </h3>
+                  </div>
+                </div>
+
+                <!-- Bottom Row: Count + Label + Action -->
+                <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-end justify-between gap-2">
+                  <div class="min-w-0">
+                    <div class="text-2xl font-black text-slate-900 tracking-tight leading-none">
+                      {mod.count}
                     </div>
-                    <p class="text-[11px] text-slate-500 font-normal leading-relaxed mt-1 line-clamp-2" title={mod.desc}>
-                      {mod.desc}
-                    </p>
+                    <div class="text-[11px] font-medium text-slate-500 mt-1 leading-tight whitespace-nowrap">
+                      {mod.unit}
+                    </div>
                   </div>
-                </div>
-
-                <div class="flex items-center justify-between gap-2 pt-2.5 border-t border-slate-200/70 text-[11px]">
-                  <a 
-                    href={mod.href} 
-                    class="font-bold text-[#0B4F9C] hover:underline inline-flex items-center gap-1 group-hover:translate-x-0.5 transition-transform"
-                  >
-                    Manage Module <Icon name="arrow-right" size={11} strokeWidth={2.5} />
-                  </a>
-
-                  {mod.addHref && (
-                    <a 
-                      href={mod.addHref} 
-                      class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-blue-50 hover:bg-blue-100 text-[#0B4F9C] border border-blue-200 transition-colors"
-                    >
-                      {mod.addLabel || '+ Add'}
-                    </a>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-
-    <!-- Bottom Grids: Recent Inquiries & System Activities -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      
-      <!-- Recent Public Inquiries -->
-      <div class="bg-white border border-slate-200/90 rounded-xl shadow-xs p-6 flex flex-col gap-4">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-          <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
-            <Icon name="mail" size={14} class="text-[#0B4F9C]" /> Recent Public Inquiries
-          </h3>
-          <a href="/admin/contacts" class="text-xs text-[#0B4F9C] font-bold hover:underline inline-flex items-center gap-1">
-            View All <Icon name="arrow-right" size={11} />
-          </a>
-        </div>
-
-        <div class="flex flex-col gap-3">
-          {recentInquiries.length === 0 ? (
-            <p class="text-xs text-slate-400 italic py-8 text-center font-medium">No recent citizen inquiries found.</p>
-          ) : (
-            recentInquiries.map((inq) => (
-              <div key={inq.id ?? `${inq.email ?? 'inquiry'}-${inq.createdAt ?? ''}`} class="p-3.5 border border-slate-200/80 rounded-lg bg-slate-50/50 hover:bg-slate-50 transition-colors flex flex-col gap-1.5">
-                <div class="flex justify-between items-start gap-2">
-                  <span class="text-xs font-bold text-[#0B4F9C]">{inq.name}</span>
-                  <span class="text-[10px] text-slate-500 font-semibold bg-white px-2 py-0.5 rounded border border-slate-200">
-                    {toDateOrNull(inq.createdAt)?.toLocaleDateString('en-IN', { dateStyle: 'short' }) ?? ''}
+                  <span class="text-xs font-bold text-[#0B4F9C] group-hover:text-[#073B75] inline-flex items-center gap-1 group-hover:translate-x-0.5 transition-transform duration-150 shrink-0">
+                    <span>Manage</span>
+                    <Icon name="arrow-right" size={11} strokeWidth={2.5} />
                   </span>
                 </div>
-                <p class="text-[11px] text-slate-500 font-medium">{inq.email}</p>
-                <p class="text-xs text-slate-600 leading-relaxed font-normal mt-0.5 border-t border-slate-200/60 pt-1.5 line-clamp-2">
-                  {inq.message}
-                </p>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-
-      <!-- Recent System Activities -->
-      <div class="bg-white border border-slate-200/90 rounded-xl shadow-xs p-6 flex flex-col gap-4">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-          <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
-            <Icon name="scroll-text" size={14} class="text-[#0B4F9C]" /> Recent System Activities
-          </h3>
-          <a href="/admin/audit-logs" class="text-xs text-[#0B4F9C] font-bold hover:underline inline-flex items-center gap-1">
-            All Logs <Icon name="arrow-right" size={11} />
-          </a>
-        </div>
-
-        <div class="flex flex-col gap-3">
-          {recentLogs.length === 0 ? (
-            <p class="text-xs text-slate-400 italic py-8 text-center font-medium">No administrative activity logged yet.</p>
-          ) : (
-            recentLogs.map((log) => (
-              <div key={log.id ?? `${log.action ?? 'log'}-${log.createdAt ?? ''}`} class="p-3.5 border border-slate-200/80 rounded-lg bg-slate-50/50 hover:bg-slate-50 transition-colors flex gap-3.5 items-center">
-                <div class="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 text-[#0B4F9C] flex items-center justify-center shrink-0">
-                  <Icon name="scroll-text" size={15} />
-                </div>
-                <div class="flex flex-col flex-1 gap-0.5">
-                  <div class="flex justify-between items-start gap-2">
-                    <span class="text-xs font-bold text-slate-800 tracking-wide uppercase">{log.action}</span>
-                    <span class="text-[10px] text-slate-500 font-semibold bg-white px-2 py-0.5 rounded border border-slate-200">
-                      {toDateOrNull(log.createdAt)?.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) ?? ''}
-                    </span>
-                  </div>
-                  <span class="text-[11px] font-medium text-slate-500">IP: {log.ipAddress}</span>
-                  {log.details !== undefined && log.details !== null && (
-                    <span class="text-[11px] text-slate-500 italic mt-0.5 line-clamp-1 border-t border-slate-200/60 pt-1">
-                      {typeof log.details === 'string' ? log.details : JSON.stringify(log.details)}
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-
+              </a>
+            ))}
+          </div>
+        </section>
+      ))}
     </div>
 
   </div>
-
-  <script is:inline>
-    function initStatsPanelToggle() {
-      var btn = document.getElementById('toggle-stats-panel-btn');
-      var content = document.getElementById('stats-panel-content');
-      var label = document.getElementById('stats-toggle-label');
-      if (!btn || !content || !label) return;
-
-      var isHidden = localStorage.getItem('admin_stats_hidden') === 'true';
-      if (isHidden) {
-        content.classList.add('hidden');
-        label.textContent = 'Show Statistics';
-      } else {
-        content.classList.remove('hidden');
-        label.textContent = 'Hide Statistics';
-      }
-
-      btn.onclick = function() {
-        var hiddenNow = content.classList.toggle('hidden');
-        label.textContent = hiddenNow ? 'Show Statistics' : 'Hide Statistics';
-        try {
-          localStorage.setItem('admin_stats_hidden', hiddenNow ? 'true' : 'false');
-        } catch (e) {}
-      };
-    }
-
-    document.addEventListener('astro:page-load', initStatsPanelToggle);
-    initStatsPanelToggle();
-  </script>
 </AdminLayout>

@@ -2,63 +2,50 @@
 import Layout from '../../../layouts/Layout.astro';
 import Icon from '../../../components/Icon.astro';
 
+// Fetch public AGM documents from backend API and Resources/Downloads with Category 'AGM'
 let agmDocuments: any[] = [];
-let errorMessage = '';
-
-const fallbackAgmDocs = [
-  { id: 'agm-seed-1', title: 'Notice of AGM for the year 2019 20', documentUrl: '/MoA_AoA.pdf', year: 2020 },
-  { id: 'agm-seed-2', title: 'Notice of AGM for the year 2018 19', documentUrl: '/MoA_AoA.pdf', year: 2019 },
-  { id: 'agm-seed-3', title: 'Annual Return 2018 19', documentUrl: '/MoA_AoA.pdf', year: 2019 },
-  { id: 'agm-seed-4', title: 'Notice of AGM for the year 2017 18', documentUrl: '/MoA_AoA.pdf', year: 2018 },
-  { id: 'agm-seed-5', title: 'Annual Return 2017 18', documentUrl: '/MoA_AoA.pdf', year: 2018 },
-  { id: 'agm-seed-6', title: 'Notice of AGM for the year 2016 17', documentUrl: '/MoA_AoA.pdf', year: 2017 },
-  { id: 'agm-seed-7', title: 'Annual Return 2016 17', documentUrl: '/MoA_AoA.pdf', year: 2017 },
-  { id: 'agm-seed-8', title: 'Notice of AGM for the year 2015 16', documentUrl: '/MoA_AoA.pdf', year: 2016 },
-  { id: 'agm-seed-9', title: 'Annual Return 2015 16', documentUrl: '/MoA_AoA.pdf', year: 2016 },
-  { id: 'agm-seed-10', title: 'Annual Return 2014 15', documentUrl: '/MoA_AoA.pdf', year: 2015 },
-  { id: 'agm-seed-11', title: 'Notice of AGM for the year 2013 14', documentUrl: '/MoA_AoA.pdf', year: 2014 },
-  { id: 'agm-seed-12', title: 'Notice of AGM for the year 2012 13', documentUrl: '/MoA_AoA.pdf', year: 2013 },
-  { id: 'agm-seed-13', title: 'Notice of AGM for the year 2011 12', documentUrl: '/MoA_AoA.pdf', year: 2012 },
-];
+let fetchError = '';
 
 try {
-  const [agmRes, downloadsRes] = await Promise.all([
-    fetch('http://localhost:3000/api/public/agm').catch(() => null),
-    fetch('http://localhost:3000/api/downloads?category=AGM').catch(() => null),
-  ]);
-
+  // 1. Fetch from agm documents table
+  const agmRes = await fetch('http://localhost:3000/api/agm').catch(() => null);
   if (agmRes && agmRes.ok) {
     const agmData = await agmRes.json();
     if (Array.isArray(agmData)) {
-      agmDocuments = [...agmDocuments, ...agmData];
+      agmDocuments.push(...agmData);
     }
   }
 
-  if (downloadsRes && downloadsRes.ok) {
-    const dlData = await downloadsRes.json();
+  // 2. Fetch from Resources / Downloads where category is 'AGM'
+  const dlRes = await fetch('http://localhost:3000/api/downloads').catch(() => null);
+  if (dlRes && dlRes.ok) {
+    const dlData = await dlRes.json();
     if (Array.isArray(dlData)) {
-      const active = dlData.filter((d: any) => 
-        (!d.status || d.status === 'Active') && 
-        (d.category && d.category.toLowerCase() === 'agm')
-      );
-      const mapped = active.map((d: any) => ({
-        id: d.id,
-        title: d.title,
-        documentUrl: d.documentUrl,
-        meetingDate: d.publishDate || d.createdAt,
-        _fromResources: true,
-      }));
-      agmDocuments = [...agmDocuments, ...mapped];
+      const agmFromDownloads = dlData
+        .filter((d: any) => d.category?.toUpperCase() === 'AGM' || d.category?.toUpperCase() === 'ANNUAL GENERAL MEETING')
+        .map((d: any) => ({
+          id: d.id,
+          title: d.title,
+          meetingDate: d.publishDate || d.createdAt,
+          fileName: d.fileName,
+          documentUrl: d.documentUrl,
+          description: d.description,
+        }));
+      agmDocuments.push(...agmFromDownloads);
     }
   }
 } catch (e) {
-  console.error('Error fetching public AGM documents:', e);
+  console.error('Error fetching AGM documents:', e);
+  fetchError = 'Unable to reach backend services. Showing official archives.';
 }
 
-// Always merge with official archive documents so the list is complete and authentic
-const existingTitles = new Set(agmDocuments.map((d: any) => d.title.trim().toLowerCase()));
-const missingFallbacks = fallbackAgmDocs.filter(f => !existingTitles.has(f.title.trim().toLowerCase()));
-agmDocuments = [...agmDocuments, ...missingFallbacks];
+// Sort by date descending
+agmDocuments.sort((a: any, b: any) => new Date(b.meetingDate || 0).getTime() - new Date(a.meetingDate || 0).getTime());
+
+// Extract available years for filter
+const availableYears = Array.from(
+  new Set(agmDocuments.map((doc: any) => new Date(doc.meetingDate).getFullYear()))
+).sort((a: any, b: any) => b - a);
 
 const getDocUrl = (url?: string) => {
   if (!url) return '#';
@@ -67,11 +54,23 @@ const getDocUrl = (url?: string) => {
   }
   return url;
 };
+
+const formatDate = (dateStr: string) => {
+  try {
+    return new Date(dateStr).toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    });
+  } catch {
+    return dateStr;
+  }
+};
 ---
 
 <Layout 
   title="Annual General Meetings (AGM) - Investors Corner" 
-  description="Annual General Meeting documents, statements, and minutes of Jammu & Kashmir State Power Development Corporation Limited."
+  description="Official Annual General Meeting (AGM) notices, resolutions, and investor reports of JKSPDC."
 >
   <div class="space-y-0 max-w-5xl mx-auto">
     <!-- Premium Page Header Band -->
@@ -79,7 +78,7 @@ const getDocUrl = (url?: string) => {
       <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
         <a href="/">Home</a>
         <span class="separator">/</span>
-        <span>Investors Corner</span>
+        <a href="/stakeholders/investors/ipp-projects">Investors Corner</a>
         <span class="separator">/</span>
         <span class="current">Annual General Meetings</span>
       </nav>
@@ -87,76 +86,180 @@ const getDocUrl = (url?: string) => {
       <p class="page-subtitle">Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL)</p>
     </div>
 
-    {errorMessage && (
-      <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 text-xs font-semibold">
-        {errorMessage}
-      </div>
-    )}
-
-    <!-- Content -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Main Content Card -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-6 animate-fadeIn delay-200">
       
-      <!-- Main Content -->
-      <article class="lg:col-span-2 space-y-6">
+      <!-- Section Header -->
+      <div class="border-b border-slate-200 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <div class="inline-block text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-[#0B4F9C] px-3 py-1 rounded-full mb-1 border border-blue-200">
+            Statutory &amp; Corporate Compliance
+          </div>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-[#0B4F9C]">
+            AGM Notices &amp; Meeting Documents
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-600 font-normal mt-1 leading-relaxed">
+            Notices, proceedings, director reports, and statutory disclosures presented at the Annual General Meetings of the Corporation.
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200" id="record-count-badge">
+            Total: {agmDocuments.length} Record{agmDocuments.length === 1 ? '' : 's'}
+          </span>
+        </div>
+      </div>
 
-        <!-- AGM Documents Table (Consistent with website tables, without unnecessary meeting link col) -->
-        <div class="table-wrapper">
-          <table class="table-data min-w-full" role="table" aria-label="Annual General Meeting Documents">
-            <thead>
-              <tr>
-                <th scope="col" class="text-center w-14 sm:w-16">#</th>
-                <th scope="col" class="text-left">Annual General Meeting Documents</th>
+      <!-- Filter Bar -->
+      <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-3 w-full sm:w-auto">
+          <label for="agm-year-filter" class="text-xs font-bold text-slate-700 whitespace-nowrap">
+            Filter by Year:
+          </label>
+          <select 
+            id="agm-year-filter" 
+            class="form-select text-xs py-1.5 px-3 border border-slate-300 rounded-lg bg-white font-medium text-slate-700 focus:border-[#0B4F9C] focus:ring-1 focus:ring-[#0B4F9C] w-full sm:w-44"
+          >
+            <option value="All">All Years</option>
+            {availableYears.map((year) => (
+              <option value={String(year)}>{year}</option>
+            ))}
+          </select>
+        </div>
+
+        <div class="flex items-center gap-3 w-full sm:w-auto">
+          <label for="agm-search-input" class="text-xs font-bold text-slate-700 whitespace-nowrap">
+            Search:
+          </label>
+          <input 
+            type="text" 
+            id="agm-search-input" 
+            placeholder="Search by title or file..." 
+            class="text-xs py-1.5 px-3 border border-slate-300 rounded-lg bg-white font-normal text-slate-800 focus:border-[#0B4F9C] focus:ring-1 focus:ring-[#0B4F9C] w-full sm:w-60 outline-none"
+          />
+        </div>
+      </div>
+
+      <!-- AGM Documents Table -->
+      <div class="table-wrapper">
+        <table class="table-data min-w-full" id="agm-table">
+          <thead>
+            <tr>
+              <th scope="col" class="text-left w-16">S.No</th>
+              <th scope="col" class="text-left">Meeting Title &amp; Particulars</th>
+              <th scope="col" class="text-left w-48">Date of Meeting</th>
+              <th scope="col" class="text-center w-36">View Notice</th>
+            </tr>
+          </thead>
+          <tbody id="agm-table-body">
+            {agmDocuments.length === 0 ? (
+              <tr id="empty-state-row">
+                <td colspan="4" class="text-center py-12 text-slate-500">
+                  <div class="flex flex-col items-center justify-center gap-2">
+                    <Icon name="file-text" size={36} class="text-slate-300" />
+                    <p class="font-bold text-sm text-slate-700">No AGM Documents Currently Available</p>
+                    <p class="text-xs text-slate-500 max-w-md">
+                      Annual General Meeting records, notices, and proceedings for the upcoming fiscal review will be published here upon conclusion of proceedings.
+                    </p>
+                  </div>
+                </td>
               </tr>
-            </thead>
-            <tbody id="agm-table-body">
-              {agmDocuments.length === 0 ? (
-                <tr id="empty-agm-row">
-                  <td colspan="2" class="text-center py-12 text-slate-400 text-xs font-semibold italic">
-                    No Annual General Meeting documents uploaded yet.
-                  </td>
-                </tr>
-              ) : (
-                agmDocuments.map((agm: any, idx: number) => (
+            ) : (
+              agmDocuments.map((agm: any, idx: number) => {
+                const year = new Date(agm.meetingDate).getFullYear();
+                return (
                   <tr 
-                    class="agm-row hover:bg-[#EAF4FF] transition-colors group cursor-pointer"
+                    class="agm-item-row hover:bg-slate-50/80 transition-colors"
+                    data-year={year}
+                    data-title={agm.title.toLowerCase()}
+                    data-file={agm.fileName?.toLowerCase() || ''}
                   >
-                    <td class="text-center font-bold text-slate-500 text-xs row-idx">{idx + 1}</td>
-                    <td class="text-left py-3.5 px-4">
+                    <td class="text-left font-bold text-xs text-slate-400 row-idx">{idx + 1}</td>
+                    <td class="text-left">
+                      <div class="font-bold text-xs text-slate-900 leading-snug">
+                        {agm.title}
+                      </div>
+                      <div class="text-[11px] text-slate-500 mt-0.5">
+                        Statutory Annual General Meeting Disclosures
+                      </div>
+                    </td>
+                    <td class="text-left whitespace-nowrap text-xs font-semibold text-slate-700">
+                      {formatDate(agm.meetingDate)}
+                    </td>
+                    <td class="text-center">
                       <a 
                         href={getDocUrl(agm.documentUrl)} 
                         target="_blank" 
-                        rel="noopener noreferrer"
-                        class="flex items-center justify-between gap-4 font-bold text-[#0B4F9C] hover:text-[#084A8F] hover:underline text-xs sm:text-sm leading-snug w-full"
+                        rel="noopener noreferrer" 
+                        class="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 border border-[#0B4F9C] hover:bg-[#0B4F9C] hover:text-white text-[#0B4F9C] rounded text-xs font-bold transition-all"
+                        title={`View PDF: ${agm.fileName || agm.title} (opens in new tab)`}
                       >
-                        <div class="flex items-center gap-2.5 min-w-0">
-                          <Icon name="file-text" size={16} class="text-[#0B4F9C] shrink-0" />
-                          <span class="truncate sm:whitespace-normal">{agm.title}</span>
-                        </div>
-                        <span class="shrink-0 text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-[#EAF4FF] text-[#0B4F9C] border border-[#BDD7EE] group-hover:bg-[#0B4F9C] group-hover:text-white transition-colors">
-                          PDF ↗
-                        </span>
+                        <Icon name="file-text" size={12} />
+                        <span>View PDF</span>
+                        <span class="sr-only"> (opens in new tab)</span>
                       </a>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </article>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
 
-      <!-- Sidebar -->
-      <aside class="space-y-4">
-        <div class="card-static">
-          <h3 class="font-bold text-gray-900 mb-2 border-b border-gray-100 pb-2">Investor Corner</h3>
-          <ul class="flex flex-col gap-2 text-xs font-semibold text-[#0B4F9C]">
-            <li><a href="/notifications" class="hover:underline block py-1">&rarr; Notifications &amp; Circulars</a></li>
-            <li><a href="/stakeholders/investors/ipp-projects" class="hover:underline block py-1">&rarr; IPP Projects</a></li>
-            <li><a href="/stakeholders/vendors/tender-bids" class="hover:underline block py-1">&rarr; Tenders &amp; Bids Notices</a></li>
-            <li><a href="/about-us/explore/policies" class="hover:underline block py-1">&rarr; Corporate Policies</a></li>
-          </ul>
-        </div>
-      </aside>
+      <!-- No Match Filter Message (Hidden by default) -->
+      <div id="no-match-message" class="hidden text-center py-8 bg-slate-50 border border-slate-200 rounded-xl text-slate-600 text-xs font-medium">
+        No AGM documents found matching your filter criteria.
+      </div>      
+
     </div>
   </div>
 </Layout>
+
+<script>
+  function setupAgmFilter() {
+    const yearSelect = document.getElementById('agm-year-filter') as HTMLSelectElement | null;
+    const searchInput = document.getElementById('agm-search-input') as HTMLInputElement | null;
+    const rows = document.querySelectorAll<HTMLTableRowElement>('.agm-item-row');
+    const noMatchMsg = document.getElementById('no-match-message');
+    const countBadge = document.getElementById('record-count-badge');
+
+    if (!rows.length) return;
+
+    function applyFilter() {
+      const selectedYear = yearSelect?.value || 'All';
+      const searchTerm = (searchInput?.value || '').trim().toLowerCase();
+      let visibleCount = 0;
+
+      rows.forEach((row) => {
+        const rowYear = row.dataset.year || '';
+        const rowTitle = row.dataset.title || '';
+        const rowFile = row.dataset.file || '';
+
+        const yearMatch = selectedYear === 'All' || rowYear === selectedYear;
+        const searchMatch = !searchTerm || rowTitle.includes(searchTerm) || rowFile.includes(searchTerm);
+
+        if (yearMatch && searchMatch) {
+          row.style.display = '';
+          visibleCount++;
+          const idxCell = row.querySelector('.row-idx');
+          if (idxCell) idxCell.textContent = String(visibleCount);
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      if (noMatchMsg) {
+        noMatchMsg.classList.toggle('hidden', visibleCount > 0);
+      }
+      if (countBadge) {
+        countBadge.textContent = `Showing: ${visibleCount} Record${visibleCount === 1 ? '' : 's'}`;
+      }
+    }
+
+    yearSelect?.addEventListener('change', applyFilter);
+    searchInput?.addEventListener('input', applyFilter);
+  }
+
+  document.addEventListener('DOMContentLoaded', setupAgmFilter);
+  setupAgmFilter();
+</script>

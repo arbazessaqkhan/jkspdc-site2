@@ -45,7 +45,7 @@ const formatDate = (dateStr: string) => {
 };
 
 const formatSize = (bytes: number) => {
-  if (!bytes) return 'N/A';
+  if (!bytes) return '—';
   return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 };
 ---
@@ -86,28 +86,28 @@ const formatSize = (bytes: number) => {
 
         <!-- Bid Submission and Opening Details (Styled exactly like img2) -->
         <section class="space-y-2">
-          <div class="overflow-x-auto border border-slate-200 rounded-lg shadow-sm">
+          <div class="overflow-x-auto border border-slate-300 rounded-lg shadow-sm">
             <table class="w-full border-collapse text-xs text-left" aria-label="Bid Submission and Opening Details Table">
               <tbody>
                 <!-- Row 1: Headers -->
-                <tr class="bg-slate-50 border-b border-slate-200 font-bold text-slate-700">
+                <tr class="bg-[#EAF4FF] border-b border-slate-200 font-bold text-[#0B4F9C] uppercase tracking-wider text-[11px]">
                   <td class="p-3 border-r border-slate-200 w-1/2">Bid Submission Start Date</td>
                   <td class="p-3">Bid Submission End Date</td>
                 </tr>
                 <!-- Row 2: Values -->
-                <tr class="border-b border-slate-200 text-slate-700 font-semibold bg-white">
+                <tr class="border-b border-slate-200 text-slate-800 font-semibold bg-white text-xs">
                   <td class="p-3 border-r border-slate-200">{formatDate(tender.publishDate)}</td>
                   <td class="p-3">{formatDate(tender.closingDate)}</td>
                 </tr>
                 <!-- Row 3: Headers -->
-                <tr class="bg-slate-50 border-b border-slate-200 font-bold text-slate-700">
+                <tr class="bg-[#EAF4FF] border-b border-slate-200 font-bold text-[#0B4F9C] uppercase tracking-wider text-[11px]">
                   <td class="p-3 border-r border-slate-200">Bid Opening Date</td>
                   <td class="p-3">Download Document</td>
                 </tr>
                 <!-- Row 4: Values -->
                 <tr class="bg-white text-slate-700 font-semibold">
-                  <td class="p-3 border-r border-slate-200">{formatDate(tender.bidOpeningDate)}</td>
-                  <td class="p-3">
+                  <td class="p-3.5 border-r border-slate-300">{formatDate(tender.bidOpeningDate)}</td>
+                  <td class="p-3.5">
                     <div class="space-y-1">
                       <a 
                         href={getDocUrl(tender.documentUrl)} 
@@ -134,25 +134,25 @@ const formatSize = (bytes: number) => {
         <!-- Work Specification Table (Styled exactly like img2) -->
         <section class="space-y-2">
           <h3 class="font-extrabold text-slate-800 text-sm">Work Specification</h3>
-          <div class="overflow-x-auto border border-slate-200 rounded-lg shadow-sm">
-            <table class="w-full border-collapse text-xs text-left" aria-label="Work Specification Details Table">
+          <div class="table-wrapper">
+            <table class="table-data w-full text-xs text-left" aria-label="Work Specification Details Table">
               <thead>
-                <tr class="bg-slate-50 border-b border-slate-200 font-bold text-slate-700">
-                  <th scope="col" class="p-3 border-r border-slate-200 w-1/4">Works No.</th>
-                  <th scope="col" class="p-3 border-r border-slate-200 w-2/5">Title</th>
-                  <th scope="col" class="p-3 border-r border-slate-200 w-1/6">Bid Opening Date</th>
-                  <th scope="col" class="p-3 w-1/6">End Date</th>
+                <tr>
+                  <th scope="col" class="w-1/4">Works No.</th>
+                  <th scope="col" class="w-2/5">Title</th>
+                  <th scope="col" class="w-1/6">Bid Opening Date</th>
+                  <th scope="col" class="w-1/6">End Date</th>
                 </tr>
               </thead>
-              <tbody class="text-slate-650 font-semibold bg-white">
-                <tr class="border-b border-slate-200">
-                  <td class="p-3 border-r border-slate-200 font-mono text-[11px]">{tender.referenceNo}</td>
-                  <td class="p-3 border-r border-slate-200 leading-normal font-medium">{tender.title}</td>
-                  <td class="p-3 border-r border-slate-200">{formatDate(tender.bidOpeningDate)}</td>
-                  <td class="p-3">{formatDate(tender.closingDate)}</td>
+              <tbody class="text-slate-650 font-semibold">
+                <tr>
+                  <td class="font-mono text-[11px]">{tender.referenceNo}</td>
+                  <td class="leading-normal font-medium">{tender.title}</td>
+                  <td>{formatDate(tender.bidOpeningDate)}</td>
+                  <td>{formatDate(tender.closingDate)}</td>
                 </tr>
                 <tr>
-                  <td colspan="4" class="p-3 bg-slate-50/30 text-slate-450 font-medium italic text-[11px]">
+                  <td colspan="4" class="text-slate-450 font-medium italic text-[11px]">
                     No documents available
                   </td>
                 </tr>

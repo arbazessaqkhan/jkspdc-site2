@@ -186,45 +186,45 @@ const phase1Data = ippPhases[0];
 
       <!-- Static Stored Project Table for Phase 1 -->
       <div class="space-y-4">
-        <div class="flex items-center justify-between">
-          <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-            <Icon name="file-text" size={16} strokeWidth={2} class="text-[#0B4F9C]" />
-            Stored Projects Register ({phase1Data.name})
-          </h3>
-          <span class="text-xs text-slate-500 font-semibold italic">Official IPP Data</span>
+        <!-- Select Phase # dropdown matching Image 1 -->
+        <div class="flex items-center gap-3 pb-1">
+          <label for="select-phase-dropdown" class="text-xs font-bold text-slate-700">Select Phase #</label>
+          <select 
+            id="select-phase-dropdown" 
+            onchange="if(this.value) window.location.href='/stakeholders/investors/ipp-project-details?phase=' + this.value;"
+            class="bg-white border border-slate-300 rounded px-2.5 py-1 text-xs font-bold text-slate-800 outline-none focus:ring-2 focus:ring-[#0B4F9C]"
+          >
+            {ippPhases.map((phase) => (
+              <option value={phase.id} selected={phase.id === phase1Data.id}>
+                {phase.name.toUpperCase().replace('PHASE ', 'PHASE-')}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div class="table-wrapper">
           <table class="table-data min-w-full">
             <thead>
-              <tr>
-                <th scope="col" class="text-left">S.No</th>
-                <th scope="col" class="text-left">Name of Project</th>
-                <th scope="col" class="text-left">District / Basin</th>
-                <th scope="col" class="text-left">Capacity (MW)</th>
-                <th scope="col" class="text-left">Clearance Stage / Status</th>
-                <th scope="col" class="text-left">Developer / Allotted IPP</th>
-                <th scope="col" class="text-left">Remarks</th>
+              <tr class="bg-[#2D60A6] text-white">
+                <th scope="col" class="text-left py-3 px-4 text-xs font-bold">Project</th>
+                <th scope="col" class="text-center py-3 px-4 text-xs font-bold whitespace-nowrap">Installed Capacity in MW</th>
+                <th scope="col" class="text-left py-3 px-4 text-xs font-bold">Status</th>
+                <th scope="col" class="text-left py-3 px-4 text-xs font-bold">Awarded To</th>
+              </tr>
+              <tr class="bg-[#4176B8] text-white font-extrabold text-center text-xs tracking-wider uppercase">
+                <th colspan="4" class="py-2.5 text-center">{phase1Data.name.toUpperCase().replace('PHASE ', 'PHASE-')} PROJECTS</th>
               </tr>
             </thead>
             <tbody>
-              {phase1Data.projects.map((proj, idx) => (
-                <tr class="hover:bg-slate-50/80 transition-colors">
-                  <td class="text-left font-bold text-xs">{idx + 1}</td>
-                  <td class="font-bold text-left text-xs text-[#0B4F9C]">
-                    <a href={`/stakeholders/investors/ipp-project-details?phase=${phase1Data.id}`} class="hover:underline">
-                      {proj.name}
-                    </a>
+              {phase1Data.projects.map((proj) => (
+                <tr class="hover:bg-slate-50/80 transition-colors border-b border-slate-200">
+                  <td class="text-left py-3 px-4 text-xs">
+                    <div class="text-slate-800 font-medium">{proj.name}</div>
+                    <div class="text-slate-900 font-bold mt-0.5">{proj.location}</div>
                   </td>
-                  <td class="text-left text-xs">{proj.location} ({proj.basin})</td>
-                  <td class="font-semibold text-slate-700 text-left text-xs">{proj.capacityMw} MW</td>
-                  <td class="text-left text-xs">
-                    <span class="inline-block bg-blue-50 text-[#0B4F9C] border border-blue-200 px-2 py-0.5 rounded text-[11px] font-semibold">
-                      {proj.status}
-                    </span>
-                  </td>
-                  <td class="text-left text-xs text-slate-700 font-semibold">{proj.developer}</td>
-                  <td class="text-left text-xs text-slate-500">{proj.remarks}</td>
+                  <td class="text-center font-semibold text-slate-700 text-xs py-3 px-4">{proj.capacityMw}</td>
+                  <td class="text-left text-xs text-slate-700 py-3 px-4">{proj.status}</td>
+                  <td class="text-left text-xs text-slate-700 py-3 px-4">{proj.developer}</td>
                 </tr>
               ))}
             </tbody>
