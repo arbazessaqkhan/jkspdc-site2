@@ -9,7 +9,7 @@ const http = require('http');
 const net  = require('net');
 const url  = require('url');
 
-const PROXY_PORT   = 8080;
+const PROXY_PORT   = process.env.PORT || 8080;
 const FRONTEND     = { host: 'localhost', port: 4321 };
 const BACKEND      = { host: 'localhost', port: 3000  };
 
