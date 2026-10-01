@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { deleteLocalFile } from '../upload/file-cleanup.helper';
+import { CreatePolicyDto, UpdatePolicyDto } from './policies.dto';
 
 @Injectable()
 export class PoliciesService {
@@ -25,11 +26,8 @@ export class PoliciesService {
     return doc;
   }
 
-  async create(data: any, user: any, ip: string, ua: string) {
+  async create(data: CreatePolicyDto, user: any, ip: string, ua: string) {
     const { title, description, category, documentUrl, status } = data;
-    if (!title || !category || !documentUrl) {
-      throw new Error('Missing required fields');
-    }
 
     const doc = await this.prisma.policyDocument.create({
       data: {
@@ -52,7 +50,7 @@ export class PoliciesService {
     return doc;
   }
 
-  async update(id: string, data: any, user: any, ip: string, ua: string) {
+  async update(id: string, data: UpdatePolicyDto, user: any, ip: string, ua: string) {
     const oldDoc = await this.findOne(id);
 
     if (data.documentUrl !== undefined && data.documentUrl !== oldDoc.documentUrl) {

@@ -1,13 +1,19 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
+import { isAdmin } from '../../utils/roles';
+import { parseApiError, BACKEND_URL } from '../../utils/api-error';
 
 // Check authentication
-let sessionToken = Astro.cookies.get('admin_session')?.value;
+const sessionToken = Astro.cookies.get('admin_session')?.value;
 if (!sessionToken) {
-  sessionToken = 'mock-test-session-token';
-  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
-  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+  return Astro.redirect('/admin/login');
+}
+
+// Role protection: Audit logs are ADMIN-only
+const userRole = Astro.locals.user?.role;
+if (!isAdmin(userRole)) {
+  return Astro.redirect('/admin/dashboard');
 }
 
 let errorMessage = '';
@@ -15,7 +21,7 @@ let errorMessage = '';
 // Fetch Audit Logs List
 let logs = [];
 try {
-  const res = await fetch('http://localhost:3000/api/audit-logs', {
+  const res = await fetch(`${BACKEND_URL}/api/audit-logs`, {
     headers: {
       'Authorization': `Bearer ${sessionToken}`,
     },
@@ -23,11 +29,15 @@ try {
   if (res.ok) {
     logs = await res.json();
   } else {
-    errorMessage = 'Failed to load audit logs from backend.';
+    const apiErr = await parseApiError(res, 'load audit logs');
+    if (apiErr.isUnauthorized) {
+      return Astro.redirect('/admin/login');
+    }
+    errorMessage = apiErr.message;
   }
 } catch (e) {
   console.error('Error fetching audit logs:', e);
-  errorMessage = 'Backend connection failed.';
+  errorMessage = 'Failed to load audit logs. Unable to communicate with the server.';
 }
 ---
 

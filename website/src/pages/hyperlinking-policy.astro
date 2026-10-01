@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
 ---
 
 <Layout
@@ -20,8 +21,9 @@ import Layout from '../layouts/Layout.astro';
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <article class="lg:col-span-2 prose-gov space-y-5">
 
-        <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-xs text-amber-800 font-semibold">
-          ⚠️ <strong>DRAFT — FOR JKSPDC LEGAL REVIEW AND FORMAL APPROVAL BEFORE PUBLICATION.</strong>
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-xs text-amber-800 font-semibold flex items-start gap-2">
+          <Icon name="alert-triangle" size={14} class="text-amber-800 shrink-0 mt-0.5" />
+          <span><strong>DRAFT — FOR JKSPDC LEGAL REVIEW AND FORMAL APPROVAL BEFORE PUBLICATION.</strong></span>
         </div>
 
         <div class="card-static">
@@ -40,17 +42,17 @@ import Layout from '../layouts/Layout.astro';
         <div class="card-static">
           <h2 class="font-bold text-[#0B4F9C] text-base mb-3 border-b border-gray-100 pb-2">2. Linking to This Website</h2>
           <p>You are permitted to link to the homepage of this website (the root URL) for non-commercial purposes without prior written permission, provided:</p>
-          <ul class="mt-2 space-y-1 text-sm">
-            <li>✅ The link clearly identifies the destination as the official JKSPDC website</li>
-            <li>✅ The link opens in a new browser tab where technically feasible</li>
-            <li>✅ The linking page does not misrepresent JKSPDC or imply endorsement</li>
+          <ul class="mt-2 space-y-1.5 text-sm">
+            <li class="flex items-center gap-2"><Icon name="check" size={14} class="text-emerald-600 shrink-0" /> <span>The link clearly identifies the destination as the official JKSPDC website</span></li>
+            <li class="flex items-center gap-2"><Icon name="check" size={14} class="text-emerald-600 shrink-0" /> <span>The link opens in a new browser tab where technically feasible</span></li>
+            <li class="flex items-center gap-2"><Icon name="check" size={14} class="text-emerald-600 shrink-0" /> <span>The linking page does not misrepresent JKSPDC or imply endorsement</span></li>
           </ul>
           <p class="mt-3"><strong>The following are not permitted:</strong></p>
-          <ul class="mt-1 space-y-1 text-sm">
-            <li>❌ Deep-linking to internal pages without permission</li>
-            <li>❌ Framing of JKSPDC web pages within another website</li>
-            <li>❌ Linking in a manner that implies JKSPDC endorsement of a product, service, or organisation</li>
-            <li>❌ Using JKSPDC's name, logo, or branding without written authorisation</li>
+          <ul class="mt-1 space-y-1.5 text-sm">
+            <li class="flex items-center gap-2"><Icon name="x" size={14} class="text-red-500 shrink-0" /> <span>Deep-linking to internal pages without permission</span></li>
+            <li class="flex items-center gap-2"><Icon name="x" size={14} class="text-red-500 shrink-0" /> <span>Framing of JKSPDC web pages within another website</span></li>
+            <li class="flex items-center gap-2"><Icon name="x" size={14} class="text-red-500 shrink-0" /> <span>Linking in a manner that implies JKSPDC endorsement of a product, service, or organisation</span></li>
+            <li class="flex items-center gap-2"><Icon name="x" size={14} class="text-red-500 shrink-0" /> <span>Using JKSPDC's name, logo, or branding without written authorisation</span></li>
           </ul>
         </div>
 

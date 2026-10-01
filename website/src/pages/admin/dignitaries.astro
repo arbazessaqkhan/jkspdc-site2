@@ -1,13 +1,19 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
+import { isAdmin } from '../../utils/roles';
+import { parseApiError, BACKEND_URL } from '../../utils/api-error';
 
 // Check authentication
-let sessionToken = Astro.cookies.get('admin_session')?.value;
+const sessionToken = Astro.cookies.get('admin_session')?.value;
 if (!sessionToken) {
-  sessionToken = 'mock-test-session-token';
-  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
-  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+  return Astro.redirect('/admin/login');
+}
+
+// Role protection: Dignitaries management is ADMIN-only
+const userRole = Astro.locals.user?.role;
+if (!isAdmin(userRole)) {
+  return Astro.redirect('/admin/dashboard');
 }
 
 let errorMessage = '';
@@ -52,7 +58,7 @@ if (Astro.request.method === 'POST') {
 
         let res;
         if (action === 'create') {
-          res = await fetch('http://localhost:3000/api/dignitaries', {
+          res = await fetch(`${BACKEND_URL}/api/dignitaries`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -61,7 +67,7 @@ if (Astro.request.method === 'POST') {
             body: JSON.stringify(body),
           });
         } else {
-          res = await fetch(`http://localhost:3000/api/dignitaries/${id}`, {
+          res = await fetch(`${BACKEND_URL}/api/dignitaries/${id}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -74,14 +80,17 @@ if (Astro.request.method === 'POST') {
         if (res.ok) {
           successMessage = `Dignitary profile successfully ${action === 'create' ? 'added' : 'updated'}.`;
         } else {
-          const errData = await res.json().catch(() => ({}));
-          errorMessage = errData.message || 'Failed to save dignitary.';
+          const apiErr = await parseApiError(res, action === 'create' ? 'add dignitary' : 'update dignitary');
+          if (apiErr.isUnauthorized) {
+            return Astro.redirect('/admin/login');
+          }
+          errorMessage = apiErr.message;
         }
       }
     } else if (action === 'delete') {
       const id = formData.get('id')?.toString();
       if (id) {
-        const res = await fetch(`http://localhost:3000/api/dignitaries/${id}`, {
+        const res = await fetch(`${BACKEND_URL}/api/dignitaries/${id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${sessionToken}`,
@@ -91,25 +100,33 @@ if (Astro.request.method === 'POST') {
         if (res.ok) {
           successMessage = 'Dignitary successfully removed.';
         } else {
-          errorMessage = 'Failed to remove dignitary.';
+          const apiErr = await parseApiError(res, 'delete dignitary');
+          if (apiErr.isUnauthorized) {
+            return Astro.redirect('/admin/login');
+          }
+          errorMessage = apiErr.message;
         }
       }
     }
   } catch (e) {
     console.error('Error handling dignitary post:', e);
-    errorMessage = 'An error occurred. Check backend connection.';
+    errorMessage = 'An error occurred while saving the dignitary profile. Check backend service status.';
   }
 }
 
 // Fetch list of dignitaries
 let dignitaries = [];
 try {
-  const res = await fetch('http://localhost:3000/api/dignitaries');
+  const res = await fetch(`${BACKEND_URL}/api/dignitaries`);
   if (res.ok) {
     dignitaries = await res.json();
     dignitaries.sort((a: any, b: any) => a.sNo - b.sNo);
   } else {
-    errorMessage = 'Failed to load dignitaries from backend.';
+    const apiErr = await parseApiError(res, 'load dignitaries');
+    if (apiErr.isUnauthorized) {
+      return Astro.redirect('/admin/login');
+    }
+    errorMessage = apiErr.message;
   }
 } catch (e) {
   console.error('Error fetching dignitaries:', e);
@@ -368,7 +385,7 @@ try {
                 <div class="w-28 h-28 rounded-full overflow-hidden bg-slate-100 border-4 border-[#BDD7EE] shadow-sm relative flex items-center justify-center">
                   <img id="image-preview-img" src="" alt="Preview" class="w-full h-full object-cover object-top hidden" />
                   <div id="image-preview-fallback" class="w-full h-full bg-slate-200 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-slate-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+                    <Icon name="user" size={48} class="text-slate-400" />
                   </div>
                 </div>
                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Live Preview</span>

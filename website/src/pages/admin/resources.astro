@@ -1,13 +1,16 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
+import { canMutateRoutineContent } from '../../utils/roles';
+import { parseApiError, BACKEND_URL } from '../../utils/api-error';
 
-let sessionToken = Astro.cookies.get('admin_session')?.value;
+const sessionToken = Astro.cookies.get('admin_session')?.value;
 if (!sessionToken) {
-  sessionToken = 'mock-test-session-token';
-  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
-  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+  return Astro.redirect('/admin/login');
 }
+
+const userRole = Astro.locals.user?.role;
+const canMutate = canMutateRoutineContent(userRole);
 
 let errorMessage = '';
 let successMessage = '';
@@ -15,15 +18,19 @@ let successMessage = '';
 // Fetch all resources
 let resources: any[] = [];
 try {
-  const res = await fetch('http://localhost:3000/api/downloads');
+  const res = await fetch(`${BACKEND_URL}/api/downloads`);
   if (res.ok) {
     resources = await res.json();
   } else {
-    errorMessage = 'Failed to load resources from backend.';
+    const apiErr = await parseApiError(res, 'load resources');
+    if (apiErr.isUnauthorized) {
+      return Astro.redirect('/admin/login');
+    }
+    errorMessage = apiErr.message;
   }
 } catch (e) {
   console.error('Error fetching resources:', e);
-  errorMessage = 'Backend connection failed.';
+  errorMessage = 'Failed to load resources. Unable to communicate with the server.';
 }
 
 const defaultSeedResources = [
@@ -64,7 +71,7 @@ const categories = ['Policies', 'Downloads', 'AGM'];
 
 function getDocUrl(url?: string) {
   if (!url) return '#';
-  if (url.startsWith('/uploads/')) return `http://localhost:3000${url}`;
+  if (url.startsWith('/uploads/')) return `${BACKEND_URL}${url}`;
   return url;
 }
 ---
@@ -78,12 +85,14 @@ function getDocUrl(url?: string) {
         <h1 class="admin-page-title">Resources &amp; Downloads</h1>
         <p class="admin-page-subtitle">Upload and manage public resources, official documents, and downloadable files.</p>
       </div>
-      <button
-        id="btn-add-resource"
-        class="admin-btn admin-btn-primary flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
-      >
-        <Icon name="plus" size={14} /> Add Item
-      </button>
+      {canMutate && (
+        <button
+          id="btn-add-resource"
+          class="admin-btn admin-btn-primary flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
+        >
+          <Icon name="plus" size={14} /> Add Item
+        </button>
+      )}
     </div>
 
     <!-- Page Alerts (Behind Modal) -->
@@ -119,15 +128,15 @@ function getDocUrl(url?: string) {
             <th scope="col" class="min-w-[280px]">Name &amp; Description</th>
             <th scope="col" class="w-36">Category</th>
             <th scope="col" class="w-24 text-center">File</th>
-            <th scope="col" class="w-28 text-center sticky-col-right">Action</th>
+            {canMutate && <th scope="col" class="w-28 text-center sticky-col-right">Action</th>}
           </tr>
         </thead>
         <tbody id="resources-tbody">
           {resources.length === 0 ? (
             <tr id="empty-row">
-              <td colspan="5" class="text-center text-slate-500 py-12 text-xs font-semibold italic">
+              <td colspan={canMutate ? 5 : 4} class="text-center text-slate-500 py-12 text-xs font-semibold italic">
                 <Icon name="folder" size={32} class="mx-auto text-slate-300 mb-2" />
-                No resources found. Click "+ Add Item" to upload your first resource.
+                No resources found.
               </td>
             </tr>
           ) : (
@@ -174,32 +183,34 @@ function getDocUrl(url?: string) {
                     <Icon name="file-text" size={13} />
                   </a>
                 </td>
-                <td class="td-actions sticky-col-right text-center">
-                  <div class="admin-action-group justify-center">
-                    <button
-                      class="admin-btn-action btn-edit"
-                      data-id={r.id}
-                      data-title={r.title}
-                      data-description={r.description || ''}
-                      data-category={r.category}
-                      data-file-url={r.documentUrl}
-                      data-file-name={r.fileName}
-                      aria-label={`Edit ${r.title}`}
-                      title="Edit Resource"
-                    >
-                      <Icon name="pencil" size={13} />
-                    </button>
-                    <button
-                      class="admin-btn-action action-delete btn-delete"
-                      data-id={r.id}
-                      data-title={r.title}
-                      aria-label={`Delete ${r.title}`}
-                      title="Delete Resource"
-                    >
-                      <Icon name="trash-2" size={13} />
-                    </button>
-                  </div>
-                </td>
+                {canMutate && (
+                  <td class="td-actions sticky-col-right text-center">
+                    <div class="admin-action-group justify-center">
+                      <button
+                        class="admin-btn-action btn-edit"
+                        data-id={r.id}
+                        data-title={r.title}
+                        data-description={r.description || ''}
+                        data-category={r.category}
+                        data-file-url={r.documentUrl}
+                        data-file-name={r.fileName}
+                        aria-label={`Edit ${r.title}`}
+                        title="Edit Resource"
+                      >
+                        <Icon name="pencil" size={13} />
+                      </button>
+                      <button
+                        class="admin-btn-action action-delete btn-delete"
+                        data-id={r.id}
+                        data-title={r.title}
+                        aria-label={`Delete ${r.title}`}
+                        title="Delete Resource"
+                      >
+                        <Icon name="trash-2" size={13} />
+                      </button>
+                    </div>
+                  </td>
+                )}
               </tr>
             ))
           )}
@@ -211,6 +222,7 @@ function getDocUrl(url?: string) {
 </AdminLayout>
 
 <!-- ── ADD / EDIT MODAL (With responsive height & pinned buttons) ──────────────── -->
+{canMutate && (
 <div id="resource-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-xs p-3 sm:p-5 overflow-y-auto">
   <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[85vh] my-auto flex flex-col border border-slate-200 overflow-hidden animate-fadeIn">
 
@@ -284,12 +296,13 @@ function getDocUrl(url?: string) {
     </div>
   </div>
 </div>
+)}
 
-<script is:inline define:vars={{ activeSessionToken: sessionToken }}>
+<script is:inline define:vars={{ activeSessionToken: sessionToken, canMutate, backendUrl: BACKEND_URL }}>
 (function() {
-  var API = 'http://localhost:3000/api/downloads';
-  var BACKEND = 'http://localhost:3000';
-  var authToken = activeSessionToken || (document.cookie.match(/admin_session=([^;]+)/) || [])[1] || 'mock-test-session-token';
+  var API = (backendUrl || '') + '/api/downloads';
+  var BACKEND = (backendUrl || '');
+  var authToken = activeSessionToken || (document.cookie.match(/admin_session=([^;]+)/) || [])[1] || '';
 
   // ── HELPERS ──────────────────────────────────────────────────
   function getDocUrl(url) {
@@ -370,6 +383,11 @@ function getDocUrl(url?: string) {
       var idx = row.querySelector('.row-idx');
       if (idx) idx.textContent = i + 1;
     });
+  }
+
+  // If user cannot mutate (VIEWER), do not initialize mutation/modal handlers
+  if (!canMutate) {
+    return;
   }
 
   // ── MODAL OPEN/CLOSE ─────────────────────────────────────────
@@ -480,7 +498,16 @@ function getDocUrl(url?: string) {
           showSuccess('Resource deleted successfully.');
           checkEmptyTable();
         } else {
-          showError('Failed to delete resource.');
+          if (res.status === 401) {
+            window.location.href = '/admin/login';
+            return;
+          }
+          if (res.status === 403) {
+            showError('Access Denied: You do not have permission to delete resources.');
+            return;
+          }
+          var errData = await res.json().catch(function(){ return {}; });
+          showError(errData.message || 'Failed to delete resource.');
         }
       }).catch(function() { showError('Network error. Please try again.'); });
     }
@@ -522,6 +549,13 @@ function getDocUrl(url?: string) {
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        window.location.href = '/admin/login';
+        return;
+      }
+      if (response.status === 403) {
+        throw new Error('Access Denied: You do not have permission to upload files.');
+      }
       var err = await response.json().catch(function(){ return {}; });
       throw new Error(err.message || 'Upload failed');
     }
@@ -634,6 +668,14 @@ function getDocUrl(url?: string) {
       });
 
       if (!res.ok) {
+        if (res.status === 401) {
+          window.location.href = '/admin/login';
+          return;
+        }
+        if (res.status === 403) {
+          showModalAlert('Access Denied: You do not have permission to save resources.');
+          return;
+        }
         var errData = await res.json().catch(function(){ return {}; });
         throw new Error(errData.message || 'Server error ' + res.status);
       }
@@ -705,7 +747,7 @@ function getDocUrl(url?: string) {
           '<td class="p-4 text-center font-bold text-slate-400 text-xs row-idx">' + idx + '</td>' +
           '<td class="p-4 text-xs font-bold text-slate-800"><a href="' + getDocUrl(saved.documentUrl) + '" target="_blank" rel="noopener noreferrer" class="hover:text-[#0B4F9C] hover:underline transition-colors block font-bold">' + saved.title + '</a>' + descHtml + '</td>' +
           '<td class="p-4 text-xs"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">' + saved.category + '</span></td>' +
-          '<td class="p-4 text-center"><a href="' + getDocUrl(saved.documentUrl) + '" target="_blank" rel="noopener noreferrer" title="View PDF" class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-[#0B4F9C] bg-blue-50/60 hover:bg-blue-100/80 rounded border border-blue-200 transition-colors">📄 <span>View PDF</span></a></td>' +
+          '<td class="p-4 text-center"><a href="' + getDocUrl(saved.documentUrl) + '" target="_blank" rel="noopener noreferrer" title="View PDF" class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-[#0B4F9C] bg-blue-50/60 hover:bg-blue-100/80 rounded border border-blue-200 transition-colors"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4M10 9H8M16 13H8M16 17H8"></path></svg><span>View PDF</span></a></td>' +
           '<td class="p-4 text-center flex justify-center items-center gap-2">' +
           '<button class="btn-edit px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px] font-bold border border-slate-300 transition-colors cursor-pointer" data-id="' + saved.id + '" data-title="' + saved.title + '" data-description="' + description + '" data-category="' + saved.category + '" data-file-url="' + saved.documentUrl + '" data-file-name="' + (saved.fileName || '') + '">Edit</button>' +
           '<button class="btn-delete px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded text-[11px] font-bold border border-red-200 transition-colors cursor-pointer" data-id="' + saved.id + '" data-title="' + saved.title + '">Delete</button>' +

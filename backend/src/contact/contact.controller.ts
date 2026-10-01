@@ -3,6 +3,9 @@ import { Request } from 'express';
 import { ContactService } from './contact.service';
 import { CreateContactDto } from './contact.dto';
 import { AuthGuard } from '../auth/auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
+import { Role } from '../auth/roles.enum';
 
 @Controller('contact')
 export class ContactController {
@@ -29,7 +32,8 @@ export class ContactController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   async deleteSubmission(@Param('id') id: string) {
     await this.contactService.deleteSubmission(id);
     return { success: true };

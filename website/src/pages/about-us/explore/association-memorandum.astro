@@ -1,5 +1,6 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
+import Icon from '../../../components/Icon.astro';
 
 function getDocUrl(url?: string) {
   if (!url) return '#';
@@ -69,8 +70,9 @@ if (memoDocs.length === 0) {
               <h3 class="font-bold text-gray-900 text-sm mb-1">{doc.title}</h3>
               <p class="text-xs text-gray-550">{doc.description || "Official certified copies showing legal incorporation clauses under the Companies Act."}</p>
             </div>
-            <a href={getDocUrl(doc.documentUrl)} target="_blank" rel="noopener noreferrer" class="btn-primary text-xs whitespace-nowrap cursor-pointer shrink-0">
-              📄 View MoA & AoA PDF
+            <a href={getDocUrl(doc.documentUrl)} target="_blank" rel="noopener noreferrer" class="btn-primary text-xs whitespace-nowrap cursor-pointer shrink-0 inline-flex items-center gap-1.5">
+              <Icon name="file-text" size={13} />
+              <span>View MoA &amp; AoA PDF</span>
             </a>
           </div>
         ))}

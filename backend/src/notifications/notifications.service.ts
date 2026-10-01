@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { deleteLocalFile } from '../upload/file-cleanup.helper';
+import { CreateNotificationDto, UpdateNotificationDto } from './notifications.dto';
 
 @Injectable()
 export class NotificationsService {
@@ -24,11 +25,8 @@ export class NotificationsService {
     return notification;
   }
 
-  async create(data: any, user: any, ip: string, ua: string) {
+  async create(data: CreateNotificationDto, user: any, ip: string, ua: string) {
     const { title, fileName, documentUrl, publishDate } = data;
-    if (!title || !fileName || !documentUrl) {
-      throw new Error('Missing required fields');
-    }
 
     const notification = await this.prisma.notification.create({
       data: {
@@ -50,7 +48,7 @@ export class NotificationsService {
     return notification;
   }
 
-  async update(id: string, data: any, user: any, ip: string, ua: string) {
+  async update(id: string, data: UpdateNotificationDto, user: any, ip: string, ua: string) {
     const oldNotification = await this.findOne(id);
 
     if (data.documentUrl !== undefined && data.documentUrl !== oldNotification.documentUrl) {

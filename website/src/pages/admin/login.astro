@@ -5,6 +5,8 @@ import Icon from '../../components/Icon.astro';
 let errorMessage = '';
 const preferredLang = 'en';
 
+const BACKEND_URL = (import.meta.env.BACKEND_URL || process.env.BACKEND_URL || '').replace(/\/+$/, '');
+
 if (Astro.request.method === 'POST') {
   try {
     const data = await Astro.request.formData();
@@ -15,7 +17,7 @@ if (Astro.request.method === 'POST') {
       errorMessage = 'Email and password are required.';
     } else {
       // Send login request to NestJS backend
-      const response = await fetch('http://localhost:3000/api/auth/login', {
+      const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -27,11 +29,17 @@ if (Astro.request.method === 'POST') {
       } else {
         const sessionData = await response.json();
         
+        // Determine if connection is secure or running behind an HTTPS proxy / production environment
+        const isSecure =
+          Astro.url.protocol === 'https:' ||
+          Astro.request.headers.get('x-forwarded-proto') === 'https' ||
+          import.meta.env.PROD;
+
         // Set the secure cookie
         Astro.cookies.set('admin_session', sessionData.token, {
           path: '/',
           httpOnly: true,
-          secure: false, // set to true in production with HTTPS
+          secure: isSecure,
           sameSite: 'lax',
           maxAge: 60 * 60 * 2, // 2 hours
         });
@@ -40,6 +48,8 @@ if (Astro.request.method === 'POST') {
         Astro.cookies.set('admin_user_name', sessionData.user.name, {
           path: '/',
           httpOnly: false,
+          secure: isSecure,
+          sameSite: 'lax',
           maxAge: 60 * 60 * 2,
         });
 
@@ -52,10 +62,23 @@ if (Astro.request.method === 'POST') {
   }
 }
 
-// Redirect to dashboard if session cookie is already present
+// Redirect to dashboard only if session cookie is verified valid by backend
 const sessionToken = Astro.cookies.get('admin_session')?.value;
 if (sessionToken) {
-  return Astro.redirect('/admin/dashboard');
+  try {
+    const checkRes = await fetch(`${BACKEND_URL}/api/auth/session`, {
+      headers: { Authorization: `Bearer ${sessionToken}` },
+    });
+    if (checkRes.ok) {
+      return Astro.redirect('/admin/dashboard');
+    } else {
+      Astro.cookies.delete('admin_session', { path: '/' });
+      Astro.cookies.delete('admin_user_name', { path: '/' });
+    }
+  } catch {
+    Astro.cookies.delete('admin_session', { path: '/' });
+    Astro.cookies.delete('admin_user_name', { path: '/' });
+  }
 }
 
 const currentYear = new Date().getFullYear();
@@ -150,7 +173,7 @@ const currentYear = new Date().getFullYear();
         <!-- Alert messages -->
         {errorMessage && (
           <div class="p-3 bg-red-50 text-red-700 rounded border border-red-200 text-xs font-semibold flex items-start gap-2" role="alert">
-            <span class="text-red-500 shrink-0 font-bold">⚠️</span>
+            <Icon name="alert-triangle" size={14} class="text-red-500 shrink-0 mt-0.5" />
             <span>{errorMessage}</span>
           </div>
         )}

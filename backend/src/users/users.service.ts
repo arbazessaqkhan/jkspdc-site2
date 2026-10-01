@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
-import * as crypto from 'crypto';
+import { PasswordUtil } from '../auth/password.util';
+import { CreateUserDto, UpdateUserDto } from './users.dto';
 
 @Injectable()
 export class UsersService {
@@ -10,8 +11,8 @@ export class UsersService {
     private readonly auditLogsService: AuditLogsService,
   ) {}
 
-  hashPassword(password: string): string {
-    return crypto.createHash('sha256').update(password).digest('hex');
+  async hashPassword(password: string): Promise<string> {
+    return PasswordUtil.hashPassword(password);
   }
 
   async findAll() {
@@ -48,13 +49,13 @@ export class UsersService {
     return user;
   }
 
-  async create(data: any, currentUser: any, ip: string, ua: string) {
+  async create(data: CreateUserDto, currentUser: any, ip: string, ua: string) {
     const { email, password, name, role, isActive } = data;
     if (!email || !password || !name) {
       throw new Error('Email, password, and name are required');
     }
 
-    const hashedPassword = this.hashPassword(password);
+    const hashedPassword = await this.hashPassword(password);
     const user = await this.prisma.user.create({
       data: {
         email,
@@ -82,12 +83,12 @@ export class UsersService {
     };
   }
 
-  async update(id: string, data: any, currentUser: any, ip: string, ua: string) {
+  async update(id: string, data: UpdateUserDto, currentUser: any, ip: string, ua: string) {
     await this.findOne(id);
     
     let hashedPassword;
     if (data.password) {
-      hashedPassword = this.hashPassword(data.password);
+      hashedPassword = await this.hashPassword(data.password);
     }
 
     const user = await this.prisma.user.update({

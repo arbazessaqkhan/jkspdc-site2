@@ -1,23 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-
-export interface CreateIppProjectDto {
-  name: string;
-  capacityMw: number;
-  status: string;
-  location: string;
-  awardedTo: string;
-  phase: number;
-}
-
-export interface UpdateIppProjectDto {
-  name?: string;
-  capacityMw?: number;
-  status?: string;
-  location?: string;
-  awardedTo?: string;
-  phase?: number;
-}
+import { CreateIppProjectDto, UpdateIppProjectDto } from './ipp-projects.dto';
 
 @Injectable()
 export class IppProjectsService {

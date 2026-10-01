@@ -1,6 +1,11 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Req } from '@nestjs/common';
 import { PressReleasesService } from './press-releases.service';
 import { AuthGuard } from '../auth/auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
+import { Role } from '../auth/roles.enum';
+
+import { CreatePressReleaseDto, UpdatePressReleaseDto } from './press-releases.dto';
 
 @Controller('press-releases')
 export class PressReleasesController {
@@ -17,8 +22,9 @@ export class PressReleasesController {
   }
 
   @Post()
-  @UseGuards(AuthGuard)
-  async create(@Body() data: any, @Req() req: any) {
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  async create(@Body() data: CreatePressReleaseDto, @Req() req: any) {
     const user = req.user;
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
     const ua = req.headers['user-agent'] || 'unknown';
@@ -26,8 +32,9 @@ export class PressReleasesController {
   }
 
   @Put(':id')
-  @UseGuards(AuthGuard)
-  async update(@Param('id') id: string, @Body() data: any, @Req() req: any) {
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  async update(@Param('id') id: string, @Body() data: UpdatePressReleaseDto, @Req() req: any) {
     const user = req.user;
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
     const ua = req.headers['user-agent'] || 'unknown';
@@ -35,7 +42,8 @@ export class PressReleasesController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   async remove(@Param('id') id: string, @Req() req: any) {
     const user = req.user;
     const ip = req.ip || req.socket.remoteAddress || 'unknown';

@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { deleteLocalFile } from '../upload/file-cleanup.helper';
+import { CreateAgmDto, UpdateAgmDto } from './agm.dto';
 
 @Injectable()
 export class AgmService {
@@ -24,11 +25,8 @@ export class AgmService {
     return agm;
   }
 
-  async create(data: any, user: any, ip: string, ua: string) {
+  async create(data: CreateAgmDto, user: any, ip: string, ua: string) {
     const { title, meetingDate, fileName, documentUrl } = data;
-    if (!title || !meetingDate || !fileName || !documentUrl) {
-      throw new Error('Missing required fields');
-    }
 
     const agm = await this.prisma.agmDocument.create({
       data: {
@@ -50,7 +48,7 @@ export class AgmService {
     return agm;
   }
 
-  async update(id: string, data: any, user: any, ip: string, ua: string) {
+  async update(id: string, data: UpdateAgmDto, user: any, ip: string, ua: string) {
     const oldAgm = await this.findOne(id);
 
     if (data.documentUrl !== undefined && data.documentUrl !== oldAgm.documentUrl) {

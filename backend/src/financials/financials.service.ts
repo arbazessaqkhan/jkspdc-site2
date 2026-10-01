@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
+import { CreateFinancialDto, UpdateFinancialDto } from './financials.dto';
 
 @Injectable()
 export class FinancialsService {
@@ -17,11 +18,11 @@ export class FinancialsService {
     return this.prisma.financialDocument.findMany({ where: { category }, orderBy: { publishDate: 'desc' } });
   }
 
-  async create(data: { title: string; category: string; fiscalYear?: string; documentUrl: string; fileName: string }) {
+  async create(data: CreateFinancialDto) {
     return this.prisma.financialDocument.create({ data });
   }
 
-  async update(id: string, data: { title?: string; category?: string; fiscalYear?: string; documentUrl?: string; fileName?: string }) {
+  async update(id: string, data: UpdateFinancialDto) {
     return this.prisma.financialDocument.update({ where: { id }, data });
   }
 

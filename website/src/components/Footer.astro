@@ -5,20 +5,21 @@ const currentYear = new Date().getFullYear();
 const lastUpdated = new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
 ---
 
-<footer class="bg-[#083B73] text-slate-200 border-t-4 border-[#0B4F9C] pt-3 sm:pt-3.5 pb-2.5 text-xs">
+<!-- Government PSU Footer (GIGW 3.0 Compliant) -->
+<footer class="bg-[#083B73] text-slate-200 border-t-4 border-[#0B4F9C] pt-6 pb-4 sm:pt-7 sm:pb-5">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
     <!-- Government Portal Identity Bar (GIGW Mandatory) -->
-    <div class="flex flex-wrap items-center justify-between gap-2.5 border-b border-white/15 pb-2 mb-3">
-      <div class="flex items-center gap-2.5">
-        <img src="/logo.png" alt="JKSPDCL Official Logo" class="h-6 sm:h-7 w-auto object-contain" />
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/15 pb-3.5 mb-5">
+      <div class="flex items-center gap-3">
+        <img src="/logo.png" alt="JKSPDCL Official Logo" class="h-8 sm:h-9 w-auto object-contain flex-shrink-0" />
         <div>
-          <p class="text-white font-bold text-xs leading-tight tracking-wide">Jammu &amp; Kashmir State Power Development Corporation Limited</p>
-          <p class="text-slate-300 text-[9.5px] mt-0.5">A Government of J&amp;K Undertaking | CIN: U40101JK1995SGC001418</p>
+          <p class="text-white font-bold text-xs sm:text-[14px] leading-tight tracking-wide">Jammu &amp; Kashmir State Power Development Corporation Limited</p>
+          <p class="text-slate-300 text-[11px] sm:text-xs mt-0.5">A Government of J&amp;K Undertaking | CIN: U40101JK1995SGC001418</p>
         </div>
       </div>
-      <div class="flex items-center gap-3 text-[10px] text-slate-300">
-        <a href="https://india.gov.in" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1 hover:text-white transition-colors font-medium">
+      <div class="flex items-center gap-3.5 text-xs text-slate-200">
+        <a href="https://india.gov.in" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 hover:text-white transition-colors font-medium">
           <span>🇮🇳</span> National Portal of India<span class="sr-only"> (opens in new tab)</span>
         </a>
         <span class="text-white/30">|</span>
@@ -27,16 +28,16 @@ const lastUpdated = new Date().toLocaleDateString('en-IN', { year: 'numeric', mo
     </div>
 
     <!-- Footer Core Columns -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pb-2.5 items-start">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 pb-4 items-start">
 
       <!-- Column 1: Corporate Summary -->
       <div class="flex flex-col">
-        <h2 class="font-bold text-white uppercase tracking-wider text-xs mb-2 pb-1 border-b border-white/20">About JKSPDCL</h2>
-        <p class="text-xs text-slate-300 leading-relaxed">
-          Jammu &amp; Kashmir State Power Development Corporation Limited is a wholly owned Government PSU incorporated in 1995, mandated with planning, constructing, operating and maintaining power generating assets across J&amp;K.
+        <h2 class="font-bold text-white uppercase tracking-wider text-xs sm:text-[13px] mb-2.5 pb-1 border-b border-white/20">About JKSPDCL</h2>
+        <p class="text-xs sm:text-[12.5px] text-slate-200 leading-relaxed">
+          Jammu &amp; Kashmir State Power Development Corporation Limited is a wholly owned Government PSU incorporated in 1995, mandated with planning, constructing, operating and maintaining hydro and renewable power generating assets across J&amp;K.
         </p>
-        <div class="mt-2">
-          <a href="/about-us/explore/overview" class="text-xs text-[#7FB3E8] hover:text-white font-semibold inline-flex items-center gap-1 transition-colors duration-200">
+        <div class="mt-2.5">
+          <a href="/about-us/explore/overview" class="text-xs sm:text-[12.5px] text-[#8ec2f7] hover:text-white font-medium inline-flex items-center gap-1 transition-colors duration-200">
             Read Corporate Profile &rarr;
           </a>
         </div>
@@ -44,54 +45,60 @@ const lastUpdated = new Date().toLocaleDateString('en-IN', { year: 'numeric', mo
 
       <!-- Column 2: Site Utilities & Compliance Policies -->
       <div class="flex flex-col">
-        <h2 class="font-bold text-white uppercase tracking-wider text-xs mb-2 pb-1 border-b border-white/20">Compliance &amp; Utilities</h2>
-        <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-slate-300">
-          <a href="/accessibility-statement" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
-            <span class="text-slate-400">›</span> Accessibility
+        <h2 class="font-bold text-white uppercase tracking-wider text-xs sm:text-[13px] mb-2.5 pb-1 border-b border-white/20">Compliance &amp; Utilities</h2>
+        <div class="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs sm:text-[12.5px] text-slate-200">
+          <a href="/about-us/explore/policies" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
+            <span class="text-slate-400" aria-hidden="true">›</span> Policies
           </a>
           <a href="/copyright" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
-            <span class="text-slate-400">›</span> Copyright
+            <span class="text-slate-400" aria-hidden="true">›</span> Copyright
           </a>
-          <a href="/privacy-policy" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
-            <span class="text-slate-400">›</span> Privacy Policy
+          <a href="/accessibility-statement" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
+            <span class="text-slate-400" aria-hidden="true">›</span> Accessibility
           </a>
           <a href="/hyperlinking-policy" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
-            <span class="text-slate-400">›</span> Hyperlinking
+            <span class="text-slate-400" aria-hidden="true">›</span> Hyperlinking
           </a>
-          <a href="/terms-conditions" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
-            <span class="text-slate-400">›</span> Terms of Use
+          <a href="/privacy-policy" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
+            <span class="text-slate-400" aria-hidden="true">›</span> Privacy Policy
           </a>
           <a href="/sitemap" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
-            <span class="text-slate-400">›</span> Sitemap
+            <span class="text-slate-400" aria-hidden="true">›</span> Sitemap
+          </a>
+          <a href="/terms-conditions" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
+            <span class="text-slate-400" aria-hidden="true">›</span> Terms of Use
           </a>
           <a href="/help" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
-            <span class="text-slate-400">›</span> Help &amp; FAQ
+            <span class="text-slate-400" aria-hidden="true">›</span> Help &amp; FAQ
+          </a>
+          <a href="/disclaimer" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
+            <span class="text-slate-400" aria-hidden="true">›</span> Disclaimer
           </a>
           <a href="/feedback" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
-            <span class="text-slate-400">›</span> Feedback
+            <span class="text-slate-400" aria-hidden="true">›</span> Feedback
           </a>
         </div>
       </div>
 
       <!-- Column 3: Contact Directory -->
-      <div class="flex flex-col text-xs text-slate-300">
-        <h2 class="font-bold text-white uppercase tracking-wider text-xs mb-2 pb-1 border-b border-white/20">Contact Directory</h2>
-        <div class="space-y-0.5">
-          <p class="font-semibold text-slate-200 text-xs">Srinagar Corporate Office</p>
-          <p class="text-[11px] leading-snug text-slate-300">Exhibition Grounds, Jahangir Chowk, Srinagar — 190009</p>
+      <div class="flex flex-col text-xs sm:text-[12.5px] text-slate-200">
+        <h2 class="font-bold text-white uppercase tracking-wider text-xs sm:text-[13px] mb-2.5 pb-1 border-b border-white/20">Contact Directory</h2>
+        <div class="space-y-1">
+          <p class="font-semibold text-white">Srinagar Corporate Office</p>
+          <p class="text-xs sm:text-[12px] leading-snug text-slate-300">Exhibition Grounds, Jahangir Chowk, Srinagar — 190009</p>
           <p>
-            <a href="tel:+911942451665" class="hover:text-white transition-colors inline-flex items-center gap-1 text-[11px] text-slate-300">
-              <Icon name="phone" size={11} strokeWidth={2} />
+            <a href="tel:+911942451665" class="hover:text-white transition-colors inline-flex items-center gap-1 text-slate-300">
+              <Icon name="phone" size={12} strokeWidth={2} />
               +91 194 2451665
             </a>
           </p>
         </div>
-        <div class="space-y-0.5 mt-2 pt-1.5 border-t border-white/10">
-          <p class="font-semibold text-slate-200 text-xs">Jammu Regional Office</p>
-          <p class="text-[11px] leading-snug text-slate-300">Ashok Nagar, Satwari, Jammu (J&amp;K) — 180004</p>
+        <div class="space-y-1 mt-2.5 pt-2 border-t border-white/10">
+          <p class="font-semibold text-white">Jammu Regional Office</p>
+          <p class="text-xs sm:text-[12px] leading-snug text-slate-300">Ashok Nagar, Satwari, Jammu (J&amp;K) — 180004</p>
           <p>
-            <a href="tel:+911912430548" class="hover:text-white transition-colors inline-flex items-center gap-1 text-[11px] text-slate-300">
-              <Icon name="phone" size={11} strokeWidth={2} />
+            <a href="tel:+911912430548" class="hover:text-white transition-colors inline-flex items-center gap-1 text-slate-300">
+              <Icon name="phone" size={12} strokeWidth={2} />
               +91 191 2430548 / 2439039
             </a>
           </p>
@@ -99,23 +106,23 @@ const lastUpdated = new Date().toLocaleDateString('en-IN', { year: 'numeric', mo
       </div>
 
       <!-- Column 4: Quick Navigation -->
-      <div class="flex flex-col text-xs text-slate-300">
-        <h2 class="font-bold text-white uppercase tracking-wider text-xs mb-2 pb-1 border-b border-white/20">Quick Navigation</h2>
-        <div class="flex flex-col gap-1">
+      <div class="flex flex-col text-xs sm:text-[12.5px] text-slate-200">
+        <h2 class="font-bold text-white uppercase tracking-wider text-xs sm:text-[13px] mb-2.5 pb-1 border-b border-white/20">Quick Navigation</h2>
+        <div class="flex flex-col gap-1.5">
           <a href="/our-business/power-stations" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1.5">
-            <Icon name="zap" size={12} strokeWidth={2} class="text-[#7FB3E8]" /> Operating Power Stations
+            <Icon name="zap" size={13} strokeWidth={2} class="text-[#8ec2f7]" /> Operating Power Stations
           </a>
           <a href="/stakeholders/vendors/tender-bids" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1.5">
-            <Icon name="file-text" size={12} strokeWidth={2} class="text-[#7FB3E8]" /> Tenders &amp; Bid Registry
+            <Icon name="file-text" size={13} strokeWidth={2} class="text-[#8ec2f7]" /> Tenders &amp; Bid Registry
           </a>
           <a href="/media/gallery" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1.5">
-            <Icon name="image" size={12} strokeWidth={2} class="text-[#7FB3E8]" /> Photo &amp; Video Gallery
+            <Icon name="image" size={13} strokeWidth={2} class="text-[#8ec2f7]" /> Photo &amp; Video Gallery
           </a>
         </div>
-        <div class="mt-2 pt-1.5 border-t border-white/10">
-          <p class="font-semibold text-slate-200 text-xs mb-0.5">Official Email</p>
-          <a href="mailto:md-jkspdcl@jk.gov.in" class="text-slate-300 hover:text-white hover:underline transition-colors inline-flex items-center gap-1 text-[11px]">
-            <Icon name="mail" size={11} strokeWidth={2} />
+        <div class="mt-2.5 pt-2 border-t border-white/10">
+          <p class="font-semibold text-white text-xs sm:text-[12.5px] mb-0.5">Official Email</p>
+          <a href="mailto:md-jkspdcl@jk.gov.in" class="text-slate-300 hover:text-white hover:underline transition-colors inline-flex items-center gap-1">
+            <Icon name="mail" size={12} strokeWidth={2} />
             md-jkspdcl@jk.gov.in
           </a>
         </div>
@@ -124,21 +131,21 @@ const lastUpdated = new Date().toLocaleDateString('en-IN', { year: 'numeric', mo
     </div>
 
     <!-- Unified Bottom Compliance & Copyright Bar (GIGW 3.0 Mandatory) -->
-    <div class="border-t border-white/15 pt-2 mt-0.5">
+    <div class="border-t border-white/15 pt-3 mt-1">
       <!-- WIM & Governance Row -->
-      <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[10.5px] text-slate-300 pb-1.5">
+      <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-xs text-slate-300 pb-2">
         <div class="flex flex-wrap items-center gap-x-4 gap-y-0.5">
           <span><strong class="text-white font-semibold">Web Information Manager:</strong> [Nomination in Process, JKSPDCL]</span>
           <span class="text-white/30 hidden sm:inline">|</span>
           <span><strong class="text-white font-semibold">Technical Team:</strong> IT Cell, JKSPDCL, Srinagar / Jammu</span>
         </div>
-        <div class="text-slate-400 text-[10px]">
+        <div class="text-slate-400 text-[11px] sm:text-xs">
           <span>Last Reviewed: {lastUpdated}</span>
         </div>
       </div>
 
       <!-- Copyright Row -->
-      <div class="border-t border-white/10 pt-1.5 flex flex-col sm:flex-row items-center justify-between gap-1 text-[10px] text-slate-400">
+      <div class="border-t border-white/10 pt-2 flex flex-col sm:flex-row items-center justify-between gap-1 text-[11px] sm:text-xs text-slate-400">
         <p>&copy; {currentYear} Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL). All rights reserved.</p>
         <div class="flex items-center gap-2.5">
           <span>Designed &amp; Developed by <span class="text-slate-200 font-medium">IT Cell, JKSPDCL</span></span>

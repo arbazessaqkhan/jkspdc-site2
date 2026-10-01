@@ -3,6 +3,9 @@
 .env.local
 .env.*.local
 
+# Scratch and verification artifacts
+scratch/
+
 # Dependency directories
 node_modules/
 jspm_packages/

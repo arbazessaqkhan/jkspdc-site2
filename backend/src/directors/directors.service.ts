@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
+import { CreateDirectorDto, UpdateDirectorDto } from './directors.dto';
 
 @Injectable()
 export class DirectorsService {
@@ -21,24 +22,21 @@ export class DirectorsService {
     return director;
   }
 
-  async create(data: any) {
+  async create(data: CreateDirectorDto) {
     const { name, position, role, sNo, description } = data;
-    if (!name || !position || !role || sNo === undefined) {
-      throw new Error('Missing required fields');
-    }
 
     return this.prisma.director.create({
       data: {
         name,
         position,
         role,
-        sNo: parseInt(sNo, 10),
+        sNo: Number(sNo),
         description: description || null,
       },
     });
   }
 
-  async update(id: string, data: any) {
+  async update(id: string, data: UpdateDirectorDto) {
     await this.findOne(id);
 
     return this.prisma.director.update({
@@ -47,7 +45,7 @@ export class DirectorsService {
         name: data.name,
         position: data.position,
         role: data.role,
-        sNo: data.sNo !== undefined ? parseInt(data.sNo, 10) : undefined,
+        sNo: data.sNo !== undefined ? Number(data.sNo) : undefined,
         description: data.description !== undefined ? data.description : undefined,
       },
     });

@@ -1,13 +1,19 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
+import { isAdmin } from '../../utils/roles';
+import { parseApiError, BACKEND_URL } from '../../utils/api-error';
 
 // Check authentication
-let sessionToken = Astro.cookies.get('admin_session')?.value;
+const sessionToken = Astro.cookies.get('admin_session')?.value;
 if (!sessionToken) {
-  sessionToken = 'mock-test-session-token';
-  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
-  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+  return Astro.redirect('/admin/login');
+}
+
+// Role protection: User management is ADMIN-only
+const userRole = Astro.locals.user?.role;
+if (!isAdmin(userRole)) {
+  return Astro.redirect('/admin/dashboard');
 }
 
 let errorMessage = '';
@@ -22,7 +28,7 @@ if (Astro.request.method === 'POST') {
     if (action === 'delete') {
       const id = formData.get('id')?.toString();
       if (id) {
-        const res = await fetch(`http://localhost:3000/api/users/${id}`, {
+        const res = await fetch(`${BACKEND_URL}/api/users/${id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${sessionToken}`,
@@ -32,21 +38,24 @@ if (Astro.request.method === 'POST') {
         if (res.ok) {
           successMessage = 'User account successfully deleted.';
         } else {
-          const errData = await res.json().catch(() => ({}));
-          errorMessage = errData.message || 'Failed to delete user account.';
+          const apiErr = await parseApiError(res, 'delete user account');
+          if (apiErr.isUnauthorized) {
+            return Astro.redirect('/admin/login');
+          }
+          errorMessage = apiErr.message;
         }
       }
     }
   } catch (e) {
     console.error('Error deleting user:', e);
-    errorMessage = 'An error occurred. Check backend connection.';
+    errorMessage = 'An error occurred while deleting the user account. Check backend service status.';
   }
 }
 
 // Fetch Users List
 let users = [];
 try {
-  const res = await fetch('http://localhost:3000/api/users', {
+  const res = await fetch(`${BACKEND_URL}/api/users`, {
     headers: {
       'Authorization': `Bearer ${sessionToken}`,
     },
@@ -54,11 +63,15 @@ try {
   if (res.ok) {
     users = await res.json();
   } else {
-    errorMessage = 'Failed to load user accounts from backend.';
+    const apiErr = await parseApiError(res, 'load user accounts');
+    if (apiErr.isUnauthorized) {
+      return Astro.redirect('/admin/login');
+    }
+    errorMessage = apiErr.message;
   }
 } catch (e) {
   console.error('Error fetching users:', e);
-  errorMessage = 'Backend connection failed.';
+  errorMessage = 'Failed to load user accounts. Unable to communicate with the server.';
 }
 ---
 

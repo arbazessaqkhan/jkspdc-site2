@@ -1,20 +1,28 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
+import { canMutateRoutineContent, isAdmin } from '../../utils/roles';
+import { parseApiError, BACKEND_URL } from '../../utils/api-error';
 
 // Check authentication
-let sessionToken = Astro.cookies.get('admin_session')?.value;
+const sessionToken = Astro.cookies.get('admin_session')?.value;
 if (!sessionToken) {
-  sessionToken = 'mock-test-session-token';
-  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
-  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+  return Astro.redirect('/admin/login');
 }
+
+const userRole = Astro.locals.user?.role;
+const canCreateOrEdit = canMutateRoutineContent(userRole);
+const canDelete = isAdmin(userRole);
+const canSeeActionColumn = canCreateOrEdit || canDelete;
 
 let errorMessage = '';
 let successMessage = '';
 
-// Handle Delete Action
+// Handle Delete Action (ADMIN ONLY)
 if (Astro.request.method === 'POST') {
+  if (!canDelete) {
+    return Astro.redirect('/admin/contact-sub-offices');
+  }
   try {
     const formData = await Astro.request.formData();
     const action = formData.get('_action')?.toString();
@@ -22,7 +30,7 @@ if (Astro.request.method === 'POST') {
     if (action === 'delete') {
       const id = formData.get('id')?.toString();
       if (id) {
-        const res = await fetch(`http://localhost:3000/api/contact-sub-offices/${id}`, {
+        const res = await fetch(`${BACKEND_URL}/api/contact-sub-offices/${id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${sessionToken}`,
@@ -32,20 +40,24 @@ if (Astro.request.method === 'POST') {
         if (res.ok) {
           successMessage = 'Sub-Office / Wing contact successfully removed.';
         } else {
-          errorMessage = 'Failed to remove sub-office record.';
+          const apiErr = await parseApiError(res, 'delete sub-office');
+          if (apiErr.isUnauthorized) {
+            return Astro.redirect('/admin/login');
+          }
+          errorMessage = apiErr.message;
         }
       }
     }
   } catch (e) {
     console.error('Error handling sub-office delete:', e);
-    errorMessage = 'An error occurred while connecting to backend.';
+    errorMessage = 'An error occurred while deleting the sub-office. Check backend service status.';
   }
 }
 
 // Fetch all sub-office / wing contacts
 let subOffices = [];
 try {
-  const res = await fetch('http://localhost:3000/api/contact-sub-offices/all', {
+  const res = await fetch(`${BACKEND_URL}/api/contact-sub-offices/all`, {
     headers: {
       'Authorization': `Bearer ${sessionToken}`,
     },
@@ -53,13 +65,21 @@ try {
   if (res.ok) {
     subOffices = await res.json();
   } else {
+    const apiErr = await parseApiError(res, 'load sub-offices');
+    if (apiErr.isUnauthorized) {
+      return Astro.redirect('/admin/login');
+    }
     // Fallback to public endpoint
-    const pubRes = await fetch('http://localhost:3000/api/contact-sub-offices');
-    if (pubRes.ok) subOffices = await pubRes.json();
+    const pubRes = await fetch(`${BACKEND_URL}/api/contact-sub-offices`);
+    if (pubRes.ok) {
+      subOffices = await pubRes.json();
+    } else {
+      errorMessage = apiErr.message;
+    }
   }
 } catch (e) {
   console.error('Error fetching contact sub-offices:', e);
-  errorMessage = 'Backend connection failed. Displaying fallback contacts.';
+  errorMessage = 'Failed to load contact sub-offices. Unable to communicate with the server.';
 }
 ---
 
@@ -72,12 +92,14 @@ try {
         <h1 class="admin-page-title">Contact Sub-Offices &amp; Wing Directory</h1>
         <p class="admin-page-subtitle">CMS directory for generation wings (BHEP, Jammu, Kashmir) and field sub-offices.</p>
       </div>
-      <a 
-        href="/admin/contact-sub-offices-form" 
-        class="admin-btn admin-btn-primary flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
-      >
-        <Icon name="plus" size={14} /> Add Wing / Sub-Office
-      </a>
+      {canCreateOrEdit && (
+        <a 
+          href="/admin/contact-sub-offices-form" 
+          class="admin-btn admin-btn-primary flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
+        >
+          <Icon name="plus" size={14} /> Add Wing / Sub-Office
+        </a>
+      )}
     </div>
 
     <!-- Alert Messages -->
@@ -103,13 +125,13 @@ try {
             <th scope="col" class="min-w-[180px]">Email</th>
             <th scope="col" class="min-w-[140px]">Phone</th>
             <th scope="col" class="min-w-[200px]">Address / Location</th>
-            <th scope="col" class="w-28 text-center sticky-col-right">Action</th>
+            {canSeeActionColumn && <th scope="col" class="w-28 text-center sticky-col-right">Action</th>}
           </tr>
         </thead>
         <tbody>
           {subOffices.length === 0 ? (
             <tr>
-              <td colspan="7" class="text-center text-slate-500 py-12 text-xs font-semibold italic">
+              <td colspan={canSeeActionColumn ? 7 : 6} class="text-center text-slate-500 py-12 text-xs font-semibold italic">
                 <Icon name="folder" size={32} class="mx-auto text-slate-300 mb-2" />
                 No wing or sub-office contacts found. Add one above.
               </td>
@@ -140,30 +162,36 @@ try {
                 <td class="text-xs text-slate-600">
                   {s.address || <span class="text-slate-400 italic">—</span>}
                 </td>
-                <td class="td-actions sticky-col-right text-center">
-                  <div class="admin-action-group justify-center">
-                    <a
-                      href={`/admin/contact-sub-offices-form?id=${s.id}`}
-                      class="admin-btn-action"
-                      aria-label={`Edit ${s.wing}`}
-                      title="Edit Sub-Office"
-                    >
-                      <Icon name="pencil" size={13} />
-                    </a>
-                    <form method="POST" class="inline m-0 p-0" onsubmit="return confirm('Are you sure you want to delete this sub-office record?');">
-                      <input type="hidden" name="id" value={s.id} />
-                      <input type="hidden" name="_action" value="delete" />
-                      <button
-                        type="submit"
-                        class="admin-btn-action action-delete"
-                        aria-label={`Delete ${s.wing}`}
-                        title="Delete Sub-Office"
-                      >
-                        <Icon name="trash-2" size={13} />
-                      </button>
-                    </form>
-                  </div>
-                </td>
+                {canSeeActionColumn && (
+                  <td class="td-actions sticky-col-right text-center">
+                    <div class="admin-action-group justify-center">
+                      {canCreateOrEdit && (
+                        <a
+                          href={`/admin/contact-sub-offices-form?id=${s.id}`}
+                          class="admin-btn-action"
+                          aria-label={`Edit ${s.wing}`}
+                          title="Edit Sub-Office"
+                        >
+                          <Icon name="pencil" size={13} />
+                        </a>
+                      )}
+                      {canDelete && (
+                        <form method="POST" class="inline m-0 p-0" onsubmit="return confirm('Are you sure you want to delete this sub-office record?');">
+                          <input type="hidden" name="id" value={s.id} />
+                          <input type="hidden" name="_action" value="delete" />
+                          <button
+                            type="submit"
+                            class="admin-btn-action action-delete"
+                            aria-label={`Delete ${s.wing}`}
+                            title="Delete Sub-Office"
+                          >
+                            <Icon name="trash-2" size={13} />
+                          </button>
+                        </form>
+                      )}
+                    </div>
+                  </td>
+                )}
               </tr>
             ))
           )}

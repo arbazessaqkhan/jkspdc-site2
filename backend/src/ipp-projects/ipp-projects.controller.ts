@@ -1,6 +1,10 @@
 import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards } from '@nestjs/common';
-import { IppProjectsService, CreateIppProjectDto, UpdateIppProjectDto } from './ipp-projects.service';
+import { IppProjectsService } from './ipp-projects.service';
+import { CreateIppProjectDto, UpdateIppProjectDto } from './ipp-projects.dto';
 import { AuthGuard } from '../auth/auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
+import { Role } from '../auth/roles.enum';
 
 @Controller('ipp-projects')
 export class IppProjectsController {
@@ -17,19 +21,22 @@ export class IppProjectsController {
     return this.service.findById(id);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @Post()
   create(@Body() body: CreateIppProjectDto) {
     return this.service.create(body);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @Put(':id')
   update(@Param('id') id: string, @Body() body: UpdateIppProjectDto) {
     return this.service.update(id, body);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @Delete(':id')
   delete(@Param('id') id: string) {
     return this.service.delete(id);

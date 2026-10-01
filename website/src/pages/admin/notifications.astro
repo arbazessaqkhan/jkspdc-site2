@@ -1,13 +1,19 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
+import { isAdmin } from '../../utils/roles';
+import { parseApiError, BACKEND_URL } from '../../utils/api-error';
 
 // Check authentication
-let sessionToken = Astro.cookies.get('admin_session')?.value;
+const sessionToken = Astro.cookies.get('admin_session')?.value;
 if (!sessionToken) {
-  sessionToken = 'mock-test-session-token';
-  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
-  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+  return Astro.redirect('/admin/login');
+}
+
+// Role protection: Notifications management is ADMIN-only
+const userRole = Astro.locals.user?.role;
+if (!isAdmin(userRole)) {
+  return Astro.redirect('/admin/dashboard');
 }
 
 const url = new URL(Astro.request.url);
@@ -33,7 +39,7 @@ if (Astro.request.method === 'POST') {
       if (!title || !fileName || !documentUrl) {
         return Astro.redirect('/admin/notifications?error=' + encodeURIComponent('All fields including file attachment are required.'));
       } else {
-        const res = await fetch('http://localhost:3000/api/notifications', {
+        const res = await fetch(`${BACKEND_URL}/api/notifications`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -45,8 +51,11 @@ if (Astro.request.method === 'POST') {
         if (res.ok) {
           return Astro.redirect('/admin/notifications?success=create');
         } else {
-          const errData = await res.json().catch(() => ({}));
-          return Astro.redirect('/admin/notifications?error=' + encodeURIComponent(errData.message || 'Failed to publish notification.'));
+          const apiErr = await parseApiError(res, 'publish notification');
+          if (apiErr.isUnauthorized) {
+            return Astro.redirect('/admin/login');
+          }
+          return Astro.redirect('/admin/notifications?error=' + encodeURIComponent(apiErr.message));
         }
       }
     } else if (action === 'update') {
@@ -58,7 +67,7 @@ if (Astro.request.method === 'POST') {
       if (!id || !title || !fileName || !documentUrl) {
         return Astro.redirect('/admin/notifications?error=' + encodeURIComponent('All fields are required to update.'));
       } else {
-        const res = await fetch(`http://localhost:3000/api/notifications/${id}`, {
+        const res = await fetch(`${BACKEND_URL}/api/notifications/${id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -70,14 +79,17 @@ if (Astro.request.method === 'POST') {
         if (res.ok) {
           return Astro.redirect('/admin/notifications?success=update');
         } else {
-          const errData = await res.json().catch(() => ({}));
-          return Astro.redirect('/admin/notifications?error=' + encodeURIComponent(errData.message || 'Failed to update notification.'));
+          const apiErr = await parseApiError(res, 'update notification');
+          if (apiErr.isUnauthorized) {
+            return Astro.redirect('/admin/login');
+          }
+          return Astro.redirect('/admin/notifications?error=' + encodeURIComponent(apiErr.message));
         }
       }
     } else if (action === 'delete') {
       const id = formData.get('id')?.toString();
       if (id) {
-        const res = await fetch(`http://localhost:3000/api/notifications/${id}`, {
+        const res = await fetch(`${BACKEND_URL}/api/notifications/${id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${sessionToken}`,
@@ -87,28 +99,36 @@ if (Astro.request.method === 'POST') {
         if (res.ok) {
           return Astro.redirect('/admin/notifications?success=delete');
         } else {
-          return Astro.redirect('/admin/notifications?error=' + encodeURIComponent('Failed to delete notification.'));
+          const apiErr = await parseApiError(res, 'delete notification');
+          if (apiErr.isUnauthorized) {
+            return Astro.redirect('/admin/login');
+          }
+          return Astro.redirect('/admin/notifications?error=' + encodeURIComponent(apiErr.message));
         }
       }
     }
   } catch (e) {
     console.error('Error handling notification action:', e);
-    return Astro.redirect('/admin/notifications?error=' + encodeURIComponent('An error occurred. Check backend service status.'));
+    return Astro.redirect('/admin/notifications?error=' + encodeURIComponent('An unexpected error occurred while processing notification. Check backend service status.'));
   }
 }
 
 // Fetch Notifications List
 let notifications: any[] = [];
 try {
-  const res = await fetch('http://localhost:3000/api/notifications');
+  const res = await fetch(`${BACKEND_URL}/api/notifications`);
   if (res.ok) {
     notifications = await res.json();
   } else {
-    errorMessage = errorMessage || 'Failed to load notifications from backend.';
+    const apiErr = await parseApiError(res, 'load notifications');
+    if (apiErr.isUnauthorized) {
+      return Astro.redirect('/admin/login');
+    }
+    errorMessage = errorMessage || apiErr.message;
   }
 } catch (e) {
   console.error('Error fetching notifications:', e);
-  errorMessage = errorMessage || 'Backend connection failure.';
+  errorMessage = errorMessage || 'Failed to load notifications. Unable to communicate with the server.';
 }
 
 const currentYear = new Date().getFullYear();
@@ -207,8 +227,9 @@ const currentYear = new Date().getFullYear();
                   <div class="flex flex-col gap-1">
                     <span class="text-xs font-bold text-slate-900 leading-snug">{notif.title}</span>
                     {notif.fileName && (
-                      <span class="text-[11px] text-slate-500 font-mono flex items-center gap-1">
-                        📄 {notif.fileName}
+                      <span class="text-[11px] text-slate-500 font-mono flex items-center gap-1.5">
+                        <Icon name="file-text" size={11} class="text-slate-400 shrink-0" />
+                        <span>{notif.fileName}</span>
                       </span>
                     )}
                   </div>
@@ -344,7 +365,7 @@ const currentYear = new Date().getFullYear();
           
           <label class="flex items-center gap-2 p-1.5 bg-amber-50/70 border border-amber-200/80 rounded cursor-pointer hover:bg-amber-50 transition-colors select-none mt-2">
             <input type="checkbox" id="notif-is-important-checkbox" class="w-3.5 h-3.5 rounded text-[#0B4F9C] border-slate-300 focus:ring-[#0B4F9C] cursor-pointer" />
-            <span class="text-[11px] font-bold text-amber-900 flex items-center gap-1">★ Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
+            <span class="text-[11px] font-bold text-amber-900 flex items-center gap-1.5"><Icon name="star" size={12} class="text-amber-600 shrink-0" /> Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
           </label>
           
           <span id="upload-status" class="text-[10px] text-slate-400 font-semibold mt-1 block">
@@ -373,7 +394,7 @@ const currentYear = new Date().getFullYear();
     </div>
   </div>
 
-  <script define:vars={{ sessionToken }}>
+  <script define:vars={{ sessionToken, backendUrl: BACKEND_URL }}>
     (function() {
       function getElements() {
         return {
@@ -561,13 +582,23 @@ const currentYear = new Date().getFullYear();
           formData.append('file', file);
           formData.append('isImportant', isImportant ? 'true' : 'false');
 
-          fetch('http://localhost:3000/api/upload', {
+          fetch(`${backendUrl}/api/upload`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${sessionToken}` },
             body: formData,
           })
-          .then(function(res) {
-            if (!res.ok) return res.json().then(function(err) { throw new Error(err.message || 'Upload failed'); });
+          .then(async function(res) {
+            if (!res.ok) {
+              if (res.status === 401) {
+                window.location.href = '/admin/login';
+                return;
+              }
+              if (res.status === 403) {
+                throw new Error('Access Denied: You do not have permission to upload files.');
+              }
+              const err = await res.json().catch(function() { return {}; });
+              throw new Error(err.message || 'Upload failed');
+            }
             return res.json();
           })
           .then(function(result) {
@@ -577,7 +608,7 @@ const currentYear = new Date().getFullYear();
               els.fileLabel.classList.add('text-emerald-700', 'font-bold');
             }
             if (els.uploadStatus) {
-              els.uploadStatus.textContent = `✓ Uploaded successfully (${Math.round(result.sizeBytes / 1024)} KB)`;
+              els.uploadStatus.textContent = `Uploaded successfully (${Math.round(result.sizeBytes / 1024)} KB)`;
               els.uploadStatus.className = 'text-[10px] text-emerald-600 font-semibold mt-1 block';
             }
             if (els.notifFileNameInput && !els.notifFileNameInput.value) {
@@ -587,7 +618,7 @@ const currentYear = new Date().getFullYear();
           .catch(function(error) {
             if (els.fileLabel) els.fileLabel.textContent = 'Upload failed';
             if (els.uploadStatus) {
-              els.uploadStatus.textContent = `⚠ Upload error: ${error.message}`;
+              els.uploadStatus.textContent = `Upload error: ${error.message}`;
               els.uploadStatus.className = 'text-[10px] text-red-650 font-bold mt-1 block';
             }
             if (els.notifDocumentUrlInput) els.notifDocumentUrlInput.value = '';

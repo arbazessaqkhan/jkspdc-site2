@@ -1,14 +1,17 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
+import { isAdmin } from '../../utils/roles';
+import { parseApiError, BACKEND_URL } from '../../utils/api-error';
 
 // Check authentication
-let sessionToken = Astro.cookies.get('admin_session')?.value;
+const sessionToken = Astro.cookies.get('admin_session')?.value;
 if (!sessionToken) {
-  sessionToken = 'mock-test-session-token';
-  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
-  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+  return Astro.redirect('/admin/login');
 }
+
+const userRole = Astro.locals.user?.role;
+const userIsAdmin = isAdmin(userRole);
 
 const url = new URL(Astro.request.url);
 let errorMessage = url.searchParams.get('error') || '';
@@ -19,8 +22,11 @@ if (successAction === 'create') successMessage = 'AGM document published success
 if (successAction === 'update') successMessage = 'AGM document updated successfully.';
 if (successAction === 'delete') successMessage = 'AGM document deleted successfully.';
 
-// Handle CRUD operations
+// Handle CRUD operations (ADMIN ONLY)
 if (Astro.request.method === 'POST') {
+  if (!userIsAdmin) {
+    return Astro.redirect('/admin/agm');
+  }
   try {
     const formData = await Astro.request.formData();
     const action = formData.get('_action')?.toString();
@@ -34,7 +40,7 @@ if (Astro.request.method === 'POST') {
       if (!title || !meetingDate || !fileName || !documentUrl) {
         return Astro.redirect('/admin/agm?error=' + encodeURIComponent('All fields including file attachment and meeting date are required.'));
       } else {
-        const res = await fetch('http://localhost:3000/api/agm', {
+        const res = await fetch(`${BACKEND_URL}/api/agm`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -46,8 +52,11 @@ if (Astro.request.method === 'POST') {
         if (res.ok) {
           return Astro.redirect('/admin/agm?success=create');
         } else {
-          const errData = await res.json().catch(() => ({}));
-          return Astro.redirect('/admin/agm?error=' + encodeURIComponent(errData.message || 'Failed to publish AGM document.'));
+          const apiErr = await parseApiError(res, 'publish AGM document');
+          if (apiErr.isUnauthorized) {
+            return Astro.redirect('/admin/login');
+          }
+          return Astro.redirect('/admin/agm?error=' + encodeURIComponent(apiErr.message));
         }
       }
     } else if (action === 'update') {
@@ -60,7 +69,7 @@ if (Astro.request.method === 'POST') {
       if (!id || !title || !meetingDate || !fileName || !documentUrl) {
         return Astro.redirect('/admin/agm?error=' + encodeURIComponent('All fields are required to update.'));
       } else {
-        const res = await fetch(`http://localhost:3000/api/agm/${id}`, {
+        const res = await fetch(`${BACKEND_URL}/api/agm/${id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -72,14 +81,17 @@ if (Astro.request.method === 'POST') {
         if (res.ok) {
           return Astro.redirect('/admin/agm?success=update');
         } else {
-          const errData = await res.json().catch(() => ({}));
-          return Astro.redirect('/admin/agm?error=' + encodeURIComponent(errData.message || 'Failed to update AGM document.'));
+          const apiErr = await parseApiError(res, 'update AGM document');
+          if (apiErr.isUnauthorized) {
+            return Astro.redirect('/admin/login');
+          }
+          return Astro.redirect('/admin/agm?error=' + encodeURIComponent(apiErr.message));
         }
       }
     } else if (action === 'delete') {
       const id = formData.get('id')?.toString();
       if (id) {
-        const res = await fetch(`http://localhost:3000/api/agm/${id}`, {
+        const res = await fetch(`${BACKEND_URL}/api/agm/${id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${sessionToken}`,
@@ -89,28 +101,36 @@ if (Astro.request.method === 'POST') {
         if (res.ok) {
           return Astro.redirect('/admin/agm?success=delete');
         } else {
-          return Astro.redirect('/admin/agm?error=' + encodeURIComponent('Failed to delete AGM document.'));
+          const apiErr = await parseApiError(res, 'delete AGM document');
+          if (apiErr.isUnauthorized) {
+            return Astro.redirect('/admin/login');
+          }
+          return Astro.redirect('/admin/agm?error=' + encodeURIComponent(apiErr.message));
         }
       }
     }
   } catch (e) {
     console.error('Error handling AGM document action:', e);
-    return Astro.redirect('/admin/agm?error=' + encodeURIComponent('An error occurred. Check backend service status.'));
+    return Astro.redirect('/admin/agm?error=' + encodeURIComponent('An unexpected error occurred while processing the AGM request. Check backend service status.'));
   }
 }
 
 // Fetch AGM Documents List
 let agmDocuments: any[] = [];
 try {
-  const res = await fetch('http://localhost:3000/api/agm');
+  const res = await fetch(`${BACKEND_URL}/api/agm`);
   if (res.ok) {
     agmDocuments = await res.json();
   } else {
-    errorMessage = errorMessage || 'Failed to load AGM documents from backend.';
+    const apiErr = await parseApiError(res, 'load AGM documents');
+    if (apiErr.isUnauthorized) {
+      return Astro.redirect('/admin/login');
+    }
+    errorMessage = errorMessage || apiErr.message;
   }
 } catch (e) {
   console.error('Error fetching AGM documents:', e);
-  errorMessage = errorMessage || 'Backend connection failure.';
+  errorMessage = errorMessage || 'Failed to load AGM documents. Unable to communicate with the server.';
 }
 
 const currentYear = new Date().getFullYear();
@@ -128,12 +148,14 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
         <h1 class="admin-page-title">Annual General Meetings (AGM)</h1>
         <p class="admin-page-subtitle">Upload, edit, and manage AGM documents, minutes, and related PDF records.</p>
       </div>
-      <button 
-        id="btn-add-item"
-        class="admin-btn admin-btn-primary flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
-      >
-        <Icon name="plus" size={14} /> Add AGM Document
-      </button>
+      {userIsAdmin && (
+        <button 
+          id="btn-add-item"
+          class="admin-btn admin-btn-primary flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
+        >
+          <Icon name="plus" size={14} /> Add AGM Document
+        </button>
+      )}
     </div>
 
     <!-- Alerts -->
@@ -177,13 +199,15 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
             <th scope="col" class="w-12 text-center">#</th>
             <th scope="col" class="min-w-[280px]">Title &amp; Document Link</th>
             <th scope="col" class="w-40 whitespace-nowrap">Meeting Date</th>
-            <th scope="col" class="w-28 text-center sticky-col-right">Action</th>
+            {userIsAdmin && (
+              <th scope="col" class="w-28 text-center sticky-col-right">Action</th>
+            )}
           </tr>
         </thead>
         <tbody id="agm-table-body">
           {agmDocuments.length === 0 ? (
             <tr>
-              <td colspan="4" class="text-center text-slate-500 py-12 text-xs font-semibold italic">
+              <td colspan={userIsAdmin ? 4 : 3} class="text-center text-slate-500 py-12 text-xs font-semibold italic">
                 No AGM documents published. Click 'Add AGM Document' to create one.
               </td>
             </tr>
@@ -207,36 +231,38 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
                 <td class="text-slate-600 font-medium whitespace-nowrap text-xs">
                   {new Date(agm.meetingDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                 </td>
-                <td class="td-actions sticky-col-right text-center">
-                  <div class="admin-action-group">
-                    <button 
-                      type="button" 
-                      class="btn-edit admin-btn-action"
-                      data-id={agm.id}
-                      title={`Edit ${agm.title}`}
-                      aria-label={`Edit ${agm.title}`}
-                    >
-                      <Icon name="pencil" size={13} />
-                    </button>
-                    <form method="POST" class="inline m-0 p-0" onsubmit="return confirm('Are you sure you want to delete this AGM document?');">
-                      <input type="hidden" name="id" value={agm.id} />
-                      <input type="hidden" name="_action" value="delete" />
+                {userIsAdmin && (
+                  <td class="td-actions sticky-col-right text-center">
+                    <div class="admin-action-group">
                       <button 
-                        type="submit" 
-                        class="admin-btn-action action-delete"
-                        title={`Delete ${agm.title}`}
-                        aria-label={`Delete ${agm.title}`}
+                        type="button" 
+                        class="btn-edit admin-btn-action"
+                        data-id={agm.id}
+                        title={`Edit ${agm.title}`}
+                        aria-label={`Edit ${agm.title}`}
                       >
-                        <Icon name="trash-2" size={13} />
+                        <Icon name="pencil" size={13} />
                       </button>
-                    </form>
-                  </div>
-                </td>
+                      <form method="POST" class="inline m-0 p-0" onsubmit="return confirm('Are you sure you want to delete this AGM document?');">
+                        <input type="hidden" name="id" value={agm.id} />
+                        <input type="hidden" name="_action" value="delete" />
+                        <button 
+                          type="submit" 
+                          class="admin-btn-action action-delete"
+                          title={`Delete ${agm.title}`}
+                          aria-label={`Delete ${agm.title}`}
+                        >
+                          <Icon name="trash-2" size={13} />
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                )}
               </tr>
             ))
           )}
           <tr id="no-matching-agm-row" style="display: none;">
-            <td colspan="4" class="text-center text-slate-500 py-12 text-xs font-semibold italic">
+            <td colspan={userIsAdmin ? 4 : 3} class="text-center text-slate-500 py-12 text-xs font-semibold italic">
               No AGM documents found matching your filter criteria.
             </td>
           </tr>
@@ -246,7 +272,8 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
   </div>
 
   <!-- Add/Edit Modal -->
-  <div id="modal-container" class="fixed inset-0 z-55 flex items-center justify-center hidden">
+  {userIsAdmin && (
+    <div id="modal-container" class="fixed inset-0 z-55 flex items-center justify-center hidden">
     <!-- Dim backdrop -->
     <div id="modal-backdrop" class="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px]"></div>
     
@@ -330,7 +357,7 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
           
           <label class="flex items-center gap-2 p-1.5 bg-amber-50/70 border border-amber-200/80 rounded cursor-pointer hover:bg-amber-50 transition-colors select-none mt-2">
             <input type="checkbox" id="agm-is-important-checkbox" class="w-3.5 h-3.5 rounded text-[#0B4F9C] border-slate-300 focus:ring-[#0B4F9C] cursor-pointer" />
-            <span class="text-[11px] font-bold text-amber-900 flex items-center gap-1">★ Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
+            <span class="text-[11px] font-bold text-amber-900 flex items-center gap-1.5"><Icon name="star" size={12} class="text-amber-600 shrink-0" /> Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
           </label>
           
           <span id="upload-status" class="text-[10px] text-slate-400 font-semibold mt-1 block">
@@ -358,8 +385,9 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
       </form>
     </div>
   </div>
+  )}
 
-  <script define:vars={{ sessionToken }}>
+  <script define:vars={{ sessionToken, backendUrl: BACKEND_URL }}>
     (function() {
       function getElements() {
         return {
@@ -556,13 +584,23 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
           formData.append('file', file);
           formData.append('isImportant', isImportant ? 'true' : 'false');
 
-          fetch('http://localhost:3000/api/upload', {
+          fetch(`${backendUrl}/api/upload`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${sessionToken}` },
             body: formData,
           })
-          .then(function(res) {
-            if (!res.ok) return res.json().then(function(err) { throw new Error(err.message || 'Upload failed'); });
+          .then(async function(res) {
+            if (!res.ok) {
+              if (res.status === 401) {
+                window.location.href = '/admin/login';
+                return;
+              }
+              if (res.status === 403) {
+                throw new Error('Access Denied: You do not have permission to upload files.');
+              }
+              const err = await res.json().catch(function() { return {}; });
+              throw new Error(err.message || 'Upload failed');
+            }
             return res.json();
           })
           .then(function(result) {
@@ -572,7 +610,7 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
               els.fileLabel.classList.add('text-emerald-700', 'font-bold');
             }
             if (els.uploadStatus) {
-              els.uploadStatus.textContent = `✓ Uploaded successfully (${Math.round(result.sizeBytes / 1024)} KB)`;
+              els.uploadStatus.textContent = `Uploaded successfully (${Math.round(result.sizeBytes / 1024)} KB)`;
               els.uploadStatus.className = 'text-[10px] text-emerald-600 font-semibold mt-1 block';
             }
             if (els.agmFileNameInput && !els.agmFileNameInput.value) {
@@ -582,7 +620,7 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
           .catch(function(error) {
             if (els.fileLabel) els.fileLabel.textContent = 'Upload failed';
             if (els.uploadStatus) {
-              els.uploadStatus.textContent = `⚠ Upload error: ${error.message}`;
+              els.uploadStatus.textContent = `Upload error: ${error.message}`;
               els.uploadStatus.className = 'text-[10px] text-red-650 font-bold mt-1 block';
             }
             if (els.agmDocumentUrlInput) els.agmDocumentUrlInput.value = '';

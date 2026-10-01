@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
 ---
 
 <Layout
@@ -20,8 +21,9 @@ import Layout from '../layouts/Layout.astro';
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <article class="lg:col-span-2 prose-gov space-y-5">
 
-        <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-xs text-amber-800 font-semibold">
-          ⚠️ <strong>DRAFT — FOR JKSPDC LEGAL REVIEW AND FORMAL APPROVAL BEFORE PUBLICATION.</strong>
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-xs text-amber-800 font-semibold flex items-start gap-2">
+          <Icon name="alert-triangle" size={14} class="text-amber-800 shrink-0 mt-0.5" />
+          <span><strong>DRAFT — FOR JKSPDC LEGAL REVIEW AND FORMAL APPROVAL BEFORE PUBLICATION.</strong></span>
         </div>
 
         <div class="card-static">
@@ -33,22 +35,22 @@ import Layout from '../layouts/Layout.astro';
         <div class="card-static">
           <h2 class="font-bold text-[#0B4F9C] text-base mb-3 border-b border-gray-100 pb-2">2. Permitted Use</h2>
           <p>You may reproduce, copy, or use content from this website for the following purposes without prior written permission, provided appropriate attribution is given:</p>
-          <ul class="mt-2 space-y-1 text-sm">
-            <li>✅ Personal, non-commercial use</li>
-            <li>✅ Educational or research purposes</li>
-            <li>✅ News reporting and journalism (with attribution)</li>
-            <li>✅ Parliamentary and governmental use</li>
+          <ul class="mt-2 space-y-1.5 text-sm">
+            <li class="flex items-center gap-2"><Icon name="check" size={14} class="text-emerald-600 shrink-0" /> <span>Personal, non-commercial use</span></li>
+            <li class="flex items-center gap-2"><Icon name="check" size={14} class="text-emerald-600 shrink-0" /> <span>Educational or research purposes</span></li>
+            <li class="flex items-center gap-2"><Icon name="check" size={14} class="text-emerald-600 shrink-0" /> <span>News reporting and journalism (with attribution)</span></li>
+            <li class="flex items-center gap-2"><Icon name="check" size={14} class="text-emerald-600 shrink-0" /> <span>Parliamentary and governmental use</span></li>
           </ul>
         </div>
 
         <div class="card-static">
           <h2 class="font-bold text-[#0B4F9C] text-base mb-3 border-b border-gray-100 pb-2">3. Restricted Use</h2>
           <p>The following uses of content from this website are <strong>not permitted</strong> without prior written approval from JKSPDCL:</p>
-          <ul class="mt-2 space-y-1 text-sm">
-            <li>❌ Commercial reproduction or publication</li>
-            <li>❌ Use of the JKSPDCL logo, name, or official emblem</li>
-            <li>❌ Misrepresentation of content as original work</li>
-            <li>❌ Distribution of content in a modified form without acknowledgement</li>
+          <ul class="mt-2 space-y-1.5 text-sm">
+            <li class="flex items-center gap-2"><Icon name="x" size={14} class="text-red-500 shrink-0" /> <span>Commercial reproduction or publication</span></li>
+            <li class="flex items-center gap-2"><Icon name="x" size={14} class="text-red-500 shrink-0" /> <span>Use of the JKSPDCL logo, name, or official emblem</span></li>
+            <li class="flex items-center gap-2"><Icon name="x" size={14} class="text-red-500 shrink-0" /> <span>Misrepresentation of content as original work</span></li>
+            <li class="flex items-center gap-2"><Icon name="x" size={14} class="text-red-500 shrink-0" /> <span>Distribution of content in a modified form without acknowledgement</span></li>
           </ul>
         </div>
 

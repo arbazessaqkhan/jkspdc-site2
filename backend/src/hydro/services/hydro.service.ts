@@ -45,7 +45,7 @@ export class HydroService {
     private readonly vectorStore: VectorStoreService,
     private readonly ingestionService: IngestionService,
     private readonly pageCrawler: PageCrawlerService,
-  ) {}
+  ) { }
 
   /**
    * Main conversational interface for HYDRO AI.
@@ -209,7 +209,7 @@ export class HydroService {
       { title: 'JKHRMS Portal', url: 'https://hrms.jk.gov.in/', category: 'Employees Corner', subtitle: 'Human Resource Management & Leaves' },
       { title: 'EETMS Legal Tracking', url: 'https://law.pmgatishakti.gov.in/EETMS/login', category: 'Employees Corner', subtitle: 'Legal Cases & Efficiency Tracking' },
       { title: 'BG Management', url: 'https://bg.jkspdc.in/', category: 'Employees Corner', subtitle: 'Bank Guarantee Verification Portal' },
-      { title: 'Asset Management Portal', url: 'https://jkspdc.inrdeals.in/login', category: 'Employees Corner', subtitle: 'Fixed Asset & Inventory Login' },
+      { title: 'Asset Management Portal', url: 'https://asset.jkspdcl.co.in/login', category: 'Employees Corner', subtitle: 'Fixed Asset & Inventory Login' },
       { title: 'JKSPDC RAS Portal', url: 'https://janparichay.meripehchaan.gov.in/v1/pehchaan/login.html?service=passive&active=true&rm_5=false&continue=https%3A%2F%2Fjan_com%2Fmail%2F&pp=1&scc=1&lmpl=default&ltmplcache=2&emr=1&osid=1&flowName=GlifWebSignIn&flowEntry=ServiceLogin&sid=JanSugamJK&v=2.0&lang=&urlid=82ae2068-ada6-4154-ae21-649b90598534', category: 'Employees Corner', subtitle: 'JanParichay / MeriPehchaan Single Sign-On Portal' },
     ];
 
@@ -261,7 +261,7 @@ export class HydroService {
           subtitle: `${st.type} | ${st.location || 'J&K'} | ${st.status}`,
         });
       }
-    } catch (e) {}
+    } catch (e) { }
 
     // 4. Search Tenders (Live DB)
     try {
@@ -285,7 +285,7 @@ export class HydroService {
           subtitle: `Status: ${t.status} | Closing: ${t.closingDate ? new Date(t.closingDate).toLocaleDateString('en-IN') : 'Active'}`,
         });
       }
-    } catch (e) {}
+    } catch (e) { }
 
     return suggestions;
   }

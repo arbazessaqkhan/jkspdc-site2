@@ -2,117 +2,119 @@
 import Layout from '../../../layouts/Layout.astro';
 import Icon from '../../../components/Icon.astro';
 
-// Phases data with stored project details
-const ippPhases = [
+// Fallback seed data in case backend service is temporarily offline
+const fallbackIppPhases = [
   { 
     id: 'phase-1', 
     name: 'Phase 1', 
-    title: 'Phase I — IPP Hydroelectric Projects',
-    desc: 'Independent Power Producer (IPP) Hydroelectric Projects allotted under Phase I Policy Guidelines.',
+    phaseNum: 1,
     projects: [
-      { name: 'Boniyar HEP', capacityMw: 12, basin: 'Jhelum Basin', location: 'Baramula', status: 'Work in Progress', developer: 'Ms VRB Hydro Power', remarks: 'Work in progress' },
-      { name: 'Ranjala Dunadi HEP', capacityMw: 15, basin: 'Chenab Basin', location: 'Doda', status: 'Commissioned', developer: 'Ms Choudhary Power Projects Limited', remarks: 'Commissioned' },
-      { name: 'Kahmil HEP', capacityMw: 4, basin: 'Jhelum Basin', location: 'Kupwara', status: 'Terminated', developer: 'Ms Rehbar Engineering Ltd.', remarks: 'Contract Terminated due to Poor Performance by Developer(2017 2018)' },
-      { name: 'Mandi HEP', capacityMw: 12.5, basin: 'Jhelum Basin (Punch)', location: 'Punch', status: 'Commissioned', developer: 'Ms Magpie Hydel Constructions', remarks: 'Commissioned' },
-      { name: 'Athwatoo HEP', capacityMw: 10, basin: 'Jhelum Basin', location: 'Bandipore', status: 'Commissioned', developer: 'Ms Magpie and Co.', remarks: 'Commissioned' },
-      { name: 'Brenwar HEP', capacityMw: 7.5, basin: 'Jhelum Basin', location: 'Badgam', status: 'Commissioned', developer: 'Ms P and R Engineering', remarks: 'Commissioned' },
-      { name: 'Aharbal HEP', capacityMw: 22.5, basin: 'Jhelum Basin', location: 'Pulwama', status: 'Surrendered', developer: 'Ms JAL', remarks: 'Project Site surrendered due to Tourism and Environmental issues.' },
-      { name: 'Drung HEP', capacityMw: 5, basin: 'Ravi Basin', location: 'Kathua', status: 'Land Acquisition', developer: 'Ms Chenab Valley Leasing Company.', remarks: 'Land Acquisition clearance in Progress.' }
+      { name: 'Boniyar HEP', capacityMw: 12, basin: 'Jhelum Basin', location: 'Baramula', status: 'Work in Progress', awardedTo: 'Ms VRB Hydro Power' },
+      { name: 'Ranjala Dunadi HEP', capacityMw: 15, basin: 'Chenab Basin', location: 'Doda', status: 'Commissioned', awardedTo: 'Ms Choudhary Power Projects Limited' },
+      { name: 'Kahmil HEP', capacityMw: 4, basin: 'Jhelum Basin', location: 'Kupwara', status: 'Terminated', awardedTo: 'Ms Rehbar Engineering Ltd.' },
+      { name: 'Mandi HEP', capacityMw: 12.5, basin: 'Jhelum Basin (Punch)', location: 'Punch', status: 'Commissioned', awardedTo: 'Ms Magpie Hydel Constructions' },
+      { name: 'Athwatoo HEP', capacityMw: 10, basin: 'Jhelum Basin', location: 'Bandipore', status: 'Commissioned', awardedTo: 'Ms Magpie and Co.' },
+      { name: 'Brenwar HEP', capacityMw: 7.5, basin: 'Jhelum Basin', location: 'Badgam', status: 'Commissioned', awardedTo: 'Ms P and R Engineering' },
+      { name: 'Aharbal HEP', capacityMw: 22.5, basin: 'Jhelum Basin', location: 'Pulwama', status: 'Surrendered', awardedTo: 'Ms JAL' },
+      { name: 'Drung HEP', capacityMw: 5, basin: 'Ravi Basin', location: 'Kathua', status: 'Land Acquisition', awardedTo: 'Ms Chenab Valley Leasing Company.' }
     ]
   },
   { 
     id: 'phase-2', 
     name: 'Phase 2', 
-    title: 'Phase II — IPP Hydroelectric Projects',
-    desc: 'IPP Hydro Electric Projects allotted under Phase II for capacity expansion and DPR evaluation.',
+    phaseNum: 2,
     projects: [
-      { name: 'Chandanwari HEP', capacityMw: 7, basin: 'Jhelum Basin', location: 'Baramula', status: 'DPR Preparation', developer: 'Ms Nazir Hussain Khan', remarks: 'DPR under preparation' },
-      { name: 'Ans I HEP', capacityMw: 40, basin: 'Chenab Basin', location: 'Riasi', status: 'Implementation Agreement', developer: 'Ms Sri Awantika Consortium', remarks: 'In 2012 Implementation agreement was signed and DPR was under prepration. However the IPP has' },
-      { name: 'Girjan Ki Gali HEP', capacityMw: 12, basin: 'Chenab Basin (Rajouri)', location: 'Rajaori', status: 'DPR Preparation', developer: 'Ms Raheja Power Ventures Pvt Ltd', remarks: 'DPR under preparation' },
-      { name: 'Patnazi Bunjwa HEP', capacityMw: 21, basin: 'Chenab Basin', location: 'Kishtwar', status: 'TEC Accorded', developer: 'Ms Patnazi Power (Energo Group)', remarks: 'TEC accorded to DPR' }
+      { name: 'Chandanwari HEP', capacityMw: 7, basin: 'Jhelum Basin', location: 'Baramula', status: 'DPR Preparation', awardedTo: 'Ms Nazir Hussain Khan' },
+      { name: 'Ans I HEP', capacityMw: 40, basin: 'Chenab Basin', location: 'Riasi', status: 'Implementation Agreement', awardedTo: 'Ms Sri Awantika Consortium' },
+      { name: 'Girjan Ki Gali HEP', capacityMw: 12, basin: 'Chenab Basin (Rajouri)', location: 'Rajaori', status: 'DPR Preparation', awardedTo: 'Ms Raheja Power Ventures Pvt Ltd' },
+      { name: 'Patnazi Bunjwa HEP', capacityMw: 21, basin: 'Chenab Basin', location: 'Kishtwar', status: 'TEC Accorded', awardedTo: 'Ms Patnazi Power (Energo Group)' }
     ]
   },
   { 
     id: 'phase-3', 
     name: 'Phase 3', 
-    title: 'Phase III — IPP Hydroelectric Projects',
-    desc: 'Phase III Hydroelectric IPP Allotments under BOOT (Build-Own-Operate-Transfer) schema.',
+    phaseNum: 3,
     projects: [
-      { name: 'Chingus II HEP', capacityMw: 3, basin: 'Chenab Basin (Rajouri)', location: 'Rajaori', status: 'No Response', developer: '—', remarks: 'No Response' },
-      { name: 'Pumbai Aridajan HEP', capacityMw: 4, basin: 'Jhelum Basin', location: 'Kulgam', status: 'No Response', developer: '—', remarks: 'No Response' },
-      { name: 'Hanswar HEP', capacityMw: 6, basin: 'Chenab Basin', location: 'Kishtwar', status: 'No Response', developer: '—', remarks: 'No Response' },
-      { name: 'Phagla HEP', capacityMw: 16, basin: 'Jhelum Basin (Punch)', location: 'Punch', status: 'No Response', developer: '—', remarks: 'No Response. (Project is being implemented under PMDP 2015)' },
-      { name: 'Mawar HEP', capacityMw: 10, basin: 'Jhelum Basin', location: 'Kupwara', status: 'Non Responsive', developer: '—', remarks: 'Non Responsive Bid' },
-      { name: 'Kutbal HEP', capacityMw: 4, basin: 'Jhelum Basin', location: 'Kulgam', status: 'No Response', developer: '—', remarks: 'No Response' },
-      { name: 'Shaliganga HEP', capacityMw: 4.5, basin: 'Jhelum Basin', location: 'Badgam', status: 'No Response', developer: '—', remarks: 'No Response' },
-      { name: 'Thanamandi HEP', capacityMw: 2.75, basin: 'Chenab Basin', location: 'Thanna Mandi', status: 'No Response', developer: '—', remarks: 'No Response' },
-      { name: 'Boniyar HEP', capacityMw: 6, basin: 'Jhelum Basin', location: 'Baramula', status: 'No Response', developer: '—', remarks: 'No Response' },
-      { name: 'Gulabgarh HEP', capacityMw: 6.5, basin: 'Chenab Basin', location: 'Riasi', status: 'LOA Withdrawn', developer: 'Ms Boom Systems Pvt.', remarks: 'Bidder Didnot pay upfront Premium. LOA Withdrawn To be retendered under Phase IV.' },
-      { name: 'Kutimarg HEP', capacityMw: 7.25, basin: 'Jhelum Basin', location: 'Kulgam', status: 'No Response', developer: '—', remarks: 'No Response' },
-      { name: 'Shranz HEP', capacityMw: 10, basin: 'Jhelum Basin', location: 'Baramula', status: 'LOA Withdrawn', developer: 'Ms Trumboo Cement Industries pvt. Ltd.', remarks: 'Bidder Didnot pay upfront Premium.LOA Withdrawn To be retendered under Phase IV.' },
-      { name: 'Upper Ans I HEP', capacityMw: 5.5, basin: 'Chenab Basin', location: 'Rajaori', status: 'No Response', developer: '—', remarks: 'No Response' },
-      { name: 'Shunahkag HEP', capacityMw: 9, basin: 'Jhelum Basin', location: 'Badgam', status: 'LOA Withdrawn', developer: 'Ms Boom Systems Pvt. Ltd.', remarks: 'Bidder Didnot pay upfront Premium. LOA Withdrawn To be retendered under Phase IV' },
-      { name: 'Chingus I HEP', capacityMw: 3, basin: 'Chenab Basin (Rajouri)', location: 'Rajaori', status: 'No Response', developer: '—', remarks: 'No Response' },
-      { name: 'Sultanphatri HEP', capacityMw: 3, basin: 'Jhelum Basin (Punch)', location: 'Punch', status: 'DPR Preparation', developer: 'Ms SRM Contractors Pvt. Ltd.', remarks: 'DPR under preparation' },
-      { name: 'Sewa I HEP', capacityMw: 8, basin: 'Ravi Basin', location: 'Kathua', status: 'Non Responsive', developer: '—', remarks: 'Non Responsive Bid' },
-      { name: 'Erin HEP', capacityMw: 10, basin: 'Jhelum Basin', location: 'Bandipore', status: 'No Response', developer: '—', remarks: 'No Response' },
-      { name: 'Nihama HEP', capacityMw: 6, basin: 'Jhelum Basin', location: 'Kulgam', status: 'LOA Withdrawn', developer: 'Ms Millde East Recycling Company WILL.', remarks: 'Bidder Didnot pay upfront Premium. LOA WithdrawnTo be retendered under Phase IV' },
-      { name: 'Chenani IV HEP', capacityMw: 7, basin: 'Chenab Basin', location: 'Udhampur', status: 'Non Responsive', developer: '—', remarks: 'Non Responsive Bid.' },
-      { name: 'Bringi HEP', capacityMw: 4, basin: 'Jhelum Basin', location: 'Anantnag', status: 'No Response', developer: '—', remarks: 'No Response' }
+      { name: 'Chingus II HEP', capacityMw: 3, basin: 'Chenab Basin (Rajouri)', location: 'Rajaori', status: 'No Response', awardedTo: '—' },
+      { name: 'Pumbai Aridajan HEP', capacityMw: 4, basin: 'Jhelum Basin', location: 'Kulgam', status: 'No Response', awardedTo: '—' },
+      { name: 'Hanswar HEP', capacityMw: 6, basin: 'Chenab Basin', location: 'Kishtwar', status: 'No Response', awardedTo: '—' },
+      { name: 'Phagla HEP', capacityMw: 16, basin: 'Jhelum Basin (Punch)', location: 'Punch', status: 'No Response', awardedTo: '—' },
+      { name: 'Mawar HEP', capacityMw: 10, basin: 'Jhelum Basin', location: 'Kupwara', status: 'Non Responsive', awardedTo: '—' },
+      { name: 'Kutbal HEP', capacityMw: 4, basin: 'Jhelum Basin', location: 'Kulgam', status: 'No Response', awardedTo: '—' },
+      { name: 'Shaliganga HEP', capacityMw: 4.5, basin: 'Jhelum Basin', location: 'Badgam', status: 'No Response', awardedTo: '—' },
+      { name: 'Thanamandi HEP', capacityMw: 2.75, basin: 'Chenab Basin', location: 'Thanna Mandi', status: 'No Response', awardedTo: '—' },
+      { name: 'Boniyar HEP', capacityMw: 6, basin: 'Jhelum Basin', location: 'Baramula', status: 'No Response', awardedTo: '—' },
+      { name: 'Gulabgarh HEP', capacityMw: 6.5, basin: 'Chenab Basin', location: 'Riasi', status: 'LOA Withdrawn', awardedTo: 'Ms Boom Systems Pvt.' },
+      { name: 'Kutimarg HEP', capacityMw: 7.25, basin: 'Jhelum Basin', location: 'Kulgam', status: 'No Response', awardedTo: '—' },
+      { name: 'Shranz HEP', capacityMw: 10, basin: 'Jhelum Basin', location: 'Baramula', status: 'LOA Withdrawn', awardedTo: 'Ms Trumboo Cement Industries pvt. Ltd.' },
+      { name: 'Upper Ans I HEP', capacityMw: 5.5, basin: 'Chenab Basin', location: 'Rajaori', status: 'No Response', awardedTo: '—' },
+      { name: 'Shunahkag HEP', capacityMw: 9, basin: 'Jhelum Basin', location: 'Badgam', status: 'LOA Withdrawn', awardedTo: 'Ms Boom Systems Pvt. Ltd.' },
+      { name: 'Chingus I HEP', capacityMw: 3, basin: 'Chenab Basin (Rajouri)', location: 'Rajaori', status: 'No Response', awardedTo: '—' },
+      { name: 'Sultanphatri HEP', capacityMw: 3, basin: 'Jhelum Basin (Punch)', location: 'Punch', status: 'DPR Preparation', awardedTo: 'Ms SRM Contractors Pvt. Ltd.' },
+      { name: 'Sewa I HEP', capacityMw: 8, basin: 'Ravi Basin', location: 'Kathua', status: 'Non Responsive', awardedTo: '—' },
+      { name: 'Erin HEP', capacityMw: 10, basin: 'Jhelum Basin', location: 'Bandipore', status: 'No Response', awardedTo: '—' },
+      { name: 'Nihama HEP', capacityMw: 6, basin: 'Jhelum Basin', location: 'Kulgam', status: 'LOA Withdrawn', awardedTo: 'Ms Middle East Recycling Company WILL.' },
+      { name: 'Chenani IV HEP', capacityMw: 7, basin: 'Chenab Basin', location: 'Udhampur', status: 'Non Responsive', awardedTo: '—' },
+      { name: 'Bringi HEP', capacityMw: 4, basin: 'Jhelum Basin', location: 'Anantnag', status: 'No Response', awardedTo: '—' }
     ]
   },
-  { 
-    id: 'phase-4', 
-    name: 'Phase 4', 
-    title: 'Phase IV — IPP Hydroelectric Projects',
-    desc: 'No projects registered under Phase IV yet.',
-    projects: []
-  },
-  { 
-    id: 'phase-5', 
-    name: 'Phase 5', 
-    title: 'Phase V — IPP Hydroelectric Projects',
-    desc: 'No projects registered under Phase V yet.',
-    projects: []
-  },
-  { 
-    id: 'phase-6', 
-    name: 'Phase 6', 
-    title: 'Phase VI — IPP Hydroelectric Projects',
-    desc: 'No projects registered under Phase VI yet.',
-    projects: []
-  },
-  { 
-    id: 'phase-7', 
-    name: 'Phase 7', 
-    title: 'Phase VII — IPP Hydro & Renewable Allotments',
-    desc: 'No projects registered under Phase VII.',
-    projects: []
-  },
-  { 
-    id: 'phase-8', 
-    name: 'Phase 8', 
-    title: 'Phase VIII — IPP Hydroelectric Expansion',
-    desc: 'No projects registered under Phase VIII yet.',
-    projects: []
-  },
-  { 
-    id: 'phase-9', 
-    name: 'Phase 9', 
-    title: 'Phase IX — Strategic Hybrid & Clean Energy IPPs',
-    desc: 'No projects registered under Phase IX yet.',
-    projects: []
-  },
-  { 
-    id: 'phase-10', 
-    name: 'Phase 10', 
-    title: 'Phase X — Ultra Mega Renewable Energy Parks',
-    desc: 'No projects registered under Phase X yet.',
-    projects: []
-  }
+  { id: 'phase-4', name: 'Phase 4', phaseNum: 4, projects: [] },
+  { id: 'phase-5', name: 'Phase 5', phaseNum: 5, projects: [] },
+  { id: 'phase-6', name: 'Phase 6', phaseNum: 6, projects: [] },
+  { id: 'phase-7', name: 'Phase 7', phaseNum: 7, projects: [] },
+  { id: 'phase-8', name: 'Phase 8', phaseNum: 8, projects: [] },
+  { id: 'phase-9', name: 'Phase 9', phaseNum: 9, projects: [] },
+  { id: 'phase-10', name: 'Phase 10', phaseNum: 10, projects: [] }
 ];
 
-const phase1Data = ippPhases[0];
+// Fetch live IPP projects directly from the backend database (same database as Admin portal)
+let dbProjects: any[] = [];
+try {
+  const res = await fetch('http://localhost:3000/api/ipp-projects').catch(() => null);
+  if (res && res.ok) {
+    dbProjects = await res.json();
+  }
+} catch (e) {
+  console.error('Failed to sync IPP projects from backend API:', e);
+}
+
+// Generate the 10 phases using live database data (or fallback if backend empty/offline)
+const phasesWithCalculations = Array.from({ length: 10 }, (_, i) => {
+  const phaseNum = i + 1;
+  const phaseId = `phase-${phaseNum}`;
+
+  let projects: any[] = [];
+  if (Array.isArray(dbProjects) && dbProjects.length > 0) {
+    projects = dbProjects
+      .filter((p: any) => Number(p.phase) === phaseNum)
+      .map((p: any) => ({
+        id: p.id,
+        name: p.name.includes('HEP') || p.name.toLowerCase().includes('hydro') ? p.name : `${p.name} HEP`,
+        capacityMw: Number(p.capacityMw) || 0,
+        status: p.status || '—',
+        location: p.location || '—',
+        awardedTo: p.awardedTo || '—',
+        basin: p.basin || ''
+      }));
+  } else {
+    const fallbackPhase = fallbackIppPhases.find((p) => p.phaseNum === phaseNum);
+    projects = fallbackPhase ? fallbackPhase.projects : [];
+  }
+
+  const totalCapacity = projects.reduce((sum: number, p: any) => sum + (Number(p.capacityMw) || 0), 0);
+  return {
+    id: phaseId,
+    phaseNum,
+    name: `Phase ${phaseNum}`,
+    projectCount: projects.length,
+    totalMw: totalCapacity > 0 ? `${totalCapacity} MW` : '0 MW',
+    projects
+  };
+});
+
+// Check if a specific phase is requested via URL search param (e.g. ?phase=phase-3)
+const requestedPhaseParam = Astro.url.searchParams.get('phase')?.toLowerCase() || null;
+const initialPhase = requestedPhaseParam ? phasesWithCalculations.find(p => p.id === requestedPhaseParam) : null;
 ---
 
 <Layout 
@@ -133,113 +135,304 @@ const phase1Data = ippPhases[0];
       <p class="page-subtitle">Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL)</p>
     </div>
 
-    <!-- Phase Selector Buttons Grid (No MW text, Click leads directly inside data behind) -->
-    <div class="animate-fadeInUp delay-200 space-y-4">
-      <div class="flex items-center justify-between border-b border-[#0B4F9C]/20 pb-2">
-        <h2 class="text-sm font-bold uppercase tracking-wider text-[#0B4F9C] flex items-center gap-2">
+    <!-- Phase Selector Buttons Grid (All 10 Phases Visible at Top) -->
+    <section aria-labelledby="phase-selection-heading" class="animate-fadeInUp delay-200 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#0B4F9C]/20 pb-2.5 gap-2">
+        <h2 id="phase-selection-heading" class="text-sm font-bold uppercase tracking-wider text-[#0B4F9C] flex items-center gap-2">
           <Icon name="briefcase" size={16} strokeWidth={2} />
           Select Project Allotment Phase
         </h2>
-        <span class="text-xs font-semibold text-[#0B4F9C]">
-          Click any Phase button to open stored details
+        <span class="text-xs font-semibold text-slate-500">
+          Click any Phase to view its project table and count
         </span>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="phase-buttons-container">
-        {ippPhases.map((phase) => (
-          <a
-            href={`/stakeholders/investors/ipp-project-details?phase=${phase.id}`}
-            class="phase-card-btn group block p-5 rounded-xl border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-center shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C]"
-          >
-            <span class="text-lg font-extrabold text-[#0B4F9C] group-hover:text-[#073B75] tracking-wide block">
-              {phase.name}
-            </span>
-            <span class="text-xs font-semibold text-slate-500 mt-1 block group-hover:text-[#0B4F9C]">
-              Open Phase Data &rarr;
-            </span>
-          </a>
-        ))}
+      <!-- ARIA Tablist for 10 Phases -->
+      <div 
+        role="tablist" 
+        aria-label="IPP Project Allotment Phases" 
+        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4" 
+        id="phase-tabs-container"
+      >
+        {phasesWithCalculations.map((phase) => {
+          const isSelected = initialPhase ? initialPhase.id === phase.id : false;
+          return (
+            <button
+              type="button"
+              role="tab"
+              id={`tab-${phase.id}`}
+              aria-controls="ipp-table-section"
+              aria-selected={isSelected ? 'true' : 'false'}
+              tabindex={isSelected ? '0' : '-1'}
+              data-phase-id={phase.id}
+              class={`phase-tab-btn group p-4 sm:p-5 rounded-xl border text-center transition-all duration-200 cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C] focus-visible:ring-offset-2 flex flex-col items-center justify-center min-h-[88px] ${
+                isSelected 
+                  ? 'border-2 border-[#0B4F9C] bg-[#EAF4FF] text-[#0B4F9C] shadow-sm ring-1 ring-[#0B4F9C]/20' 
+                  : 'border-slate-200 bg-white hover:border-[#0B4F9C] hover:bg-slate-50 text-slate-800 shadow-xs'
+              }`}
+            >
+              <span class="text-base sm:text-lg font-extrabold text-[#0B4F9C] tracking-wide block transition-colors">
+                {phase.name}
+              </span>
+              <span class="phase-count-subtext text-xs font-semibold text-slate-500 mt-1 block">
+                {phase.projectCount > 0 ? `${phase.projectCount} Projects` : '0 Projects'}
+              </span>
+            </button>
+          );
+        })}
       </div>
-    </div>
+    </section>
 
-    <!-- Default Static Phase 1 Overview Register -->
-    <div id="phase-detail-card" class="bg-white rounded-xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-6 animate-fadeIn delay-300">
-      <!-- Active Phase Title Banner -->
-      <div class="border-b border-slate-200 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <div class="inline-block text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-[#0B4F9C] px-3 py-1 rounded-full mb-1 border border-slate-200">
-            Default Allotment Phase Overview
+    <!-- Invisible Screen Reader Live Announcer for Accessibility -->
+    <div id="a11y-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Active Table Card Section (Spaced as in other pages: bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4) -->
+    <section 
+      id="ipp-table-section" 
+      class={`mt-8 animate-fadeIn transition-all duration-200 ${initialPhase ? '' : 'hidden'}`}
+      role="region"
+      aria-labelledby="active-phase-heading"
+    >
+      <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
+        <!-- Clean Card Header: Title on Left, Count on Right (Matching other tables) -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
+          <h3 id="active-phase-heading" class="text-base sm:text-lg font-bold text-[#0B4F9C] flex items-center gap-2">
+            <Icon name="clipboard" size={20} class="text-[#0B4F9C]" />
+            <span id="active-phase-title-text">{initialPhase ? `${initialPhase.name} Projects` : ''}</span>
+          </h3>
+          <div class="text-xs font-semibold text-slate-500 flex items-center gap-2" id="active-phase-count">
+            {initialPhase ? (
+              <span>Showing {initialPhase.projectCount} project(s) &bull; Total: {initialPhase.totalMw}</span>
+            ) : null}
           </div>
-          <h2 class="text-xl sm:text-2xl font-extrabold text-[#0B4F9C]">
-            {phase1Data.title}
-          </h2>
-          <p class="text-xs sm:text-sm text-slate-600 font-normal mt-1 leading-relaxed">
-            {phase1Data.desc}
-          </p>
-        </div>
-        <div class="flex items-center gap-3 flex-shrink-0">
-          <a href={`/stakeholders/investors/ipp-project-details?phase=${phase1Data.id}`} class="bg-[#0B4F9C] hover:bg-[#084A8F] text-white text-xs font-bold px-4 py-2 rounded-lg shadow-xs transition-all flex items-center gap-1.5">
-            <span>Explore Phase 1 Full Data</span> &rarr;
-          </a>
-        </div>
-      </div>
-
-      <!-- Static Stored Project Table for Phase 1 -->
-      <div class="space-y-4">
-        <!-- Select Phase # dropdown matching Image 1 -->
-        <div class="flex items-center gap-3 pb-1">
-          <label for="select-phase-dropdown" class="text-xs font-bold text-slate-700">Select Phase #</label>
-          <select 
-            id="select-phase-dropdown" 
-            onchange="if(this.value) window.location.href='/stakeholders/investors/ipp-project-details?phase=' + this.value;"
-            class="bg-white border border-slate-300 rounded px-2.5 py-1 text-xs font-bold text-slate-800 outline-none focus:ring-2 focus:ring-[#0B4F9C]"
-          >
-            {ippPhases.map((phase) => (
-              <option value={phase.id} selected={phase.id === phase1Data.id}>
-                {phase.name.toUpperCase().replace('PHASE ', 'PHASE-')}
-              </option>
-            ))}
-          </select>
         </div>
 
-        <div class="table-wrapper">
-          <table class="table-data min-w-full">
+        <!-- Projects Table Wrapper: Fixed column widths with <colgroup> so columns never shift position -->
+        <div 
+          class="table-wrapper overflow-x-auto" 
+          tabindex="0" 
+          role="region" 
+          aria-label="IPP Projects Data Table"
+        >
+          <table class="table-data min-w-full text-left" style="table-layout: fixed;">
+            <caption class="sr-only" id="table-caption">
+              {initialPhase ? `List of IPP projects under ${initialPhase.name}` : 'IPP Projects Table'}
+            </caption>
+            <colgroup>
+              <col style="width: 25%;">
+              <col style="width: 25%;">
+              <col style="width: 25%;">
+              <col style="width: 25%;">
+            </colgroup>
             <thead>
-              <tr class="bg-[#2D60A6] text-white">
-                <th scope="col" class="text-left py-3 px-4 text-xs font-bold">Project</th>
-                <th scope="col" class="text-center py-3 px-4 text-xs font-bold whitespace-nowrap">Installed Capacity in MW</th>
-                <th scope="col" class="text-left py-3 px-4 text-xs font-bold">Status</th>
-                <th scope="col" class="text-left py-3 px-4 text-xs font-bold">Awarded To</th>
-              </tr>
-              <tr class="bg-[#4176B8] text-white font-extrabold text-center text-xs tracking-wider uppercase">
-                <th colspan="4" class="py-2.5 text-center">{phase1Data.name.toUpperCase().replace('PHASE ', 'PHASE-')} PROJECTS</th>
+              <tr>
+                <th scope="col" class="text-left" style="width: 25%;">Project &amp; Location</th>
+                <th scope="col" class="text-left" style="width: 25%;">Installed Capacity</th>
+                <th scope="col" class="text-left" style="width: 25%;">Status</th>
+                <th scope="col" class="text-left" style="width: 25%;">Awarded To</th>
               </tr>
             </thead>
-            <tbody>
-              {phase1Data.projects.map((proj) => (
-                <tr class="hover:bg-slate-50/80 transition-colors border-b border-slate-200">
-                  <td class="text-left py-3 px-4 text-xs">
-                    <div class="text-slate-800 font-medium">{proj.name}</div>
-                    <div class="text-slate-900 font-bold mt-0.5">{proj.location}</div>
-                  </td>
-                  <td class="text-center font-semibold text-slate-700 text-xs py-3 px-4">{proj.capacityMw}</td>
-                  <td class="text-left text-xs text-slate-700 py-3 px-4">{proj.status}</td>
-                  <td class="text-left text-xs text-slate-700 py-3 px-4">{proj.developer}</td>
-                </tr>
-              ))}
+            <tbody id="table-tbody">
+              {initialPhase && (
+                initialPhase.projects.length > 0 ? (
+                  initialPhase.projects.map((proj: any) => (
+                    <tr>
+                      <td class="text-left font-semibold text-slate-800 break-words" style="width: 25%;">
+                        <div>{proj.name}</div>
+                        <div class="text-slate-500 font-normal text-xs mt-0.5">
+                          {proj.location}{proj.basin ? ` • ${proj.basin}` : ''}
+                        </div>
+                      </td>
+                      <td class="text-left font-semibold text-slate-700 whitespace-nowrap" style="width: 25%;">
+                        {proj.capacityMw} MW
+                      </td>
+                      <td class="text-left text-slate-600 break-words" style="width: 25%;">
+                        {proj.status || '—'}
+                      </td>
+                      <td class="text-left text-slate-600 break-words" style="width: 25%;">
+                        {proj.awardedTo || '—'}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colspan="4" class="text-center py-8 text-sm text-slate-500 font-semibold">
+                      No projects are registered under this allotment phase yet.
+                    </td>
+                  </tr>
+                )
+              )}
             </tbody>
           </table>
         </div>
-
-        <!-- Information Callout Note -->
-        <div class="bg-blue-50/60 border border-blue-200/80 rounded-xl p-4 text-xs text-slate-700 leading-relaxed flex items-start gap-3">
-          <Icon name="info" size={18} strokeWidth={2} class="text-[#0B4F9C] flex-shrink-0 mt-0.5" />
-          <div>
-            <span class="font-bold text-[#0B4F9C] block mb-0.5">Corporate IPP Framework Note:</span>
-            Clicking any Phase button above will open the complete stored dataset, developer credentials, and DPR specifications for that specific phase.
-          </div>
-        </div>
       </div>
-    </div>
+    </section>
   </div>
+
+  <!-- Embedded JSON Payload for Instant Client-Side Switch (Synced with live database) -->
+  <script id="ipp-phases-json" type="application/json" set:html={JSON.stringify(phasesWithCalculations)} />
 </Layout>
+
+<script is:inline>
+(function() {
+  var dataEl = document.getElementById('ipp-phases-json');
+  if (!dataEl) return;
+
+  var phases = [];
+  try {
+    phases = JSON.parse(dataEl.textContent || '[]');
+  } catch (e) {
+    return;
+  }
+
+  var phaseMap = {};
+  phases.forEach(function(p) {
+    phaseMap[p.id] = p;
+  });
+
+  var tabs = Array.from(document.querySelectorAll('.phase-tab-btn'));
+  var tableSection = document.getElementById('ipp-table-section');
+  var titleTextEl = document.getElementById('active-phase-title-text');
+  var countEl = document.getElementById('active-phase-count');
+  var tbody = document.getElementById('table-tbody');
+  var captionEl = document.getElementById('table-caption');
+  var announcer = document.getElementById('a11y-announcer');
+
+  function renderPhase(phaseId, updateHistory) {
+    var phase = phaseMap[phaseId];
+    if (!phase) return;
+
+    // 1. Update tab styling and accessibility states
+    tabs.forEach(function(tab) {
+      var isSelected = tab.dataset.phaseId === phaseId;
+      tab.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+      tab.setAttribute('tabindex', isSelected ? '0' : '-1');
+
+      if (isSelected) {
+        tab.classList.add('border-2', 'border-[#0B4F9C]', 'bg-[#EAF4FF]', 'text-[#0B4F9C]', 'shadow-sm', 'ring-1', 'ring-[#0B4F9C]/20');
+        tab.classList.remove('border-slate-200', 'bg-white', 'text-slate-800', 'shadow-xs');
+      } else {
+        tab.classList.remove('border-2', 'border-[#0B4F9C]', 'bg-[#EAF4FF]', 'text-[#0B4F9C]', 'shadow-sm', 'ring-1', 'ring-[#0B4F9C]/20');
+        tab.classList.add('border-slate-200', 'bg-white', 'text-slate-800', 'shadow-xs');
+      }
+    });
+
+    // 2. Reveal table section
+    if (tableSection) {
+      tableSection.classList.remove('hidden');
+    }
+
+    // 3. Update title and counts
+    if (titleTextEl) {
+      titleTextEl.textContent = phase.name + ' Projects';
+    }
+    if (countEl) {
+      countEl.innerHTML = 'Showing ' + phase.projectCount + ' project(s) &bull; Total: ' + phase.totalMw;
+    }
+    if (captionEl) {
+      captionEl.textContent = 'List of IPP projects under ' + phase.name;
+    }
+
+    // 4. Render Table Rows with fixed column widths strictly matching the colgroup headers
+    if (tbody) {
+      if (phase.projects.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-sm text-slate-500 font-semibold">' +
+          'No projects are registered under this allotment phase yet.' +
+        '</td></tr>';
+      } else {
+        var rowsHtml = '';
+        phase.projects.forEach(function(proj) {
+          var loc = proj.location || '—';
+          if (proj.basin) loc += ' • ' + proj.basin;
+
+          // Equal 25% spacing across all 4 columns, text-left aligned matching standard table design
+          rowsHtml += '<tr>' +
+            '<td class="text-left font-semibold text-slate-800 break-words" style="width: 25%;">' +
+              '<div>' + proj.name + '</div>' +
+              '<div class="text-slate-500 font-normal text-xs mt-0.5">' + loc + '</div>' +
+            '</td>' +
+            '<td class="text-left font-semibold text-slate-700 whitespace-nowrap" style="width: 25%;">' +
+              proj.capacityMw + ' MW' +
+            '</td>' +
+            '<td class="text-left text-slate-600 break-words" style="width: 25%;">' +
+              (proj.status || '—') +
+            '</td>' +
+            '<td class="text-left text-slate-600 break-words" style="width: 25%;">' +
+              (proj.awardedTo || '—') +
+            '</td>' +
+          '</tr>';
+        });
+        tbody.innerHTML = rowsHtml;
+      }
+    }
+
+    // 5. Accessible screen reader announcement
+    if (announcer) {
+      announcer.textContent = phase.name + ' selected. ' + phase.projectCount + ' projects listed with total capacity of ' + phase.totalMw + '.';
+    }
+
+    // 6. Update URL query parameter
+    if (updateHistory !== false) {
+      var url = new URL(window.location.href);
+      url.searchParams.set('phase', phaseId);
+      window.history.pushState({ phase: phaseId }, '', url.toString());
+    }
+  }
+
+  // Bind click & keyboard events
+  tabs.forEach(function(tab, index) {
+    tab.addEventListener('click', function() {
+      renderPhase(tab.dataset.phaseId, true);
+    });
+
+    // Arrow navigation & Home/End for WAI-ARIA tablist accessibility
+    tab.addEventListener('keydown', function(e) {
+      var targetIndex = -1;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        targetIndex = (index + 1) % tabs.length;
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        targetIndex = (index - 1 + tabs.length) % tabs.length;
+      } else if (e.key === 'Home') {
+        targetIndex = 0;
+      } else if (e.key === 'End') {
+        targetIndex = tabs.length - 1;
+      }
+
+      if (targetIndex !== -1) {
+        e.preventDefault();
+        tabs[targetIndex].focus();
+        renderPhase(tabs[targetIndex].dataset.phaseId, true);
+      }
+    });
+  });
+
+  // Handle browser back and forward navigation
+  window.addEventListener('popstate', function() {
+    var params = new URLSearchParams(window.location.search);
+    var pId = params.get('phase');
+    if (pId && phaseMap[pId]) {
+      renderPhase(pId, false);
+    } else {
+      // Revert to initial state (no table shown)
+      tabs.forEach(function(t) {
+        t.setAttribute('aria-selected', 'false');
+        t.setAttribute('tabindex', '-1');
+        t.classList.remove('border-2', 'border-[#0B4F9C]', 'bg-[#EAF4FF]', 'text-[#0B4F9C]', 'shadow-sm', 'ring-1', 'ring-[#0B4F9C]/20');
+        t.classList.add('border-slate-200', 'bg-white', 'text-slate-800', 'shadow-xs');
+      });
+      if (tabs[0]) tabs[0].setAttribute('tabindex', '0');
+      if (tableSection) tableSection.classList.add('hidden');
+    }
+  });
+
+  // Initial check on page load if query param exists
+  var initialParams = new URLSearchParams(window.location.search);
+  var initialPhaseId = initialParams.get('phase');
+  if (initialPhaseId && phaseMap[initialPhaseId]) {
+    renderPhase(initialPhaseId, false);
+  } else {
+    // Make first tab focusable for keyboard users
+    if (tabs[0]) tabs[0].setAttribute('tabindex', '0');
+  }
+})();
+</script>

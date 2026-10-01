@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
+import { CreateExecutiveDto, UpdateExecutiveDto } from './executives.dto';
 
 @Injectable()
 export class ExecutivesService {
@@ -13,11 +14,11 @@ export class ExecutivesService {
     return this.prisma.executive.findUnique({ where: { id } });
   }
 
-  async create(data: { name: string; designation: string; department?: string; phone?: string; email?: string; officeAddress?: string; sNo?: number }) {
+  async create(data: CreateExecutiveDto) {
     return this.prisma.executive.create({ data: { ...data, sNo: data.sNo || 0 } });
   }
 
-  async update(id: string, data: { name?: string; designation?: string; department?: string; phone?: string; email?: string; officeAddress?: string; sNo?: number }) {
+  async update(id: string, data: UpdateExecutiveDto) {
     return this.prisma.executive.update({ where: { id }, data });
   }
 

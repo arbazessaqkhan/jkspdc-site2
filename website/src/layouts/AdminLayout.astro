@@ -4,6 +4,8 @@ import Icon from '../components/Icon.astro';
 import type { AdminTab } from '../pages/admin/types';
 import { ClientRouter } from 'astro:transitions';
 
+import { isAdmin } from '../utils/roles';
+
 interface Props {
   title: string;
   description: string;
@@ -12,7 +14,9 @@ interface Props {
 
 const { title, description, activeTab } = Astro.props;
 const currentYear = new Date().getFullYear();
-const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Administrator';
+const user = Astro.locals.user;
+const userRole = (user?.role || 'VIEWER').toUpperCase();
+const userIsAdmin = isAdmin(userRole);
 ---
 
 <!DOCTYPE html>
@@ -307,24 +311,26 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
         </div>
 
         <!-- SECTION: CORPORATE GOVERNANCE -->
-        <div class="flex flex-col gap-0.5">
-          <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Corporate Governance</p>
-          
-          <a href="/admin/dignitaries" title="Dignitaries" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'dignitaries' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="award" size={15} class={activeTab === 'dignitaries' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-            <span class="sidebar-label">Dignitaries</span>
-          </a>
+        {userIsAdmin && (
+          <div class="flex flex-col gap-0.5">
+            <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Corporate Governance</p>
+            
+            <a href="/admin/dignitaries" title="Dignitaries" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'dignitaries' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+              <Icon name="award" size={15} class={activeTab === 'dignitaries' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+              <span class="sidebar-label">Dignitaries</span>
+            </a>
 
-          <a href="/admin/board-of-directors" title="Board of Directors" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'directors' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="users" size={15} class={activeTab === 'directors' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-            <span class="sidebar-label">Board of Directors</span>
-          </a>
+            <a href="/admin/board-of-directors" title="Board of Directors" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'directors' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+              <Icon name="users" size={15} class={activeTab === 'directors' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+              <span class="sidebar-label">Board of Directors</span>
+            </a>
 
-          <a href="/admin/notifications" title="Notifications" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'notifications' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="bell" size={15} class={activeTab === 'notifications' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-            <span class="sidebar-label">Notifications</span>
-          </a>
-        </div>
+            <a href="/admin/notifications" title="Notifications" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'notifications' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+              <Icon name="bell" size={15} class={activeTab === 'notifications' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+              <span class="sidebar-label">Notifications</span>
+            </a>
+          </div>
+        )}
 
         <!-- SECTION: MEDIA & PUBLICATIONS -->
         <div class="flex flex-col gap-0.5">
@@ -371,21 +377,23 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
         </div>
 
         <!-- SECTION: SECURITY & LOGS -->
-        <div class="flex flex-col gap-0.5">
-          <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Security &amp; Logs</p>
-          <a href="/admin/users" title="User Accounts" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'users' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="shield-check" size={15} class={activeTab === 'users' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-            <span class="sidebar-label">User Accounts</span>
-          </a>
-          <a href="/admin/audit-logs" title="Audit Logs Feed" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'audit-logs' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="scroll-text" size={15} class={activeTab === 'audit-logs' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-            <span class="sidebar-label">Audit Logs Feed</span>
-          </a>
-          <a href="/admin/site-settings" title="Site Settings" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'site-settings' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="settings" size={15} class={activeTab === 'site-settings' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-            <span class="sidebar-label">Site Settings</span>
-          </a>
-        </div>
+        {userIsAdmin && (
+          <div class="flex flex-col gap-0.5">
+            <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Security &amp; Logs</p>
+            <a href="/admin/users" title="User Accounts" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'users' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+              <Icon name="shield-check" size={15} class={activeTab === 'users' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+              <span class="sidebar-label">User Accounts</span>
+            </a>
+            <a href="/admin/audit-logs" title="Audit Logs Feed" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'audit-logs' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+              <Icon name="scroll-text" size={15} class={activeTab === 'audit-logs' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+              <span class="sidebar-label">Audit Logs Feed</span>
+            </a>
+            <a href="/admin/site-settings" title="Site Settings" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'site-settings' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
+              <Icon name="settings" size={15} class={activeTab === 'site-settings' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
+              <span class="sidebar-label">Site Settings</span>
+            </a>
+          </div>
+        )}
 
       </nav>
 
@@ -423,12 +431,14 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
           <!-- Profile Badge -->
           <span class="bg-[#EAF4FF] text-[#0B4F9C] px-3 py-1.5 rounded-full border border-[#BDD7EE] text-[11px] font-bold flex items-center gap-1.5 select-none">
             <span class="h-2 w-2 bg-emerald-500 rounded-full ring-2 ring-emerald-200 animate-pulse"></span>
-            {adminUserName}
+            {userRole}
           </span>
 
-          <button id="admin-logout-btn" class="flex items-center gap-1.5 px-3 py-1.5 border border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg text-xs font-semibold cursor-pointer transition-colors">
-            <Icon name="x" size={13} strokeWidth={2.5} /> Sign Out
-          </button>
+          <form method="POST" action="/admin/logout" class="inline m-0 p-0">
+            <button type="submit" id="admin-logout-btn" class="flex items-center gap-1.5 px-3 py-1.5 border border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg text-xs font-semibold cursor-pointer transition-colors">
+              <Icon name="x" size={13} strokeWidth={2.5} /> Sign Out
+            </button>
+          </form>
         </div>
       </header>
 
@@ -440,12 +450,6 @@ const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Adm
     </div>
 
     <script is:inline>
-      // Clear session cookie and redirect to login page on click
-      document.getElementById('admin-logout-btn')?.addEventListener('click', function() {
-        document.cookie = 'admin_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-        window.location.href = '/admin/login';
-      });
-
       // Mobile sidebar logic
       var sidebar = document.getElementById('admin-sidebar');
       var toggleBtn = document.getElementById('toggle-sidebar-btn');

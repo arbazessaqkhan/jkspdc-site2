@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { deleteLocalFile } from '../upload/file-cleanup.helper';
+import { CreateProjectDto, UpdateProjectDto } from './projects.dto';
 
 @Injectable()
 export class ProjectsService {
@@ -23,25 +24,21 @@ export class ProjectsService {
     return project;
   }
 
-  async create(data: any) {
-    // Validate required fields
+  async create(data: CreateProjectDto) {
     const { name, type, capacityMw, status, location } = data;
-    if (!name || !type || capacityMw === undefined || !status || !location) {
-      throw new Error('Missing required fields');
-    }
 
     return this.prisma.powerStation.create({
       data: {
         name,
         type,
-        capacityMw: parseFloat(capacityMw),
+        capacityMw: Number(capacityMw),
         status,
         location,
         description: data.description || null,
         commissionedDate: data.commissionedDate ? new Date(data.commissionedDate) : null,
         configuration: data.configuration || null,
-        designEnergy: data.designEnergy ? parseFloat(data.designEnergy) : null,
-        yearOfCommissioning: data.yearOfCommissioning ? parseInt(data.yearOfCommissioning, 10) : null,
+        designEnergy: data.designEnergy !== undefined && data.designEnergy !== null ? Number(data.designEnergy) : null,
+        yearOfCommissioning: data.yearOfCommissioning !== undefined && data.yearOfCommissioning !== null ? Number(data.yearOfCommissioning) : null,
         sector: data.sector || null,
         basin: data.basin || null,
         salientFeatures: data.salientFeatures || null,
@@ -50,7 +47,7 @@ export class ProjectsService {
     });
   }
 
-  async update(id: string, data: any) {
+  async update(id: string, data: UpdateProjectDto) {
     // Check if exists
     const oldProject = await this.findOne(id);
 
@@ -63,14 +60,14 @@ export class ProjectsService {
       data: {
         name: data.name,
         type: data.type,
-        capacityMw: data.capacityMw !== undefined ? parseFloat(data.capacityMw) : undefined,
+        capacityMw: data.capacityMw !== undefined ? Number(data.capacityMw) : undefined,
         status: data.status,
         location: data.location,
         description: data.description,
         commissionedDate: data.commissionedDate ? new Date(data.commissionedDate) : undefined,
         configuration: data.configuration,
-        designEnergy: data.designEnergy !== undefined ? (data.designEnergy ? parseFloat(data.designEnergy) : null) : undefined,
-        yearOfCommissioning: data.yearOfCommissioning !== undefined ? (data.yearOfCommissioning ? parseInt(data.yearOfCommissioning, 10) : null) : undefined,
+        designEnergy: data.designEnergy !== undefined ? (data.designEnergy !== null ? Number(data.designEnergy) : null) : undefined,
+        yearOfCommissioning: data.yearOfCommissioning !== undefined ? (data.yearOfCommissioning !== null ? Number(data.yearOfCommissioning) : null) : undefined,
         sector: data.sector,
         basin: data.basin,
         salientFeatures: data.salientFeatures,

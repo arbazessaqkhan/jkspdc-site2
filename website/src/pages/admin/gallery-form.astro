@@ -1,13 +1,19 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
+import { canMutateRoutineContent } from '../../utils/roles';
+import { parseApiError, BACKEND_URL } from '../../utils/api-error';
 
 // Check authentication
-let sessionToken = Astro.cookies.get('admin_session')?.value;
+const sessionToken = Astro.cookies.get('admin_session')?.value;
 if (!sessionToken) {
-  sessionToken = 'mock-test-session-token';
-  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
-  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+  return Astro.redirect('/admin/login');
+}
+
+// Routine mutation: authorized for ADMIN and EDITOR only
+const userRole = Astro.locals.user?.role;
+if (!canMutateRoutineContent(userRole)) {
+  return Astro.redirect('/admin/gallery');
 }
 
 let errorMessage = '';
@@ -23,7 +29,7 @@ let itemData = {
 // Fetch data if editing
 if (editId) {
   try {
-    const res = await fetch(`http://127.0.0.1:3000/api/gallery/${editId}`);
+    const res = await fetch(`${BACKEND_URL}/api/gallery/${editId}`);
     if (res.ok) {
       const data = await res.json();
       itemData = {
@@ -33,18 +39,22 @@ if (editId) {
         partition: data.partition || '',
       };
     } else {
-      errorMessage = 'Could not load gallery item details.';
+      const apiErr = await parseApiError(res, 'load gallery item details');
+      if (apiErr.isUnauthorized) {
+        return Astro.redirect('/admin/login');
+      }
+      errorMessage = apiErr.message;
     }
   } catch (e) {
     console.error('Error fetching gallery details:', e);
-    errorMessage = 'Backend connection failure.';
+    errorMessage = 'Failed to load gallery item details. Check backend service status.';
   }
 }
 
 // Fetch existing unique partition names to suggest as helper autocomplete
 let existingPartitions = [];
 try {
-  const res = await fetch('http://127.0.0.1:3000/api/gallery');
+  const res = await fetch(`${BACKEND_URL}/api/gallery`);
   if (res.ok) {
     const items = await res.json();
     existingPartitions = [...new Set(items.map(item => item.partition).filter(Boolean))];
@@ -56,7 +66,7 @@ try {
 function getImageUrl(url: string) {
   if (!url) return '';
   if (url.startsWith('/uploads/')) {
-    return `http://127.0.0.1:3000${url}`;
+    return `${BACKEND_URL}${url}`;
   }
   return url;
 }
@@ -87,7 +97,7 @@ if (Astro.request.method === 'POST' && editId) {
         imageUrl,
       };
 
-      const res = await fetch(`http://127.0.0.1:3000/api/gallery/${id}`, {
+      const res = await fetch(`${BACKEND_URL}/api/gallery/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -99,13 +109,16 @@ if (Astro.request.method === 'POST' && editId) {
       if (res.ok) {
         return Astro.redirect('/admin/gallery');
       } else {
-        const errData = await res.json().catch(() => ({}));
-        errorMessage = errData.message || 'Failed to save gallery item details.';
+        const apiErr = await parseApiError(res, 'update gallery item');
+        if (apiErr.isUnauthorized) {
+          return Astro.redirect('/admin/login');
+        }
+        errorMessage = apiErr.message;
       }
     }
   } catch (error) {
     console.error('Error saving gallery item:', error);
-    errorMessage = 'An error occurred. Check backend service status.';
+    errorMessage = 'An unexpected error occurred while saving the gallery item. Check backend service status.';
   }
 }
 ---
@@ -153,7 +166,7 @@ if (Astro.request.method === 'POST' && editId) {
 
             <label class="flex items-center gap-2 p-2 bg-amber-50/70 border border-amber-200/80 rounded-lg cursor-pointer hover:bg-amber-50 transition-colors select-none mt-1">
               <input type="checkbox" id="is-important-checkbox" class="w-4 h-4 rounded text-[#0B4F9C] border-slate-300 focus:ring-[#0B4F9C] cursor-pointer" />
-              <span class="text-xs font-bold text-amber-900 flex items-center gap-1">★ Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
+              <span class="text-xs font-bold text-amber-900 flex items-center gap-1.5"><Icon name="star" size={13} class="text-amber-600 shrink-0" /> Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
             </label>
 
             <!-- Image Preview -->
@@ -220,7 +233,7 @@ if (Astro.request.method === 'POST' && editId) {
 
             <label class="flex items-center gap-2 p-2 bg-amber-50/70 border border-amber-200/80 rounded-lg cursor-pointer hover:bg-amber-50 transition-colors select-none mt-1">
               <input type="checkbox" id="batch-is-important-checkbox" class="w-4 h-4 rounded text-[#0B4F9C] border-slate-300 focus:ring-[#0B4F9C] cursor-pointer" />
-              <span class="text-xs font-bold text-amber-900 flex items-center gap-1">★ Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB per image)</span></span>
+              <span class="text-xs font-bold text-amber-900 flex items-center gap-1.5"><Icon name="star" size={13} class="text-amber-600 shrink-0" /> Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB per image)</span></span>
             </label>
           </div>
 
@@ -262,7 +275,7 @@ if (Astro.request.method === 'POST' && editId) {
     </form>
   </div>
 
-  <script define:vars={{ sessionToken, editId }}>
+  <script define:vars={{ sessionToken, editId, backendUrl: BACKEND_URL }}>
     const fileUploader = document.getElementById('file-uploader');
     const uploadStatusText = document.getElementById('upload-status-text');
     const uploadContainer = document.getElementById('upload-container');
@@ -270,11 +283,10 @@ if (Astro.request.method === 'POST' && editId) {
     const submitBtn = document.getElementById('submit-btn');
     const galleryForm = document.getElementById('gallery-form');
 
-    // Helper to format image URLs using 127.0.0.1 for connection stability
     function formatImageUrl(url) {
       if (!url) return '';
       if (url.startsWith('/uploads/')) {
-        return `http://127.0.0.1:3000${url}`;
+        return `${backendUrl}${url}`;
       }
       return url;
     }
@@ -315,7 +327,7 @@ if (Astro.request.method === 'POST' && editId) {
         formData.append('isImportant', isImportant ? 'true' : 'false');
 
         try {
-          const response = await fetch('http://127.0.0.1:3000/api/upload', {
+          const response = await fetch(`${backendUrl}/api/upload`, {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${sessionToken}`,
@@ -406,7 +418,7 @@ if (Astro.request.method === 'POST' && editId) {
           formData.append('isImportant', isImportant ? 'true' : 'false');
 
           try {
-            const response = await fetch('http://127.0.0.1:3000/api/upload', {
+            const response = await fetch(`${backendUrl}/api/upload`, {
               method: 'POST',
               headers: {
                 'Authorization': `Bearer ${sessionToken}`,
@@ -428,10 +440,20 @@ if (Astro.request.method === 'POST' && editId) {
                 title: title,
               });
             } else {
-              console.error(`Failed to upload ${file.name}`);
+              if (response.status === 401) {
+                window.location.href = '/admin/login';
+                return;
+              }
+              if (response.status === 403) {
+                alert('Access Denied: You do not have permission to upload files.');
+                break;
+              }
+              const errData = await response.json().catch(() => ({}));
+              alert(`Upload error for "${file.name}": ${errData.message || 'Server error occurred during upload.'}`);
             }
           } catch (err) {
             console.error(`Upload error for ${file.name}:`, err);
+            alert(`Network error occurred while uploading "${file.name}".`);
           }
         }
 
@@ -524,7 +546,7 @@ if (Astro.request.method === 'POST' && editId) {
               partition: partition, // empty string if not typed
             };
 
-            const response = await fetch('http://127.0.0.1:3000/api/gallery', {
+            const response = await fetch(`${backendUrl}/api/gallery`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -534,6 +556,17 @@ if (Astro.request.method === 'POST' && editId) {
             });
 
             if (!response.ok) {
+              if (response.status === 401) {
+                window.location.href = '/admin/login';
+                return;
+              }
+              if (response.status === 403) {
+                alert('Access Denied: You do not have permission to save gallery items.');
+                submitBtn.textContent = 'Add to Gallery';
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-60', 'pointer-events-none');
+                return;
+              }
               const errData = await response.json().catch(() => ({}));
               throw new Error(errData.message || `Failed to register item: ${item.filename}`);
             }

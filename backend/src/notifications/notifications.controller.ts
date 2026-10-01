@@ -1,6 +1,11 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Req } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { AuthGuard } from '../auth/auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
+import { Role } from '../auth/roles.enum';
+
+import { CreateNotificationDto, UpdateNotificationDto } from './notifications.dto';
 
 @Controller('notifications')
 export class NotificationsController {
@@ -17,8 +22,9 @@ export class NotificationsController {
   }
 
   @Post()
-  @UseGuards(AuthGuard)
-  async create(@Body() data: any, @Req() req: any) {
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  async create(@Body() data: CreateNotificationDto, @Req() req: any) {
     const user = req.user;
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
     const ua = req.headers['user-agent'] || 'unknown';
@@ -26,8 +32,9 @@ export class NotificationsController {
   }
 
   @Put(':id')
-  @UseGuards(AuthGuard)
-  async update(@Param('id') id: string, @Body() data: any, @Req() req: any) {
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  async update(@Param('id') id: string, @Body() data: UpdateNotificationDto, @Req() req: any) {
     const user = req.user;
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
     const ua = req.headers['user-agent'] || 'unknown';
@@ -35,7 +42,8 @@ export class NotificationsController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   async remove(@Param('id') id: string, @Req() req: any) {
     const user = req.user;
     const ip = req.ip || req.socket.remoteAddress || 'unknown';

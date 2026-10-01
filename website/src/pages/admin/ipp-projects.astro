@@ -1,20 +1,26 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
+import { isAdmin } from '../../utils/roles';
+import { parseApiError, BACKEND_URL } from '../../utils/api-error';
 
 // Check authentication
-let sessionToken = Astro.cookies.get('admin_session')?.value;
+const sessionToken = Astro.cookies.get('admin_session')?.value;
 if (!sessionToken) {
-  sessionToken = 'mock-test-session-token';
-  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
-  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+  return Astro.redirect('/admin/login');
 }
+
+const userRole = Astro.locals.user?.role;
+const userIsAdmin = isAdmin(userRole);
 
 let errorMessage = '';
 let successMessage = '';
 
-// Handle Server-Side Form Actions (if submitted without JS)
+// Handle Server-Side Form Actions (if submitted without JS) (ADMIN ONLY)
 if (Astro.request.method === 'POST') {
+  if (!userIsAdmin) {
+    return Astro.redirect('/admin/ipp-projects');
+  }
   try {
     const formData = await Astro.request.formData();
     const action = formData.get('_action')?.toString();
@@ -22,7 +28,7 @@ if (Astro.request.method === 'POST') {
     if (action === 'delete') {
       const id = formData.get('id')?.toString();
       if (id) {
-        const res = await fetch(`http://localhost:3000/api/ipp-projects/${id}`, {
+        const res = await fetch(`${BACKEND_URL}/api/ipp-projects/${id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${sessionToken}`,
@@ -31,7 +37,11 @@ if (Astro.request.method === 'POST') {
         if (res.ok) {
           successMessage = 'IPP project record successfully deleted.';
         } else {
-          errorMessage = 'Failed to delete IPP project record.';
+          const apiErr = await parseApiError(res, 'delete IPP project');
+          if (apiErr.isUnauthorized) {
+            return Astro.redirect('/admin/login');
+          }
+          errorMessage = apiErr.message;
         }
       }
     } else if (action === 'save') {
@@ -47,7 +57,7 @@ if (Astro.request.method === 'POST') {
 
       if (id) {
         // Update
-        const res = await fetch(`http://localhost:3000/api/ipp-projects/${id}`, {
+        const res = await fetch(`${BACKEND_URL}/api/ipp-projects/${id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -58,11 +68,15 @@ if (Astro.request.method === 'POST') {
         if (res.ok) {
           successMessage = 'IPP project successfully updated.';
         } else {
-          errorMessage = 'Failed to update IPP project.';
+          const apiErr = await parseApiError(res, 'update IPP project');
+          if (apiErr.isUnauthorized) {
+            return Astro.redirect('/admin/login');
+          }
+          errorMessage = apiErr.message;
         }
       } else {
         // Create
-        const res = await fetch(`http://localhost:3000/api/ipp-projects`, {
+        const res = await fetch(`${BACKEND_URL}/api/ipp-projects`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -73,13 +87,17 @@ if (Astro.request.method === 'POST') {
         if (res.ok) {
           successMessage = 'New IPP project successfully added.';
         } else {
-          errorMessage = 'Failed to add IPP project.';
+          const apiErr = await parseApiError(res, 'create IPP project');
+          if (apiErr.isUnauthorized) {
+            return Astro.redirect('/admin/login');
+          }
+          errorMessage = apiErr.message;
         }
       }
     }
   } catch (e) {
     console.error('Error handling IPP project action:', e);
-    errorMessage = 'An error occurred while saving IPP project.';
+    errorMessage = 'An unexpected error occurred while saving the IPP project. Check backend service status.';
   }
 }
 
@@ -98,15 +116,19 @@ interface IppProjectDto {
 
 let ippProjects: IppProjectDto[] = [];
 try {
-  const res = await fetch('http://localhost:3000/api/ipp-projects');
+  const res = await fetch(`${BACKEND_URL}/api/ipp-projects`);
   if (res.ok) {
     ippProjects = await res.json();
   } else {
-    errorMessage = 'Failed to fetch IPP projects from server.';
+    const apiErr = await parseApiError(res, 'load IPP projects');
+    if (apiErr.isUnauthorized) {
+      return Astro.redirect('/admin/login');
+    }
+    errorMessage = apiErr.message;
   }
 } catch (e) {
   console.error('Error fetching IPP projects:', e);
-  errorMessage = 'Backend service connection failed.';
+  errorMessage = 'Failed to load IPP projects. Unable to communicate with the server.';
 }
 
 // All 56 locations provided by the user
@@ -150,14 +172,16 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
         <p class="text-xs text-slate-500 mt-0.5">Independent Power Producer (IPP) Hydroelectric Allotments Across Phase I–X Policies.</p>
       </div>
 
-      <button 
-        id="btn-add-ipp-project"
-        type="button"
-        class="btn-primary flex items-center gap-1.5 text-xs py-2 px-3.5 self-start md:self-auto cursor-pointer"
-      >
-        <Icon name="plus" size={13} strokeWidth={2.5} />
-        <span>Add IPP Project</span>
-      </button>
+      {userIsAdmin && (
+        <button 
+          id="btn-add-ipp-project"
+          type="button"
+          class="btn-primary flex items-center gap-1.5 text-xs py-2 px-3.5 self-start md:self-auto cursor-pointer"
+        >
+          <Icon name="plus" size={13} strokeWidth={2.5} />
+          <span>Add IPP Project</span>
+        </button>
+      )}
     </div>
 
     <!-- Feedback messages -->
@@ -254,13 +278,15 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
             <th scope="col" class="w-28 text-left">Location</th>
             <th scope="col" class="min-w-[160px] text-left">Awarded To</th>
             <th scope="col" class="w-16 text-center">Phase</th>
-            <th scope="col" class="w-20 text-center sticky-col-right">Action</th>
+            {userIsAdmin && (
+              <th scope="col" class="w-20 text-center sticky-col-right">Action</th>
+            )}
           </tr>
         </thead>
         <tbody id="ipp-table-body">
           {ippProjects.length === 0 ? (
             <tr>
-              <td colspan="8" class="text-center py-12 text-slate-500 italic text-xs font-semibold">No IPP projects recorded in database yet.</td>
+              <td colspan={userIsAdmin ? 8 : 7} class="text-center py-12 text-slate-500 italic text-xs font-semibold">No IPP projects recorded in database yet.</td>
             </tr>
           ) : (
             ippProjects.map((item, index) => {
@@ -287,35 +313,37 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
                   <td class="text-center text-xs font-semibold text-slate-800 cell-phase">
                     {item.phase}
                   </td>
-                  <td class="td-actions sticky-col-right">
-                    <div class="admin-action-group">
-                      <button 
-                        type="button" 
-                        class="btn-edit-ipp admin-btn-action"
-                        title="Edit IPP Project"
-                        aria-label={`Edit ${item.name}`}
-                        data-project={JSON.stringify(item)}
-                      >
-                        <Icon name="pencil" size={13} />
-                      </button>
-                      <button 
-                        type="button" 
-                        class="btn-delete-ipp admin-btn-action action-delete"
-                        title="Delete IPP Project"
-                        aria-label={`Delete ${item.name}`}
-                        data-id={item.id}
-                        data-name={item.name}
-                      >
-                        <Icon name="trash-2" size={13} />
-                      </button>
-                    </div>
-                  </td>
+                  {userIsAdmin && (
+                    <td class="td-actions sticky-col-right">
+                      <div class="admin-action-group">
+                        <button 
+                          type="button" 
+                          class="btn-edit-ipp admin-btn-action"
+                          title="Edit IPP Project"
+                          aria-label={`Edit ${item.name}`}
+                          data-project={JSON.stringify(item)}
+                        >
+                          <Icon name="pencil" size={13} />
+                        </button>
+                        <button 
+                          type="button" 
+                          class="btn-delete-ipp admin-btn-action action-delete"
+                          title="Delete IPP Project"
+                          aria-label={`Delete ${item.name}`}
+                          data-id={item.id}
+                          data-name={item.name}
+                        >
+                          <Icon name="trash-2" size={13} />
+                        </button>
+                      </div>
+                    </td>
+                  )}
                 </tr>
               );
             })
           )}
           <tr id="no-matching-ipp-row" style="display: none;">
-            <td colspan="8" class="text-center py-12 text-slate-500 italic text-xs font-semibold">
+            <td colspan={userIsAdmin ? 8 : 7} class="text-center py-12 text-slate-500 italic text-xs font-semibold">
               No IPP projects found matching your search or filter criteria.
             </td>
           </tr>
@@ -324,7 +352,8 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
     </div>
 
     <!-- MODAL: Add / Edit IPP Project (Matches Screenshot 2) -->
-    <div id="ipp-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    {userIsAdmin && (
+      <div id="ipp-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
       <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden animate-fadeInUp">
         
         <!-- Modal Header -->
@@ -351,20 +380,58 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
             />
           </div>
 
-          <!-- Location (Dropdown with all 56 locations) -->
-          <div>
+          <!-- Location (Single Searchable Combobox Input with Fixed Max-Height Dropdown) -->
+          <div class="relative" id="location-field-container">
             <label for="form-location" class="text-xs font-bold text-slate-700 block mb-1">Location</label>
-            <select 
-              id="form-location" 
-              name="location" 
-              required
-              class="w-full bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 px-3 py-2.5 focus:ring-2 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none"
+            <div class="relative">
+              <input 
+                type="text" 
+                id="form-location" 
+                name="location" 
+                required 
+                autocomplete="off"
+                placeholder="Search or select location..." 
+                class="w-full bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 pl-3 pr-9 py-2.5 focus:ring-2 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] focus:bg-white outline-none transition-all cursor-pointer"
+                role="combobox"
+                aria-autocomplete="list"
+                aria-expanded="false"
+                aria-controls="location-options-list"
+              />
+              <button 
+                type="button" 
+                id="location-toggle-btn"
+                tabindex="-1"
+                aria-label="Toggle location list"
+                class="absolute right-0 top-0 bottom-0 px-2.5 flex items-center justify-center text-slate-400 hover:text-slate-600 cursor-pointer"
+              >
+                <Icon name="chevron-down" size={16} class="transition-transform duration-200" id="location-chevron" />
+              </button>
+            </div>
+
+            <!-- Dropdown Options List with Strict Fixed Max-Height -->
+            <div 
+              id="location-dropdown-menu" 
+              class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-xl z-50 overflow-hidden"
             >
-              <option value="" disabled selected>Select location</option>
-              {locations.map((loc) => (
-                <option value={loc}>{loc}</option>
-              ))}
-            </select>
+              <div 
+                id="location-options-list" 
+                class="max-h-40 overflow-y-auto divide-y divide-slate-100 text-xs" 
+                role="listbox"
+              >
+                {locations.map((loc) => (
+                  <div 
+                    class="location-option px-3 py-2.5 hover:bg-[#EAF4FF] hover:text-[#0B4F9C] cursor-pointer text-slate-700 transition-colors flex items-center justify-between"
+                    role="option"
+                    data-value={loc}
+                  >
+                    <span>{loc}</span>
+                  </div>
+                ))}
+                <div id="no-location-found" class="hidden px-3 py-3 text-center text-xs text-slate-400">
+                  No matching locations found
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Awarded To -->
@@ -472,6 +539,7 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
         </form>
       </div>
     </div>
+    )}
 
   </div>
 
@@ -492,11 +560,98 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
       var countVisible = document.getElementById('count-visible');
       var rows = document.querySelectorAll('.ipp-row');
 
+      // Location Single Combobox Handlers (Search & Select on same input)
+      var locInput = document.getElementById('form-location');
+      var locToggleBtn = document.getElementById('location-toggle-btn');
+      var locMenu = document.getElementById('location-dropdown-menu');
+      var locChevron = document.getElementById('location-chevron');
+      var locOptions = document.querySelectorAll('.location-option');
+      var locNoFound = document.getElementById('no-location-found');
+
+      function closeLocationDropdown() {
+        if (locMenu) locMenu.classList.add('hidden');
+        if (locChevron) locChevron.classList.remove('rotate-180');
+        if (locInput) locInput.setAttribute('aria-expanded', 'false');
+      }
+
+      function openLocationDropdown() {
+        if (locMenu) locMenu.classList.remove('hidden');
+        if (locChevron) locChevron.classList.add('rotate-180');
+        if (locInput) {
+          locInput.setAttribute('aria-expanded', 'true');
+          filterLocationOptions(locInput.value);
+        }
+      }
+
+      function filterLocationOptions(q) {
+        var term = (q || '').toLowerCase().trim();
+        var matchCount = 0;
+        locOptions.forEach(function(opt) {
+          var val = (opt.getAttribute('data-value') || '').toLowerCase();
+          if (!term || val.includes(term)) {
+            opt.style.display = '';
+            matchCount++;
+          } else {
+            opt.style.display = 'none';
+          }
+        });
+        if (locNoFound) {
+          locNoFound.classList.toggle('hidden', matchCount > 0);
+        }
+      }
+
+      if (locInput) {
+        locInput.onfocus = function() {
+          openLocationDropdown();
+        };
+        locInput.onclick = function(e) {
+          e.stopPropagation();
+          openLocationDropdown();
+        };
+        locInput.oninput = function() {
+          openLocationDropdown();
+          filterLocationOptions(locInput.value);
+        };
+      }
+
+      if (locToggleBtn) {
+        locToggleBtn.onclick = function(e) {
+          e.stopPropagation();
+          if (locMenu && locMenu.classList.contains('hidden')) {
+            openLocationDropdown();
+            if (locInput) locInput.focus();
+          } else {
+            closeLocationDropdown();
+          }
+        };
+      }
+
+      locOptions.forEach(function(opt) {
+        opt.onclick = function(e) {
+          e.stopPropagation();
+          var val = opt.getAttribute('data-value') || '';
+          if (locInput) {
+            locInput.value = val;
+            locInput.focus();
+          }
+          closeLocationDropdown();
+        };
+      });
+
+      document.addEventListener('click', function(e) {
+        var container = document.getElementById('location-field-container');
+        if (container && !container.contains(e.target)) {
+          closeLocationDropdown();
+        }
+      });
+
       // Open Add Modal
       if (btnAdd) {
         btnAdd.onclick = function() {
           form.reset();
           document.getElementById('form-id').value = '';
+          if (locInput) locInput.value = '';
+          closeLocationDropdown();
           modalTitle.textContent = 'Add IPP Project';
           modal.classList.remove('hidden');
         };
@@ -506,11 +661,15 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
       if (btnCloseModal) {
         btnCloseModal.onclick = function() {
           modal.classList.add('hidden');
+          closeLocationDropdown();
         };
       }
       if (modal) {
         modal.onclick = function(e) {
-          if (e.target === modal) modal.classList.add('hidden');
+          if (e.target === modal) {
+            modal.classList.add('hidden');
+            closeLocationDropdown();
+          }
         };
       }
       if (deleteModal) {
@@ -520,13 +679,18 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
       }
       window.onkeydown = function(e) {
         if (e.key === 'Escape') {
-          if (modal) modal.classList.add('hidden');
+          if (modal) {
+            modal.classList.add('hidden');
+            closeLocationDropdown();
+          }
           if (deleteModal) deleteModal.classList.add('hidden');
         }
       };
       if (btnReset) {
         btnReset.onclick = function() {
           form.reset();
+          if (locInput) locInput.value = '';
+          closeLocationDropdown();
         };
       }
       if (btnCancelDelete) {
@@ -544,7 +708,7 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
             var item = JSON.parse(dataStr);
             document.getElementById('form-id').value = item.id || '';
             document.getElementById('form-name').value = item.name || '';
-            document.getElementById('form-location').value = item.location || '';
+            if (locInput) locInput.value = item.location || '';
             document.getElementById('form-awarded-to').value = item.awardedTo || '';
             document.getElementById('form-capacity').value = item.capacityMw || '';
             document.getElementById('form-status').value = item.status || '';

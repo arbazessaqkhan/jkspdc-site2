@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
 ---
 
 <Layout
@@ -31,7 +32,7 @@ import Layout from '../layouts/Layout.astro';
         <!-- Acknowledgement Box (shown after submit) -->
         <div id="feedback-acknowledgement" class="hidden bg-emerald-50 border border-emerald-300 rounded-xl p-6" role="alert" aria-live="assertive">
           <div class="flex items-start gap-3">
-            <span class="text-emerald-600 text-2xl" aria-hidden="true">✅</span>
+            <Icon name="check-circle-2" size={28} class="text-emerald-600 shrink-0" />
             <div>
               <h2 class="font-bold text-emerald-800 text-base">Thank You for Your Submission!</h2>
               <p class="text-emerald-700 text-sm mt-1">Your inquiry / feedback has been received and recorded in our administrative system.</p>

@@ -2,6 +2,8 @@
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
 import type { Stats } from './types';
+import { isAdmin } from '../../utils/roles';
+import { BACKEND_URL } from '../../utils/api-error';
 
 function asArray<T>(value: unknown): T[] {
   if (Array.isArray(value)) return value as T[];
@@ -11,7 +13,14 @@ function asArray<T>(value: unknown): T[] {
   return [];
 }
 
-const sessionToken = Astro.cookies.get('admin_session')?.value || '';
+const sessionToken = Astro.cookies.get('admin_session')?.value;
+if (!sessionToken) {
+  return Astro.redirect('/admin/login');
+}
+
+const user = Astro.locals.user;
+const userRole = (user?.role || 'VIEWER').toUpperCase();
+const userIsAdmin = isAdmin(userRole);
 
 const stats: Stats = {
   operationalCount: 0,
@@ -70,21 +79,21 @@ try {
     usersData,
     ippProjectsData,
   ] = await Promise.all([
-    fetchJson<unknown>('http://localhost:3000/api/projects'),
-    fetchJson<unknown>('http://localhost:3000/api/directors'),
-    fetchJson<unknown>('http://localhost:3000/api/dignitaries'),
-    fetchJson<unknown>('http://localhost:3000/api/tenders'),
-    fetchJson<unknown>('http://localhost:3000/api/notifications'),
-    fetchJson<unknown>('http://localhost:3000/api/downloads'),
-    fetchJson<unknown>('http://localhost:3000/api/agm'),
-    fetchJson<unknown>('http://localhost:3000/api/policies'),
-    fetchJson<unknown>('http://localhost:3000/api/gallery'),
-    fetchJson<unknown>('http://localhost:3000/api/official-contacts'),
-    fetchJson<unknown>('http://localhost:3000/api/contact-sub-offices'),
-    sessionToken ? fetchJson<unknown>('http://localhost:3000/api/contact', { headers: { Authorization: `Bearer ${sessionToken}` } }) : null,
-    sessionToken ? fetchJson<unknown>('http://localhost:3000/api/audit-logs', { headers: { Authorization: `Bearer ${sessionToken}` } }) : null,
-    sessionToken ? fetchJson<unknown>('http://localhost:3000/api/users', { headers: { Authorization: `Bearer ${sessionToken}` } }) : null,
-    fetchJson<unknown>('http://localhost:3000/api/ipp-projects'),
+    fetchJson<unknown>(`${BACKEND_URL}/api/projects`),
+    fetchJson<unknown>(`${BACKEND_URL}/api/directors`),
+    fetchJson<unknown>(`${BACKEND_URL}/api/dignitaries`),
+    fetchJson<unknown>(`${BACKEND_URL}/api/tenders`),
+    fetchJson<unknown>(`${BACKEND_URL}/api/notifications`),
+    fetchJson<unknown>(`${BACKEND_URL}/api/downloads`),
+    fetchJson<unknown>(`${BACKEND_URL}/api/agm`),
+    fetchJson<unknown>(`${BACKEND_URL}/api/policies`),
+    fetchJson<unknown>(`${BACKEND_URL}/api/gallery`),
+    fetchJson<unknown>(`${BACKEND_URL}/api/official-contacts`),
+    fetchJson<unknown>(`${BACKEND_URL}/api/contact-sub-offices`),
+    sessionToken ? fetchJson<unknown>(`${BACKEND_URL}/api/contact`, { headers: { Authorization: `Bearer ${sessionToken}` } }) : null,
+    userIsAdmin && sessionToken ? fetchJson<unknown>(`${BACKEND_URL}/api/audit-logs`, { headers: { Authorization: `Bearer ${sessionToken}` } }) : null,
+    userIsAdmin && sessionToken ? fetchJson<unknown>(`${BACKEND_URL}/api/users`, { headers: { Authorization: `Bearer ${sessionToken}` } }) : null,
+    fetchJson<unknown>(`${BACKEND_URL}/api/ipp-projects`),
   ]);
 
   const projectArray = asArray<{ id?: string; status?: string }>(projectsData);
@@ -110,7 +119,7 @@ try {
   errorMessage = 'Failed to retrieve latest portal statistics. Ensure the backend REST service is online.';
 }
 
-const adminUserName = Astro.cookies.get('admin_user_name')?.value || 'System Administrator';
+const adminUserName = user?.name || userRole;
 
 interface ModuleCard {
   title: string;
@@ -283,6 +292,18 @@ const moduleGroups: ModuleGroup[] = [
     ],
   },
 ];
+
+const filteredModuleGroups: ModuleGroup[] = moduleGroups
+  .map((group) => ({
+    ...group,
+    modules: group.modules.filter((mod) => {
+      if (['/admin/dignitaries', '/admin/board-of-directors', '/admin/agm', '/admin/notifications', '/admin/users', '/admin/audit-logs', '/admin/site-settings'].includes(mod.href)) {
+        return userIsAdmin;
+      }
+      return true;
+    }),
+  }))
+  .filter((group) => group.modules.length > 0);
 ---
 
 <AdminLayout title="Dashboard" description="JKSPDCL Administrative Control Panel Dashboard" activeTab="dashboard">
@@ -313,7 +334,7 @@ const moduleGroups: ModuleGroup[] = [
 
     <!-- Module Groups with Compact Module Count Cards -->
     <div class="flex flex-col gap-6">
-      {moduleGroups.map((group) => (
+      {filteredModuleGroups.map((group) => (
         <section class="flex flex-col gap-2.5" aria-label={group.title}>
           <div class="flex items-center gap-2 pb-1.5 border-b border-slate-200">
             <span class="w-1.5 h-3.5 bg-[#0B4F9C] rounded-xs"></span>

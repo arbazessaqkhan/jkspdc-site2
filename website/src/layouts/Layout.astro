@@ -496,8 +496,9 @@ if (tickerItems.length === 0) {
 
     <!-- noscript fallback for JavaScript-dependent features (WCAG) -->
     <noscript>
-      <div style="background:#f59e0b;color:#1e293b;text-align:center;padding:8px 16px;font-size:12px;font-weight:600;border-bottom:2px solid #d97706;" role="alert">
-        ⚠️ JavaScript is disabled. Some features (language translation, search autocomplete) require JavaScript. Core content remains accessible.
+      <div class="flex items-center justify-center gap-1.5" style="background:#f59e0b;color:#1e293b;text-align:center;padding:8px 16px;font-size:12px;font-weight:600;border-bottom:2px solid #d97706;" role="alert">
+        <Icon name="alert-triangle" size={14} class="text-amber-950 shrink-0" />
+        <span>JavaScript is disabled. Some features (language translation, search autocomplete) require JavaScript. Core content remains accessible.</span>
       </div>
     </noscript>
 
@@ -719,7 +720,7 @@ if (tickerItems.length === 0) {
                 aria-expanded="false"
               >
                 About Us
-                <svg class="dropdown-arrow w-2.5 h-2.5 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                <Icon name="chevron-down" size={10} strokeWidth={2.5} class="dropdown-arrow transition-transform duration-200 shrink-0" />
               </button>
               <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[260px]">
                 <ul class="flex flex-col gap-0.5 text-xs px-2">
@@ -746,7 +747,7 @@ if (tickerItems.length === 0) {
                 aria-expanded="false"
               >
                 Projects
-                <svg class="dropdown-arrow w-2.5 h-2.5 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                <Icon name="chevron-down" size={10} strokeWidth={2.5} class="dropdown-arrow transition-transform duration-200 shrink-0" />
               </button>
               <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[240px]">
                 <ul class="flex flex-col gap-0.5 text-xs px-2">
@@ -769,7 +770,7 @@ if (tickerItems.length === 0) {
                 aria-expanded="false"
               >
                 Tenders
-                <svg class="dropdown-arrow w-2.5 h-2.5 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                <Icon name="chevron-down" size={10} strokeWidth={2.5} class="dropdown-arrow transition-transform duration-200 shrink-0" />
               </button>
               <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[240px]">
                 <ul class="flex flex-col gap-0.5 text-xs px-2">
@@ -805,7 +806,7 @@ if (tickerItems.length === 0) {
                 aria-expanded="false"
               >
                 Investors Corner
-                <svg class="dropdown-arrow w-2.5 h-2.5 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                <Icon name="chevron-down" size={10} strokeWidth={2.5} class="dropdown-arrow transition-transform duration-200 shrink-0" />
               </button>
               <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[230px]">
                 <ul class="flex flex-col gap-0.5 text-xs px-2">
@@ -827,7 +828,7 @@ if (tickerItems.length === 0) {
                 aria-expanded="false"
               >
                 RTI
-                <svg class="dropdown-arrow w-2.5 h-2.5 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                <Icon name="chevron-down" size={10} strokeWidth={2.5} class="dropdown-arrow transition-transform duration-200 shrink-0" />
               </button>
               <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[210px]">
                 <ul class="flex flex-col gap-0.5 text-xs px-2">
@@ -876,7 +877,7 @@ if (tickerItems.length === 0) {
                 aria-expanded="false"
               >
                 Employees Corner
-                <svg class="dropdown-arrow w-2.5 h-2.5 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                <Icon name="chevron-down" size={10} strokeWidth={2.5} class="dropdown-arrow transition-transform duration-200 shrink-0" />
               </button>
               <div class="nav-dropdown-menu absolute right-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[220px]">
                 <ul class="flex flex-col gap-0.5 text-xs px-2">
@@ -886,7 +887,7 @@ if (tickerItems.length === 0) {
                   <li><a href="https://hrms.jk.gov.in/" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">JKHRMS<span class="sr-only"> (opens in new tab)</span></a></li>
                   <li><a href="https://law.pmgatishakti.gov.in/EETMS/login" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">EETMS<span class="sr-only"> (opens in new tab)</span></a></li>
                   <li><a href="https://bg.jkspdc.in/" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">BG Management<span class="sr-only"> (opens in new tab)</span></a></li>
-                  <li><a href="https://jkspdc.inrdeals.in/login" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Asset Management<span class="sr-only"> (opens in new tab)</span></a></li>
+                  <li><a href="https://asset.jkspdcl.co.in/login" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">Asset Management<span class="sr-only"> (opens in new tab)</span></a></li>
                   <li><a href="https://janparichay.meripehchaan.gov.in/v1/pehchaan/login.html?service=passive&active=true&rm_5=false&continue=https%3A%2F%2Fjan_com%2Fmail%2F&pp=1&scc=1&lmpl=default&ltmplcache=2&emr=1&osid=1&flowName=GlifWebSignIn&flowEntry=ServiceLogin&sid=JanSugamJK&v=2.0&lang=&urlid=82ae2068-ada6-4154-ae21-649b90598534" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B4F9C]">JKSPDC RAS<span class="sr-only"> (opens in new tab)</span></a></li>
                 </ul>
               </div>
@@ -904,7 +905,7 @@ if (tickerItems.length === 0) {
                 aria-expanded="false"
               >
                 Contact Us
-                <svg class="dropdown-arrow w-2.5 h-2.5 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                <Icon name="chevron-down" size={10} strokeWidth={2.5} class="dropdown-arrow transition-transform duration-200 shrink-0" />
               </button>
               <div class="nav-dropdown-menu absolute right-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B4F9C] rounded-b-lg z-50 py-2 w-[200px]">
                 <ul class="flex flex-col gap-0.5 text-xs px-2">
@@ -922,158 +923,8 @@ if (tickerItems.length === 0) {
       <slot />
     </main>
 
-    <!-- Footer Section (Professional Government PSU Dark Blue) -->
-    <footer class="bg-[#083B73] text-slate-200 border-t-4 border-[#0B4F9C] pt-3 sm:pt-3.5 pb-2.5 text-xs">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <Footer />
 
-        <!-- Government Portal Identity Bar (GIGW Mandatory) -->
-        <div class="flex flex-wrap items-center justify-between gap-2.5 border-b border-white/15 pb-2 mb-3">
-          <div class="flex items-center gap-2.5">
-            <img src="/logo.png" alt="JKSPDCL Official Logo" class="h-6 sm:h-7 w-auto object-contain" />
-            <div>
-              <p class="text-white font-bold text-xs leading-tight tracking-wide">Jammu &amp; Kashmir State Power Development Corporation Limited</p>
-              <p class="text-slate-300 text-[9.5px] mt-0.5">A Government of J&amp;K Undertaking | CIN: U40101JK1995SGC001418</p>
-            </div>
-          </div>
-          <div class="flex items-center gap-3 text-[10px] text-slate-300">
-            <a href="https://india.gov.in" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1 hover:text-white transition-colors font-medium">
-              <span>🇮🇳</span> National Portal of India<span class="sr-only"> (opens in new tab)</span>
-            </a>
-            <span class="text-white/30">|</span>
-            <a href="https://jkgov.nic.in" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors font-medium">J&amp;K Government<span class="sr-only"> (opens in new tab)</span></a>
-          </div>
-        </div>
-
-        <!-- Footer Core Columns -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pb-2.5 items-start">
-
-          <!-- Column 1: Corporate Summary -->
-          <div class="flex flex-col">
-            <h2 class="font-bold text-white uppercase tracking-wider text-xs mb-2 pb-1 border-b border-white/20">About JKSPDCL</h2>
-            <p class="text-xs text-slate-300 leading-relaxed">
-              Jammu &amp; Kashmir State Power Development Corporation Limited is a wholly owned Government PSU incorporated in 1995, mandated with planning, constructing, operating and maintaining power generating assets across J&amp;K.
-            </p>
-            <div class="mt-2">
-              <a href="/about-us/explore/overview" class="text-xs text-[#7FB3E8] hover:text-white font-semibold inline-flex items-center gap-1 transition-colors duration-200">
-                Read Corporate Profile &rarr;
-              </a>
-            </div>
-          </div>
-
-          <!-- Column 2: Site Utilities & GIGW Mandatory Policies -->
-          <div class="flex flex-col">
-            <h2 class="font-bold text-white uppercase tracking-wider text-xs mb-2 pb-1 border-b border-white/20">Compliance &amp; Utilities</h2>
-            <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-slate-300">
-              <a href="/about-us/explore/policies" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
-                <span class="text-slate-400" aria-hidden="true">›</span> Policies
-              </a>
-              <a href="/copyright" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
-                <span class="text-slate-400" aria-hidden="true">›</span> Copyright
-              </a>
-              <a href="/accessibility-statement" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
-                <span class="text-slate-400" aria-hidden="true">›</span> Accessibility
-              </a>
-              <a href="/hyperlinking-policy" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
-                <span class="text-slate-400" aria-hidden="true">›</span> Hyperlinking
-              </a>
-              <a href="/privacy-policy" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
-                <span class="text-slate-400" aria-hidden="true">›</span> Privacy Policy
-              </a>
-              <a href="/sitemap" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
-                <span class="text-slate-400" aria-hidden="true">›</span> Sitemap
-              </a>
-              <a href="/terms-conditions" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
-                <span class="text-slate-400" aria-hidden="true">›</span> Terms of Use
-              </a>
-              <a href="/help" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
-                <span class="text-slate-400" aria-hidden="true">›</span> Help &amp; FAQ
-              </a>
-              <a href="/disclaimer" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
-                <span class="text-slate-400" aria-hidden="true">›</span> Disclaimer
-              </a>
-              <a href="/feedback" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1">
-                <span class="text-slate-400" aria-hidden="true">›</span> Feedback
-              </a>
-            </div>
-          </div>
-
-          <!-- Column 3: Contact Directory -->
-          <div class="flex flex-col text-xs text-slate-300">
-            <h2 class="font-bold text-white uppercase tracking-wider text-xs mb-2 pb-1 border-b border-white/20">Contact Directory</h2>
-            <div class="space-y-0.5">
-              <p class="font-semibold text-slate-200 text-xs">Srinagar Corporate Office</p>
-              <p class="text-[11px] leading-snug text-slate-300">Exhibition Grounds, Jahangir Chowk, Srinagar — 190009</p>
-              <p>
-                <a href="tel:+911942451665" class="hover:text-white transition-colors inline-flex items-center gap-1 text-[11px] text-slate-300">
-                  <Icon name="phone" size={11} strokeWidth={2} />
-                  +91 194 2451665
-                </a>
-              </p>
-            </div>
-            <div class="space-y-0.5 mt-2 pt-1.5 border-t border-white/10">
-              <p class="font-semibold text-slate-200 text-xs">Jammu Regional Office</p>
-              <p class="text-[11px] leading-snug text-slate-300">Ashok Nagar, Satwari, Jammu (J&amp;K) — 180004</p>
-              <p>
-                <a href="tel:+911912430548" class="hover:text-white transition-colors inline-flex items-center gap-1 text-[11px] text-slate-300">
-                  <Icon name="phone" size={11} strokeWidth={2} />
-                  +91 191 2430548 / 2439039
-                </a>
-              </p>
-            </div>
-          </div>
-
-          <!-- Column 4: Quick Navigation & Reach Us -->
-          <div class="flex flex-col text-xs text-slate-300">
-            <h2 class="font-bold text-white uppercase tracking-wider text-xs mb-2 pb-1 border-b border-white/20">Quick Navigation</h2>
-            <div class="flex flex-col gap-1">
-              <a href="/our-business/power-stations" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1.5">
-                <Icon name="zap" size={12} strokeWidth={2} class="text-[#7FB3E8]" /> Operating Power Stations
-              </a>
-              <a href="/stakeholders/vendors/tender-bids" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1.5">
-                <Icon name="file-text" size={12} strokeWidth={2} class="text-[#7FB3E8]" /> Tenders &amp; Bid Registry
-              </a>
-              <a href="/media/gallery" class="hover:text-white hover:translate-x-0.5 transition-all inline-flex items-center gap-1.5">
-                <Icon name="image" size={12} strokeWidth={2} class="text-[#7FB3E8]" /> Photo &amp; Video Gallery
-              </a>
-            </div>
-            <div class="mt-2 pt-1.5 border-t border-white/10">
-              <p class="font-semibold text-slate-200 text-xs mb-0.5">Official Email</p>
-              <a href="mailto:md-jkspdcl@jk.gov.in" class="text-slate-300 hover:text-white hover:underline transition-colors inline-flex items-center gap-1 text-[11px]">
-                <Icon name="mail" size={11} strokeWidth={2} />
-                md-jkspdcl[at]jk[dot]gov[dot]in
-              </a>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Unified Bottom Compliance & Copyright Bar (GIGW 3.0 Mandatory) -->
-        <div class="border-t border-white/15 pt-2 mt-0.5">
-          <!-- WIM & Governance Row -->
-          <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[10.5px] text-slate-300 pb-1.5">
-            <div class="flex flex-wrap items-center gap-x-4 gap-y-0.5">
-              <span><strong class="text-white font-semibold">Web Information Manager:</strong> [Nomination in Process, JKSPDCL]</span>
-              <span class="text-white/30 hidden sm:inline">|</span>
-              <span><strong class="text-white font-semibold">Technical Team:</strong> IT Cell, JKSPDCL, Srinagar / Jammu</span>
-            </div>
-            <div class="text-slate-400 text-[10px]">
-              <span>Last Reviewed: {new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long' })}</span>
-            </div>
-          </div>
-
-          <!-- Copyright Row -->
-          <div class="border-t border-white/10 pt-1.5 flex flex-col sm:flex-row items-center justify-between gap-1 text-[10px] text-slate-400">
-            <p>&copy; {currentYear} Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL). All rights reserved.</p>
-            <div class="flex items-center gap-2.5">
-              <span>Designed and Developed by <span class="text-slate-200 font-medium">IT Cell, JKSPDCL</span></span>
-              <span class="text-slate-600">|</span>
-              <span>Government of Jammu &amp; Kashmir</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </footer>
 
 
     <!-- Floating Scroll to Top Button -->

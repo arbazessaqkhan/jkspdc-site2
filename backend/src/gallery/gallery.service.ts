@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { deleteLocalFile } from '../upload/file-cleanup.helper';
+import { CreateGalleryItemDto, UpdateGalleryItemDto } from './gallery.dto';
 
 @Injectable()
 export class GalleryService {
@@ -24,11 +25,8 @@ export class GalleryService {
     return item;
   }
 
-  async create(data: any, user: any, ip: string, ua: string) {
+  async create(data: CreateGalleryItemDto, user: any, ip: string, ua: string) {
     const { title, imageUrl, partition } = data;
-    if (!title || !imageUrl) {
-      throw new Error('Missing required fields (title, imageUrl)');
-    }
 
     const item = await this.prisma.galleryItem.create({
       data: {
@@ -49,7 +47,7 @@ export class GalleryService {
     return item;
   }
 
-  async update(id: string, data: any, user: any, ip: string, ua: string) {
+  async update(id: string, data: UpdateGalleryItemDto, user: any, ip: string, ua: string) {
     const oldItem = await this.findOne(id);
 
     if (data.imageUrl !== undefined && data.imageUrl !== oldItem.imageUrl) {

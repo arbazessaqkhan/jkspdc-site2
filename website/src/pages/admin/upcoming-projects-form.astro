@@ -1,13 +1,19 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
+import { isAdmin } from '../../utils/roles';
+import { parseApiError, BACKEND_URL } from '../../utils/api-error';
 
 // Check authentication
-let sessionToken = Astro.cookies.get('admin_session')?.value;
+const sessionToken = Astro.cookies.get('admin_session')?.value;
 if (!sessionToken) {
-  sessionToken = 'mock-test-session-token';
-  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
-  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+  return Astro.redirect('/admin/login');
+}
+
+// Role protection: Projects mutation is ADMIN-only
+const userRole = Astro.locals.user?.role;
+if (!isAdmin(userRole)) {
+  return Astro.redirect('/admin/upcoming-projects');
 }
 
 let errorMessage = '';
@@ -34,7 +40,7 @@ let projectData = {
 
 if (editId) {
   try {
-    const res = await fetch(`http://localhost:3000/api/projects/${editId}`);
+    const res = await fetch(`${BACKEND_URL}/api/projects/${editId}`);
     if (res.ok) {
       const data = await res.json();
       projectData = {
@@ -54,17 +60,23 @@ if (editId) {
         documentUrl: data.documentUrl || '',
       };
     } else {
-      errorMessage = 'Could not load the requested project data.';
+      const apiErr = await parseApiError(res, 'load project details for editing');
+      if (apiErr.isUnauthorized) {
+        return Astro.redirect('/admin/login');
+      }
+      errorMessage = apiErr.message;
     }
   } catch (e) {
     console.error('Error fetching project for edit:', e);
-    errorMessage = 'Failed to connect to the backend server.';
+    errorMessage = 'Network failure: Unable to connect to the backend server.';
   }
 }
 
 function getProjectPhotoPreviewUrl(name: string, docUrl?: string | null): string {
   if (docUrl && docUrl.trim() !== '') {
-    return docUrl.startsWith('http://localhost:3000/uploads/') ? docUrl.replace('http://localhost:3000', '') : docUrl;
+    if (BACKEND_URL && docUrl.startsWith(`${BACKEND_URL}/uploads/`)) return docUrl;
+    if (docUrl.startsWith('/uploads/')) return `${BACKEND_URL}${docUrl}`;
+    return docUrl;
   }
   if (!name) return '';
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -131,14 +143,14 @@ if (Astro.request.method === 'POST') {
         basin: basin || 'Chenab',
         description: description || null,
         salientFeatures: salientFeatures || null,
-        documentUrl: (documentUrl || '').startsWith('http://localhost:3000/uploads/')
-          ? documentUrl.replace('http://localhost:3000', '')
+        documentUrl: (documentUrl && BACKEND_URL && documentUrl.startsWith(`${BACKEND_URL}/uploads/`))
+          ? documentUrl.replace(BACKEND_URL, '')
           : (documentUrl || null),
       };
 
       let apiRes;
       if (id) {
-        apiRes = await fetch(`http://localhost:3000/api/projects/${id}`, {
+        apiRes = await fetch(`${BACKEND_URL}/api/projects/${id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -147,7 +159,7 @@ if (Astro.request.method === 'POST') {
           body: JSON.stringify(body),
         });
       } else {
-        apiRes = await fetch('http://localhost:3000/api/projects', {
+        apiRes = await fetch(`${BACKEND_URL}/api/projects`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -160,13 +172,16 @@ if (Astro.request.method === 'POST') {
       if (apiRes.ok) {
         return Astro.redirect('/admin/upcoming-projects?success=' + encodeURIComponent(`Project "${name}" saved successfully.`));
       } else {
-        const errorData = await apiRes.json().catch(() => ({}));
-        errorMessage = errorData.message || 'Failed to save project to the database.';
+        const apiErr = await parseApiError(apiRes, id ? 'update upcoming project' : 'create upcoming project');
+        if (apiErr.isUnauthorized) {
+          return Astro.redirect('/admin/login');
+        }
+        errorMessage = apiErr.message;
       }
     }
   } catch (e) {
     console.error('Error saving project:', e);
-    errorMessage = 'An error occurred while connecting to the server.';
+    errorMessage = 'Network failure: Unable to communicate with the backend server.';
   }
 }
 ---
@@ -311,7 +326,7 @@ if (Astro.request.method === 'POST') {
                 <p id="image-status-text" class="text-[11px] text-slate-500 font-medium">
                   {existingPhotoUrl ? 'Current project photograph loaded. Click above to replace or remove.' : 'Supported formats: JPG, PNG, WEBP. Max size: 10 MB.'}
                 </p>
-                <input type="hidden" name="documentUrl" id="documentUrl" value={projectData.documentUrl || (existingPhotoUrl && !existingPhotoUrl.startsWith('http://localhost:3000') ? existingPhotoUrl : '')} />
+                <input type="hidden" name="documentUrl" id="documentUrl" value={projectData.documentUrl || (existingPhotoUrl && !(BACKEND_URL && existingPhotoUrl.startsWith(BACKEND_URL)) ? existingPhotoUrl : '')} />
               </div>
             </div>
           </div>
@@ -353,7 +368,7 @@ if (Astro.request.method === 'POST') {
     </form>
   </div>
 
-  <script define:vars={{ sessionToken }}>
+  <script define:vars={{ sessionToken, backendUrl: BACKEND_URL }}>
     const imageFileInput = document.getElementById('image-file-input');
     const projectImagePreview = document.getElementById('project-image-preview');
     const projectImageFallback = document.getElementById('project-image-fallback');
@@ -413,7 +428,7 @@ if (Astro.request.method === 'POST') {
       formData.append('file', file);
 
       try {
-        const response = await fetch('http://localhost:3000/api/upload', {
+        const response = await fetch(`${backendUrl}/api/upload`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${sessionToken}`,
@@ -422,17 +437,27 @@ if (Astro.request.method === 'POST') {
         });
 
         if (!response.ok) {
+          if (response.status === 401) {
+            window.location.href = '/admin/login';
+            return;
+          }
+          if (response.status === 403) {
+            alert('Access Denied: You do not have permission to upload files.');
+            removePhoto();
+            return;
+          }
           const err = await response.json().catch(() => ({}));
           throw new Error(err.message || 'Upload failed');
         }
 
         const result = await response.json();
-        const serverUrl = result.url.startsWith('http://localhost:3000/uploads/')
-          ? result.url.replace('http://localhost:3000', '')
+        const serverUrl = (backendUrl && result.url.startsWith(`${backendUrl}/uploads/`))
+          ? result.url.replace(backendUrl, '')
           : result.url;
         
         if (documentUrlInput) documentUrlInput.value = serverUrl;
-        if (projectImagePreview) projectImagePreview.src = serverUrl;
+        const previewUrl = serverUrl.startsWith('/uploads/') ? `${backendUrl}${serverUrl}` : serverUrl;
+        if (projectImagePreview) projectImagePreview.src = previewUrl;
         if (uploadBtnLabel) uploadBtnLabel.textContent = 'Change Image';
         if (imageStatusText) imageStatusText.textContent = `Image uploaded: ${file.name}`;
       } catch (err) {

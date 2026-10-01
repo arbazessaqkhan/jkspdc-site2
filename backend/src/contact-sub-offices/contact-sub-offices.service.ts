@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
+import { CreateContactSubOfficeDto, UpdateContactSubOfficeDto } from './contact-sub-offices.dto';
 
 @Injectable()
 export class ContactSubOfficesService {
@@ -28,16 +29,7 @@ export class ContactSubOfficesService {
     return record;
   }
 
-  async create(data: {
-    name: string;
-    designation: string;
-    email?: string;
-    phone?: string;
-    wing: string;
-    address?: string;
-    viewOrder?: number;
-    isActive?: boolean;
-  }) {
+  async create(data: CreateContactSubOfficeDto) {
     return this.prisma.contactSubOffice.create({
       data: {
         name: data.name,
@@ -52,7 +44,7 @@ export class ContactSubOfficesService {
     });
   }
 
-  async update(id: string, data: any) {
+  async update(id: string, data: UpdateContactSubOfficeDto) {
     await this.findOne(id);
     return this.prisma.contactSubOffice.update({
       where: { id },

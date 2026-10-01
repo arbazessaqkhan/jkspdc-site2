@@ -1,13 +1,19 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
+import { isAdmin } from '../../utils/roles';
+import { parseApiError, BACKEND_URL } from '../../utils/api-error';
 
 // Check authentication
-let sessionToken = Astro.cookies.get('admin_session')?.value;
+const sessionToken = Astro.cookies.get('admin_session')?.value;
 if (!sessionToken) {
-  sessionToken = 'mock-test-session-token';
-  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
-  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+  return Astro.redirect('/admin/login');
+}
+
+// Tenders mutation is ADMIN ONLY
+const userRole = Astro.locals.user?.role;
+if (!isAdmin(userRole)) {
+  return Astro.redirect('/admin/tenders');
 }
 
 let errorMessage = '';
@@ -16,7 +22,7 @@ const editId = Astro.url.searchParams.get('id')?.toString();
 // Fetch live projects from backend database
 let databaseProjects: any[] = [];
 try {
-  const pRes = await fetch('http://localhost:3000/api/projects');
+  const pRes = await fetch(`${BACKEND_URL}/api/projects`);
   if (pRes.ok) {
     databaseProjects = await pRes.json();
   }
@@ -88,7 +94,7 @@ let tenderData = {
 // Fetch data if editing
 if (editId) {
   try {
-    const res = await fetch(`http://localhost:3000/api/tenders/${editId}`);
+    const res = await fetch(`${BACKEND_URL}/api/tenders/${editId}`);
     if (res.ok) {
       const data = await res.json();
       tenderData = {
@@ -107,11 +113,15 @@ if (editId) {
         corrigendums: data.corrigendums || [],
       };
     } else {
-      errorMessage = 'Could not load tender details.';
+      const apiErr = await parseApiError(res, 'load tender details');
+      if (apiErr.isUnauthorized) {
+        return Astro.redirect('/admin/login');
+      }
+      errorMessage = apiErr.message;
     }
   } catch (e) {
     console.error('Error fetching tender details:', e);
-    errorMessage = 'Backend connection failure.';
+    errorMessage = 'Network failure: Unable to reach backend server.';
   }
 }
 
@@ -175,8 +185,8 @@ if (Astro.request.method === 'POST') {
       };
 
       const url = id 
-        ? `http://localhost:3000/api/tenders/${id}` 
-        : 'http://localhost:3000/api/tenders';
+        ? `${BACKEND_URL}/api/tenders/${id}` 
+        : `${BACKEND_URL}/api/tenders`;
       const method = id ? 'PUT' : 'POST';
 
       const res = await fetch(url, {
@@ -191,13 +201,16 @@ if (Astro.request.method === 'POST') {
       if (res.ok) {
         return Astro.redirect('/admin/tenders');
       } else {
-        const errData = await res.json().catch(() => ({}));
-        errorMessage = errData.message || 'Failed to save tender posting details.';
+        const apiErr = await parseApiError(res, id ? 'update tender posting' : 'publish tender posting');
+        if (apiErr.isUnauthorized) {
+          return Astro.redirect('/admin/login');
+        }
+        errorMessage = apiErr.message;
       }
     }
   } catch (error) {
     console.error('Error saving tender:', error);
-    errorMessage = 'An error occurred. Check backend service status.';
+    errorMessage = 'Network failure: Unable to communicate with backend service.';
   }
 }
 ---
@@ -307,8 +320,9 @@ if (Astro.request.method === 'POST') {
                 </datalist>
               </div>
             </div>
-            <p class="text-[10px] text-slate-400">
-              💡 Choose from database projects above or type any custom project/office location manually.
+            <p class="text-[10px] text-slate-400 flex items-center gap-1.5 mt-1">
+              <Icon name="lightbulb" size={12} class="text-amber-500 shrink-0" />
+              <span>Choose from database projects above or type any custom project/office location manually.</span>
             </p>
           </div>
 
@@ -342,7 +356,7 @@ if (Astro.request.method === 'POST') {
 
             <label class="flex items-center gap-2 p-2 bg-amber-50/70 border border-amber-200/80 rounded-lg cursor-pointer hover:bg-amber-50 transition-colors select-none mt-1">
               <input type="checkbox" id="is-important-checkbox" class="w-4 h-4 rounded text-[#0B4F9C] border-slate-300 focus:ring-[#0B4F9C] cursor-pointer" />
-              <span class="text-xs font-bold text-amber-900 flex items-center gap-1">★ Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
+              <span class="text-xs font-bold text-amber-900 flex items-center gap-1.5"><Icon name="star" size={13} class="text-amber-600 shrink-0" /> Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
             </label>
             
             <!-- Attached file details -->
@@ -419,7 +433,7 @@ if (Astro.request.method === 'POST') {
               </div>
               <label class="flex items-center gap-2 p-1.5 bg-amber-50/70 border border-amber-200/80 rounded cursor-pointer hover:bg-amber-50 transition-colors select-none">
                 <input type="checkbox" id="corr-is-important-checkbox" class="w-3.5 h-3.5 rounded text-[#0B4F9C] border-slate-300 focus:ring-[#0B4F9C] cursor-pointer" />
-                <span class="text-[11px] font-bold text-amber-900 flex items-center gap-1">★ Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
+                <span class="text-[11px] font-bold text-amber-900 flex items-center gap-1.5"><Icon name="star" size={12} class="text-amber-600 shrink-0" /> Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
               </label>
               <input type="hidden" id="corr-file-url" />
               <input type="hidden" id="corr-file-size" />
@@ -447,7 +461,7 @@ if (Astro.request.method === 'POST') {
     </form>
   </div>
 
-  <script define:vars={{ sessionToken }}>
+  <script define:vars={{ sessionToken, backendUrl: BACKEND_URL }}>
     // Quick Location Selector Sync
     const quickLocationSelect = document.getElementById('quick-location-select');
     const locationTagInput = document.getElementById('locationTag');
@@ -495,7 +509,7 @@ if (Astro.request.method === 'POST') {
       }
       if (!documentUrlInput.value) {
         e.preventDefault();
-        showUploadError('⚠ Please attach a Tender Document before publishing.');
+        showUploadError('Please attach a Tender Document before publishing.');
         uploadContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     });
@@ -625,7 +639,7 @@ if (Astro.request.method === 'POST') {
       formData.append('isImportant', isImportant ? 'true' : 'false');
 
       try {
-        const response = await fetch('http://localhost:3000/api/upload', {
+        const response = await fetch(`${backendUrl}/api/upload`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${sessionToken}`,
@@ -634,6 +648,14 @@ if (Astro.request.method === 'POST') {
         });
 
         if (!response.ok) {
+          if (response.status === 401) {
+            window.location.href = '/admin/login';
+            return;
+          }
+          if (response.status === 403) {
+            alert('Access Denied: You do not have permission to upload files.');
+            return;
+          }
           const errorData = await response.json().catch(() => ({}));
           throw new Error(errorData.message || 'Upload failed');
         }
@@ -719,7 +741,7 @@ if (Astro.request.method === 'POST') {
       formData.append('isImportant', isImportant ? 'true' : 'false');
 
       try {
-        const response = await fetch('http://localhost:3000/api/upload', {
+        const response = await fetch(`${backendUrl}/api/upload`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${sessionToken}`,
@@ -728,6 +750,14 @@ if (Astro.request.method === 'POST') {
         });
 
         if (!response.ok) {
+          if (response.status === 401) {
+            window.location.href = '/admin/login';
+            return;
+          }
+          if (response.status === 403) {
+            alert('Access Denied: You do not have permission to upload files.');
+            return;
+          }
           const errorData = await response.json().catch(() => ({}));
           throw new Error(errorData.message || `Upload failed (HTTP ${response.status})`);
         }

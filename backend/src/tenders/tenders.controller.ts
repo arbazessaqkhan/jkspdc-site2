@@ -1,6 +1,9 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Req } from '@nestjs/common';
 import { TendersService } from './tenders.service';
 import { AuthGuard } from '../auth/auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
+import { Role } from '../auth/roles.enum';
 import { CreateTenderDto, UpdateTenderDto } from './tenders.dto';
 import { Tender } from '@prisma/client';
 import { Request } from 'express';
@@ -24,7 +27,8 @@ export class TendersController {
   }
 
   @Post()
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   async create(@Body() data: CreateTenderDto, @Req() req: AuthenticatedRequest): Promise<Tender> {
     const user = req.user;
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
@@ -33,7 +37,8 @@ export class TendersController {
   }
 
   @Put(':id')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   async update(@Param('id') id: string, @Body() data: UpdateTenderDto, @Req() req: AuthenticatedRequest): Promise<Tender> {
     const user = req.user;
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
@@ -42,7 +47,8 @@ export class TendersController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   async remove(@Param('id') id: string, @Req() req: AuthenticatedRequest): Promise<{ success: boolean }> {
     const user = req.user;
     const ip = req.ip || req.socket.remoteAddress || 'unknown';

@@ -1,13 +1,19 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
+import { isAdmin } from '../../utils/roles';
+import { parseApiError, BACKEND_URL } from '../../utils/api-error';
 
 // Check authentication
-let sessionToken = Astro.cookies.get('admin_session')?.value;
+const sessionToken = Astro.cookies.get('admin_session')?.value;
 if (!sessionToken) {
-  sessionToken = 'mock-test-session-token';
-  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
-  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+  return Astro.redirect('/admin/login');
+}
+
+// Role protection: Policies mutation is ADMIN-only
+const userRole = Astro.locals.user?.role;
+if (!isAdmin(userRole)) {
+  return Astro.redirect('/admin/policies');
 }
 
 let errorMessage = '';
@@ -25,7 +31,7 @@ let docData = {
 // Fetch data if editing
 if (editId) {
   try {
-    const res = await fetch(`http://localhost:3000/api/policies/${editId}`);
+    const res = await fetch(`${BACKEND_URL}/api/policies/${editId}`);
     if (res.ok) {
       const data = await res.json();
       docData = {
@@ -37,11 +43,15 @@ if (editId) {
         status: data.status || 'Active',
       };
     } else {
-      errorMessage = 'Could not load policy details.';
+      const apiErr = await parseApiError(res, 'load policy details');
+      if (apiErr.isUnauthorized) {
+        return Astro.redirect('/admin/login');
+      }
+      errorMessage = apiErr.message;
     }
   } catch (e) {
     console.error('Error fetching policy details:', e);
-    errorMessage = 'Backend connection failure.';
+    errorMessage = 'Network failure: Unable to reach backend server.';
   }
 }
 
@@ -78,8 +88,8 @@ if (Astro.request.method === 'POST') {
       };
 
       const url = id 
-        ? `http://localhost:3000/api/policies/${id}` 
-        : 'http://localhost:3000/api/policies';
+        ? `${BACKEND_URL}/api/policies/${id}` 
+        : `${BACKEND_URL}/api/policies`;
       const method = id ? 'PUT' : 'POST';
 
       const res = await fetch(url, {
@@ -94,13 +104,16 @@ if (Astro.request.method === 'POST') {
       if (res.ok) {
         return Astro.redirect('/admin/policies');
       } else {
-        const errData = await res.json().catch(() => ({}));
-        errorMessage = errData.message || 'Failed to save document details.';
+        const apiErr = await parseApiError(res, id ? 'update policy document' : 'save policy document');
+        if (apiErr.isUnauthorized) {
+          return Astro.redirect('/admin/login');
+        }
+        errorMessage = apiErr.message;
       }
     }
   } catch (error) {
     console.error('Error saving document:', error);
-    errorMessage = 'An error occurred. Check backend service status.';
+    errorMessage = 'Network failure: Unable to communicate with backend service.';
   }
 }
 ---
@@ -195,7 +208,7 @@ if (Astro.request.method === 'POST') {
 
             <label class="flex items-center gap-2 p-2 bg-amber-50/70 border border-amber-200/80 rounded-lg cursor-pointer hover:bg-amber-50 transition-colors select-none mt-1">
               <input type="checkbox" id="is-important-checkbox" class="w-4 h-4 rounded text-[#0B4F9C] border-slate-300 focus:ring-[#0B4F9C] cursor-pointer" />
-              <span class="text-xs font-bold text-amber-900 flex items-center gap-1">★ Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
+              <span class="text-xs font-bold text-amber-900 flex items-center gap-1.5"><Icon name="star" size={13} class="text-amber-600 shrink-0" /> Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
             </label>
             
             <!-- Uploaded file details -->
@@ -240,7 +253,7 @@ if (Astro.request.method === 'POST') {
   </div>
 </AdminLayout>
 
-<script is:inline>
+<script is:inline define:vars={{ backendUrl: BACKEND_URL }}>
   (function() {
     // Delegated click handler on upload container to ensure file input triggers
     document.addEventListener('click', function(e) {
@@ -292,10 +305,10 @@ if (Astro.request.method === 'POST') {
         formData.append('file', file);
         formData.append('isImportant', isImportant ? 'true' : 'false');
 
-        var authToken = (document.cookie.match(/admin_session=([^;]+)/) || [])[1] || 'mock-test-session-token';
+        var authToken = (document.cookie.match(/admin_session=([^;]+)/) || [])[1] || '';
 
         try {
-          var response = await fetch('http://localhost:3000/api/upload', {
+          var response = await fetch((backendUrl || '') + '/api/upload', {
             method: 'POST',
             headers: {
               'Authorization': 'Bearer ' + authToken,
@@ -304,6 +317,14 @@ if (Astro.request.method === 'POST') {
           });
 
           if (!response.ok) {
+            if (response.status === 401) {
+              window.location.href = '/admin/login';
+              return;
+            }
+            if (response.status === 403) {
+              alert('Access Denied: You do not have permission to upload files.');
+              return;
+            }
             var errorData = await response.json().catch(function() { return {}; });
             throw new Error(errorData.message || 'Upload failed');
           }
@@ -328,7 +349,7 @@ if (Astro.request.method === 'POST') {
               viewLink.textContent = 'View File';
               attachedFileInfo.appendChild(viewLink);
             }
-            var fullFileUrl = result.url.startsWith('/uploads/') ? 'http://localhost:3000' + result.url : result.url;
+            var fullFileUrl = result.url.startsWith('/uploads/') ? ((backendUrl || '') + result.url) : result.url;
             viewLink.href = fullFileUrl;
           }
 

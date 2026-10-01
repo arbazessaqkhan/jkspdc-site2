@@ -1,13 +1,19 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
+import { canMutateRoutineContent } from '../../utils/roles';
+import { parseApiError, BACKEND_URL } from '../../utils/api-error';
 
 // Check authentication
-let sessionToken = Astro.cookies.get('admin_session')?.value;
+const sessionToken = Astro.cookies.get('admin_session')?.value;
 if (!sessionToken) {
-  sessionToken = 'mock-test-session-token';
-  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
-  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+  return Astro.redirect('/admin/login');
+}
+
+// Routine mutation: authorized for ADMIN and EDITOR only
+const userRole = Astro.locals.user?.role;
+if (!canMutateRoutineContent(userRole)) {
+  return Astro.redirect('/admin/official-contacts');
 }
 
 let errorMessage = '';
@@ -29,7 +35,7 @@ let contactData = {
 // Fetch data if editing
 if (editId) {
   try {
-    const res = await fetch(`http://localhost:3000/api/official-contacts/${editId}`);
+    const res = await fetch(`${BACKEND_URL}/api/official-contacts/${editId}`);
     if (res.ok) {
       const data = await res.json();
       contactData = {
@@ -45,11 +51,15 @@ if (editId) {
         isActive: data.isActive !== undefined ? data.isActive : true,
       };
     } else {
-      errorMessage = 'Could not load official contact details.';
+      const apiErr = await parseApiError(res, 'load official contact details');
+      if (apiErr.isUnauthorized) {
+        return Astro.redirect('/admin/login');
+      }
+      errorMessage = apiErr.message;
     }
   } catch (e) {
     console.error('Error fetching official contact details:', e);
-    errorMessage = 'Backend connection failure.';
+    errorMessage = 'Failed to load official contact details. Check backend service status.';
   }
 }
 
@@ -98,8 +108,8 @@ if (Astro.request.method === 'POST') {
       };
 
       const url = id 
-        ? `http://localhost:3000/api/official-contacts/${id}` 
-        : 'http://localhost:3000/api/official-contacts';
+        ? `${BACKEND_URL}/api/official-contacts/${id}` 
+        : `${BACKEND_URL}/api/official-contacts`;
       const method = id ? 'PUT' : 'POST';
 
       const res = await fetch(url, {
@@ -114,13 +124,16 @@ if (Astro.request.method === 'POST') {
       if (res.ok) {
         return Astro.redirect('/admin/official-contacts');
       } else {
-        const errData = await res.json().catch(() => ({}));
-        errorMessage = errData.message || 'Failed to save official contact details.';
+        const apiErr = await parseApiError(res, 'save official contact');
+        if (apiErr.isUnauthorized) {
+          return Astro.redirect('/admin/login');
+        }
+        errorMessage = apiErr.message;
       }
     }
   } catch (error) {
     console.error('Error saving official contact:', error);
-    errorMessage = 'An error occurred. Check backend service status.';
+    errorMessage = 'An unexpected error occurred while saving the official contact. Check backend service status.';
   }
 }
 ---

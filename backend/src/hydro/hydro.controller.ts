@@ -1,10 +1,14 @@
-import { Controller, Post, Get, Body, Query } from '@nestjs/common';
+import { Controller, Post, Get, Body, Query, UseGuards } from '@nestjs/common';
 import { HydroService } from './services/hydro.service';
 import {
   HydroChatRequestDto,
   HydroSearchRequestDto,
   HydroFeedbackDto,
 } from './dto';
+import { AuthGuard } from '../auth/auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
+import { Role } from '../auth/roles.enum';
 
 @Controller('hydro')
 export class HydroController {
@@ -30,7 +34,7 @@ export class HydroController {
    * Instant autocomplete search suggestions
    */
   @Get('suggest')
-  async suggest(@Body() _body: any, @Query('q') query?: string) {
+  async suggest(@Query('q') query?: string) {
     return this.hydroService.handleSuggest(query || '');
   }
 
@@ -43,18 +47,23 @@ export class HydroController {
   }
 
   /**
-   * Administrative status endpoint
+   * Administrative status endpoint (ADMIN only)
    */
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @Get('admin/status')
   async getStatus() {
     return this.hydroService.getAdminStatus();
   }
 
   /**
-   * Admin trigger knowledge re-indexing
+   * Admin trigger knowledge re-indexing (ADMIN only)
    */
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @Post('admin/ingest')
   async triggerIngestion() {
     return this.hydroService.triggerIngestion();
   }
 }
+

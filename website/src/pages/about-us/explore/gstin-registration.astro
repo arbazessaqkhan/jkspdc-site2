@@ -1,5 +1,6 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
+import Icon from '../../../components/Icon.astro';
 ---
 
 <Layout 
@@ -45,7 +46,8 @@ import Layout from '../../../layouts/Layout.astro';
 
         <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
           <h3 class="text-lg font-bold text-[#0B4F9C] pb-2 border-b border-slate-100 flex items-center gap-2">
-            📋 Registration Details of JKSPDCL
+            <Icon name="clipboard" size={20} class="text-[#0B4F9C]" />
+            <span>Registration Details of JKSPDCL</span>
           </h3>
           <div class="table-wrapper">
             <table class="table-data [&_th]:whitespace-normal [&_th]:align-top" aria-label="Registration Details of JKSPDCL">

@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
 ---
 
 <Layout
@@ -30,9 +31,10 @@ import Layout from '../layouts/Layout.astro';
           <p class="mt-3">
             This website conforms to the <strong>Web Content Accessibility Guidelines (WCAG) 2.1 Level AA</strong> as incorporated in the <strong>Guidelines for Indian Government Websites and Apps (GIGW) 3.0</strong> issued by the Government of India.
           </p>
-          <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-2">
+            <Icon name="info" size={16} class="text-blue-800 shrink-0 mt-0.5" />
             <p class="text-xs font-semibold text-blue-800">
-              ℹ️ Conformance Status: <strong>Substantially Conforms</strong> — The website substantially meets WCAG 2.1 Level AA. Some content may not fully conform as noted in the Known Limitations section below.
+              Conformance Status: <strong>Substantially Conforms</strong> — The website substantially meets WCAG 2.1 Level AA. Some content may not fully conform as noted in the Known Limitations section below.
             </p>
           </div>
         </div>
@@ -42,20 +44,20 @@ import Layout from '../layouts/Layout.astro';
           <h2 class="font-bold text-[#0B4F9C] text-base mb-3 border-b border-gray-100 pb-2">Accessibility Features</h2>
           <p>This website includes the following accessibility features:</p>
           <ul class="mt-3 space-y-1.5 text-sm">
-            <li>✅ <strong>Skip to Main Content</strong> — Keyboard users can skip navigation and jump directly to page content</li>
-            <li>✅ <strong>Keyboard Navigation</strong> — All interactive elements are accessible using only a keyboard</li>
-            <li>✅ <strong>Visible Focus Indicators</strong> — Keyboard focus is clearly visible on all interactive elements</li>
-            <li>✅ <strong>Font Size Controls</strong> — Text can be increased or decreased using the accessibility bar</li>
-            <li>✅ <strong>High Contrast Mode</strong> — A high contrast display mode is available</li>
-            <li>✅ <strong>Language Selection</strong> — Content available in English, Hindi, Urdu, Kashmiri, and Dogri</li>
-            <li>✅ <strong>Semantic HTML</strong> — Proper heading structure, landmarks, and semantic markup used throughout</li>
-            <li>✅ <strong>Breadcrumb Navigation</strong> — Clear location indicators on all pages</li>
-            <li>✅ <strong>Descriptive Link Text</strong> — Links are descriptive of their destination</li>
-            <li>✅ <strong>Alternative Text</strong> — Images include descriptive alternative text</li>
-            <li>✅ <strong>Responsive Design</strong> — Website works on desktop, tablet, and mobile devices</li>
-            <li>✅ <strong>Screen Reader Compatible</strong> — Tested for basic compatibility with screen reading software</li>
-            <li>✅ <strong>Reduced Motion</strong> — Animations are disabled when the user's OS accessibility settings prefer reduced motion</li>
-            <li>✅ <strong>External Link Indicators</strong> — External links are labelled for screen readers</li>
+            <li class="flex items-center gap-2"><Icon name="check" size={14} class="text-emerald-600 shrink-0" /><span><strong>Skip to Main Content</strong> — Keyboard users can skip navigation and jump directly to page content</span></li>
+            <li class="flex items-center gap-2"><Icon name="check" size={14} class="text-emerald-600 shrink-0" /><span><strong>Keyboard Navigation</strong> — All interactive elements are accessible using only a keyboard</span></li>
+            <li class="flex items-center gap-2"><Icon name="check" size={14} class="text-emerald-600 shrink-0" /><span><strong>Visible Focus Indicators</strong> — Keyboard focus is clearly visible on all interactive elements</span></li>
+            <li class="flex items-center gap-2"><Icon name="check" size={14} class="text-emerald-600 shrink-0" /><span><strong>Font Size Controls</strong> — Text can be increased or decreased using the accessibility bar</span></li>
+            <li class="flex items-center gap-2"><Icon name="check" size={14} class="text-emerald-600 shrink-0" /><span><strong>High Contrast Mode</strong> — A high contrast display mode is available</span></li>
+            <li class="flex items-center gap-2"><Icon name="check" size={14} class="text-emerald-600 shrink-0" /><span><strong>Language Selection</strong> — Content available in English, Hindi, Urdu, Kashmiri, and Dogri</span></li>
+            <li class="flex items-center gap-2"><Icon name="check" size={14} class="text-emerald-600 shrink-0" /><span><strong>Semantic HTML</strong> — Proper heading structure, landmarks, and semantic markup used throughout</span></li>
+            <li class="flex items-center gap-2"><Icon name="check" size={14} class="text-emerald-600 shrink-0" /><span><strong>Breadcrumb Navigation</strong> — Clear location indicators on all pages</span></li>
+            <li class="flex items-center gap-2"><Icon name="check" size={14} class="text-emerald-600 shrink-0" /><span><strong>Descriptive Link Text</strong> — Links are descriptive of their destination</span></li>
+            <li class="flex items-center gap-2"><Icon name="check" size={14} class="text-emerald-600 shrink-0" /><span><strong>Alternative Text</strong> — Images include descriptive alternative text</span></li>
+            <li class="flex items-center gap-2"><Icon name="check" size={14} class="text-emerald-600 shrink-0" /><span><strong>Responsive Design</strong> — Website works on desktop, tablet, and mobile devices</span></li>
+            <li class="flex items-center gap-2"><Icon name="check" size={14} class="text-emerald-600 shrink-0" /><span><strong>Screen Reader Compatible</strong> — Tested for basic compatibility with screen reading software</span></li>
+            <li class="flex items-center gap-2"><Icon name="check" size={14} class="text-emerald-600 shrink-0" /><span><strong>Reduced Motion</strong> — Animations are disabled when the user's OS accessibility settings prefer reduced motion</span></li>
+            <li class="flex items-center gap-2"><Icon name="check" size={14} class="text-emerald-600 shrink-0" /><span><strong>External Link Indicators</strong> — External links are labelled for screen readers</span></li>
           </ul>
         </div>
 

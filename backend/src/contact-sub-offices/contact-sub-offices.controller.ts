@@ -1,6 +1,11 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
 import { ContactSubOfficesService } from './contact-sub-offices.service';
 import { AuthGuard } from '../auth/auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
+import { Role } from '../auth/roles.enum';
+
+import { CreateContactSubOfficeDto, UpdateContactSubOfficeDto } from './contact-sub-offices.dto';
 
 @Controller('contact-sub-offices')
 export class ContactSubOfficesController {
@@ -23,19 +28,22 @@ export class ContactSubOfficesController {
   }
 
   @Post()
-  @UseGuards(AuthGuard)
-  async create(@Body() body: any) {
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.EDITOR)
+  async create(@Body() body: CreateContactSubOfficeDto) {
     return this.service.create(body);
   }
 
   @Put(':id')
-  @UseGuards(AuthGuard)
-  async update(@Param('id') id: string, @Body() body: any) {
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.EDITOR)
+  async update(@Param('id') id: string, @Body() body: UpdateContactSubOfficeDto) {
     return this.service.update(id, body);
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   async delete(@Param('id') id: string) {
     return this.service.remove(id);
   }

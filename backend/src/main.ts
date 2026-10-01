@@ -6,10 +6,24 @@ import * as express from 'express';
 import * as path from 'path';
 import * as fs from 'fs';
 import helmet from 'helmet';
+import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
+import { validateStartupEnvironment } from './config/env.validation';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
+
+  // GIGW/OWASP: Validate critical startup configuration (fails fast in production)
+  validateStartupEnvironment(configService);
+
+  // GIGW/OWASP: Sanitize unexpected 500 errors to prevent leaking internal database/stack details
+  app.useGlobalFilters(new GlobalExceptionFilter());
+
+  // Trust single reverse proxy hop (Nginx: client -> Nginx -> NestJS)
+  // Ensures req.ip resolves the real client IP for rate limiting and audit logs
+  // while refusing to trust arbitrary spoofed multi-hop proxy chains.
+  const expressApp = app.getHttpAdapter().getInstance();
+  expressApp.set('trust proxy', 1);
 
   // ── GIGW/OWASP: HTTP Security Headers via Helmet ──────────────────────────
   // Must be first middleware so headers appear on ALL responses including errors.
@@ -55,6 +69,27 @@ async function bootstrap() {
     }),
   );
 
+  // ── GIGW/OWASP: Permissions-Policy & Cache-Control Middleware ───────────────
+  app.use((req: any, res: any, next: any) => {
+    // Restrictive Permissions-Policy: Disable unused hardware capabilities
+    res.setHeader(
+      'Permissions-Policy',
+      'geolocation=(), microphone=(), camera=(), payment=(), usb=()',
+    );
+
+    // Cache-Control: Prevent caching for auth and authenticated administrative responses
+    const isAuthEndpoint = req.originalUrl?.includes('/api/auth') || req.path?.startsWith('/api/auth');
+    const hasAuthHeader = !!req.headers['authorization'];
+    const isAdminEndpoint = req.originalUrl?.includes('/api/admin') || req.path?.startsWith('/api/admin');
+
+    if (isAuthEndpoint || hasAuthHeader || isAdminEndpoint) {
+      res.setHeader('Cache-Control', 'no-store, private');
+      res.setHeader('Pragma', 'no-cache');
+    }
+
+    next();
+  });
+
   // ── Disable X-Powered-By at Express level (belt-and-suspenders) ──────────
   app.getHttpAdapter().getInstance().disable('x-powered-by');
 
@@ -70,15 +105,51 @@ async function bootstrap() {
   if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
   }
+  // ── Secure Static File Serving for /uploads ──────────────────────────────
+  const ALLOWED_SERVE_EXTS = ['.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx', '.xls', '.xlsx'];
+  app.use('/uploads', (req: any, res: any, next: any) => {
+    // 1. Defend against path traversal or null-byte poisoning in URL path
+    const safePath = path.normalize(req.path);
+    if (safePath.includes('..') || safePath.includes('\0')) {
+      return res.status(400).json({ statusCode: 400, message: 'Invalid file path' });
+    }
+
+    // 2. Reject requests for non-whitelisted file extensions immediately
+    const ext = path.extname(safePath).toLowerCase();
+    if (safePath !== '/' && !ALLOWED_SERVE_EXTS.includes(ext)) {
+      return res.status(404).json({ statusCode: 404, message: 'File not found' });
+    }
+
+    next();
+  });
+
   app.use(
     '/uploads',
     express.static(uploadsDir, {
+      dotfiles: 'ignore', // Never serve hidden files (.env, .git, etc.)
+      index: false,       // Disable directory listing
+      fallthrough: false, // If file doesn't exist, terminate with 404 immediately
+      maxAge: '1d',
       setHeaders: (res, filePath) => {
+        // GIGW/OWASP: Security headers on static asset responses
         res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
         res.setHeader('Access-Control-Allow-Origin', '*');
-        if (filePath.toLowerCase().endsWith('.pdf')) {
-          res.setHeader('Content-Disposition', 'inline');
+        res.setHeader('X-Content-Type-Options', 'nosniff');
+
+        const ext = path.extname(filePath).toLowerCase();
+        if (ext === '.pdf') {
           res.setHeader('Content-Type', 'application/pdf');
+          res.setHeader('Content-Disposition', 'inline');
+        } else if (ext === '.jpg' || ext === '.jpeg') {
+          res.setHeader('Content-Type', 'image/jpeg');
+          res.setHeader('Content-Disposition', 'inline');
+        } else if (ext === '.png') {
+          res.setHeader('Content-Type', 'image/png');
+          res.setHeader('Content-Disposition', 'inline');
+        } else if (['.doc', '.docx', '.xls', '.xlsx'].includes(ext)) {
+          // Force attachment download for binary documents to prevent any browser execution
+          const safeName = path.basename(filePath);
+          res.setHeader('Content-Disposition', `attachment; filename="${safeName}"`);
         }
       },
     }),
@@ -102,28 +173,35 @@ async function bootstrap() {
     .map((o) => o.trim())
     .filter(Boolean);
 
-  // Low-level Express middleware — handles CORS before any NestJS guard runs.
-  // Critical: ensures CORS headers are present even on error responses (500s from guards)
-  // so the browser never sees a raw "CORS error" when the real issue is a server error.
+  // Low-level Express middleware — handles CORS safely and strictly.
+  // Wildcard '*' MUST NEVER reflect arbitrary client origins when credentials are enabled.
   app.use((req: any, res: any, next: any) => {
     const origin = (req.headers['origin'] || req.headers['Origin']) as string | undefined;
-    // In dev mode allow all configured origins; fall back to wildcard if no origin sent
-    if (origin && (allowedOrigins.includes(origin) || allowedOrigins.includes('*'))) {
-      res.setHeader('Access-Control-Allow-Origin', origin);
-      res.setHeader('Vary', 'Origin');
-    } else if (!origin) {
-      // Non-browser requests (curl, server-to-server) — allow
+
+    // Origin is allowed with credentials ONLY if explicitly included in allowedOrigins
+    const isExplicitlyAllowed = origin ? allowedOrigins.includes(origin) : false;
+
+    if (origin) {
+      if (isExplicitlyAllowed) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+        res.setHeader('Vary', 'Origin');
+      }
+      // If origin is not explicitly allowed, do NOT set Access-Control-Allow-Origin!
+    } else {
+      // Non-browser requests (curl, server-to-server) without Origin header
       res.setHeader('Access-Control-Allow-Origin', '*');
     }
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
+
     res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
     res.setHeader(
       'Access-Control-Allow-Headers',
       'Origin, X-Requested-With, Content-Type, Accept, Authorization',
     );
+
     // Short-circuit OPTIONS preflight — responds before guards can intercept
     if (req.method === 'OPTIONS') {
-      res.statusCode = 204;
+      res.statusCode = isExplicitlyAllowed || !origin ? 204 : 403;
       res.setHeader('Content-Length', '0');
       res.end();
       return;
@@ -133,10 +211,12 @@ async function bootstrap() {
 
   app.enableCors({
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-      if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+      // Allow if no origin (non-browser) or explicitly matches allowedOrigins
+      if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(null, false);
+        // Disallow wildcard or unlisted origins with credentials
+        callback(new Error('Not allowed by CORS'), false);
       }
     },
     credentials: true,

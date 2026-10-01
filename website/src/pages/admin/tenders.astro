@@ -1,20 +1,26 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
+import { isAdmin } from '../../utils/roles';
+import { parseApiError, BACKEND_URL } from '../../utils/api-error';
 
 // Check authentication
-let sessionToken = Astro.cookies.get('admin_session')?.value;
+const sessionToken = Astro.cookies.get('admin_session')?.value;
 if (!sessionToken) {
-  sessionToken = 'mock-test-session-token';
-  Astro.cookies.set('admin_session', sessionToken, { path: '/' });
-  Astro.cookies.set('admin_user_name', 'System Administrator', { path: '/' });
+  return Astro.redirect('/admin/login');
 }
+
+const userRole = Astro.locals.user?.role;
+const userIsAdmin = isAdmin(userRole);
 
 let errorMessage = '';
 let successMessage = '';
 
-// Handle Delete Action
+// Handle Delete Action (ADMIN ONLY)
 if (Astro.request.method === 'POST') {
+  if (!userIsAdmin) {
+    return Astro.redirect('/admin/tenders');
+  }
   try {
     const formData = await Astro.request.formData();
     const action = formData.get('_action')?.toString();
@@ -22,7 +28,7 @@ if (Astro.request.method === 'POST') {
     if (action === 'delete') {
       const id = formData.get('id')?.toString();
       if (id) {
-        const res = await fetch(`http://localhost:3000/api/tenders/${id}`, {
+        const res = await fetch(`${BACKEND_URL}/api/tenders/${id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${sessionToken}`,
@@ -32,29 +38,37 @@ if (Astro.request.method === 'POST') {
         if (res.ok) {
           successMessage = 'Tender posting successfully removed.';
         } else {
-          errorMessage = 'Failed to delete tender posting.';
+          const apiErr = await parseApiError(res, 'delete tender posting');
+          if (apiErr.isUnauthorized) {
+            return Astro.redirect('/admin/login');
+          }
+          errorMessage = apiErr.message;
         }
       }
     }
   } catch (e) {
     console.error('Error deleting tender:', e);
-    errorMessage = 'An error occurred. Check backend connection.';
+    errorMessage = 'Network failure: Unable to communicate with backend service.';
   }
 }
 
 // Fetch Tenders List
 let tenders: any[] = [];
 try {
-  const res = await fetch('http://localhost:3000/api/tenders');
+  const res = await fetch(`${BACKEND_URL}/api/tenders`);
   if (res.ok) {
     tenders = await res.json();
     tenders.sort((a: any, b: any) => new Date(b.publishDate || b.createdAt || 0).getTime() - new Date(a.publishDate || a.createdAt || 0).getTime());
   } else {
-    errorMessage = 'Failed to load tenders from backend.';
+    const apiErr = await parseApiError(res, 'load tenders list');
+    if (apiErr.isUnauthorized) {
+      return Astro.redirect('/admin/login');
+    }
+    errorMessage = apiErr.message;
   }
 } catch (e) {
   console.error('Error fetching tenders:', e);
-  errorMessage = 'Backend server connection failed.';
+  errorMessage = 'Network failure: Unable to reach backend server.';
 }
 ---
 
@@ -67,24 +81,26 @@ try {
         <h1 class="text-lg font-extrabold text-[#0B4F9C] tracking-tight">Tenders &amp; Procurement Notices</h1>
         <p class="text-xs text-slate-500 mt-0.5">Publish new tenders, attach corrigendums to active tenders, and manage bidding specifications.</p>
       </div>
-      <div class="flex items-center gap-2.5 shrink-0 whitespace-nowrap">
-        <button 
-          type="button"
-          id="btn-open-global-corr-modal"
-          class="px-3 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded text-xs font-bold transition-colors shadow-2xs flex items-center gap-1.5 cursor-pointer"
-          title="Attach Corrigendum to a tender"
-        >
-          <Icon name="paperclip" size={13} class="text-amber-700" />
-          <span>Attach Corrigendum</span>
-        </button>
-        <a 
-          href="/admin/tenders-form" 
-          class="btn-primary flex items-center gap-1.5 text-xs py-2 px-3.5"
-        >
-          <Icon name="plus" size={13} strokeWidth={2.5} />
-          <span>Publish Tender</span>
-        </a>
-      </div>
+      {userIsAdmin && (
+        <div class="flex items-center gap-2.5 shrink-0 whitespace-nowrap">
+          <button 
+            type="button"
+            id="btn-open-global-corr-modal"
+            class="px-3 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded text-xs font-bold transition-colors shadow-2xs flex items-center gap-1.5 cursor-pointer"
+            title="Attach Corrigendum to a tender"
+          >
+            <Icon name="paperclip" size={13} class="text-amber-700" />
+            <span>Attach Corrigendum</span>
+          </button>
+          <a 
+            href="/admin/tenders-form" 
+            class="btn-primary flex items-center gap-1.5 text-xs py-2 px-3.5"
+          >
+            <Icon name="plus" size={13} strokeWidth={2.5} />
+            <span>Publish Tender</span>
+          </a>
+        </div>
+      )}
     </div>
 
     <!-- Alerts -->
@@ -141,14 +157,14 @@ try {
             <th scope="col" class="w-36 whitespace-nowrap">Timeline / Dates</th>
             <th scope="col" class="w-24 text-center whitespace-nowrap">Status</th>
             <th scope="col" class="w-24 text-center whitespace-nowrap">Files</th>
-            <th scope="col" class="w-28 text-center whitespace-nowrap sticky-col-right">Actions</th>
+            {userIsAdmin && <th scope="col" class="w-28 text-center whitespace-nowrap sticky-col-right">Actions</th>}
           </tr>
         </thead>
         <tbody id="tenders-table-body">
             {tenders.length === 0 ? (
               <tr id="empty-tenders-row">
-                <td colspan="7" class="text-center text-slate-500 py-10 font-semibold italic text-xs">
-                  No tenders published. Click 'Publish Tender' to add one.
+                <td colspan={userIsAdmin ? 7 : 6} class="text-center text-slate-500 py-10 font-semibold italic text-xs">
+                  No tenders published.
                 </td>
               </tr>
             ) : (
@@ -181,7 +197,8 @@ try {
                           <span class="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-600 text-[9px] font-medium font-mono">{tender.locationTag?.replace(/^HQ_/i, 'HQ ')?.replace(/^HEP_/i, 'HEP ')?.replace(/_/g, ' ')}</span>
                           {corrs.length > 0 && (
                             <span class="px-1.5 py-0.5 rounded bg-amber-50 border border-amber-200 text-amber-900 text-[9px] font-bold flex items-center gap-1">
-                              📎 {corrs.length} Corrigendum{corrs.length > 1 ? 's' : ''}
+                              <Icon name="paperclip" size={11} class="text-amber-900 shrink-0" />
+                              <span>{corrs.length} Corrigendum{corrs.length > 1 ? 's' : ''}</span>
                             </span>
                           )}
                         </div>
@@ -191,7 +208,10 @@ try {
                           <div class="mt-1.5 space-y-1 bg-amber-50/60 p-2 rounded border border-amber-200/70">
                             {corrs.map((c: any, cIdx: number) => (
                               <div class="text-[11px] font-semibold text-slate-700 flex items-center justify-between gap-2">
-                                <span class="truncate">📄 <strong>Corr {cIdx + 1}:</strong> {c.title}</span>
+                                <span class="truncate flex items-center gap-1">
+                                  <Icon name="file-text" size={11} class="text-amber-800 shrink-0" />
+                                  <span><strong>Corr {cIdx + 1}:</strong> {c.title}</span>
+                                </span>
                                 <a href={c.documentUrl} target="_blank" rel="noopener noreferrer" class="text-amber-800 hover:underline font-bold text-[10px] shrink-0">
                                   View PDF
                                 </a>
@@ -230,47 +250,49 @@ try {
                         <Icon name="download" size={13} />
                       </a>
                     </td>
-                    <td class="td-actions sticky-col-right">
-                      <div class="admin-action-group">
-                        <button
-                          type="button"
-                          class="btn-attach-corr admin-btn-action action-special"
-                          data-tender-id={tender.id}
-                          data-tender-ref={tender.referenceNo}
-                          data-tender-title={tender.title}
-                          title="Attach Corrigendum PDF"
-                          aria-label={`Attach Corrigendum to ${tender.referenceNo}`}
-                        >
-                          <Icon name="paperclip" size={13} />
-                        </button>
-                        <a 
-                          href={`/admin/tenders-form?id=${tender.id}`}
-                          class="admin-btn-action"
-                          title="Edit Tender"
-                          aria-label={`Edit ${tender.referenceNo}`}
-                        >
-                          <Icon name="pencil" size={13} />
-                        </a>
-                        <form method="POST" class="inline m-0 p-0" onsubmit="return confirm('Are you sure you want to remove this tender?');">
-                          <input type="hidden" name="id" value={tender.id} />
-                          <input type="hidden" name="_action" value="delete" />
-                          <button 
-                            type="submit" 
-                            class="admin-btn-action action-delete"
-                            title="Delete Tender"
-                            aria-label={`Delete ${tender.referenceNo}`}
+                    {userIsAdmin && (
+                      <td class="td-actions sticky-col-right">
+                        <div class="admin-action-group">
+                          <button
+                            type="button"
+                            class="btn-attach-corr admin-btn-action action-special"
+                            data-tender-id={tender.id}
+                            data-tender-ref={tender.referenceNo}
+                            data-tender-title={tender.title}
+                            title="Attach Corrigendum PDF"
+                            aria-label={`Attach Corrigendum to ${tender.referenceNo}`}
                           >
-                            <Icon name="trash-2" size={13} />
+                            <Icon name="paperclip" size={13} />
                           </button>
-                        </form>
-                      </div>
-                    </td>
+                          <a 
+                            href={`/admin/tenders-form?id=${tender.id}`}
+                            class="admin-btn-action"
+                            title="Edit Tender"
+                            aria-label={`Edit ${tender.referenceNo}`}
+                          >
+                            <Icon name="pencil" size={13} />
+                          </a>
+                          <form method="POST" class="inline m-0 p-0" onsubmit="return confirm('Are you sure you want to remove this tender?');">
+                            <input type="hidden" name="id" value={tender.id} />
+                            <input type="hidden" name="_action" value="delete" />
+                            <button 
+                              type="submit" 
+                              class="admin-btn-action action-delete"
+                              title="Delete Tender"
+                              aria-label={`Delete ${tender.referenceNo}`}
+                            >
+                              <Icon name="trash-2" size={13} />
+                            </button>
+                          </form>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 );
               })
             )}
             <tr id="no-matching-tenders-row" style="display: none;">
-              <td colspan="7" class="text-center text-slate-500 py-12 text-xs font-semibold italic">
+              <td colspan={userIsAdmin ? 7 : 6} class="text-center text-slate-500 py-12 text-xs font-semibold italic">
                 No tenders found matching your search or filter criteria.
               </td>
             </tr>
@@ -280,7 +302,8 @@ try {
     </div>
   </div>
 
-  <!-- ATTACH CORRIGENDUM MODAL DIALOG -->
+  <!-- ATTACH CORRIGENDUM MODAL DIALOG (ADMIN ONLY) -->
+  {userIsAdmin && (
   <div id="corr-modal-backdrop" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto hidden">
     <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-fadeIn my-auto">
       
@@ -290,8 +313,8 @@ try {
           <Icon name="plus" size={18} />
           <h3 class="text-base font-extrabold">Attach Corrigendum / Amendment PDF</h3>
         </div>
-        <button type="button" id="btn-close-corr-modal" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 flex items-center justify-center text-lg font-bold cursor-pointer transition-colors" title="Close">
-          ✕
+        <button type="button" id="btn-close-corr-modal" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 flex items-center justify-center cursor-pointer transition-colors" title="Close">
+          <Icon name="x" size={18} />
         </button>
       </div>
 
@@ -356,7 +379,7 @@ try {
             </div>
             <label class="flex items-center gap-2 p-1.5 bg-amber-50/70 border border-amber-200/80 rounded cursor-pointer hover:bg-amber-50 transition-colors select-none mt-1">
               <input type="checkbox" id="modal-is-important-checkbox" class="w-3.5 h-3.5 rounded text-[#0B4F9C] border-slate-300 focus:ring-[#0B4F9C] cursor-pointer" />
-              <span class="text-[11px] font-bold text-amber-900 flex items-center gap-1">★ Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
+              <span class="text-[11px] font-bold text-amber-900 flex items-center gap-1.5"><Icon name="star" size={12} class="text-amber-600 shrink-0" /> Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
             </label>
             <input type="hidden" id="modal-doc-url" />
             <input type="hidden" id="modal-file-size" />
@@ -375,8 +398,9 @@ try {
       </form>
     </div>
   </div>
+  )}
 
-  <script define:vars={{ sessionToken, tenders }}>
+  <script define:vars={{ sessionToken, tenders, userIsAdmin, backendUrl: BACKEND_URL }}>
     (function() {
       // Table Live Search & Status Filter
       var searchInput = document.getElementById('search-tenders-input');
@@ -414,6 +438,11 @@ try {
 
       searchInput?.addEventListener('input', filterTable);
       statusSelect?.addEventListener('change', filterTable);
+
+      // If user is not admin, do not attach modal or mutation script handlers
+      if (!userIsAdmin) {
+        return;
+      }
 
       function getElements() {
         return {
@@ -589,13 +618,21 @@ try {
           formData.append('isImportant', isImportant ? 'true' : 'false');
 
           try {
-            var res = await fetch('http://localhost:3000/api/upload', {
+            var res = await fetch(`${backendUrl}/api/upload`, {
               method: 'POST',
               headers: { 'Authorization': `Bearer ${sessionToken}` },
               body: formData,
             });
 
             if (!res.ok) {
+              if (res.status === 401) {
+                window.location.href = '/admin/login';
+                return;
+              }
+              if (res.status === 403) {
+                alert('Access Denied: You do not have permission to upload files.');
+                return;
+              }
               var err = await res.json().catch(function() { return {}; });
               throw new Error(err.message || 'Upload failed');
             }
@@ -644,7 +681,7 @@ try {
           if (els.submitBtn) { els.submitBtn.disabled = true; els.submitBtn.textContent = 'Saving...'; }
 
           try {
-            var getRes = await fetch(`http://localhost:3000/api/tenders/${targetId}`);
+            var getRes = await fetch(`${backendUrl}/api/tenders/${targetId}`);
             if (!getRes.ok) throw new Error('Could not fetch target tender details.');
             var tenderObj = await getRes.json();
 
@@ -662,7 +699,7 @@ try {
 
             var updatedCorrs = [...existingCorrs, newCorr];
 
-            var putRes = await fetch(`http://localhost:3000/api/tenders/${targetId}`, {
+            var putRes = await fetch(`${backendUrl}/api/tenders/${targetId}`, {
               method: 'PUT',
               headers: {
                 'Content-Type': 'application/json',
@@ -677,6 +714,14 @@ try {
               alert('Corrigendum successfully attached to tender!');
               window.location.reload();
             } else {
+              if (putRes.status === 401) {
+                window.location.href = '/admin/login';
+                return;
+              }
+              if (putRes.status === 403) {
+                alert('Access Denied: You do not have permission to update tender corrigendums.');
+                return;
+              }
               var err = await putRes.json().catch(function() { return {}; });
               throw new Error(err.message || 'Failed to update tender with corrigendum.');
             }

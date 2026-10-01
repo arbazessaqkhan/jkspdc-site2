@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { deleteLocalFile } from '../upload/file-cleanup.helper';
+import { CreatePressReleaseDto, UpdatePressReleaseDto } from './press-releases.dto';
 
 @Injectable()
 export class PressReleasesService {
@@ -24,11 +25,8 @@ export class PressReleasesService {
     return press;
   }
 
-  async create(data: any, user: any, ip: string, ua: string) {
+  async create(data: CreatePressReleaseDto, user: any, ip: string, ua: string) {
     const { title, content, imageUrl } = data;
-    if (!title || !content) {
-      throw new Error('Missing required fields');
-    }
 
     const press = await this.prisma.pressRelease.create({
       data: {
@@ -49,7 +47,7 @@ export class PressReleasesService {
     return press;
   }
 
-  async update(id: string, data: any, user: any, ip: string, ua: string) {
+  async update(id: string, data: UpdatePressReleaseDto, user: any, ip: string, ua: string) {
     const oldPress = await this.findOne(id);
 
     if (data.imageUrl !== undefined && data.imageUrl !== oldPress.imageUrl) {

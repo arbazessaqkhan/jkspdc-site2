@@ -1,16 +1,36 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
+import { isAdmin } from '../../utils/roles';
+import { parseApiError, BACKEND_URL } from '../../utils/api-error';
 
 let settings: any[] = [];
 let errorMessage = '';
-const sessionToken = Astro.cookies.get('admin_session')?.value || '';
+const sessionToken = Astro.cookies.get('admin_session')?.value;
+if (!sessionToken) {
+  return Astro.redirect('/admin/login');
+}
+
+// Role protection: Site Settings is ADMIN-only
+const userRole = Astro.locals.user?.role;
+if (!isAdmin(userRole)) {
+  return Astro.redirect('/admin/dashboard');
+}
 
 try {
-  const res = await fetch('http://localhost:3000/api/site-settings');
-  if (res.ok) settings = await res.json();
+  const res = await fetch(`${BACKEND_URL}/api/site-settings`);
+  if (res.ok) {
+    settings = await res.json();
+  } else {
+    const apiErr = await parseApiError(res, 'load site settings');
+    if (apiErr.isUnauthorized) {
+      return Astro.redirect('/admin/login');
+    }
+    errorMessage = apiErr.message;
+  }
 } catch (e) {
-  errorMessage = 'Could not load site settings.';
+  console.error('Error fetching site settings:', e);
+  errorMessage = 'Failed to load site settings. Unable to communicate with the server.';
 }
 
 // Build settings map with defaults
@@ -92,7 +112,7 @@ const groups = [...new Set(defaultSettings.map(s => s.group))];
   </div>
 </AdminLayout>
 
-<script is:inline>
+<script is:inline define:vars={{ backendUrl: BACKEND_URL }}>
 (function() {
   function getToken() { var m = document.cookie.match(/admin_session=([^;]+)/); return m ? m[1] : ''; }
 
@@ -107,7 +127,7 @@ const groups = [...new Set(defaultSettings.map(s => s.group))];
       var key = input.dataset.key;
       var value = input.value;
       promises.push(
-        fetch('http://localhost:3000/api/site-settings/' + key, {
+        fetch((backendUrl || '') + '/api/site-settings/' + key, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
           body: JSON.stringify({ value: value }),
@@ -120,7 +140,7 @@ const groups = [...new Set(defaultSettings.map(s => s.group))];
       var key = input.dataset.key;
       var value = input.checked ? 'true' : 'false';
       promises.push(
-        fetch('http://localhost:3000/api/site-settings/' + key, {
+        fetch((backendUrl || '') + '/api/site-settings/' + key, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
           body: JSON.stringify({ value: value }),
@@ -129,16 +149,32 @@ const groups = [...new Set(defaultSettings.map(s => s.group))];
     });
 
     Promise.all(promises)
-      .then(function(results) {
+      .then(async function(results) {
+        var unauth = results.find(function(r) { return r.status === 401; });
+        if (unauth) {
+          window.location.href = '/admin/login';
+          return;
+        }
+        var forbidden = results.find(function(r) { return r.status === 403; });
+        if (forbidden) {
+          alert('Access Denied: You do not have permission to modify site settings.');
+          return;
+        }
         var allOk = results.every(function(r) { return r.ok; });
         if (allOk) {
           alert('All settings saved successfully!');
           window.location.reload();
         } else {
-          alert('Some settings failed to save. Please try again.');
+          var firstFail = results.find(function(r) { return !r.ok; });
+          if (firstFail && firstFail.status >= 500) {
+            alert('A server error occurred while trying to save site settings. Please try again later.');
+          } else {
+            var errData = firstFail ? await firstFail.json().catch(function() { return {}; }) : {};
+            alert(errData.message || 'Failed to save some site settings.');
+          }
         }
       })
-      .catch(function() { alert('Network error. Please try again.'); });
+      .catch(function() { alert('Network error. Unable to communicate with backend server.'); });
   });
 })();
 </script>

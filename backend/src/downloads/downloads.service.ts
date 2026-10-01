@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
+import { CreateDownloadDto, UpdateDownloadDto } from './downloads.dto';
 
 @Injectable()
 export class DownloadsService {
@@ -16,11 +17,11 @@ export class DownloadsService {
     return this.prisma.download.findUnique({ where: { id } });
   }
 
-  async create(data: { title: string; category: string; fileName: string; documentUrl: string; fileSizeBytes?: number; status?: string; description?: string }) {
+  async create(data: CreateDownloadDto) {
     return this.prisma.download.create({ data: { ...data, fileSizeBytes: data.fileSizeBytes || 0 } });
   }
 
-  async update(id: string, data: { title?: string; category?: string; fileName?: string; documentUrl?: string; fileSizeBytes?: number; status?: string; description?: string }) {
+  async update(id: string, data: UpdateDownloadDto) {
     return this.prisma.download.update({ where: { id }, data });
   }
 

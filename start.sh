@@ -3,7 +3,7 @@ set -e
 
 echo "[1/3] Starting JKSPDC NestJS Backend..."
 cd /app/backend
-npx prisma db push --skip-generate
+npx prisma migrate deploy
 node dist/src/main.js &
 
 echo "[2/3] Starting JKSPDC Astro Frontend SSR..."

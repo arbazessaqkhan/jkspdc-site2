@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
+import { CreateHeroSlideDto, UpdateHeroSlideDto } from './hero-slides.dto';
 
 @Injectable()
 export class HeroSlidesService {
@@ -17,11 +18,11 @@ export class HeroSlidesService {
     return this.prisma.heroSlide.findUnique({ where: { id } });
   }
 
-  async create(data: { title: string; subtitle?: string; imageUrl: string; ctaText?: string; ctaHref?: string; sortOrder?: number; isActive?: boolean }) {
+  async create(data: CreateHeroSlideDto) {
     return this.prisma.heroSlide.create({ data: { ...data, sortOrder: data.sortOrder || 0 } });
   }
 
-  async update(id: string, data: { title?: string; subtitle?: string; imageUrl?: string; ctaText?: string; ctaHref?: string; sortOrder?: number; isActive?: boolean }) {
+  async update(id: string, data: UpdateHeroSlideDto) {
     return this.prisma.heroSlide.update({ where: { id }, data });
   }
 

@@ -3,8 +3,27 @@ const crypto = require('crypto');
 
 const prisma = new PrismaClient();
 
+const SCRYPT_PARAMS = {
+  N: 16384,
+  r: 8,
+  p: 5,
+  maxmem: 64 * 1024 * 1024,
+  keyLen: 32,
+  saltLen: 16,
+};
+
+
 function hashPassword(password) {
-  return crypto.createHash('sha256').update(password).digest('hex');
+  const salt = crypto.randomBytes(SCRYPT_PARAMS.saltLen);
+  const derivedKey = crypto.scryptSync(password, salt, SCRYPT_PARAMS.keyLen, {
+    N: SCRYPT_PARAMS.N,
+    r: SCRYPT_PARAMS.r,
+    p: SCRYPT_PARAMS.p,
+    maxmem: SCRYPT_PARAMS.maxmem,
+  });
+  const saltB64 = salt.toString('base64');
+  const hashB64 = derivedKey.toString('base64');
+  return `$scrypt$N=${SCRYPT_PARAMS.N},r=${SCRYPT_PARAMS.r},p=${SCRYPT_PARAMS.p}$${saltB64}$${hashB64}`;
 }
 
 async function main() {
@@ -17,7 +36,23 @@ async function main() {
   });
 
   if (!existingAdmin) {
-    const adminPasswordHash = hashPassword('admin123');
+    const isProduction = process.env.NODE_ENV === 'production';
+    const initialPassword = process.env.INITIAL_ADMIN_PASSWORD;
+
+    if (isProduction && !initialPassword) {
+      throw new Error(
+        'SECURITY ERROR: Cannot seed default admin account in production without INITIAL_ADMIN_PASSWORD environment variable.'
+      );
+    }
+
+    const passwordToUse = initialPassword || 'admin123';
+    if (!initialPassword) {
+      console.warn(
+        'SECURITY WARNING: Using default development credentials for admin@jkspdc.co.in. Set INITIAL_ADMIN_PASSWORD for non-dev environments.'
+      );
+    }
+
+    const adminPasswordHash = hashPassword(passwordToUse);
     await prisma.user.create({
       data: {
         email: adminEmail,
@@ -27,10 +62,11 @@ async function main() {
         isActive: true,
       },
     });
-    console.log('Admin user created: admin@jkspdc.co.in / admin123');
+    console.log(`Admin user created: ${adminEmail}`);
   } else {
     console.log('Admin user already exists.');
   }
+
 
   // 2. Create Dignitaries & Board of Directors (BOD)
   const dignitaries = [
@@ -200,6 +236,18 @@ async function main() {
       title: 'Retirement Ceremony of Executive Director Civil, JKSPDC',
       imageUrl: '/gallery/retirement_ed_civil.png',
       partition: 'Corporate',
+    },
+    {
+      id: 'gallery-seed-3',
+      title: 'Hydroelectric Power Infrastructure & Projects Overview',
+      imageUrl: '/gallery/projects_gallery.jpg',
+      partition: 'Projects',
+    },
+    {
+      id: 'gallery-seed-4',
+      title: 'Baglihar Hydro Electric Project (BHEP) Stage-I & II Dam Site',
+      imageUrl: '/projects/bhep-i.jpg',
+      partition: 'Projects',
     },
     {
       id: 'gallery-seed-5',

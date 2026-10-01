@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { deleteLocalFile } from '../upload/file-cleanup.helper';
+import { CreateCareerDto, UpdateCareerDto } from './careers.dto';
 
 @Injectable()
 export class CareersService {
@@ -24,11 +25,8 @@ export class CareersService {
     return career;
   }
 
-  async create(data: any, user: any, ip: string, ua: string) {
+  async create(data: CreateCareerDto, user: any, ip: string, ua: string) {
     const { advertisementNo, title, description, closingDate, documentUrl, fileSizeBytes, status } = data;
-    if (!advertisementNo || !title || !closingDate || !documentUrl) {
-      throw new Error('Missing required fields');
-    }
 
     const career = await this.prisma.career.create({
       data: {
@@ -37,7 +35,7 @@ export class CareersService {
         description: description || null,
         closingDate: new Date(closingDate),
         documentUrl,
-        fileSizeBytes: fileSizeBytes ? parseInt(fileSizeBytes, 10) : 0,
+        fileSizeBytes: fileSizeBytes ? Number(fileSizeBytes) : 0,
         status: status || 'Active',
       },
     });
@@ -53,7 +51,7 @@ export class CareersService {
     return career;
   }
 
-  async update(id: string, data: any, user: any, ip: string, ua: string) {
+  async update(id: string, data: UpdateCareerDto, user: any, ip: string, ua: string) {
     const oldCareer = await this.findOne(id);
 
     if (data.documentUrl !== undefined && data.documentUrl !== oldCareer.documentUrl) {
@@ -68,7 +66,7 @@ export class CareersService {
         description: data.description,
         closingDate: data.closingDate ? new Date(data.closingDate) : undefined,
         documentUrl: data.documentUrl,
-        fileSizeBytes: data.fileSizeBytes !== undefined ? parseInt(data.fileSizeBytes, 10) : undefined,
+        fileSizeBytes: data.fileSizeBytes !== undefined ? Number(data.fileSizeBytes) : undefined,
         status: data.status,
       },
     });

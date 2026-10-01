@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
+import { CreateDignitaryDto, UpdateDignitaryDto } from './dignitaries.dto';
 
 @Injectable()
 export class DignitariesService {
@@ -21,11 +22,11 @@ export class DignitariesService {
     return dignitary;
   }
 
-  async create(data: any) {
+  async create(data: CreateDignitaryDto) {
     const { 
       name, 
       position, 
-      subTitle,
+      subTitle, 
       role, 
       sNo, 
       imageUrl,
@@ -35,10 +36,6 @@ export class DignitariesService {
       description,
       keyResponsibilities
     } = data;
-    
-    if (!name || !position || sNo === undefined) {
-      throw new Error('Missing required fields: name, position, sNo');
-    }
 
     return this.prisma.dignitary.create({
       data: {
@@ -46,7 +43,7 @@ export class DignitariesService {
         position,
         subTitle: subTitle || null,
         role: role || position || 'OFFICIAL DIGNITARY',
-        sNo: parseInt(sNo, 10),
+        sNo: Number(sNo),
         imageUrl: imageUrl || null,
         iasBatch: iasBatch || null,
         education: education || null,
@@ -57,7 +54,7 @@ export class DignitariesService {
     });
   }
 
-  async update(id: string, data: any) {
+  async update(id: string, data: UpdateDignitaryDto) {
     await this.findOne(id);
 
     return this.prisma.dignitary.update({
@@ -67,7 +64,7 @@ export class DignitariesService {
         position: data.position,
         subTitle: data.subTitle !== undefined ? data.subTitle : undefined,
         role: data.role !== undefined ? (data.role || data.position) : undefined,
-        sNo: data.sNo !== undefined ? parseInt(data.sNo, 10) : undefined,
+        sNo: data.sNo !== undefined ? Number(data.sNo) : undefined,
         imageUrl: data.imageUrl !== undefined ? data.imageUrl : undefined,
         iasBatch: data.iasBatch !== undefined ? data.iasBatch : undefined,
         education: data.education !== undefined ? data.education : undefined,

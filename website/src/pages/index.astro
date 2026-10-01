@@ -536,8 +536,6 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
       {heroSlides.map((slide, i) => (
         <div id={`slide-${slide.id}`} class={`absolute inset-0 transition-opacity duration-500 ${i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}>
           <img src={slide.img} alt={slide.title} class="absolute inset-0 w-full h-full object-cover" fetchpriority={i === 0 ? 'high' : 'auto'} loading={i === 0 || i === 1 || i === heroSlides.length - 1 ? 'eager' : 'lazy'} onerror="this.onerror=null; this.src='/slider1.jpg';" />
-          <div class="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-transparent z-10"></div>
-          <div class="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent z-10"></div>
 
           <!-- Slide Content -->
           <div class="absolute inset-0 z-20 flex items-center">
@@ -564,8 +562,9 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                 <!-- Right: Technical Specifications -->
                 <div class="md:col-span-2 hidden md:block">
                   <div class="bg-black/35 backdrop-blur-md border border-white/25 rounded-2xl p-5 text-white max-w-sm ml-auto shadow-xl">
-                    <h3 class="font-extrabold text-[10px] uppercase tracking-wider text-[#D8681B] border-b border-white/10 pb-2 mb-3">
-                      ⚙️ Technical Specifications
+                    <h3 class="font-extrabold text-[10px] uppercase tracking-wider text-[#D8681B] border-b border-white/10 pb-2 mb-3 flex items-center gap-1.5">
+                      <Icon name="gear" size={13} strokeWidth={2.5} class="text-[#D8681B]" />
+                      <span>Technical Specifications</span>
                     </h3>
                     <dl class="grid grid-cols-2 gap-x-4 gap-y-2.5 text-[11px]">
                       <div>
@@ -679,8 +678,9 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
             <a href="/about-us/explore/overview" class="text-[#0B4F9C] hover:underline font-bold text-xs">
               Read More &raquo;
             </a>
-            <a href="/media/gallery" class="text-xs text-slate-500 hover:text-[#0B4F9C] font-semibold flex items-center gap-1">
-              📷 Office Gallery &rarr;
+            <a href="/media/gallery" class="text-xs text-slate-500 hover:text-[#0B4F9C] font-semibold flex items-center gap-1.5">
+              <Icon name="camera" size={13} class="shrink-0" />
+              <span>Office Gallery &rarr;</span>
             </a>
           </div>
         </div>
@@ -717,7 +717,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                       >
                         <div class="flex items-center gap-2 mb-1 flex-wrap">
                           <span class="text-[10px] text-[#0C58B6] font-bold flex items-center gap-1">
-                            <span>📅</span>
+                            <Icon name="calendar" size={11} class="shrink-0" />
                             <span>{formatRefDate(tender.publishDate)}</span>
                           </span>
                           {isNew && (
@@ -785,7 +785,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                       >
                         <div class="flex items-center gap-2 mb-1 flex-wrap">
                           <span class="text-[10px] text-[#0C58B6] font-bold flex items-center gap-1">
-                            <span>📅</span>
+                            <Icon name="calendar" size={11} class="shrink-0" />
                             <span>{formatRefDate(notif.publishDate)}</span>
                           </span>
                           {isNew && (
@@ -834,31 +834,22 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
             const profileHref = `/dignitaries/${d.id}`;
             const photoSrc = d.imageUrl || photoMap[d.name] || null;
             return (
-              <a href={profileHref} class="group bg-white rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:border-slate-300 hover:-translate-y-1 transition-all duration-200 p-6 flex flex-col items-center text-center h-full w-full relative overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C]">
-                <!-- Photo container (w-28 h-28 = 112px) -->
-                <div class="w-28 h-28 rounded-full overflow-hidden bg-white border-2 border-slate-200 group-hover:border-slate-300 shadow-sm flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-all duration-300 relative z-10">
+              <a href={profileHref} class="group bg-white rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:border-[#0B4F9C] transition-shadow transition-colors duration-200 p-6 flex flex-col items-center text-center h-full w-full relative overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C]">
+                <!-- Photo container (w-28 h-28 = 112px) - Static, no transition -->
+                <div class="w-28 h-28 rounded-full overflow-hidden bg-white border-2 border-slate-200 shadow-sm flex items-center justify-center flex-shrink-0 relative z-10">
                   {photoSrc ? (
                     <img src={photoSrc} alt={d.name} width="112" height="112" class="w-full h-full object-cover object-top" />
                   ) : (
-                    <svg class="w-full h-full object-cover" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect width="100" height="100" fill="url(#grad)" />
-                      <circle cx="50" cy="35" r="18" fill="#FFFFFF" fill-opacity="0.85"/>
-                      <path d="M50 58C32 58 20 70 20 85H80C80 70 68 58 50 58Z" fill="#FFFFFF" fill-opacity="0.85"/>
-                      <circle cx="50" cy="85" r="6" fill="#D8681B" />
-                      <defs>
-                        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stop-color="#1B3A6B" />
-                          <stop offset="100%" stop-color="#0B4F9C" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
+                    <div class="w-full h-full bg-gradient-to-br from-[#1B3A6B] to-[#0B4F9C] flex items-center justify-center text-white">
+                      <Icon name="user" size={48} class="text-white/80" />
+                    </div>
                   )}
                 </div>
                 <!-- Card Content -->
                 <div class="mt-4 flex-grow flex flex-col items-center justify-center gap-2 relative z-10">
                   <h3 class="font-extrabold text-slate-800 text-[15px] md:text-[17px] leading-snug group-hover:text-[#0B4F9C] transition-colors">{d.name}</h3>
                   <div class="mt-1">
-                    <span class="inline-block text-[11px] text-[#0B4F9C] font-extrabold uppercase tracking-wider bg-slate-100 px-3 py-1 rounded-full border border-slate-200 group-hover:bg-[#0B4F9C] group-hover:text-white group-hover:border-[#0B4F9C] transition-all duration-200">
+                    <span class="inline-block text-[11px] text-[#0B4F9C] font-extrabold uppercase tracking-wider bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
                       {d.position}
                     </span>
                   </div>
@@ -944,7 +935,8 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                       </h4>
                       {photo.location && (
                         <p class="text-white/80 text-[10px] mt-1 font-semibold flex items-center gap-1">
-                          📍 {photo.location}
+                          <Icon name="map-pin" size={11} class="shrink-0 text-white/90" />
+                          <span>{photo.location}</span>
                         </p>
                       )}
                     </div>
@@ -1152,11 +1144,10 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
           <h2 id="marquee-heading" class="text-xl md:text-2xl font-extrabold text-[#1B2A41]">Important Quick Links</h2>
           <div class="w-10 h-0.5 bg-[#D8681B] mt-2 rounded-full"></div>
         </div>
-        <p class="text-xs text-slate-500 max-w-md">Official portals of key central and state power sector authorities, ministries, and regulatory commissions.</p>
       </div>
 
       <!-- Visible Responsive Cards Grid (No Horizontal Overflow or Clipping) -->
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2.5 sm:gap-3">
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 md:gap-5 lg:gap-5 xl:gap-6">
         
         <!-- 1. Central Electricity Authority -->
         <a 
@@ -1164,18 +1155,18 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
           target="_blank" 
           rel="noopener noreferrer" 
           title="Central Electricity Authority (opens in new tab)"
-          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl p-2.5 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl py-2.5 px-2 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full shadow-2xs"
         >
-          <div class="h-11 w-full flex items-center justify-center mb-1.5">
-            <img src="/logos/cea.webp" alt="Central Electricity Authority Emblem" class="max-h-9 max-w-[85%] object-contain group-hover:scale-105 transition-transform duration-200" />
+          <div class="h-9 w-full flex items-center justify-center mb-1">
+            <img src="/logos/cea.webp" alt="Central Electricity Authority Emblem" class="max-h-7 max-w-[80%] object-contain group-hover:scale-105 transition-transform duration-200" />
           </div>
           <div class="w-full flex-1 flex flex-col justify-between">
-            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[11px] leading-[1.3] transition-colors break-words">
+            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[10.5px] leading-tight transition-colors break-words">
               Central Electricity Authority
             </p>
-            <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[10px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
+            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[9.5px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
               <span class="font-medium truncate">cea.nic.in</span>
-              <svg class="w-2.5 h-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+              <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
             </div>
           </div>
           <span class="sr-only">(opens in new tab)</span>
@@ -1187,18 +1178,18 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
           target="_blank" 
           rel="noopener noreferrer" 
           title="Ministry of Environment, Forest and Climate Change (opens in new tab)"
-          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl p-2.5 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl py-2.5 px-2 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full shadow-2xs"
         >
-          <div class="h-11 w-full flex items-center justify-center mb-1.5">
-            <img src="/logos/moef.png" alt="Ministry of Environment, Forest and Climate Change Emblem" class="max-h-9 max-w-[85%] object-contain group-hover:scale-105 transition-transform duration-200" />
+          <div class="h-9 w-full flex items-center justify-center mb-1">
+            <img src="/logos/moef.png" alt="Ministry of Environment, Forest and Climate Change Emblem" class="max-h-7 max-w-[80%] object-contain group-hover:scale-105 transition-transform duration-200" />
           </div>
           <div class="w-full flex-1 flex flex-col justify-between">
-            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[11px] leading-[1.3] transition-colors break-words">
+            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[10.5px] leading-tight transition-colors break-words">
               Ministry of Environment &amp; Forests
             </p>
-            <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[10px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
+            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[9.5px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
               <span class="font-medium truncate">moef.gov.in</span>
-              <svg class="w-2.5 h-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+              <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
             </div>
           </div>
           <span class="sr-only">(opens in new tab)</span>
@@ -1210,18 +1201,18 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
           target="_blank" 
           rel="noopener noreferrer" 
           title="National Portal of India (opens in new tab)"
-          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl p-2.5 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl py-2.5 px-2 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full shadow-2xs"
         >
-          <div class="h-11 w-full flex items-center justify-center mb-1.5">
-            <img src="/logos/india.svg" alt="National Portal of India Emblem" class="max-h-8 max-w-[85%] object-contain group-hover:scale-105 transition-transform duration-200" />
+          <div class="h-9 w-full flex items-center justify-center mb-1">
+            <img src="/logos/india.svg" alt="National Portal of India Emblem" class="max-h-6.5 max-w-[80%] object-contain group-hover:scale-105 transition-transform duration-200" />
           </div>
           <div class="w-full flex-1 flex flex-col justify-between">
-            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[11px] leading-[1.3] transition-colors break-words">
+            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[10.5px] leading-tight transition-colors break-words">
               National Portal of India
             </p>
-            <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[10px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
+            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[9.5px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
               <span class="font-medium truncate">india.gov.in</span>
-              <svg class="w-2.5 h-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+              <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
             </div>
           </div>
           <span class="sr-only">(opens in new tab)</span>
@@ -1233,18 +1224,18 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
           target="_blank" 
           rel="noopener noreferrer" 
           title="Ministry of New and Renewable Energy (opens in new tab)"
-          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl p-2.5 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl py-2.5 px-2 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full shadow-2xs"
         >
-          <div class="h-11 w-full flex items-center justify-center mb-1.5">
-            <img src="/logos/mnre.svg" alt="Ministry of New and Renewable Energy Emblem" class="max-h-9 max-w-[85%] object-contain group-hover:scale-105 transition-transform duration-200" />
+          <div class="h-9 w-full flex items-center justify-center mb-1">
+            <img src="/logos/mnre.svg" alt="Ministry of New and Renewable Energy Emblem" class="max-h-7 max-w-[80%] object-contain group-hover:scale-105 transition-transform duration-200" />
           </div>
           <div class="w-full flex-1 flex flex-col justify-between">
-            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[11px] leading-[1.3] transition-colors break-words">
+            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[10.5px] leading-tight transition-colors break-words">
               Ministry of New &amp; Renewable Energy
             </p>
-            <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[10px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
+            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[9.5px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
               <span class="font-medium truncate">mnre.gov.in</span>
-              <svg class="w-2.5 h-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+              <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
             </div>
           </div>
           <span class="sr-only">(opens in new tab)</span>
@@ -1256,18 +1247,18 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
           target="_blank" 
           rel="noopener noreferrer" 
           title="Power Development Department, Government of J&K (opens in new tab)"
-          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl p-2.5 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl py-2.5 px-2 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full shadow-2xs"
         >
-          <div class="h-11 w-full flex items-center justify-center mb-1.5">
-            <img src="/logos/pdd.svg" alt="Power Development Department Emblem" class="max-h-9 max-w-[85%] object-contain p-0.5 group-hover:scale-105 transition-transform duration-200" />
+          <div class="h-9 w-full flex items-center justify-center mb-1">
+            <img src="/logos/pdd.svg" alt="Power Development Department Emblem" class="max-h-7 max-w-[80%] object-contain p-0.5 group-hover:scale-105 transition-transform duration-200" />
           </div>
           <div class="w-full flex-1 flex flex-col justify-between">
-            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[11px] leading-[1.3] transition-colors break-words">
+            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[10.5px] leading-tight transition-colors break-words">
               Power Development Dept (J&amp;K)
             </p>
-            <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[10px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
+            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[9.5px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
               <span class="font-medium truncate">pdd.jk.gov.in</span>
-              <svg class="w-2.5 h-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+              <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
             </div>
           </div>
           <span class="sr-only">(opens in new tab)</span>
@@ -1279,18 +1270,18 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
           target="_blank" 
           rel="noopener noreferrer" 
           title="Central Water Commission (opens in new tab)"
-          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl p-2.5 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl py-2.5 px-2 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full shadow-2xs"
         >
-          <div class="h-11 w-full flex items-center justify-center mb-1.5">
-            <img src="/logos/cwc.png" alt="Central Water Commission Emblem" class="max-h-9 max-w-[85%] object-contain group-hover:scale-105 transition-transform duration-200" />
+          <div class="h-9 w-full flex items-center justify-center mb-1">
+            <img src="/logos/cwc.png" alt="Central Water Commission Emblem" class="max-h-7 max-w-[80%] object-contain group-hover:scale-105 transition-transform duration-200" />
           </div>
           <div class="w-full flex-1 flex flex-col justify-between">
-            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[11px] leading-[1.3] transition-colors break-words">
+            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[10.5px] leading-tight transition-colors break-words">
               Central Water Commission
             </p>
-            <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[10px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
+            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[9.5px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
               <span class="font-medium truncate">cwc.gov.in</span>
-              <svg class="w-2.5 h-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+              <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
             </div>
           </div>
           <span class="sr-only">(opens in new tab)</span>
@@ -1302,18 +1293,18 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
           target="_blank" 
           rel="noopener noreferrer" 
           title="J&K Joint Electricity Regulatory Commission (opens in new tab)"
-          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl p-2.5 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl py-2.5 px-2 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full shadow-2xs"
         >
-          <div class="h-11 w-full flex items-center justify-center mb-1.5">
-            <img src="/logos/jerc.png" alt="J&K Joint Electricity Regulatory Commission Emblem" class="max-h-9 max-w-[85%] object-contain group-hover:scale-105 transition-transform duration-200" />
+          <div class="h-9 w-full flex items-center justify-center mb-1">
+            <img src="/logos/jerc.png" alt="J&K Joint Electricity Regulatory Commission Emblem" class="max-h-7 max-w-[80%] object-contain group-hover:scale-105 transition-transform duration-200" />
           </div>
           <div class="w-full flex-1 flex flex-col justify-between">
-            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[11px] leading-[1.3] transition-colors break-words">
+            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[10.5px] leading-tight transition-colors break-words">
               J&amp;K Electricity Regulatory Commission
             </p>
-            <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[10px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
+            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[9.5px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
               <span class="font-medium truncate">jercjkl.jk.gov.in</span>
-              <svg class="w-2.5 h-2.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+              <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
             </div>
           </div>
           <span class="sr-only">(opens in new tab)</span>

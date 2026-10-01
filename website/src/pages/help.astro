@@ -162,11 +162,11 @@ const faqs = [
         <div class="card-static">
           <h2 class="font-bold text-[#0B4F9C] text-base mb-3 border-b border-gray-100 pb-2">Browser Compatibility</h2>
           <p class="text-sm">This website is designed to work with modern web browsers. Recommended browsers:</p>
-          <ul class="mt-2 space-y-1 text-sm">
-            <li>✅ Google Chrome (latest version)</li>
-            <li>✅ Mozilla Firefox (latest version)</li>
-            <li>✅ Microsoft Edge (latest version)</li>
-            <li>✅ Safari (latest version on macOS / iOS)</li>
+          <ul class="mt-2 space-y-1.5 text-sm">
+            <li class="flex items-center gap-2"><Icon name="check" size={14} class="text-emerald-600 shrink-0" /> <span>Google Chrome (latest version)</span></li>
+            <li class="flex items-center gap-2"><Icon name="check" size={14} class="text-emerald-600 shrink-0" /> <span>Mozilla Firefox (latest version)</span></li>
+            <li class="flex items-center gap-2"><Icon name="check" size={14} class="text-emerald-600 shrink-0" /> <span>Microsoft Edge (latest version)</span></li>
+            <li class="flex items-center gap-2"><Icon name="check" size={14} class="text-emerald-600 shrink-0" /> <span>Safari (latest version on macOS / iOS)</span></li>
           </ul>
           <p class="mt-2 text-sm text-gray-600">Enable JavaScript for full functionality including language translation and search autocomplete.</p>
         </div>
@@ -186,7 +186,7 @@ const faqs = [
           <!-- Acknowledgement Box (shown after submit) -->
           <div id="website-feedback-ack" class="hidden mb-4 bg-emerald-50 border border-emerald-300 rounded-lg p-4" role="alert">
             <div class="flex items-start gap-2.5">
-              <span class="text-emerald-600 text-xl">✅</span>
+              <Icon name="check-circle-2" size={20} class="text-emerald-600 shrink-0" />
               <div>
                 <h3 class="font-bold text-emerald-800 text-sm">Feedback Received!</h3>
                 <p class="text-emerald-700 text-xs mt-0.5">Thank you for helping us improve the website.</p>

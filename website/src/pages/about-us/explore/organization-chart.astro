@@ -1,12 +1,13 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
+import Icon from '../../../components/Icon.astro';
 ---
 
 <Layout 
   title="Organization Chart - Explore About Us" 
   description="Corporate Organization Chart of the Jammu & Kashmir State Power Development Corporation."
 >
-  <div class="space-y-0 max-w-5xl mx-auto">
+  <div class="space-y-0 w-full max-w-6xl mx-auto">
     <!-- Premium Page Header Band -->
     <div class="page-header-band animate-fadeInUp">
       <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
@@ -23,13 +24,28 @@ import Layout from '../../../layouts/Layout.astro';
     <!-- Content -->
     <div class="animate-fadeInUp delay-200">
       <!-- Org Chart Render -->
-      <article class="prose-gov">
-        <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm flex flex-col items-center">
-          <img 
-            src="/about-us/organisational-structure.png" 
-            alt="JKSPDC Corporate Structure Chart" 
-            class="max-w-full h-auto object-contain border border-gray-100 rounded-md"
-          />
+      <article>
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-6 lg:p-8 shadow-sm flex flex-col items-center">
+          <div class="w-full flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+            <span class="text-xs text-slate-500 font-medium">JKSPDCL Corporate &amp; Governance Hierarchy</span>
+            <a 
+              href="/about-us/organisational-structure.jpg" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#0B4F9C] bg-[#EAF4FF] hover:bg-[#D4E8FC] border border-[#BDD7EE] rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#0B4F9C]"
+            >
+              <Icon name="external-link" size={13} strokeWidth={2} />
+              View Full Resolution (Opens in new tab)
+            </a>
+          </div>
+          <div class="w-full overflow-x-auto flex justify-center">
+            <img 
+              src="/about-us/organisational-structure.jpg" 
+              alt="JKSPDC Corporate Structure Chart detailing hierarchy from Board of Directors (BOD) and Managing Director to Executive Directors and Regional Chief Engineers" 
+              class="w-full max-w-5xl h-auto object-contain rounded-md"
+              loading="eager"
+            />
+          </div>
         </div>
       </article>
     </div>
