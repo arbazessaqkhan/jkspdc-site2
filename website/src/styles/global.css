@@ -92,28 +92,27 @@ html {
 
 @theme {
   /* === Government PSU Palette (Hydro Power Theme) === */
-  --color-brand-primary: #0B4F9C;
-  --color-brand-primary-dark: #073B75;
-  --color-brand-primary-deeper: #042750;
-  --color-brand-secondary: #1A5276;
-  --color-brand-secondary-hover: #113852;
-  --color-brand-accent: #D8681B;
-  /* Kept ONLY for hero/slider elements */
-  --color-brand-accent-hover: #C65D18;
-  --color-brand-hydro-cyan: #00B4D8;
-  --color-brand-hydro-teal: #00C9A7;
+  --color-brand-primary: #075985;        /* deep water blue */
+  --color-brand-primary-dark: #0C4A6E;   /* deep reservoir */
+  --color-brand-primary-deeper: #082F49; /* abyss */
+  --color-brand-secondary: #0369A1;      /* river blue */
+  --color-brand-secondary-hover: #075985;
+  --color-brand-accent: #0284C7;         /* hydro sky — the only accent */
+  --color-brand-accent-hover: #0369A1;
+  --color-brand-hydro-cyan: #0EA5E9;
+  --color-brand-hydro-teal: #06B6D4;
 
-  --color-brand-text: #1B2A41;
-  --color-brand-muted: #4B5563;
+  --color-brand-text: #0C2A3D;
+  --color-brand-muted: #44606F;
   --color-brand-border: #E2E8F0;
   --color-brand-success: #1E8E3E;
   --color-brand-warning: #D97706;
   --color-brand-error: #C62828;
 
-  --color-brand-bg-subtle: #EAF4FF;
-  --color-brand-bg-light: #D6EAF8;
-  --color-brand-header-tint: #D6EAF8;
-  --color-brand-footer: #042750;
+  --color-brand-bg-subtle: #F0F9FF;      /* sky-50 band */
+  --color-brand-bg-light: #E0F2FE;       /* sky-100 band */
+  --color-brand-header-tint: #E0F2FE;
+  --color-brand-footer: #082F49;         /* abyss water */
 
   --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
   --shadow-card-hover: 0 4px 12px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
