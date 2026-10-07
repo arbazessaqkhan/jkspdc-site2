@@ -632,7 +632,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
           <h2 class="text-lg xl:text-xl font-bold text-brand-text">
             Welcome to <span class="text-brand-primary">JKSPDCL</span>
           </h2>
-          <div class="w-10 h-0.5 bg-brand-primary mt-2.5 rounded-sm"></div>
+          <div class="w-10 h-0.5 bg-sky-600/70 mt-2.5"></div>
         </div>
 
         <!-- Welcome Card Container with Office Gallery Carousel -->
@@ -692,7 +692,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
         <div class="text-left mb-4 flex-shrink-0">
           <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 border border-brand-primary-dark mb-2.5">Procurement</span>
           <h2 id="tenders-heading" class="text-lg xl:text-xl font-bold text-brand-text">Tenders</h2>
-          <div class="w-10 h-0.5 bg-brand-primary mt-2.5 rounded-sm"></div>
+          <div class="w-10 h-0.5 bg-sky-600/70 mt-2.5"></div>
         </div>
 
         <!-- Tenders Card Container -->
@@ -759,7 +759,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
         <div class="text-left mb-4 flex-shrink-0">
           <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 border border-brand-primary-dark mb-2.5">Updates &amp; Notices</span>
           <h2 id="notices-heading" class="text-lg xl:text-xl font-bold text-brand-text">Notifications</h2>
-          <div class="w-10 h-0.5 bg-brand-primary mt-2.5 rounded-sm"></div>
+          <div class="w-10 h-0.5 bg-sky-600/70 mt-2.5"></div>
         </div>
 
         <!-- Notices Card Container -->
@@ -815,12 +815,12 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     <!-- ============================================================ -->
     <!-- HONORABLE DIGNITARIES (BOD) (FULL WIDTH BELOW UPDATES)        -->
     <!-- ============================================================ -->
-    <section class="flex flex-col mt-4">
+    <section class="flex flex-col mt-8 bg-brand-bg-light/40 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-8 rounded-sm">
       <!-- Section Header -->
       <div class="text-left mb-6 flex-shrink-0">
         <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 border border-brand-primary-dark mb-2.5">Leadership &amp; Governance</span>
         <h2 id="dignitaries-heading" class="text-lg xl:text-xl font-bold text-brand-text">Honorable Dignitaries</h2>
-        <div class="w-10 h-0.5 bg-brand-primary mt-2.5 rounded-sm"></div>
+        <div class="w-10 h-0.5 bg-sky-600/70 mt-2.5"></div>
       </div>
 
       <!-- Dignitaries Card Grid (Full Width, 4 cols) -->
@@ -864,12 +864,12 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     <!-- ============================================================ -->
     <!-- ABOUT & PHOTO GALLERY MERGED SECTION                         -->
     <!-- ============================================================ -->
-    <section id="about" aria-labelledby="about-heading" class="text-left mt-8">
+    <section id="about" aria-labelledby="about-heading" class="text-left mt-8 bg-brand-bg-subtle -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-8 rounded-sm">
       <!-- Section Header (Outside Card) -->
       <div class="text-left mb-4 flex-shrink-0">
         <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 border border-brand-primary-dark mb-2.5">Corporate Profile & Media</span>
         <h2 id="about-heading" class="text-xl md:text-2xl font-bold text-brand-text">About Us & Photo Gallery</h2>
-        <div class="w-10 h-0.5 bg-brand-primary mt-2.5 rounded-sm"></div>
+        <div class="w-10 h-0.5 bg-sky-600/70 mt-2.5"></div>
       </div>
 
       <!-- White Card Container -->
@@ -999,7 +999,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                   role="tab" 
                   aria-selected={tab === 'All' ? 'true' : 'false'} 
                   data-tab={tab} 
-                  class={`project-tab px-4 py-1.5 rounded-sm text-xs font-semibold transition-all ${tab === 'All' ? 'bg-brand-primary text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}
+                  class={`project-tab px-4 py-1.5 rounded-sm text-xs font-semibold transition-all ${tab === 'All' ? 'bg-brand-primary text-white shadow-sm' : 'text-slate-600 hover:bg-sky-50'}`}
                 >
                   {tab === 'All' ? 'All Projects' : tab}
                 </button>
@@ -1026,7 +1026,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
             {(projects.length > 0 ? projects : fallbackOperationalProjects).map((p) => (
               <a 
                 href={`/our-business/power-station-details?id=${p.id}`} 
-                class="project-card block bg-white rounded-sm border border-slate-200 border-l-4 p-4 hover:border-slate-300 hover:border-l-brand-primary transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary group" 
+                class="project-card block bg-white rounded-sm border border-slate-200 border-l-4 p-4 hover:border-sky-300 hover:border-l-sky-700 hover:bg-sky-50/50 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary group" 
                 data-status={p.status} 
                 data-type={p.type} 
                 data-name={p.name.toLowerCase()} 
@@ -1075,10 +1075,13 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
         </div>
 
         <!-- View All Action Footer -->
-        <div class="px-8 md:px-12 pt-6 pb-10 text-center border-t border-slate-100 mt-4">
-          <a id="project-view-all-btn" href="#projects" class="inline-flex items-center gap-2 bg-brand-primary-dark hover:bg-brand-primary text-white px-8 py-3 rounded-md text-sm font-semibold transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary cursor-pointer">
-            Show All Projects ({projects.length}) &darr;
-          </a>
+        <div class="mt-0">
+          <div class="flex items-center justify-between border-t border-slate-200 bg-slate-50/60 px-6 md:px-10 py-3.5">
+            <p class="text-xs text-slate-500">Showing {Math.min(6, projects.length)} of {projects.length} projects</p>
+            <a id="project-view-all-btn" href="#projects" class="inline-flex items-center gap-2 text-sm font-semibold text-brand-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary cursor-pointer">
+              View full project register ({projects.length}) &darr;
+            </a>
+          </div>
         </div>
       </div>
     </section>
@@ -1088,12 +1091,12 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     <!-- ============================================================ -->
     <!-- QUICK ACCESS GRID                                             -->
     <!-- ============================================================ -->
-    <section aria-labelledby="quick-access-heading" class="text-left mt-8">
+    <section aria-labelledby="quick-access-heading" class="text-left mt-8 bg-brand-bg-subtle -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-8 rounded-sm">
       <!-- Section Header (Outside Card) -->
       <div class="text-left mb-4 flex-shrink-0">
         <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 border border-brand-primary-dark mb-2.5">Quick Access</span>
         <h2 id="quick-access-heading" class="text-xl md:text-2xl font-bold text-brand-text">Navigate the Corporation</h2>
-        <div class="w-10 h-0.5 bg-brand-primary mt-2.5 rounded-sm"></div>
+        <div class="w-10 h-0.5 bg-sky-600/70 mt-2.5"></div>
       </div>
 
       <!-- White Card Container -->
@@ -1104,8 +1107,8 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
         <div class="px-8 md:px-12 pb-10 pt-4">
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {quickLinks.map((link) => (
-              <a href={link.href} class="group relative bg-white border border-slate-200 rounded-md p-5 hover:border-slate-300 hover:shadow-md transition-colors duration-200 overflow-hidden flex flex-col gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary">
-                <div class="w-12 h-12 rounded-md bg-slate-100 text-brand-primary group-hover:bg-brand-primary group-hover:text-white flex items-center justify-center flex-shrink-0 transition-all duration-200 shadow-xs group-hover:shadow-sm relative z-10">
+              <a href={link.href} class="group relative bg-white border border-slate-200 rounded-md p-5 hover:border-sky-300 hover:bg-sky-50/40 transition-colors duration-200 overflow-hidden flex flex-col gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary">
+                <div class="w-12 h-12 rounded-md bg-slate-100 text-brand-primary group-hover:bg-sky-700 group-hover:text-white flex items-center justify-center flex-shrink-0 transition-colors duration-200 shadow-xs group-hover:shadow-sm relative z-10">
                   <Icon name={link.icon} size={22} strokeWidth={1.75} />
                 </div>
                 <div class="relative z-10">
@@ -1460,21 +1463,21 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     'All': {
       text: function() {
         return isExpandedAll 
-          ? 'Show Fewer Projects ↑' 
-          : 'Show All Projects (' + cards.length + ') ↓';
+          ? 'Show fewer projects ↑' 
+          : 'View full project register (' + cards.length + ') ↓';
       },
       href: '#projects'
     },
     'Operational': {
-      text: function() { return 'View All Operational Projects →'; },
+      text: function() { return 'View all operational projects →'; },
       href: '/our-business/power-stations'
     },
     'Under Construction': {
-      text: function() { return 'View All Under Construction Projects →'; },
+      text: function() { return 'View all under-construction projects →'; },
       href: '/our-business/construction'
     },
     'Upcoming': {
-      text: function() { return 'View All Upcoming Projects →'; },
+      text: function() { return 'View all upcoming projects →'; },
       href: '/our-business/under-development'
     }
   };
@@ -1499,7 +1502,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
         btn.className = 'project-tab px-4 py-1.5 rounded-md text-xs font-semibold transition-all bg-brand-primary text-white shadow-sm';
         btn.setAttribute('aria-selected', 'true');
       } else {
-        btn.className = 'project-tab px-4 py-1.5 rounded-md text-xs font-semibold transition-all text-slate-600 hover:bg-slate-100';
+        btn.className = 'project-tab px-4 py-1.5 rounded-md text-xs font-semibold transition-all text-slate-600 hover:bg-sky-50';
         btn.setAttribute('aria-selected', 'false');
       }
     });
@@ -1671,7 +1674,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
   }
 
   .feed-row:hover {
-    background-color: #F1F5F9 !important;
+    background-color: #EAF4FF !important;
   }
 
 </style>
