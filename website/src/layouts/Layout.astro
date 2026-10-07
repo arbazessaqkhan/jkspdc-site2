@@ -39,7 +39,7 @@ function isSectionActive(section: string): boolean {
 function getDocUrl(url?: string) {
   if (!url) return undefined;
   if (url.startsWith('/uploads/')) {
-    return `http://localhost:3000${url}`;
+    return `${import.meta.env.PUBLIC_API_BASE}${url}`;
   }
   return url;
 }
@@ -57,8 +57,8 @@ function isDocUrl(url?: string) {
 let tickerItems: any[] = [];
 try {
   const [tendersRes, notifsRes] = await Promise.all([
-    fetch('http://localhost:3000/api/public/tenders').catch(() => null),
-    fetch('http://localhost:3000/api/public/notifications').catch(() => null),
+    fetch(`${import.meta.env.PUBLIC_API_BASE}/api/public/tenders`).catch(() => null),
+    fetch(`${import.meta.env.PUBLIC_API_BASE}/api/public/notifications`).catch(() => null),
   ]);
 
   let tenders: any[] = [];
@@ -160,6 +160,9 @@ if (tickerItems.length === 0) {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet" />
     
+    <!-- API base URL for inline scripts -->
+    <script is:inline define:vars={{ apiBase: import.meta.env.PUBLIC_API_BASE }}>window.__API_BASE__ = apiBase;</script>
+
     <!-- Custom Translation Utility -->
     <script src="/js/translation.js" is:inline></script>
 
@@ -630,8 +633,8 @@ if (tickerItems.length === 0) {
                   name="q" 
                   id="header-search" 
                   placeholder="Search portal, tenders…" 
-                  class="w-full bg-transparent text-xs text-slate-700 placeholder:text-slate-400 font-normal py-1 px-1 outline-none focus:outline-none border-0 focus:ring-0" 
-                  style="outline: none !important; box-shadow: none !important; border: none !important; font-weight: 400 !important;"
+                  class="w-full bg-transparent text-xs text-slate-700 placeholder:text-slate-400 font-normal py-1 px-1 border-0 focus:ring-0"
+                  style="box-shadow: none !important; font-weight: 400 !important;"
                   required
                 />
                 <button 
@@ -1071,7 +1074,8 @@ if (tickerItems.length === 0) {
     </script>
 
     <!-- Global Header Search Autocomplete -->
-    <script is:inline>
+    <script is:inline>var API_BASE = window.__API_BASE__;
+
       (function() {
         var searchForm = document.getElementById('header-search-form');
         var searchInput = document.getElementById('header-search');
@@ -1100,7 +1104,7 @@ if (tickerItems.length === 0) {
             console.error('Failed to load sitemap search index:', err);
           }
           try {
-            var projectsRes = await fetch('http://localhost:3000/api/projects');
+            var projectsRes = await fetch('window.__API_BASE__/api/projects');
             if (projectsRes.ok) {
               var projects = await projectsRes.json();
               projects.forEach(function(p) {

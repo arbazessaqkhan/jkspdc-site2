@@ -1,0 +1,100 @@
+---
+/**
+ * TableWrapper — the one responsive strategy for government data tables.
+ * Preserves semantic <table> markup; adds a scroll-region with a visible
+ * affordance on narrow screens, plus empty/loading/error states.
+ */
+interface Props {
+  caption?: string;             // accessible table caption (recommended)
+  state?: 'ok' | 'empty' | 'loading' | 'error';
+  emptyMessage?: string;
+  errorMessage?: string;
+  class?: string;
+}
+const {
+  caption,
+  state = 'ok',
+  emptyMessage = 'No records are currently available.',
+  errorMessage = 'This information is temporarily unavailable. Please try again shortly.',
+  class: className = '',
+} = Astro.props;
+---
+{state !== 'ok' ? (
+  <div
+    class:list={[
+      'registry-state',
+      state === 'empty' && 'registry-empty',
+      state === 'loading' && 'registry-loading',
+      state === 'error' && 'registry-error',
+      className,
+    ]}
+    role={state === 'error' ? 'alert' : 'status'}
+  >
+    {state === 'loading' && <span class="spinner" aria-hidden="true"></span>}
+    <p>
+      <span class="state-title">
+        {state === 'empty' && 'Nothing to show yet'}
+        {state === 'loading' && 'Loading records…'}
+        {state === 'error' && 'Unable to load records'}
+      </span>
+      {state === 'empty' && emptyMessage}
+      {state === 'loading' && 'Please wait while the information is retrieved.'}
+      {state === 'error' && errorMessage}
+    </p>
+  </div>
+) : (
+  <div class:list={['table-scroll', className]} tabindex="0" role="region" aria-label={caption ?? 'Data table'}>
+    <table class="table-data">
+      {caption && <caption class="table-caption">{caption}</caption>}
+      <slot />
+    </table>
+    <span class="table-scroll-hint" aria-hidden="true">Scroll for more columns →</span>
+  </div>
+)}
+
+<style>
+  .table-scroll {
+    position: relative;
+    border: 1px solid var(--color-brand-border);
+    border-radius: var(--radius-card);
+    background: #ffffff;
+    overflow: hidden;
+  }
+  .table-scroll :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .table-scroll :global(th),
+  .table-scroll :global(td) {
+    text-align: left;
+    vertical-align: top;
+  }
+  .table-caption {
+    text-align: left;
+    font-size: var(--text-xs-rem);
+    color: var(--color-brand-muted);
+    padding: var(--space-2) var(--space-3);
+    caption-side: top;
+  }
+  .table-scroll-hint {
+    display: none;
+    position: absolute;
+    right: var(--space-2);
+    bottom: var(--space-1);
+    font-size: var(--text-xs-rem);
+    color: var(--color-brand-muted);
+    background: rgba(255, 255, 255, 0.92);
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    pointer-events: none;
+  }
+  @media (max-width: 768px) {
+    .table-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .table-scroll-hint {
+      display: block;
+    }
+  }
+</style>

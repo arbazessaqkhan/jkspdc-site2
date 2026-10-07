@@ -6,7 +6,7 @@ let projects: any[] = [];
 let errorMessage = '';
 
 try {
-  const res = await fetch('http://localhost:3000/api/projects?status=Operational');
+  const res = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/projects?status=Operational`);
   if (res.ok) {
     projects = await res.json();
   } else {

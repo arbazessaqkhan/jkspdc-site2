@@ -8,7 +8,7 @@ let fetchError = '';
 
 try {
   // 1. Fetch from agm documents table
-  const agmRes = await fetch('http://localhost:3000/api/agm').catch(() => null);
+  const agmRes = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/agm`).catch(() => null);
   if (agmRes && agmRes.ok) {
     const agmData = await agmRes.json();
     if (Array.isArray(agmData)) {
@@ -17,7 +17,7 @@ try {
   }
 
   // 2. Fetch from Resources / Downloads where category is 'AGM'
-  const dlRes = await fetch('http://localhost:3000/api/downloads').catch(() => null);
+  const dlRes = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/downloads`).catch(() => null);
   if (dlRes && dlRes.ok) {
     const dlData = await dlRes.json();
     if (Array.isArray(dlData)) {
@@ -50,7 +50,7 @@ const availableYears = Array.from(
 const getDocUrl = (url?: string) => {
   if (!url) return '#';
   if (url.startsWith('/uploads/')) {
-    return `http://localhost:3000${url}`;
+    return `${import.meta.env.PUBLIC_API_BASE}${url}`;
   }
   return url;
 };

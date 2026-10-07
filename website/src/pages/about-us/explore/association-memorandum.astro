@@ -5,7 +5,7 @@ import Icon from '../../../components/Icon.astro';
 function getDocUrl(url?: string) {
   if (!url) return '#';
   if (url.startsWith('/uploads/')) {
-    return `http://localhost:3000${url}`;
+    return `${import.meta.env.PUBLIC_API_BASE}${url}`;
   }
   return url;
 }
@@ -13,7 +13,7 @@ function getDocUrl(url?: string) {
 let memoDocs: any[] = [];
 
 try {
-  const res = await fetch('http://localhost:3000/api/policies');
+  const res = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/policies`);
   if (res.ok) {
     const data = await res.json();
     memoDocs = data.filter((d: any) => 

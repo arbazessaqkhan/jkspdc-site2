@@ -5,7 +5,7 @@ let directors = [];
 let errorMessage = '';
 
 try {
-  const res = await fetch('http://localhost:3000/api/directors');
+  const res = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/directors`);
   if (res.ok) {
     directors = await res.json();
     directors.sort((a, b) => a.sNo !== b.sNo ? a.sNo - b.sNo : a.name.localeCompare(b.name));

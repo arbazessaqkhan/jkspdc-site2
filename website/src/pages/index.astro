@@ -31,40 +31,40 @@ let gallery = [
 
 try {
   // Fetch dignitaries
-  const digRes = await fetch('http://127.0.0.1:3000/api/dignitaries');
+  const digRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/api/dignitaries`);
   if (digRes.ok) {
     dignitaries = await digRes.json();
     dignitaries.sort((a: any, b: any) => a.sNo - b.sNo);
   }
 
   // Fetch directors
-  const dirRes = await fetch('http://127.0.0.1:3000/api/directors');
+  const dirRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/api/directors`);
   if (dirRes.ok) {
     directors = await dirRes.json();
     directors.sort((a: any, b: any) => a.sNo - b.sNo);
   }
 
   // Fetch tenders
-  const tenderRes = await fetch('http://127.0.0.1:3000/api/tenders');
+  const tenderRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/api/tenders`);
   if (tenderRes.ok) {
     tenders = await tenderRes.json();
   }
 
   // Fetch projects
-  const projRes = await fetch('http://127.0.0.1:3000/api/projects');
+  const projRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/api/projects`);
   if (projRes.ok) {
     projects = await projRes.json();
     projects.sort((a, b) => (b.capacityMw || 0) - (a.capacityMw || 0));
   }
 
   // Fetch notifications
-  const notifRes = await fetch('http://127.0.0.1:3000/api/public/notifications');
+  const notifRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/api/public/notifications`);
   if (notifRes.ok) {
     notifications = await notifRes.json();
   }
 
   // Fetch gallery items
-  const galleryRes = await fetch('http://127.0.0.1:3000/api/gallery');
+  const galleryRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/api/gallery`);
   if (galleryRes.ok) {
     gallery = await galleryRes.json();
   }
@@ -75,7 +75,7 @@ try {
 function getImageUrl(url: string) {
   if (!url) return '';
   if (url.startsWith('/uploads/')) {
-    return `http://127.0.0.1:3000${url}`;
+    return `${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}${url}`;
   }
   return url;
 }
@@ -213,7 +213,7 @@ const heroSlides = displaySlides.map((p, index) => {
   
   if (p.documentUrl && p.documentUrl.trim() !== '') {
     if (p.documentUrl.startsWith('/uploads/')) {
-      img = `http://localhost:3000${p.documentUrl}`;
+      img = `${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}${p.documentUrl}`;
     } else {
       img = p.documentUrl;
     }
@@ -458,7 +458,7 @@ const formatRefDate = (dateStr: string) => {
 const getDocUrl = (url?: string) => {
   if (!url) return undefined;
   if (url.startsWith('/uploads/')) {
-    return `http://localhost:3000${url}`;
+    return `${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}${url}`;
   }
   return url;
 };
@@ -531,7 +531,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
 <Layout title="Home | JKSPDC Official Portal" description="Official enterprise portal of Jammu and Kashmir State Power Development Corporation Ltd. Powering the future of J&K through clean, sustainable, and reliable energy generation." isHome={true}>
 
   <!-- HERO SLIDER -->
-  <section id="home" class="relative w-full overflow-hidden bg-slate-900" style="min-height: 500px; height: 520px; max-height: 540px;">
+  <section id="home" class="hero-section relative w-full overflow-hidden bg-slate-900" aria-roledescription="carousel" aria-label="Featured highlights from JKSPDC">
     <div id="hero-slides" class="absolute inset-0">
       {heroSlides.map((slide, i) => (
         <div id={`slide-${slide.id}`} class={`absolute inset-0 transition-opacity duration-500 ${i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}>
@@ -543,7 +543,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
               <div class="grid grid-cols-1 md:grid-cols-5 gap-6 sm:gap-8 items-center">
                 <!-- Left: Title, Desc, Buttons -->
                 <div class="md:col-span-3 text-white">
-                  <div class="inline-flex items-center bg-[#D8681B] text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-3 sm:mb-4">
+                  <div class="inline-flex items-center bg-[#D8681B] text-white text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-3 sm:mb-4">
                     {slide.badge}
                   </div>
                   <h2 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold leading-[1.15] tracking-tight" style="text-shadow: 0 2px 8px rgba(0,0,0,0.45);">
@@ -562,33 +562,33 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                 <!-- Right: Technical Specifications -->
                 <div class="md:col-span-2 hidden md:block">
                   <div class="bg-black/35 backdrop-blur-md border border-white/25 rounded-2xl p-5 text-white max-w-sm ml-auto shadow-xl">
-                    <h3 class="font-extrabold text-[10px] uppercase tracking-wider text-[#D8681B] border-b border-white/10 pb-2 mb-3 flex items-center gap-1.5">
-                      <Icon name="gear" size={13} strokeWidth={2.5} class="text-[#D8681B]" />
+                    <h3 class="font-extrabold text-xs uppercase tracking-wider text-brand-accent border-b border-white/10 pb-2 mb-3 flex items-center gap-1.5">
+                      <Icon name="gear" size={13} strokeWidth={2.5} class="text-brand-accent" />
                       <span>Technical Specifications</span>
                     </h3>
-                    <dl class="grid grid-cols-2 gap-x-4 gap-y-2.5 text-[11px]">
+                    <dl class="grid grid-cols-2 gap-x-4 gap-y-2.5">
                       <div>
-                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-[11px]">Installed Capacity</dt>
+                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-xs">Installed Capacity</dt>
                         <dd class="text-base font-extrabold text-white mt-0.5">{slide.capacityMw} MW</dd>
                       </div>
                       <div>
-                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-[11px]">Configuration</dt>
+                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-xs">Configuration</dt>
                         <dd class="text-base font-extrabold text-white mt-0.5">{slide.configuration}</dd>
                       </div>
                       <div>
-                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-[11px]">Design Energy</dt>
+                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-xs">Design Energy</dt>
                         <dd class="text-base font-extrabold text-white mt-0.5">{slide.designEnergy ? `${slide.designEnergy} MU` : '—'}</dd>
                       </div>
                       <div>
-                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-[11px]">Commissioning</dt>
+                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-xs">Commissioning</dt>
                         <dd class="text-base font-extrabold text-white mt-0.5">{slide.yearOfCommissioning || '—'}</dd>
                       </div>
                       <div>
-                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-[11px]">River Basin</dt>
+                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-xs">River Basin</dt>
                         <dd class="text-base font-extrabold text-white mt-0.5">{slide.basin}</dd>
                       </div>
                       <div>
-                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-[11px]">District Location</dt>
+                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-xs">District Location</dt>
                         <dd class="text-base font-extrabold text-white mt-0.5">{slide.location}</dd>
                       </div>
                     </dl>
@@ -628,9 +628,9 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
       <div class="md:col-span-2 lg:col-span-4 flex flex-col">
         <!-- Section Header -->
         <div class="text-left mb-4 flex-shrink-0">
-          <span class="inline-block text-[10px] uppercase tracking-[0.12em] text-[#1B3A6B] font-bold bg-transparent px-3 py-1 rounded-full border border-[#1B3A6B] mb-2.5">Corporate Overview</span>
-          <h2 class="text-lg xl:text-xl font-extrabold text-[#1B2A41]">
-            Welcome to <span class="text-[#0B4F9C]">JKSPDCL</span>
+          <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 rounded-full border border-brand-primary-dark mb-2.5">Corporate Overview</span>
+          <h2 class="text-lg xl:text-xl font-extrabold text-brand-text">
+            Welcome to <span class="text-brand-primary">JKSPDCL</span>
           </h2>
           <div class="w-10 h-0.5 bg-[#D8681B] mt-2.5 rounded-full"></div>
         </div>
@@ -650,10 +650,10 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                   />
                   <!-- Overlay Caption -->
                   <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent flex flex-col justify-end p-3 z-10 text-left">
-                    <span class="inline-block self-start text-[8px] font-bold uppercase bg-[#D8681B] text-white px-2 py-0.5 rounded-full mb-1 tracking-wider shadow-xs">
+                    <span class="inline-block self-start text-xs font-bold uppercase bg-[#D8681B] text-white px-2 py-0.5 rounded-full mb-1 tracking-wider shadow-xs">
                       {photo.partition || 'Office Happenings & Awards'}
                     </span>
-                    <h4 class="text-white text-[11px] font-extrabold leading-snug line-clamp-1" style="text-shadow: 0 1px 3px rgba(0,0,0,0.6);">
+                    <h4 class="text-white text-xs font-extrabold leading-snug line-clamp-1" style="text-shadow: 0 1px 3px rgba(0,0,0,0.6);">
                       {photo.title}
                     </h4>
                   </div>
@@ -675,10 +675,10 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
 
           <!-- Read More & Admin Gallery Link -->
           <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-100">
-            <a href="/about-us/explore/overview" class="text-[#0B4F9C] hover:underline font-bold text-xs">
+            <a href="/about-us/explore/overview" class="text-brand-primary hover:underline font-bold text-xs">
               Read More &raquo;
             </a>
-            <a href="/media/gallery" class="text-xs text-slate-500 hover:text-[#0B4F9C] font-semibold flex items-center gap-1.5">
+            <a href="/media/gallery" class="text-xs text-slate-500 hover:text-brand-primary font-semibold flex items-center gap-1.5">
               <Icon name="camera" size={13} class="shrink-0" />
               <span>Office Gallery &rarr;</span>
             </a>
@@ -690,8 +690,8 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
       <div class="md:col-span-1 lg:col-span-3 flex flex-col">
         <!-- Section Header -->
         <div class="text-left mb-4 flex-shrink-0">
-          <span class="inline-block text-[10px] uppercase tracking-[0.12em] text-[#1B3A6B] font-bold bg-transparent px-3 py-1 rounded-full border border-[#1B3A6B] mb-2.5">Procurement</span>
-          <h2 id="tenders-heading" class="text-lg xl:text-xl font-extrabold text-[#1B2A41]">Tenders</h2>
+          <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 rounded-full border border-brand-primary-dark mb-2.5">Procurement</span>
+          <h2 id="tenders-heading" class="text-lg xl:text-xl font-extrabold text-brand-text">Tenders</h2>
           <div class="w-10 h-0.5 bg-[#D8681B] mt-2.5 rounded-full"></div>
         </div>
 
@@ -716,27 +716,27 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                         style={index % 2 === 0 ? 'background-color: #FFFFFF;' : 'background-color: #F8FAFC;'}
                       >
                         <div class="flex items-center gap-2 mb-1 flex-wrap">
-                          <span class="text-[10px] text-[#0C58B6] font-bold flex items-center gap-1">
+                          <span class="text-xs text-brand-primary font-bold flex items-center gap-1">
                             <Icon name="calendar" size={11} class="shrink-0" />
                             <span>{formatRefDate(tender.publishDate)}</span>
                           </span>
                           {isNew && (
-                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wide bg-[#D8681B] text-white shadow-xs">
+                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-extrabold uppercase tracking-wide bg-[#D8681B] text-white shadow-xs">
                               NEW
                             </span>
                           )}
                           {isCorr && (
-                            <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-extrabold uppercase tracking-wide bg-amber-100 text-amber-900 border border-amber-300">
+                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-extrabold uppercase tracking-wide bg-amber-100 text-amber-900 border border-amber-300">
                               Corrigendum
                             </span>
                           )}
                           {tender.referenceNo && (
-                            <span class="text-[10px] text-slate-400 font-mono hidden sm:inline">
+                            <span class="text-xs text-slate-400 font-mono hidden sm:inline">
                               {tender.referenceNo}
                             </span>
                           )}
                         </div>
-                        <h4 class="font-bold text-slate-800 text-xs leading-snug line-clamp-2 group-hover:text-[#0B4F9C] transition-colors">
+                        <h4 class="font-bold text-slate-800 text-xs leading-snug line-clamp-2 group-hover:text-brand-primary transition-colors">
                           {isCorr ? (tender.title && tender.title.toLowerCase().startsWith('corrigendum') ? `${tender.title}${tender.parentTitle ? ` — ${tender.parentTitle}` : ''}` : `Corrigendum: ${tender.title}${tender.parentTitle ? ` — ${tender.parentTitle}` : ''}`) : tender.title}
                         </h4>
                       </a>
@@ -748,7 +748,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
             </div>
           </div>
           <div class="bg-slate-100/70 border-t border-slate-200/50 py-2.5 text-center text-xs font-bold flex-shrink-0">
-            <a href="/stakeholders/vendors/tender-bids" class="text-[#0B4F9C] hover:underline">View All Tenders &rarr;</a>
+            <a href="/stakeholders/vendors/tender-bids" class="text-brand-primary hover:underline">View All Tenders &rarr;</a>
           </div>
         </div>
       </div>
@@ -757,8 +757,8 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
       <div class="md:col-span-1 lg:col-span-3 flex flex-col">
         <!-- Section Header -->
         <div class="text-left mb-4 flex-shrink-0">
-          <span class="inline-block text-[10px] uppercase tracking-[0.12em] text-[#1B3A6B] font-bold bg-transparent px-3 py-1 rounded-full border border-[#1B3A6B] mb-2.5">Updates &amp; Notices</span>
-          <h2 id="notices-heading" class="text-lg xl:text-xl font-extrabold text-[#1B2A41]">Notifications</h2>
+          <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 rounded-full border border-brand-primary-dark mb-2.5">Updates &amp; Notices</span>
+          <h2 id="notices-heading" class="text-lg xl:text-xl font-extrabold text-brand-text">Notifications</h2>
           <div class="w-10 h-0.5 bg-[#D8681B] mt-2.5 rounded-full"></div>
         </div>
 
@@ -784,17 +784,17 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                         style={index % 2 === 0 ? 'background-color: #FFFFFF;' : 'background-color: #F8FAFC;'}
                       >
                         <div class="flex items-center gap-2 mb-1 flex-wrap">
-                          <span class="text-[10px] text-[#0C58B6] font-bold flex items-center gap-1">
+                          <span class="text-xs text-brand-primary font-bold flex items-center gap-1">
                             <Icon name="calendar" size={11} class="shrink-0" />
                             <span>{formatRefDate(notif.publishDate)}</span>
                           </span>
                           {isNew && (
-                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wide bg-[#D8681B] text-white shadow-xs">
+                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-extrabold uppercase tracking-wide bg-[#D8681B] text-white shadow-xs">
                               NEW
                             </span>
                           )}
                         </div>
-                        <h4 class="font-bold text-slate-800 text-xs leading-snug line-clamp-2 group-hover:text-[#0B4F9C] transition-colors">
+                        <h4 class="font-bold text-slate-800 text-xs leading-snug line-clamp-2 group-hover:text-brand-primary transition-colors">
                           {notif.title}
                         </h4>
                       </a>
@@ -806,7 +806,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
             </div>
           </div>
           <div class="bg-slate-100/70 border-t border-slate-200/50 py-2.5 text-center text-xs font-bold flex-shrink-0">
-            <a href="/notifications" class="text-[#0B4F9C] hover:underline">View All Notifications &rarr;</a>
+            <a href="/notifications" class="text-brand-primary hover:underline">View All Notifications &rarr;</a>
           </div>
         </div>
       </div>
@@ -818,8 +818,8 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     <section class="flex flex-col mt-4">
       <!-- Section Header -->
       <div class="text-left mb-6 flex-shrink-0">
-        <span class="inline-block text-[10px] uppercase tracking-[0.12em] text-[#1B3A6B] font-bold bg-transparent px-3 py-1 rounded-full border border-[#1B3A6B] mb-2.5">Leadership &amp; Governance</span>
-        <h2 id="dignitaries-heading" class="text-lg xl:text-xl font-extrabold text-[#1B2A41]">Honorable Dignitaries</h2>
+        <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 rounded-full border border-brand-primary-dark mb-2.5">Leadership &amp; Governance</span>
+        <h2 id="dignitaries-heading" class="text-lg xl:text-xl font-extrabold text-brand-text">Honorable Dignitaries</h2>
         <div class="w-10 h-0.5 bg-[#D8681B] mt-2.5 rounded-full"></div>
       </div>
 
@@ -834,7 +834,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
             const profileHref = `/dignitaries/${d.id}`;
             const photoSrc = d.imageUrl || photoMap[d.name] || null;
             return (
-              <a href={profileHref} class="group bg-white rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:border-[#0B4F9C] transition-shadow transition-colors duration-200 p-6 flex flex-col items-center text-center h-full w-full relative overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C]">
+              <a href={profileHref} class="group bg-white rounded-xl border border-slate-200 shadow-xs hover:shadow-md hover:border-brand-primary transition-shadow transition-colors duration-200 p-6 flex flex-col items-center text-center h-full w-full relative overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C]">
                 <!-- Photo container (w-28 h-28 = 112px) - Static, no transition -->
                 <div class="w-28 h-28 rounded-full overflow-hidden bg-white border-2 border-slate-200 shadow-sm flex items-center justify-center flex-shrink-0 relative z-10">
                   {photoSrc ? (
@@ -847,9 +847,9 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                 </div>
                 <!-- Card Content -->
                 <div class="mt-4 flex-grow flex flex-col items-center justify-center gap-2 relative z-10">
-                  <h3 class="font-extrabold text-slate-800 text-[15px] md:text-[17px] leading-snug group-hover:text-[#0B4F9C] transition-colors">{d.name}</h3>
+                  <h3 class="font-extrabold text-slate-800 text-[15px] md:text-[17px] leading-snug group-hover:text-brand-primary transition-colors">{d.name}</h3>
                   <div class="mt-1">
-                    <span class="inline-block text-[11px] text-[#0B4F9C] font-extrabold uppercase tracking-wider bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+                    <span class="inline-block text-xs text-brand-primary font-extrabold uppercase tracking-wider bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
                       {d.position}
                     </span>
                   </div>
@@ -867,8 +867,8 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     <section id="about" aria-labelledby="about-heading" class="text-left mt-8">
       <!-- Section Header (Outside Card) -->
       <div class="text-left mb-4 flex-shrink-0">
-        <span class="inline-block text-[10px] uppercase tracking-[0.12em] text-[#1B3A6B] font-bold bg-transparent px-3 py-1 rounded-full border border-[#1B3A6B] mb-2.5">Corporate Profile & Media</span>
-        <h2 id="about-heading" class="text-xl md:text-2xl font-extrabold text-[#1B2A41]">About Us & Photo Gallery</h2>
+        <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 rounded-full border border-brand-primary-dark mb-2.5">Corporate Profile & Media</span>
+        <h2 id="about-heading" class="text-xl md:text-2xl font-extrabold text-brand-text">About Us & Photo Gallery</h2>
         <div class="w-10 h-0.5 bg-[#D8681B] mt-2.5 rounded-full"></div>
       </div>
 
@@ -879,7 +879,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
           <!-- Left: Text Column (7 cols) -->
           <div class="lg:col-span-7 flex flex-col justify-between h-full">
             <div>
-              <h3 class="text-2xl md:text-3xl font-extrabold leading-tight text-[#1B3A6B] mb-6">Powering J&amp;K Since 1995</h3>
+              <h3 class="text-2xl md:text-3xl font-extrabold leading-tight text-brand-primary-dark mb-6">Powering J&amp;K Since 1995</h3>
               <div class="space-y-4 mb-8">
                 <p class="text-slate-600 text-[15px] leading-[1.65]">
                   Jammu and Kashmir State Power Development Corporation Limited (JKSPDCL) is a wholly owned Public Sector Undertaking (PSU) of the Government of Jammu &amp; Kashmir, incorporated in 1995 under the Companies Act.
@@ -891,10 +891,10 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
             </div>
 
             <div class="flex flex-wrap items-center gap-3">
-              <a href="/about-us/explore/overview" class="inline-flex items-center gap-2 bg-[#1B3A6B] hover:bg-[#0B4F9C] text-white font-semibold px-6 py-2.5 rounded-lg text-xs transition-all shadow-sm hover:shadow-md">
+              <a href="/about-us/explore/overview" class="inline-flex items-center gap-2 bg-brand-primary-dark hover:bg-brand-primary text-white font-semibold px-6 py-2.5 rounded-lg text-xs transition-all shadow-sm hover:shadow-md">
                 Learn More About Us &rarr;
               </a>
-              <a href="/media/gallery" class="inline-flex items-center gap-2 border border-slate-200 hover:border-[#0B4F9C] text-slate-600 hover:text-[#0C58B6] hover:bg-slate-50 font-semibold px-6 py-2.5 rounded-lg text-xs transition-all bg-white shadow-sm">
+              <a href="/media/gallery" class="inline-flex items-center gap-2 border border-slate-200 hover:border-brand-primary text-slate-600 hover:text-brand-primary hover:bg-slate-50 font-semibold px-6 py-2.5 rounded-lg text-xs transition-all bg-white shadow-sm">
                 Explore Full Gallery &raquo;
               </a>
             </div>
@@ -903,8 +903,8 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
           <!-- Right: Project Photographs Carousel Column (5 cols) -->
           <div class="lg:col-span-5 flex flex-col justify-center w-full">
             <div class="text-left mb-2 flex items-center justify-between">
-              <span class="text-[11px] font-extrabold uppercase tracking-wider text-[#0B4F9C]">Project Photographs Carousel</span>
-              <span class="text-[10px] text-slate-400 font-semibold">Hydroelectric & Renewable Assets</span>
+              <span class="text-xs font-extrabold uppercase tracking-wider text-brand-primary">Project Photographs Carousel</span>
+              <span class="text-xs text-slate-400 font-semibold">Hydroelectric & Renewable Assets</span>
             </div>
             <div class="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-md border border-slate-200 bg-slate-900 group" id="project-carousel-container">
               
@@ -921,11 +921,11 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                     <!-- Overlay Caption -->
                     <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent flex flex-col justify-end p-5 z-10">
                       <div class="flex items-center gap-2 mb-2 flex-wrap">
-                        <span class="inline-block text-[9px] font-bold uppercase bg-[#0B4F9C] text-white px-2.5 py-0.5 rounded-full tracking-wider shadow-sm">
+                        <span class="inline-block text-xs font-bold uppercase bg-brand-primary text-white px-2.5 py-0.5 rounded-full tracking-wider shadow-sm">
                           {photo.partition || 'Hydroelectric Project'}
                         </span>
                         {photo.capacity && (
-                          <span class="inline-block text-[9px] font-bold uppercase bg-[#D8681B] text-white px-2 py-0.5 rounded-full tracking-wider shadow-sm">
+                          <span class="inline-block text-xs font-bold uppercase bg-[#D8681B] text-white px-2 py-0.5 rounded-full tracking-wider shadow-sm">
                             {photo.capacity}
                           </span>
                         )}
@@ -934,7 +934,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                         {photo.title}
                       </h4>
                       {photo.location && (
-                        <p class="text-white/80 text-[10px] mt-1 font-semibold flex items-center gap-1">
+                        <p class="text-white/80 text-xs mt-1 font-semibold flex items-center gap-1">
                           <Icon name="map-pin" size={11} class="shrink-0 text-white/90" />
                           <span>{photo.location}</span>
                         </p>
@@ -964,8 +964,8 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     <section id="projects" aria-labelledby="projects-heading" class="text-left mt-8">
       <!-- Section Header (Outside Card) -->
       <div class="text-left mb-4 flex-shrink-0">
-        <span class="inline-block text-[10px] uppercase tracking-[0.12em] text-[#1B3A6B] font-bold bg-transparent px-3 py-1 rounded-full border border-[#1B3A6B] mb-2.5">Project Portfolio</span>
-        <h2 id="projects-heading" class="text-xl md:text-2xl font-extrabold text-[#1B2A41]">Interactive Project Explorer</h2>
+        <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 rounded-full border border-brand-primary-dark mb-2.5">Project Portfolio</span>
+        <h2 id="projects-heading" class="text-xl md:text-2xl font-extrabold text-brand-text">Interactive Project Explorer</h2>
         <div class="w-10 h-0.5 bg-[#D8681B] mt-2.5 rounded-full"></div>
       </div>
 
@@ -983,7 +983,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                 <span class="w-2 h-2 rounded-full bg-amber-500"></span> {projects.filter((p: any) => p.status === 'Under Construction').length} Under Construction
               </div>
               <div class="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-700 font-semibold shadow-xs">
-                <span class="w-2 h-2 rounded-full bg-[#0B4F9C]"></span> {projects.filter((p: any) => p.status === 'Upcoming').length} Upcoming
+                <span class="w-2 h-2 rounded-full bg-brand-primary"></span> {projects.filter((p: any) => p.status === 'Upcoming').length} Upcoming
               </div>
             </div>
           </div>
@@ -999,7 +999,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                   role="tab" 
                   aria-selected={tab === 'All' ? 'true' : 'false'} 
                   data-tab={tab} 
-                  class={`project-tab px-4 py-1.5 rounded-md text-xs font-semibold transition-all ${tab === 'All' ? 'bg-[#0B4F9C] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}
+                  class={`project-tab px-4 py-1.5 rounded-md text-xs font-semibold transition-all ${tab === 'All' ? 'bg-brand-primary text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}
                 >
                   {tab === 'All' ? 'All Projects' : tab}
                 </button>
@@ -1023,7 +1023,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
         <!-- Project Cards Grid -->
         <div class="px-8 md:px-12 pt-6 pb-3">
           <div id="projects-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {projects.map((p) => (
+            {(projects.length > 0 ? projects : fallbackOperationalProjects).map((p) => (
               <a 
                 href={`/our-business/power-station-details?id=${p.id}`} 
                 class="project-card block bg-white rounded-xl border border-slate-200 p-5 hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C] group" 
@@ -1034,21 +1034,21 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
               >
                 <div class="flex items-start justify-between gap-2 mb-3">
                   <div class="flex-1 min-w-0 pr-1">
-                    <div class="font-bold text-slate-900 text-sm leading-snug group-hover:text-[#0B4F9C] transition-colors">{formatProjectName(p.name)}</div>
+                    <div class="font-bold text-slate-900 text-sm leading-snug group-hover:text-brand-primary transition-colors">{formatProjectName(p.name)}</div>
                     {(p.location || p.basin) && (
                       <div class="text-xs text-slate-400 mt-1">{p.location}{p.location && p.basin ? ' • ' : ''}{p.basin ? (p.basin.toLowerCase().includes('basin') ? p.basin : `${p.basin} Basin`) : ''}</div>
                     )}
                   </div>
-                  <span class={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full whitespace-nowrap flex-shrink-0 ${p.status === 'Operational' ? 'bg-emerald-100 text-emerald-800' : p.status === 'Under Construction' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'}`}>{p.status}</span>
+                  <span class={`status flex-shrink-0 ${p.status === 'Operational' ? 'status-operational' : p.status === 'Under Construction' ? 'status-under-construction' : 'status-upcoming'}`}>{p.status}</span>
                 </div>
 
                 <div class="flex items-baseline justify-between mb-3.5 pt-1 border-t border-slate-100">
                   <div class="flex items-baseline gap-1.5">
-                    <span class="text-3xl font-extrabold text-[#0B4F9C] leading-none tabular-nums">{p.capacityMw || 0}</span>
-                    <span class="text-xs text-[#0B4F9C] font-bold">MW</span>
+                    <span class="text-3xl font-extrabold text-brand-primary leading-none tabular-nums">{p.capacityMw || 0}</span>
+                    <span class="text-xs text-brand-primary font-bold">MW</span>
                   </div>
                   {p.configuration && (
-                    <span class="text-[11px] text-slate-500 font-medium">{p.configuration}</span>
+                    <span class="text-xs text-slate-500 font-medium">{p.configuration}</span>
                   )}
                 </div>
 
@@ -1057,10 +1057,10 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                     <Icon name={p.type === 'Solar' ? 'sun' : 'droplets'} size={12} strokeWidth={2} />
                     {p.type || 'Hydro'}
                   </span>
-                  <span class="text-slate-400 text-[11px]">
+                  <span class="text-xs text-slate-400">
                     {p.yearOfCommissioning ? (p.status === 'Operational' ? `COD: ${p.yearOfCommissioning}` : `Est. ${p.yearOfCommissioning}`) : (p.status === 'Upcoming' ? 'Pre-Construction' : '—')}
                   </span>
-                  <span class="text-[#0B4F9C] font-semibold group-hover:underline text-[11px]">Details &rarr;</span>
+                  <span class="text-brand-primary font-semibold group-hover:underline text-xs">Details &rarr;</span>
                 </div>
               </a>
             ))}
@@ -1089,7 +1089,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
 
         <!-- View All Action Footer -->
         <div class="px-8 md:px-12 pt-6 pb-10 text-center border-t border-slate-100 mt-4">
-          <a id="project-view-all-btn" href="#projects" class="inline-flex items-center gap-2 bg-[#1B3A6B] hover:bg-[#0B4F9C] text-white px-8 py-3 rounded-lg text-sm font-semibold transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C] cursor-pointer">
+          <a id="project-view-all-btn" href="#projects" class="inline-flex items-center gap-2 bg-brand-primary-dark hover:bg-brand-primary text-white px-8 py-3 rounded-lg text-sm font-semibold transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C] cursor-pointer">
             Show All Projects ({projects.length}) &darr;
           </a>
         </div>
@@ -1104,8 +1104,8 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     <section aria-labelledby="quick-access-heading" class="text-left mt-8">
       <!-- Section Header (Outside Card) -->
       <div class="text-left mb-4 flex-shrink-0">
-        <span class="inline-block text-[10px] uppercase tracking-[0.12em] text-[#1B3A6B] font-bold bg-transparent px-3 py-1 rounded-full border border-[#1B3A6B] mb-2.5">Quick Access</span>
-        <h2 id="quick-access-heading" class="text-xl md:text-2xl font-extrabold text-[#1B2A41]">Navigate the Corporation</h2>
+        <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 rounded-full border border-brand-primary-dark mb-2.5">Quick Access</span>
+        <h2 id="quick-access-heading" class="text-xl md:text-2xl font-extrabold text-brand-text">Navigate the Corporation</h2>
         <div class="w-10 h-0.5 bg-[#D8681B] mt-2.5 rounded-full"></div>
       </div>
 
@@ -1118,14 +1118,14 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {quickLinks.map((link) => (
               <a href={link.href} class="group relative bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-300 hover:shadow-md hover:-translate-y-1 transition-all duration-200 overflow-hidden flex flex-col gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C]">
-                <div class="w-12 h-12 rounded-xl bg-slate-100 text-[#0B4F9C] group-hover:bg-[#0B4F9C] group-hover:text-white flex items-center justify-center flex-shrink-0 transition-all duration-200 shadow-xs group-hover:shadow-sm relative z-10">
+                <div class="w-12 h-12 rounded-xl bg-slate-100 text-brand-primary group-hover:bg-brand-primary group-hover:text-white flex items-center justify-center flex-shrink-0 transition-all duration-200 shadow-xs group-hover:shadow-sm relative z-10">
                   <Icon name={link.icon} size={22} strokeWidth={1.75} />
                 </div>
                 <div class="relative z-10">
-                  <div class="font-bold text-slate-800 text-sm leading-snug group-hover:text-[#0B4F9C] transition-colors">{link.label}</div>
+                  <div class="font-bold text-slate-800 text-sm leading-snug group-hover:text-brand-primary transition-colors">{link.label}</div>
                   <div class="text-xs text-slate-500 mt-1 leading-relaxed">{link.desc}</div>
                 </div>
-                <span class="absolute bottom-4 right-4 text-[#0B4F9C] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 text-base font-extrabold z-10">&rarr;</span>
+                <span class="absolute bottom-4 right-4 text-brand-primary opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 text-base font-extrabold z-10">&rarr;</span>
               </a>
             ))}
           </div>
@@ -1140,8 +1140,8 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
       <!-- Section Header -->
       <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-4">
         <div>
-          <span class="inline-block text-[10px] uppercase tracking-[0.12em] text-[#0B4F9C] font-bold bg-[#0B4F9C]/5 px-3 py-1 rounded-full border border-[#0B4F9C]/20 mb-2">Government &amp; Regulatory Portals</span>
-          <h2 id="marquee-heading" class="text-xl md:text-2xl font-extrabold text-[#1B2A41]">Important Quick Links</h2>
+          <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary font-bold bg-brand-primary/5 px-3 py-1 rounded-full border border-brand-primary/20 mb-2">Government &amp; Regulatory Portals</span>
+          <h2 id="marquee-heading" class="text-xl md:text-2xl font-extrabold text-brand-text">Important Quick Links</h2>
           <div class="w-10 h-0.5 bg-[#D8681B] mt-2 rounded-full"></div>
         </div>
       </div>
@@ -1155,16 +1155,16 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
           target="_blank" 
           rel="noopener noreferrer" 
           title="Central Electricity Authority (opens in new tab)"
-          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl py-2.5 px-2 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full shadow-2xs"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl py-2.5 px-2 hover:border-brand-primary hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full shadow-2xs"
         >
           <div class="h-9 w-full flex items-center justify-center mb-1">
             <img src="/logos/cea.webp" alt="Central Electricity Authority Emblem" class="max-h-7 max-w-[80%] object-contain group-hover:scale-105 transition-transform duration-200" />
           </div>
           <div class="w-full flex-1 flex flex-col justify-between">
-            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[10.5px] leading-tight transition-colors break-words">
+            <p class="font-bold text-slate-800 group-hover:text-brand-primary text-xs leading-tight transition-colors break-words">
               Central Electricity Authority
             </p>
-            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[9.5px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
+            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-xs text-slate-500 group-hover:text-brand-primary transition-colors">
               <span class="font-medium truncate">cea.nic.in</span>
               <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
             </div>
@@ -1178,16 +1178,16 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
           target="_blank" 
           rel="noopener noreferrer" 
           title="Ministry of Environment, Forest and Climate Change (opens in new tab)"
-          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl py-2.5 px-2 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full shadow-2xs"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl py-2.5 px-2 hover:border-brand-primary hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full shadow-2xs"
         >
           <div class="h-9 w-full flex items-center justify-center mb-1">
             <img src="/logos/moef.png" alt="Ministry of Environment, Forest and Climate Change Emblem" class="max-h-7 max-w-[80%] object-contain group-hover:scale-105 transition-transform duration-200" />
           </div>
           <div class="w-full flex-1 flex flex-col justify-between">
-            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[10.5px] leading-tight transition-colors break-words">
+            <p class="font-bold text-slate-800 group-hover:text-brand-primary text-xs leading-tight transition-colors break-words">
               Ministry of Environment &amp; Forests
             </p>
-            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[9.5px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
+            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-xs text-slate-500 group-hover:text-brand-primary transition-colors">
               <span class="font-medium truncate">moef.gov.in</span>
               <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
             </div>
@@ -1201,16 +1201,16 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
           target="_blank" 
           rel="noopener noreferrer" 
           title="National Portal of India (opens in new tab)"
-          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl py-2.5 px-2 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full shadow-2xs"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl py-2.5 px-2 hover:border-brand-primary hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full shadow-2xs"
         >
           <div class="h-9 w-full flex items-center justify-center mb-1">
             <img src="/logos/india.svg" alt="National Portal of India Emblem" class="max-h-6.5 max-w-[80%] object-contain group-hover:scale-105 transition-transform duration-200" />
           </div>
           <div class="w-full flex-1 flex flex-col justify-between">
-            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[10.5px] leading-tight transition-colors break-words">
+            <p class="font-bold text-slate-800 group-hover:text-brand-primary text-xs leading-tight transition-colors break-words">
               National Portal of India
             </p>
-            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[9.5px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
+            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-xs text-slate-500 group-hover:text-brand-primary transition-colors">
               <span class="font-medium truncate">india.gov.in</span>
               <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
             </div>
@@ -1224,16 +1224,16 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
           target="_blank" 
           rel="noopener noreferrer" 
           title="Ministry of New and Renewable Energy (opens in new tab)"
-          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl py-2.5 px-2 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full shadow-2xs"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl py-2.5 px-2 hover:border-brand-primary hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full shadow-2xs"
         >
           <div class="h-9 w-full flex items-center justify-center mb-1">
             <img src="/logos/mnre.svg" alt="Ministry of New and Renewable Energy Emblem" class="max-h-7 max-w-[80%] object-contain group-hover:scale-105 transition-transform duration-200" />
           </div>
           <div class="w-full flex-1 flex flex-col justify-between">
-            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[10.5px] leading-tight transition-colors break-words">
+            <p class="font-bold text-slate-800 group-hover:text-brand-primary text-xs leading-tight transition-colors break-words">
               Ministry of New &amp; Renewable Energy
             </p>
-            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[9.5px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
+            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-xs text-slate-500 group-hover:text-brand-primary transition-colors">
               <span class="font-medium truncate">mnre.gov.in</span>
               <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
             </div>
@@ -1247,16 +1247,16 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
           target="_blank" 
           rel="noopener noreferrer" 
           title="Power Development Department, Government of J&K (opens in new tab)"
-          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl py-2.5 px-2 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full shadow-2xs"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl py-2.5 px-2 hover:border-brand-primary hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full shadow-2xs"
         >
           <div class="h-9 w-full flex items-center justify-center mb-1">
             <img src="/logos/pdd.svg" alt="Power Development Department Emblem" class="max-h-7 max-w-[80%] object-contain p-0.5 group-hover:scale-105 transition-transform duration-200" />
           </div>
           <div class="w-full flex-1 flex flex-col justify-between">
-            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[10.5px] leading-tight transition-colors break-words">
+            <p class="font-bold text-slate-800 group-hover:text-brand-primary text-xs leading-tight transition-colors break-words">
               Power Development Dept (J&amp;K)
             </p>
-            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[9.5px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
+            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-xs text-slate-500 group-hover:text-brand-primary transition-colors">
               <span class="font-medium truncate">pdd.jk.gov.in</span>
               <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
             </div>
@@ -1270,16 +1270,16 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
           target="_blank" 
           rel="noopener noreferrer" 
           title="Central Water Commission (opens in new tab)"
-          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl py-2.5 px-2 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full shadow-2xs"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl py-2.5 px-2 hover:border-brand-primary hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full shadow-2xs"
         >
           <div class="h-9 w-full flex items-center justify-center mb-1">
             <img src="/logos/cwc.png" alt="Central Water Commission Emblem" class="max-h-7 max-w-[80%] object-contain group-hover:scale-105 transition-transform duration-200" />
           </div>
           <div class="w-full flex-1 flex flex-col justify-between">
-            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[10.5px] leading-tight transition-colors break-words">
+            <p class="font-bold text-slate-800 group-hover:text-brand-primary text-xs leading-tight transition-colors break-words">
               Central Water Commission
             </p>
-            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[9.5px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
+            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-xs text-slate-500 group-hover:text-brand-primary transition-colors">
               <span class="font-medium truncate">cwc.gov.in</span>
               <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
             </div>
@@ -1293,16 +1293,16 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
           target="_blank" 
           rel="noopener noreferrer" 
           title="J&K Joint Electricity Regulatory Commission (opens in new tab)"
-          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl py-2.5 px-2 hover:border-[#0B4F9C] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full shadow-2xs"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-xl py-2.5 px-2 hover:border-brand-primary hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full shadow-2xs"
         >
           <div class="h-9 w-full flex items-center justify-center mb-1">
             <img src="/logos/jerc.png" alt="J&K Joint Electricity Regulatory Commission Emblem" class="max-h-7 max-w-[80%] object-contain group-hover:scale-105 transition-transform duration-200" />
           </div>
           <div class="w-full flex-1 flex flex-col justify-between">
-            <p class="font-bold text-slate-800 group-hover:text-[#0B4F9C] text-[10.5px] leading-tight transition-colors break-words">
+            <p class="font-bold text-slate-800 group-hover:text-brand-primary text-xs leading-tight transition-colors break-words">
               J&amp;K Electricity Regulatory Commission
             </p>
-            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-[9.5px] text-slate-500 group-hover:text-[#0B4F9C] transition-colors">
+            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-xs text-slate-500 group-hover:text-brand-primary transition-colors">
               <span class="font-medium truncate">jercjkl.jk.gov.in</span>
               <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
             </div>
@@ -1509,7 +1509,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     tabBtns.forEach(function(btn) {
       var isCurrent = btn.dataset.tab === activeTab;
       if (isCurrent) {
-        btn.className = 'project-tab px-4 py-1.5 rounded-md text-xs font-semibold transition-all bg-[#0B4F9C] text-white shadow-sm';
+        btn.className = 'project-tab px-4 py-1.5 rounded-md text-xs font-semibold transition-all bg-brand-primary text-white shadow-sm';
         btn.setAttribute('aria-selected', 'true');
       } else {
         btn.className = 'project-tab px-4 py-1.5 rounded-md text-xs font-semibold transition-all text-slate-600 hover:bg-slate-100';
@@ -1612,6 +1612,24 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
 </script>
 
 <style is:global>
+  /* Hero: responsive height via aspect-ratio, no fixed pixels, no CLS */
+  .hero-section {
+    aspect-ratio: 16 / 9;
+    max-height: 540px;
+    width: 100%;
+  }
+  @media (min-width: 768px) {
+    .hero-section {
+      aspect-ratio: 21 / 9;
+    }
+  }
+  @media (min-width: 1280px) {
+    .hero-section {
+      aspect-ratio: 2 / 1;
+      min-height: 480px;
+    }
+  }
+
   @keyframes marquee-vertical {
     0% {
       transform: translate3d(0, 0, 0);
@@ -1689,6 +1707,18 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     document.addEventListener('visibilitychange', function() {
       if (!document.hidden) {
         ensureFeedRunning();
+      }
+    });
+
+    // Keyboard users: pause the feed while any link inside it has focus (GIGW)
+    document.addEventListener('focusin', function(e) {
+      var track = e.target.closest && e.target.closest('.feed-scroll-track, .scroll-track');
+      if (track) { track.style.animationPlayState = 'paused'; }
+    });
+    document.addEventListener('focusout', function(e) {
+      var track = e.target.closest && e.target.closest('.feed-scroll-track, .scroll-track');
+      if (track && !(track.contains(document.activeElement))) {
+        track.style.animationPlayState = 'running';
       }
     });
   })();

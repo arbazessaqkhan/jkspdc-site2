@@ -17,8 +17,8 @@ let tickerItems: TickerItem[] = items;
 if (tickerItems.length === 0) {
   try {
     const [tendersRes, notifsRes] = await Promise.all([
-      fetch('http://localhost:3000/api/public/tenders').catch(() => null),
-      fetch('http://localhost:3000/api/public/notifications').catch(() => null),
+      fetch(`${import.meta.env.PUBLIC_API_BASE}/api/public/tenders`).catch(() => null),
+      fetch(`${import.meta.env.PUBLIC_API_BASE}/api/public/notifications`).catch(() => null),
     ]);
 
     let tenders: any[] = [];
@@ -61,7 +61,7 @@ if (tickerItems.length === 0) {
       .slice(0, 3);
 
     recentNotifs.forEach((n: any) => {
-      const docUrl = n.documentUrl ? (n.documentUrl.startsWith('/uploads/') ? `http://localhost:3000${n.documentUrl}` : n.documentUrl) : '/notifications';
+      const docUrl = n.documentUrl ? (n.documentUrl.startsWith('/uploads/') ? `${import.meta.env.PUBLIC_API_BASE}${n.documentUrl}` : n.documentUrl) : '/notifications';
       fetched.push({
         type: 'NOTICE',
         text: `${n.title}${n.fileName ? ` (${n.fileName})` : ''}`,

@@ -68,7 +68,7 @@ import Layout from '../layouts/Layout.astro';
         if (response.ok) {
           searchIndex = await response.json();
         }
-        const projectsRes = await fetch('http://localhost:3000/api/projects');
+        const projectsRes = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/projects`);
         if (projectsRes.ok) {
           const projects = await projectsRes.json();
           projects.forEach((p: any) => {

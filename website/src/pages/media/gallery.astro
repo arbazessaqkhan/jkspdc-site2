@@ -7,7 +7,7 @@ let errorMessage = '';
 
 try {
   // Fetch from 127.0.0.1 to avoid local DNS/IPv6 connection failures
-  const res = await fetch('http://127.0.0.1:3000/api/gallery');
+  const res = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/gallery`);
   if (res.ok) {
     galleryItems = await res.json();
   } else {
@@ -61,7 +61,7 @@ const uniquePartitions = [...new Set(galleryItems.map(item => item.partition).fi
 function getImageUrl(url: string) {
   if (!url) return '';
   if (url.startsWith('/uploads/')) {
-    return `http://127.0.0.1:3000${url}`;
+    return `${import.meta.env.PUBLIC_API_BASE}${url}`;
   }
   return url;
 }

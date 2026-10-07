@@ -70,7 +70,7 @@ const fallbackIppPhases = [
 // Fetch live IPP projects directly from the backend database (same database as Admin portal)
 let dbProjects: any[] = [];
 try {
-  const res = await fetch('http://localhost:3000/api/ipp-projects').catch(() => null);
+  const res = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/ipp-projects`).catch(() => null);
   if (res && res.ok) {
     dbProjects = await res.json();
   }

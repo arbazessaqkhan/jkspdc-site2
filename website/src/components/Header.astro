@@ -218,7 +218,8 @@ import Ticker from './Ticker.astro';
   </nav>
 
   <!-- Header Search Autocomplete Script -->
-  <script is:inline>
+  <script is:inline>var API_BASE = window.__API_BASE__;
+
     (function() {
       var searchForm = document.getElementById('header-search-form');
       var searchInput = document.getElementById('header-search');
@@ -247,7 +248,7 @@ import Ticker from './Ticker.astro';
           console.error('Failed to load sitemap search index:', err);
         }
         try {
-          var projectsRes = await fetch('http://localhost:3000/api/projects');
+          var projectsRes = await fetch('window.__API_BASE__/api/projects');
           if (projectsRes.ok) {
             var projects = await projectsRes.json();
             projects.forEach(function(p) {
