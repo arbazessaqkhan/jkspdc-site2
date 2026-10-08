@@ -92,14 +92,14 @@ html {
 
 @theme {
   /* === Government PSU Palette (Hydro Power Theme) === */
-  --color-brand-primary: #0786CF;        /* logo swoosh blue — links, interactive */
+  --color-brand-primary: #05649B;        /* logo swoosh blue — links, interactive */
   --color-brand-primary-dark: #0D064C;   /* logo lettering indigo — nav, headers, anchors */
   --color-brand-primary-deeper: #0D064C; /* deepest indigo — footer */
   --color-brand-secondary: #06741A;      /* logo green bolt — renewable/metrics */
   --color-brand-secondary-hover: #055914;
   --color-brand-accent: #0EA4E5;         /* logo bright cyan — highlights */
-  --color-brand-accent-hover: #0786CF;
-  --color-brand-hydro-cyan: #A4D7F4;     /* logo pale swoosh */
+  --color-brand-accent-hover: #05649B;
+  --color-brand-hydro-cyan: #52B5E8;     /* logo pale swoosh */
   --color-brand-hydro-teal: #A4D7F4;
 
   --color-brand-text: #334155;
@@ -292,7 +292,7 @@ td {
    ═══════════════════════════════════════════════════════════════ */
 .page-header-band {
   position: relative;
-  background: linear-gradient(135deg, #0D064C 0%, #134E6F 40%, #0786CF 100%);
+  background: linear-gradient(135deg, #0D064C 0%, #134E6F 40%, #05649B 100%);
   padding: 2rem 2rem 2.25rem;
   margin: -2rem -1rem 2.5rem;
   overflow: hidden;
@@ -451,7 +451,7 @@ td {
 /* Callout boxes inside prose */
 .prose-gov .callout {
   background: linear-gradient(135deg, rgba(11, 79, 156, 0.04) 0%, rgba(7, 59, 117, 0.04) 100%);
-  border-left: 4px solid #0786CF;
+  border-left: 4px solid #05649B;
   border-radius: 0 8px 8px 0;
   padding: 1.125rem 1.25rem;
   margin: 1.5rem 0;
@@ -553,7 +553,7 @@ td {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: #0786CF;
+  background-color: #05649B;
   color: #ffffff;
   font-weight: 700;
   font-size: 0.875rem;
@@ -642,7 +642,7 @@ td {
   cursor: pointer;
 
   &:hover {
-    background-color: #0786CF;
+    background-color: #05649B;
     color: #ffffff;
     transform: translateY(-1px);
     box-shadow: 0 2px 6px rgba(11, 79, 156, 0.2);
@@ -779,7 +779,7 @@ tbody tr:hover {
     outline: 2px solid var(--focus-ring-color);
     outline-offset: 0;
     border-color: #0D064C;
-    box-shadow: 0 0 0 1px #0786CF;
+    box-shadow: 0 0 0 1px #05649B;
   }
 }
 
@@ -802,7 +802,7 @@ tbody tr:hover {
     outline: 2px solid var(--focus-ring-color);
     outline-offset: 0;
     border-color: #0D064C;
-    box-shadow: 0 0 0 1px #0786CF;
+    box-shadow: 0 0 0 1px #05649B;
   }
 }
 
@@ -874,7 +874,7 @@ tbody tr:hover {
 .table-data th,
 .admin-table thead th,
 .admin-table th {
-  background-color: #0786CF;
+  background-color: #05649B;
   color: #FFFFFF;
   font-weight: 700;
   font-size: 0.72rem;
@@ -1201,7 +1201,7 @@ tbody tr:hover {
 }
 
 .admin-btn-primary {
-  background-color: #0786CF;
+  background-color: #05649B;
   color: #FFFFFF;
   border-color: #0D064C;
   box-shadow: 0 1px 2px rgba(11, 79, 156, 0.12);
@@ -1523,7 +1523,7 @@ tbody tr:hover {
 }
 
 .prose-gov blockquote {
-  border-left: 4px solid #0786CF !important;
+  border-left: 4px solid #05649B !important;
   padding-left: 1rem !important;
   font-style: italic !important;
   color: #475569 !important;
