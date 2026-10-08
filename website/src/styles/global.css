@@ -92,27 +92,27 @@ html {
 
 @theme {
   /* === Government PSU Palette (Hydro Power Theme) === */
-  --color-brand-primary: #1985B4;        /* logo swoosh blue — links, interactive */
-  --color-brand-primary-dark: #0F025E;   /* logo lettering indigo — nav, headers, anchors */
-  --color-brand-primary-deeper: #0A0244; /* deepest indigo — footer */
-  --color-brand-secondary: #028D28;      /* logo green bolt — renewable/metrics */
-  --color-brand-secondary-hover: #027321;
-  --color-brand-accent: #07A7E8;         /* logo bright cyan — highlights */
-  --color-brand-accent-hover: #1985B4;
-  --color-brand-hydro-cyan: #95D0F7;     /* logo pale swoosh */
-  --color-brand-hydro-teal: #7FDBA4;
+  --color-brand-primary: #0786CF;        /* logo swoosh blue — links, interactive */
+  --color-brand-primary-dark: #0D064C;   /* logo lettering indigo — nav, headers, anchors */
+  --color-brand-primary-deeper: #0D064C; /* deepest indigo — footer */
+  --color-brand-secondary: #06741A;      /* logo green bolt — renewable/metrics */
+  --color-brand-secondary-hover: #055914;
+  --color-brand-accent: #0EA4E5;         /* logo bright cyan — highlights */
+  --color-brand-accent-hover: #0786CF;
+  --color-brand-hydro-cyan: #A4D7F4;     /* logo pale swoosh */
+  --color-brand-hydro-teal: #A4D7F4;
 
-  --color-brand-text: #1A1A2E;
-  --color-brand-muted: #3D5566;
-  --color-brand-border: #E2E8F0;
+  --color-brand-text: #334155;
+  --color-brand-muted: #64748B;
+  --color-brand-border: #D9E5EE;
   --color-brand-success: #1E8E3E;
   --color-brand-warning: #D97706;
   --color-brand-error: #C62828;
 
-  --color-brand-bg-subtle: #F2F9FE;      /* pale swoosh tint — bands */
-  --color-brand-bg-light: #E3F3FC;       /* light cyan band */
-  --color-brand-header-tint: #E3F3FC;
-  --color-brand-footer: #0A0244;         /* logo indigo */
+  --color-brand-bg-subtle: #F4F8FB;      /* pale swoosh tint — bands */
+  --color-brand-bg-light: #A4D7F4;     /* pale water blue */
+  --color-brand-header-tint: #A4D7F4;
+  --color-brand-footer: #0D064C;         /* logo indigo */
 
   --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
   --shadow-card-hover: 0 4px 12px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
@@ -292,7 +292,7 @@ td {
    ═══════════════════════════════════════════════════════════════ */
 .page-header-band {
   position: relative;
-  background: linear-gradient(135deg, #0F025E 0%, #134E6F 40%, #1985B4 100%);
+  background: linear-gradient(135deg, #0D064C 0%, #134E6F 40%, #0786CF 100%);
   padding: 2rem 2rem 2.25rem;
   margin: -2rem -1rem 2.5rem;
   overflow: hidden;
@@ -416,7 +416,7 @@ td {
   font-family: var(--font-heading);
   font-size: 1.15rem;
   font-weight: 700;
-  color: #0F025E;
+  color: #0D064C;
   margin-top: 2rem;
   margin-bottom: 0.75rem;
   padding-left: 0.875rem;
@@ -445,13 +445,13 @@ td {
 }
 
 .prose-gov li::marker {
-  color: #0F025E;
+  color: #0D064C;
 }
 
 /* Callout boxes inside prose */
 .prose-gov .callout {
   background: linear-gradient(135deg, rgba(11, 79, 156, 0.04) 0%, rgba(7, 59, 117, 0.04) 100%);
-  border-left: 4px solid #1985B4;
+  border-left: 4px solid #0786CF;
   border-radius: 0 8px 8px 0;
   padding: 1.125rem 1.25rem;
   margin: 1.5rem 0;
@@ -500,7 +500,7 @@ td {
   padding: 0.375rem 0;
   font-size: 0.8rem;
   font-weight: 600;
-  color: #0F025E;
+  color: #0D064C;
   transition: all 0.2s ease;
 }
 
@@ -553,7 +553,7 @@ td {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: #1985B4;
+  background-color: #0786CF;
   color: #ffffff;
   font-weight: 700;
   font-size: 0.875rem;
@@ -565,7 +565,7 @@ td {
   cursor: pointer;
 
   &:hover {
-    background-color: #0F025E;
+    background-color: #0D064C;
     transform: translateY(-1px);
     box-shadow: 0 3px 8px rgba(15, 40, 55, 0.25);
   }
@@ -642,7 +642,7 @@ td {
   cursor: pointer;
 
   &:hover {
-    background-color: #1985B4;
+    background-color: #0786CF;
     color: #ffffff;
     transform: translateY(-1px);
     box-shadow: 0 2px 6px rgba(11, 79, 156, 0.2);
@@ -734,7 +734,7 @@ td {
 /* 2. Primary Navigation Bar Dropdown Items */
 nav[aria-label="Primary Navigation"] div.absolute a:hover {
   background-color: #F1F5F9 !important;
-  color: #0F025E !important;
+  color: #0D064C !important;
 }
 
 /* 3. Table Rows */
@@ -778,8 +778,8 @@ tbody tr:hover {
   &:focus-visible {
     outline: 2px solid var(--focus-ring-color);
     outline-offset: 0;
-    border-color: #0F025E;
-    box-shadow: 0 0 0 1px #1985B4;
+    border-color: #0D064C;
+    box-shadow: 0 0 0 1px #0786CF;
   }
 }
 
@@ -801,8 +801,8 @@ tbody tr:hover {
   &:focus-visible {
     outline: 2px solid var(--focus-ring-color);
     outline-offset: 0;
-    border-color: #0F025E;
-    box-shadow: 0 0 0 1px #1985B4;
+    border-color: #0D064C;
+    box-shadow: 0 0 0 1px #0786CF;
   }
 }
 
@@ -874,7 +874,7 @@ tbody tr:hover {
 .table-data th,
 .admin-table thead th,
 .admin-table th {
-  background-color: #1985B4;
+  background-color: #0786CF;
   color: #FFFFFF;
   font-weight: 700;
   font-size: 0.72rem;
@@ -1031,13 +1031,13 @@ tbody tr:hover {
 
 .admin-btn-action:hover {
   background-color: #EAF4FF;
-  border-color: #0F025E;
-  color: #0F025E;
+  border-color: #0D064C;
+  color: #0D064C;
   box-shadow: 0 1px 2px rgba(11, 79, 156, 0.1);
 }
 
 .admin-btn-action:focus-visible {
-  outline: 2px solid #0F025E;
+  outline: 2px solid #0D064C;
   outline-offset: 1px;
 }
 
@@ -1072,12 +1072,12 @@ tbody tr:hover {
 .admin-btn-action.action-download {
   border-color: #CBD5E1;
   background-color: #F8FAFC;
-  color: #0F025E;
+  color: #0D064C;
 }
 
 .admin-btn-action.action-download:hover {
   background-color: #EAF4FF;
-  border-color: #0F025E;
+  border-color: #0D064C;
   color: #073B75;
 }
 
@@ -1196,14 +1196,14 @@ tbody tr:hover {
 }
 
 .admin-btn:focus-visible {
-  outline: 2px solid #0F025E;
+  outline: 2px solid #0D064C;
   outline-offset: 1px;
 }
 
 .admin-btn-primary {
-  background-color: #1985B4;
+  background-color: #0786CF;
   color: #FFFFFF;
-  border-color: #0F025E;
+  border-color: #0D064C;
   box-shadow: 0 1px 2px rgba(11, 79, 156, 0.12);
 }
 
@@ -1241,7 +1241,7 @@ tbody tr:hover {
 .admin-page-title {
   font-size: 1.125rem;
   font-weight: 800;
-  color: #0F025E;
+  color: #0D064C;
   letter-spacing: -0.015em;
   line-height: 1.25;
   margin: 0;
@@ -1458,7 +1458,7 @@ tbody tr:hover {
 
 /* ── Government Rich Text Content Styling (.prose-gov) ─────────────────────── */
 .prose-gov a:not(.btn-primary):not(.btn-secondary):not([class*="btn-"]):not([class*="bg-"]) {
-  color: #0F025E !important;
+  color: #0D064C !important;
   text-decoration: underline !important;
   font-weight: 600 !important;
   transition: color 0.2s ease;
@@ -1516,14 +1516,14 @@ tbody tr:hover {
 .prose-gov h3,
 .prose-gov h4 {
   font-weight: 800 !important;
-  color: #0F025E !important;
+  color: #0D064C !important;
   margin-top: 1rem !important;
   margin-bottom: 0.5rem !important;
   text-wrap: wrap !important;
 }
 
 .prose-gov blockquote {
-  border-left: 4px solid #1985B4 !important;
+  border-left: 4px solid #0786CF !important;
   padding-left: 1rem !important;
   font-style: italic !important;
   color: #475569 !important;
