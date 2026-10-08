@@ -259,7 +259,7 @@ if (tickerItems.length === 0) {
       }
 
       .nav-sublink-active {
-        background-color: #EFF6FF !important;
+        background-color: #F4F8FB !important;
         color: #0B3B60 !important;
         font-weight: 700 !important;
         border-left: 4px solid #0B3B60 !important;
@@ -694,14 +694,14 @@ if (tickerItems.length === 0) {
     </header>
 
     <!-- Navigation Bar (Sticky Top-0 Globally Across Entire Website) -->
-    <nav class="bg-[#0B3B60] border-t border-white/10 shadow-xl sticky top-0 z-50 transition-all duration-200" aria-label="Primary Navigation">
+    <nav class="bg-[#0B3B60] border-t-2 border-[#002B49] sticky top-0 z-50" aria-label="Primary Navigation">
         <div class="max-w-[1400px] mx-auto px-2 sm:px-3 lg:px-4 nav-scroll-container">
           <ul class="flex flex-nowrap w-full justify-between items-center text-[13px] sm:text-[13.5px] lg:text-[13.5px] xl:text-[14.5px] 2xl:text-[15.5px] font-bold whitespace-nowrap min-w-0">
             <!-- Home -->
             <li>
               <a 
                 href="/" 
-                class={`nav-link block px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 text-white transition-all duration-150 border-b-[3px] focus-visible:outline-none focus-visible:bg-white/15 ${
+                class={`nav-link block px-2.5 xl:px-3.5 py-3.5 text-white transition-colors duration-150 border-b-[3px] focus-visible:outline-none focus-visible:bg-white/15 ${
                   isSectionActive('home')
                     ? 'border-[#0B3B60] bg-white/10 font-bold nav-item-active' 
                     : 'border-transparent hover:border-white/60 hover:bg-white/10'
@@ -714,7 +714,7 @@ if (tickerItems.length === 0) {
             <!-- About Us -->
             <li class="relative nav-dropdown-item">
               <button 
-                class={`nav-dropdown-btn flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 transition-all duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
+                class={`nav-dropdown-btn flex items-center gap-1 px-2.5 xl:px-3.5 py-3.5 transition-colors duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
                   isSectionActive('about')
                     ? 'border-[#0B3B60] bg-white/10 font-bold nav-item-active'
                     : 'border-transparent hover:border-white/60 hover:bg-white/10'
@@ -725,15 +725,15 @@ if (tickerItems.length === 0) {
                 About Us
                 <Icon name="chevron-down" size={10} strokeWidth={2.5} class="dropdown-arrow transition-transform duration-200 shrink-0" />
               </button>
-              <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B3B60] rounded-b-lg z-50 py-2 w-[260px]">
-                <ul class="flex flex-col gap-0.5 text-xs px-2">
-                  <li><a href="/about-us/explore/overview" class={`block p-2 rounded transition-colors ${currentPath === '/about-us/explore/overview' ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B3B60]'}`}>About Us</a></li>
-                  <li><a href="/about-us/explore/association-memorandum" class={`block p-2 rounded transition-colors ${currentPath === '/about-us/explore/association-memorandum' ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B3B60]'}`}>MoA &amp; AoA</a></li>
-                  <li><a href="/about-us/explore/organization-chart" class={`block p-2 rounded transition-colors ${currentPath === '/about-us/explore/organization-chart' ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B3B60]'}`}>Organizational Structure</a></li>
-                  <li><a href="/about-us/management/board" class={`block p-2 rounded transition-colors ${currentPath === '/about-us/management/board' ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B3B60]'}`}>Board Of Director</a></li>
-                  <li><a href="/about-us/explore/gstin-registration" class={`block p-2 rounded transition-colors ${currentPath === '/about-us/explore/gstin-registration' ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B3B60]'}`}>GSTIN Registration Details</a></li>
-                  <li><a href="/about-us/explore/policies" class={`block p-2 rounded transition-colors ${currentPath === '/about-us/explore/policies' ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B3B60]'}`}>Policies</a></li>
-                  <li><a href="/sustainability/csr/policy" class={`block p-2 rounded transition-colors ${currentPath === '/sustainability/csr/policy' ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B3B60]'}`}>CSR Policy</a></li>
+              <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-lg border-t-[3px] border-[#0B3B60] rounded-b-sm z-50 py-2 w-[260px]">
+                <ul class="flex flex-col gap-0.5 px-2 pb-1.5">
+                  <li><a href="/about-us/explore/overview" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath === '/about-us/explore/overview' ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>About Us</a></li>
+                  <li><a href="/about-us/explore/association-memorandum" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath === '/about-us/explore/association-memorandum' ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>MoA &amp; AoA</a></li>
+                  <li><a href="/about-us/explore/organization-chart" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath === '/about-us/explore/organization-chart' ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>Organizational Structure</a></li>
+                  <li><a href="/about-us/management/board" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath === '/about-us/management/board' ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>Board Of Director</a></li>
+                  <li><a href="/about-us/explore/gstin-registration" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath === '/about-us/explore/gstin-registration' ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>GSTIN Registration Details</a></li>
+                  <li><a href="/about-us/explore/policies" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath === '/about-us/explore/policies' ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>Policies</a></li>
+                  <li><a href="/sustainability/csr/policy" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath === '/sustainability/csr/policy' ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>CSR Policy</a></li>
                 </ul>
               </div>
             </li>
@@ -741,7 +741,7 @@ if (tickerItems.length === 0) {
             <!-- Projects -->
             <li class="relative nav-dropdown-item">
               <button 
-                class={`nav-dropdown-btn flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 transition-all duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
+                class={`nav-dropdown-btn flex items-center gap-1 px-2.5 xl:px-3.5 py-3.5 transition-colors duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
                   isSectionActive('projects')
                     ? 'border-[#0B3B60] bg-white/10 font-bold nav-item-active'
                     : 'border-transparent hover:border-white/60 hover:bg-white/10'
@@ -752,11 +752,11 @@ if (tickerItems.length === 0) {
                 Projects
                 <Icon name="chevron-down" size={10} strokeWidth={2.5} class="dropdown-arrow transition-transform duration-200 shrink-0" />
               </button>
-              <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B3B60] rounded-b-lg z-50 py-2 w-[240px]">
-                <ul class="flex flex-col gap-0.5 text-xs px-2">
-                  <li><a href="/our-business/power-stations" class={`block p-2 rounded transition-colors ${currentPath.startsWith('/our-business/power-stations') ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B3B60]'}`}>Operational Projects</a></li>
-                  <li><a href="/our-business/construction" class={`block p-2 rounded transition-colors ${currentPath.startsWith('/our-business/construction') ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B3B60]'}`}>Projects Under Construction</a></li>
-                  <li><a href="/our-business/under-development" class={`block p-2 rounded transition-colors ${currentPath.startsWith('/our-business/under-development') ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B3B60]'}`}>Upcoming Projects</a></li>
+              <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-lg border-t-[3px] border-[#0B3B60] rounded-b-sm z-50 py-2 w-[260px]">
+                <ul class="flex flex-col gap-0.5 px-2 pb-1.5">
+                  <li><a href="/our-business/power-stations" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath.startsWith('/our-business/power-stations') ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>Operational Projects</a></li>
+                  <li><a href="/our-business/construction" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath.startsWith('/our-business/construction') ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>Projects Under Construction</a></li>
+                  <li><a href="/our-business/under-development" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath.startsWith('/our-business/under-development') ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>Upcoming Projects</a></li>
                 </ul>
               </div>
             </li>
@@ -764,7 +764,7 @@ if (tickerItems.length === 0) {
             <!-- Tenders -->
             <li class="relative nav-dropdown-item">
               <button 
-                class={`nav-dropdown-btn flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 transition-all duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
+                class={`nav-dropdown-btn flex items-center gap-1 px-2.5 xl:px-3.5 py-3.5 transition-colors duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
                   isSectionActive('tenders')
                     ? 'border-[#0B3B60] bg-white/10 font-bold nav-item-active'
                     : 'border-transparent hover:border-white/60 hover:bg-white/10'
@@ -775,9 +775,9 @@ if (tickerItems.length === 0) {
                 Tenders
                 <Icon name="chevron-down" size={10} strokeWidth={2.5} class="dropdown-arrow transition-transform duration-200 shrink-0" />
               </button>
-              <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B3B60] rounded-b-lg z-50 py-2 w-[240px]">
-                <ul class="flex flex-col gap-0.5 text-xs px-2">
-                  <li><a href="/stakeholders/vendors/tender-bids" class={`block p-2 rounded transition-colors ${currentPath.startsWith('/stakeholders/vendors') || currentPath.startsWith('/tenders') ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B3B60]'}`}>Live Tenders &amp; Notices</a></li>
+              <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-lg border-t-[3px] border-[#0B3B60] rounded-b-sm z-50 py-2 w-[260px]">
+                <ul class="flex flex-col gap-0.5 px-2 pb-1.5">
+                  <li><a href="/stakeholders/vendors/tender-bids" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath.startsWith('/stakeholders/vendors') || currentPath.startsWith('/tenders') ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>Live Tenders &amp; Notices</a></li>
                   <li><a href="https://jktenders.gov.in/nicgep/app" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B3B60]">JK Tenders Portal<span class="sr-only"> (opens in new tab)</span></a></li>
                 </ul>
               </div>
@@ -787,7 +787,7 @@ if (tickerItems.length === 0) {
             <li>
               <a 
                 href="/notifications" 
-                class={`nav-link block px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 text-white transition-all duration-150 border-b-[3px] focus-visible:outline-none focus-visible:bg-white/15 ${
+                class={`nav-link block px-2.5 xl:px-3.5 py-3.5 text-white transition-colors duration-150 border-b-[3px] focus-visible:outline-none focus-visible:bg-white/15 ${
                   isSectionActive('notifications')
                     ? 'border-[#0B3B60] bg-white/10 font-bold nav-item-active'
                     : 'border-transparent hover:border-white/60 hover:bg-white/10'
@@ -800,7 +800,7 @@ if (tickerItems.length === 0) {
             <!-- Investors Corner -->
             <li class="relative nav-dropdown-item">
               <button 
-                class={`nav-dropdown-btn flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 transition-all duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
+                class={`nav-dropdown-btn flex items-center gap-1 px-2.5 xl:px-3.5 py-3.5 transition-colors duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
                   isSectionActive('investors')
                     ? 'border-[#0B3B60] bg-white/10 font-bold nav-item-active'
                     : 'border-transparent hover:border-white/60 hover:bg-white/10'
@@ -811,10 +811,10 @@ if (tickerItems.length === 0) {
                 Investors Corner
                 <Icon name="chevron-down" size={10} strokeWidth={2.5} class="dropdown-arrow transition-transform duration-200 shrink-0" />
               </button>
-              <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B3B60] rounded-b-lg z-50 py-2 w-[230px]">
-                <ul class="flex flex-col gap-0.5 text-xs px-2">
-                  <li><a href="/stakeholders/investors/agm" class={`block p-2 rounded transition-colors ${currentPath.startsWith('/stakeholders/investors/agm') ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B3B60]'}`}>Annual General Meetings</a></li>
-                  <li><a href="/stakeholders/investors/ipp-projects" class={`block p-2 rounded transition-colors ${currentPath.startsWith('/stakeholders/investors/ipp') ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B3B60]'}`}>IPP Projects</a></li>
+              <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-lg border-t-[3px] border-[#0B3B60] rounded-b-sm z-50 py-2 w-[260px]">
+                <ul class="flex flex-col gap-0.5 px-2 pb-1.5">
+                  <li><a href="/stakeholders/investors/agm" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath.startsWith('/stakeholders/investors/agm') ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>Annual General Meetings</a></li>
+                  <li><a href="/stakeholders/investors/ipp-projects" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath.startsWith('/stakeholders/investors/ipp') ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>IPP Projects</a></li>
                 </ul>
               </div>
             </li>
@@ -822,7 +822,7 @@ if (tickerItems.length === 0) {
             <!-- RTI -->
             <li class="relative nav-dropdown-item">
               <button 
-                class={`nav-dropdown-btn flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 transition-all duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
+                class={`nav-dropdown-btn flex items-center gap-1 px-2.5 xl:px-3.5 py-3.5 transition-colors duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
                   isSectionActive('rti')
                     ? 'border-[#0B3B60] bg-white/10 font-bold nav-item-active'
                     : 'border-transparent hover:border-white/60 hover:bg-white/10'
@@ -833,9 +833,9 @@ if (tickerItems.length === 0) {
                 RTI
                 <Icon name="chevron-down" size={10} strokeWidth={2.5} class="dropdown-arrow transition-transform duration-200 shrink-0" />
               </button>
-              <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B3B60] rounded-b-lg z-50 py-2 w-[210px]">
-                <ul class="flex flex-col gap-0.5 text-xs px-2">
-                  <li><a href="/about-us/explore/rti" class={`block p-2 rounded transition-colors ${currentPath.includes('/rti') ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B3B60]'}`}>RTI Act (Sec 4)</a></li>
+              <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-lg border-t-[3px] border-[#0B3B60] rounded-b-sm z-50 py-2 w-[260px]">
+                <ul class="flex flex-col gap-0.5 px-2 pb-1.5">
+                  <li><a href="/about-us/explore/rti" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath.includes('/rti') ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>RTI Act (Sec 4)</a></li>
                 </ul>
               </div>
             </li>
@@ -844,7 +844,7 @@ if (tickerItems.length === 0) {
             <li>
               <a 
                 href="/media/gallery" 
-                class={`nav-link block px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 text-white transition-all duration-150 border-b-[3px] focus-visible:outline-none focus-visible:bg-white/15 ${
+                class={`nav-link block px-2.5 xl:px-3.5 py-3.5 text-white transition-colors duration-150 border-b-[3px] focus-visible:outline-none focus-visible:bg-white/15 ${
                   isSectionActive('gallery')
                     ? 'border-[#0B3B60] bg-white/10 font-bold nav-item-active'
                     : 'border-transparent hover:border-white/60 hover:bg-white/10'
@@ -858,7 +858,7 @@ if (tickerItems.length === 0) {
             <li>
               <a 
                 href="/media/downloads" 
-                class={`nav-link block px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 text-white transition-all duration-150 border-b-[3px] focus-visible:outline-none focus-visible:bg-white/15 ${
+                class={`nav-link block px-2.5 xl:px-3.5 py-3.5 text-white transition-colors duration-150 border-b-[3px] focus-visible:outline-none focus-visible:bg-white/15 ${
                   isSectionActive('downloads')
                     ? 'border-[#0B3B60] bg-white/10 font-bold nav-item-active'
                     : 'border-transparent hover:border-white/60 hover:bg-white/10'
@@ -871,7 +871,7 @@ if (tickerItems.length === 0) {
             <!-- Employees Corner -->
             <li class="relative nav-dropdown-item">
               <button 
-                class={`nav-dropdown-btn flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 transition-all duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
+                class={`nav-dropdown-btn flex items-center gap-1 px-2.5 xl:px-3.5 py-3.5 transition-colors duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
                   isSectionActive('employees')
                     ? 'border-[#0B3B60] bg-white/10 font-bold nav-item-active'
                     : 'border-transparent hover:border-white/60 hover:bg-white/10'
@@ -882,8 +882,8 @@ if (tickerItems.length === 0) {
                 Employees Corner
                 <Icon name="chevron-down" size={10} strokeWidth={2.5} class="dropdown-arrow transition-transform duration-200 shrink-0" />
               </button>
-              <div class="nav-dropdown-menu absolute right-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B3B60] rounded-b-lg z-50 py-2 w-[220px]">
-                <ul class="flex flex-col gap-0.5 text-xs px-2">
+              <div class="nav-dropdown-menu absolute right-0 mt-0 hidden bg-white text-slate-800 shadow-lg border-t-[3px] border-[#0B3B60] rounded-b-sm z-50 py-2 w-[260px]">
+                <ul class="flex flex-col gap-0.5 px-2 pb-1.5">
                   <li><a href="https://www.jkspdcl.com:2096/" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B3B60]">Web Mail<span class="sr-only"> (opens in new tab)</span></a></li>
                   <li><a href="https://saccess.nic.in/" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B3B60]">Nic-e-File<span class="sr-only"> (opens in new tab)</span></a></li>
                   <li><a href="https://eoffice.jk.gov.in/" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B3B60]">E-Office<span class="sr-only"> (opens in new tab)</span></a></li>
@@ -899,7 +899,7 @@ if (tickerItems.length === 0) {
             <!-- Contact Us -->
             <li class="relative nav-dropdown-item">
               <button 
-                class={`nav-dropdown-btn flex items-center gap-0.5 lg:gap-1 px-1.5 sm:px-2 lg:px-2 xl:px-2.5 2xl:px-3.5 py-3 transition-all duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
+                class={`nav-dropdown-btn flex items-center gap-1 px-2.5 xl:px-3.5 py-3.5 transition-colors duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
                   isSectionActive('contact')
                     ? 'border-[#0B3B60] bg-white/10 font-bold nav-item-active'
                     : 'border-transparent hover:border-white/60 hover:bg-white/10'
@@ -910,10 +910,10 @@ if (tickerItems.length === 0) {
                 Contact Us
                 <Icon name="chevron-down" size={10} strokeWidth={2.5} class="dropdown-arrow transition-transform duration-200 shrink-0" />
               </button>
-              <div class="nav-dropdown-menu absolute right-0 mt-0 hidden bg-white text-slate-800 shadow-2xl border-t-4 border-[#0B3B60] rounded-b-lg z-50 py-2 w-[200px]">
-                <ul class="flex flex-col gap-0.5 text-xs px-2">
-                  <li><a href="/about-us/others/contact" class={`block p-2 rounded transition-colors ${currentPath === '/about-us/others/contact' ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B3B60]'}`}>Contact Us</a></li>
-                  <li><a href="/feedback" class={`block p-2 rounded transition-colors ${currentPath === '/feedback' ? 'nav-sublink-active' : 'hover:bg-slate-100 hover:text-[#0B3B60]'}`}>Feedback</a></li>
+              <div class="nav-dropdown-menu absolute right-0 mt-0 hidden bg-white text-slate-800 shadow-lg border-t-[3px] border-[#0B3B60] rounded-b-sm z-50 py-2 w-[260px]">
+                <ul class="flex flex-col gap-0.5 px-2 pb-1.5">
+                  <li><a href="/about-us/others/contact" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath === '/about-us/others/contact' ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>Contact Us</a></li>
+                  <li><a href="/feedback" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath === '/feedback' ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>Feedback</a></li>
                 </ul>
               </div>
             </li>
