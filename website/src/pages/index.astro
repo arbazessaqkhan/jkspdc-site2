@@ -531,7 +531,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
 <Layout title="Home | JKSPDC Official Portal" description="Official enterprise portal of Jammu and Kashmir State Power Development Corporation Ltd. Powering the future of J&K through clean, sustainable, and reliable energy generation." isHome={true}>
 
   <!-- HERO SLIDER -->
-  <section id="home" class="hero-section relative w-full overflow-hidden bg-slate-900" aria-roledescription="carousel" aria-label="Featured highlights from JKSPDC">
+  <section id="home" class="hero-section relative w-full overflow-hidden bg-[#F4F8FB]" aria-roledescription="carousel" aria-label="Featured highlights from JKSPDC">
     <div id="hero-slides" class="absolute inset-0">
       {heroSlides.map((slide, i) => (
         <div id={`slide-${slide.id}`} class={`absolute inset-0 transition-opacity duration-500 ${i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}>
@@ -638,7 +638,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
         <!-- Welcome Card Container with Office Gallery Carousel -->
         <div class="bg-white border border-slate-200 rounded-md p-4 flex flex-col justify-between flex-grow h-[320px] shadow-xs overflow-hidden relative">
           <!-- Office Events, Retirements & Awards Carousel -->
-          <div class="relative w-full flex-grow rounded-md overflow-hidden shadow-xs border border-slate-200 bg-slate-900 group" id="office-carousel-container">
+          <div class="relative w-full flex-grow rounded-md overflow-hidden shadow-xs border border-slate-200 bg-[#F4F8FB] group" id="office-carousel-container">
             <div class="absolute inset-0" id="office-slides">
               {displayOfficePhotos.map((photo: any, index: number) => (
                 <div class={`office-slide absolute inset-0 transition-opacity duration-700 ease-in-out ${index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
@@ -906,7 +906,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
               <span class="text-xs font-bold uppercase tracking-wider text-brand-primary">Project Photographs Carousel</span>
               <span class="text-xs text-slate-400 font-semibold">Hydroelectric & Renewable Assets</span>
             </div>
-            <div class="relative w-full aspect-[4/3] rounded-md overflow-hidden shadow-md border border-slate-200 bg-slate-900 group" id="project-carousel-container">
+            <div class="relative w-full aspect-[4/3] rounded-md overflow-hidden shadow-md border border-slate-200 bg-[#F4F8FB] group" id="project-carousel-container">
               
               <!-- Carousel Track -->
               <div class="absolute inset-0" id="project-slides">
