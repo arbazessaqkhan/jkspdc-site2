@@ -92,17 +92,17 @@ html {
 
 @theme {
   /* === Government PSU Palette (Hydro Power Theme) === */
-  --color-brand-primary: #05649B;        /* logo swoosh blue — links, interactive */
-  --color-brand-primary-dark: #0F025E;   /* deep indigo — TEXT anchors only (headings, active links); never large surfaces */
-  --color-brand-primary-deeper: #0F025E; /* deep indigo — text/footer accent only */
+  --color-brand-primary: #0B3B60;        /* logo swoosh blue — links, interactive */
+  --color-brand-primary-dark: #002B49;   /* deep indigo — TEXT anchors only (headings, active links); never large surfaces */
+  --color-brand-primary-deeper: #002B49; /* deep indigo — text/footer accent only */
   --color-brand-secondary: #06741A;      /* logo green bolt — renewable/metrics */
   --color-brand-secondary-hover: #055914;
   --color-brand-accent: #0EA4E5;         /* logo bright cyan — highlights */
-  --color-brand-accent-hover: #05649B;
+  --color-brand-accent-hover: #0B3B60;
   --color-brand-hydro-cyan: #52B5E8;     /* logo pale swoosh */
   --color-brand-hydro-teal: #A4D7F4;
 
-  --color-brand-text: #334155;
+  --color-brand-text: #333333;
   --color-brand-muted: #64748B;
   --color-brand-border: #D9E5EE;
   --color-brand-success: #1E8E3E;
@@ -112,7 +112,7 @@ html {
   --color-brand-bg-subtle: #F4F8FB;      /* pale swoosh tint — bands */
   --color-brand-bg-light: #A4D7F4;     /* pale water blue */
   --color-brand-header-tint: #A4D7F4;
-  --color-brand-footer: #1985B4;         /* logo sky blue */
+  --color-brand-footer: #0B3B60;         /* logo sky blue */
 
   --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
   --shadow-card-hover: 0 4px 12px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
@@ -292,7 +292,7 @@ td {
    ═══════════════════════════════════════════════════════════════ */
 .page-header-band {
   position: relative;
-  background: linear-gradient(135deg, #1985B4 0%, #134E6F 40%, #05649B 100%);
+  background: linear-gradient(135deg, #0B3B60 0%, #134E6F 40%, #0B3B60 100%);
   padding: 2rem 2rem 2.25rem;
   margin: -2rem -1rem 2.5rem;
   overflow: hidden;
@@ -416,7 +416,7 @@ td {
   font-family: var(--font-heading);
   font-size: 1.15rem;
   font-weight: 700;
-  color: #1985B4;
+  color: #0B3B60;
   margin-top: 2rem;
   margin-bottom: 0.75rem;
   padding-left: 0.875rem;
@@ -445,13 +445,13 @@ td {
 }
 
 .prose-gov li::marker {
-  color: #1985B4;
+  color: #0B3B60;
 }
 
 /* Callout boxes inside prose */
 .prose-gov .callout {
   background: linear-gradient(135deg, rgba(11, 79, 156, 0.04) 0%, rgba(7, 59, 117, 0.04) 100%);
-  border-left: 4px solid #05649B;
+  border-left: 4px solid #0B3B60;
   border-radius: 0 8px 8px 0;
   padding: 1.125rem 1.25rem;
   margin: 1.5rem 0;
@@ -500,7 +500,7 @@ td {
   padding: 0.375rem 0;
   font-size: 0.8rem;
   font-weight: 600;
-  color: #1985B4;
+  color: #0B3B60;
   transition: all 0.2s ease;
 }
 
@@ -553,7 +553,7 @@ td {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: #05649B;
+  background-color: #0B3B60;
   color: #ffffff;
   font-weight: 700;
   font-size: 0.875rem;
@@ -565,7 +565,7 @@ td {
   cursor: pointer;
 
   &:hover {
-    background-color: #1985B4;
+    background-color: #0B3B60;
     transform: translateY(-1px);
     box-shadow: 0 3px 8px rgba(15, 40, 55, 0.25);
   }
@@ -642,7 +642,7 @@ td {
   cursor: pointer;
 
   &:hover {
-    background-color: #05649B;
+    background-color: #0B3B60;
     color: #ffffff;
     transform: translateY(-1px);
     box-shadow: 0 2px 6px rgba(11, 79, 156, 0.2);
@@ -734,7 +734,7 @@ td {
 /* 2. Primary Navigation Bar Dropdown Items */
 nav[aria-label="Primary Navigation"] div.absolute a:hover {
   background-color: #F1F5F9 !important;
-  color: #1985B4 !important;
+  color: #0B3B60 !important;
 }
 
 /* 3. Table Rows */
@@ -778,8 +778,8 @@ tbody tr:hover {
   &:focus-visible {
     outline: 2px solid var(--focus-ring-color);
     outline-offset: 0;
-    border-color: #1985B4;
-    box-shadow: 0 0 0 1px #05649B;
+    border-color: #0B3B60;
+    box-shadow: 0 0 0 1px #0B3B60;
   }
 }
 
@@ -801,8 +801,8 @@ tbody tr:hover {
   &:focus-visible {
     outline: 2px solid var(--focus-ring-color);
     outline-offset: 0;
-    border-color: #1985B4;
-    box-shadow: 0 0 0 1px #05649B;
+    border-color: #0B3B60;
+    box-shadow: 0 0 0 1px #0B3B60;
   }
 }
 
@@ -874,7 +874,7 @@ tbody tr:hover {
 .table-data th,
 .admin-table thead th,
 .admin-table th {
-  background-color: #05649B;
+  background-color: #0B3B60;
   color: #FFFFFF;
   font-weight: 700;
   font-size: 0.72rem;
@@ -1031,13 +1031,13 @@ tbody tr:hover {
 
 .admin-btn-action:hover {
   background-color: #EAF4FF;
-  border-color: #1985B4;
-  color: #1985B4;
+  border-color: #0B3B60;
+  color: #0B3B60;
   box-shadow: 0 1px 2px rgba(11, 79, 156, 0.1);
 }
 
 .admin-btn-action:focus-visible {
-  outline: 2px solid #1985B4;
+  outline: 2px solid #0B3B60;
   outline-offset: 1px;
 }
 
@@ -1072,12 +1072,12 @@ tbody tr:hover {
 .admin-btn-action.action-download {
   border-color: #CBD5E1;
   background-color: #F8FAFC;
-  color: #1985B4;
+  color: #0B3B60;
 }
 
 .admin-btn-action.action-download:hover {
   background-color: #EAF4FF;
-  border-color: #1985B4;
+  border-color: #0B3B60;
   color: #073B75;
 }
 
@@ -1196,14 +1196,14 @@ tbody tr:hover {
 }
 
 .admin-btn:focus-visible {
-  outline: 2px solid #1985B4;
+  outline: 2px solid #0B3B60;
   outline-offset: 1px;
 }
 
 .admin-btn-primary {
-  background-color: #05649B;
+  background-color: #0B3B60;
   color: #FFFFFF;
-  border-color: #1985B4;
+  border-color: #0B3B60;
   box-shadow: 0 1px 2px rgba(11, 79, 156, 0.12);
 }
 
@@ -1241,7 +1241,7 @@ tbody tr:hover {
 .admin-page-title {
   font-size: 1.125rem;
   font-weight: 800;
-  color: #1985B4;
+  color: #0B3B60;
   letter-spacing: -0.015em;
   line-height: 1.25;
   margin: 0;
@@ -1458,7 +1458,7 @@ tbody tr:hover {
 
 /* ── Government Rich Text Content Styling (.prose-gov) ─────────────────────── */
 .prose-gov a:not(.btn-primary):not(.btn-secondary):not([class*="btn-"]):not([class*="bg-"]) {
-  color: #1985B4 !important;
+  color: #0B3B60 !important;
   text-decoration: underline !important;
   font-weight: 600 !important;
   transition: color 0.2s ease;
@@ -1516,14 +1516,14 @@ tbody tr:hover {
 .prose-gov h3,
 .prose-gov h4 {
   font-weight: 800 !important;
-  color: #1985B4 !important;
+  color: #0B3B60 !important;
   margin-top: 1rem !important;
   margin-bottom: 0.5rem !important;
   text-wrap: wrap !important;
 }
 
 .prose-gov blockquote {
-  border-left: 4px solid #05649B !important;
+  border-left: 4px solid #0B3B60 !important;
   padding-left: 1rem !important;
   font-style: italic !important;
   color: #475569 !important;
