@@ -96,7 +96,7 @@ if (tickerItems.length === 0) {
 }
 ---
 
-<div class="bg-[#0D1B2A] text-white relative overflow-hidden border-t border-b border-[#19A7CE]/30 h-9 flex items-center" aria-live="polite" aria-label="Live announcements">
+<div class="bg-[#0A0244] text-white relative overflow-hidden border-t border-b border-[#0695D6]/30 h-9 flex items-center" aria-live="polite" aria-label="Live announcements">
   <div class="flex items-center h-full overflow-hidden" style="max-width:100%;">
     <div class="shrink-0 bg-[#1B3A6B] text-white text-xs font-bold px-4 h-full flex items-center gap-2 uppercase tracking-wide z-20 whitespace-nowrap">
       <span class="w-2 h-2 rounded-full bg-slate-300 animate-slow-pulse shrink-0"></span>
@@ -104,8 +104,8 @@ if (tickerItems.length === 0) {
     </div>
     <div class="flex-1 overflow-hidden relative h-full flex items-center" id="component-ticker-container">
       <!-- Fade-out overlays -->
-      <div class="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-[#0D1B2A] to-transparent z-10 pointer-events-none"></div>
-      <div class="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[#0D1B2A] to-transparent z-10 pointer-events-none"></div>
+      <div class="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-[#0A0244] to-transparent z-10 pointer-events-none"></div>
+      <div class="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[#0A0244] to-transparent z-10 pointer-events-none"></div>
 
       <div id="component-ticker-track" class="flex items-center whitespace-nowrap w-max shrink-0 cursor-pointer" style="gap: 3.5rem; font-size: 0.8rem; font-weight: 500; will-change: transform;">
         {[...tickerItems, ...tickerItems].map((item) => (
