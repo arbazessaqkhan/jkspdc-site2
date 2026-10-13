@@ -1,5 +1,6 @@
 ---
 import '../../styles/global.css';
+import '../../styles/admin.css';
 import Icon from '../../components/Icon.astro';
 
 let errorMessage = '';
@@ -89,7 +90,7 @@ const currentYear = new Date().getFullYear();
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login | JKSPDCL Administrative Portal</title>
+    <title>Login | JKSPDC Administrative Portal</title>
     <meta name="description" content="Administrative login page for the Jammu & Kashmir State Power Development Corporation Limited." />
     <meta name="robots" content="noindex, nofollow" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -146,14 +147,14 @@ const currentYear = new Date().getFullYear();
       })();
     </script>
   </head>
-  <body class="min-h-screen flex flex-col bg-slate-50 text-slate-800 font-sans transition-colors duration-150">
-    <a href="#main-login-content" class="absolute top-[-100px] left-0 bg-[#0B4F9C] text-white p-3 z-50 focus:top-0 focus:outline-none">Skip to Content</a>
+  <body class="admin-page min-h-screen flex flex-col transition-colors duration-150">
+    <a href="#main-login-content" class="absolute top-[-100px] left-0 bg-[color:var(--adm-primary)] text-white p-3 z-50 focus:top-0 focus:outline-none">Skip to Content</a>
 
     <!-- Top utility accessibility bar -->
-    <div class="bg-[#083B73] text-slate-100 text-xs py-2 select-none">
+    <div class="bg-[color:var(--adm-primary-dark)] text-slate-100 text-xs py-2 select-none">
       <div class="max-w-4xl mx-auto px-4 flex justify-between items-center">
-        <span class="font-bold tracking-wide uppercase">JKSPDCL Official Portal</span>
-        <button class="flex items-center gap-1.5 px-2 py-0.5 bg-[#0B4F9C]/40 hover:bg-[#0B4F9C]/60 rounded text-[10px] font-semibold text-white cursor-pointer" onclick="toggleHighContrast()" aria-label="Toggle High Contrast Mode">
+        <span class="font-bold tracking-wide uppercase">JKSPDC Official Portal</span>
+        <button class="flex items-center gap-1.5 px-2 py-0.5 bg-white/10 hover:bg-white/20 rounded text-[10px] font-semibold text-white cursor-pointer" onclick="toggleHighContrast()" aria-label="Toggle High Contrast Mode">
           <Icon name="contrast" size={12} strokeWidth={2} /> Contrast
         </button>
       </div>
@@ -161,19 +162,22 @@ const currentYear = new Date().getFullYear();
 
     <!-- Login Content -->
     <main id="main-login-content" class="flex-grow flex items-center justify-center px-4 py-16" tabindex="-1">
-      <div class="w-full max-w-md bg-white rounded-lg border border-slate-200 shadow-xl p-8 flex flex-col gap-6 relative overflow-hidden">
-        
+      <div class="w-full max-w-md bg-white rounded-[10px] border border-[color:var(--adm-border)] shadow-xl p-8 flex flex-col gap-6 relative overflow-hidden">
+
+        <!-- Brand accent line -->
+        <div class="admin-accent-line absolute top-0 left-0 right-0"></div>
+
         <!-- Header -->
         <div class="text-center flex flex-col items-center gap-2">
-          <img src="/logo.png" alt="JKSPDCL Logo" class="h-16 w-auto object-contain mb-1" />
-          <h1 class="text-xl font-bold text-[#0B4F9C]">Administrative Sign In</h1>
-          <p class="text-xs text-slate-500 font-medium">Jammu &amp; Kashmir State Power Development Corporation Limited</p>
+          <img src="/logo.png" alt="JKSPDC Logo" class="h-16 w-auto object-contain mb-1" />
+          <h1 class="text-xl font-bold text-[color:var(--adm-primary-dark)]">Administrative Sign In</h1>
+          <p class="text-xs text-[color:var(--adm-muted)] font-medium">Jammu &amp; Kashmir State Power Development Corporation Limited</p>
         </div>
 
         <!-- Alert messages -->
         {errorMessage && (
-          <div class="p-3 bg-red-50 text-red-700 rounded border border-red-200 text-xs font-semibold flex items-start gap-2" role="alert">
-            <Icon name="alert-triangle" size={14} class="text-red-500 shrink-0 mt-0.5" />
+          <div class="admin-alert admin-alert-error text-xs font-semibold items-start" role="alert">
+            <Icon name="alert-triangle" size={14} class="shrink-0 mt-0.5" />
             <span>{errorMessage}</span>
           </div>
         )}
@@ -181,41 +185,41 @@ const currentYear = new Date().getFullYear();
         <!-- Form -->
         <form method="POST" class="flex flex-col gap-4">
           <div class="flex flex-col gap-1.5">
-            <label for="email" class="text-xs font-bold text-slate-700">Official Email ID <span class="text-red-500">*</span></label>
-            <input 
-              type="email" 
-              name="email" 
-              id="email" 
-              placeholder="e.g. admin@jkspdc.co.in" 
-              class="w-full text-xs px-3 py-2.5 rounded border border-slate-300 bg-white focus:border-[#0B4F9C] focus:outline-none transition-colors"
-              required 
+            <label for="email" class="admin-form-label">Official Email ID <span class="text-[color:var(--adm-error)]">*</span></label>
+            <input
+              type="email"
+              name="email"
+              id="email"
+              placeholder="e.g. admin@jkspdc.co.in"
+              class="admin-input"
+              required
               autocomplete="email"
             />
           </div>
 
           <div class="flex flex-col gap-1.5">
-            <label for="password" class="text-xs font-bold text-slate-700">Secure Password <span class="text-red-500">*</span></label>
-            <input 
-              type="password" 
-              name="password" 
-              id="password" 
-              placeholder="••••••••" 
-              class="w-full text-xs px-3 py-2.5 rounded border border-slate-300 bg-white focus:border-[#0B4F9C] focus:outline-none transition-colors"
-              required 
+            <label for="password" class="admin-form-label">Secure Password <span class="text-[color:var(--adm-error)]">*</span></label>
+            <input
+              type="password"
+              name="password"
+              id="password"
+              placeholder="••••••••"
+              class="admin-input"
+              required
               autocomplete="current-password"
             />
           </div>
 
-          <button 
-            type="submit" 
-            class="w-full bg-[#0B4F9C] hover:bg-[#084A8F] text-white py-2.5 rounded text-xs font-bold shadow-md cursor-pointer transition-colors mt-2"
+          <button
+            type="submit"
+            class="admin-btn admin-btn-primary w-full py-2.5 mt-2"
           >
             Authenticate Credentials
           </button>
         </form>
 
-        <div class="border-t border-slate-100 pt-4 text-center">
-          <a href="/" class="text-xs text-[#0B4F9C] hover:underline font-semibold flex items-center justify-center gap-1.5">
+        <div class="border-t border-[color:var(--adm-border)] pt-4 text-center">
+          <a href="/" class="text-xs text-[color:var(--adm-primary)] hover:underline font-semibold flex items-center justify-center gap-1.5">
             &larr; Back to Public Portal
           </a>
         </div>
@@ -223,10 +227,10 @@ const currentYear = new Date().getFullYear();
     </main>
 
     <!-- Footer -->
-    <footer class="bg-[#083B73] text-slate-300 py-6 text-xs text-center border-t border-slate-700 select-none">
+    <footer class="bg-[color:var(--adm-primary-dark)] text-slate-300 py-6 text-xs text-center select-none">
       <div class="max-w-4xl mx-auto px-4">
         <p>&copy; {currentYear} Jammu &amp; Kashmir State Power Development Corporation Limited. Administrative Session.</p>
-        <p class="text-[10px] text-slate-400 mt-1">GIGW 3.0 &amp; WCAG 2.2 Level AA Compliant Interface.</p>
+        <p class="text-[10px] text-[color:var(--adm-hydro-teal)] mt-1">GIGW 3.0 &amp; WCAG 2.2 Level AA Compliant Interface.</p>
       </div>
     </footer>
   </body>

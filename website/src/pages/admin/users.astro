@@ -105,6 +105,7 @@ try {
     )}
 
     <!-- Administrative Data Table -->
+    <div class="admin-table-card">
     <div class="admin-table-container">
       <table class="admin-table">
         <thead>
@@ -131,7 +132,7 @@ try {
               <tr key={user.id} class="transition-colors">
                 <td class="text-center font-bold text-slate-400 text-xs">{idx + 1}</td>
                 <td class="font-bold text-slate-900 text-xs">{user.name}</td>
-                <td class="font-medium text-[#0B4F9C] font-mono text-xs">{user.email}</td>
+                <td class="font-medium text-[color:var(--adm-primary)] font-mono text-xs">{user.email}</td>
                 <td>
                   <span class={`admin-badge ${user.role === 'ADMIN' ? 'admin-badge-info' : 'admin-badge-neutral'}`}>
                     {user.role}
@@ -186,5 +187,7 @@ try {
         </tbody>
       </table>
     </div>
+    </div>
+
   </div>
 </AdminLayout>

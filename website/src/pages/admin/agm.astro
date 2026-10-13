@@ -174,7 +174,7 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
     <div class="admin-toolbar flex-wrap">
       <div class="flex items-center gap-3">
         <label for="year-select" class="text-xs font-semibold text-slate-700">Filter Year:</label>
-        <select id="year-select" class="form-select text-xs py-1.5 pr-8 pl-2.5 border-slate-300 rounded bg-white font-medium text-slate-700 focus:border-[#0B4F9C] focus:ring-1 focus:ring-[#0B4F9C]">
+        <select id="year-select" class="form-select text-xs py-1.5 pr-8 pl-2.5 border-slate-300 rounded bg-white font-medium text-slate-700 focus:border-[color:var(--adm-primary)] focus:ring-1 focus:ring-[color:var(--adm-primary)]">
           <option value="All">All Years</option>
           {years.map((y) => (
             <option value={String(y)}>{y}</option>
@@ -183,7 +183,7 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
       </div>
       <div class="flex items-center gap-3">
         <label for="limit-select" class="text-xs font-semibold text-slate-700">Records Limit:</label>
-        <select id="limit-select" class="form-select text-xs py-1.5 pr-8 pl-2.5 border-slate-300 rounded bg-white font-medium text-slate-700 focus:border-[#0B4F9C] focus:ring-1 focus:ring-[#0B4F9C]">
+        <select id="limit-select" class="form-select text-xs py-1.5 pr-8 pl-2.5 border-slate-300 rounded bg-white font-medium text-slate-700 focus:border-[color:var(--adm-primary)] focus:ring-1 focus:ring-[color:var(--adm-primary)]">
           <option value="10">10 records</option>
           <option value="25">25 records</option>
           <option value="50">50 records</option>
@@ -192,6 +192,7 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
     </div>
 
     <!-- Administrative Data Table -->
+    <div class="admin-table-card">
     <div class="admin-table-container">
       <table class="admin-table">
         <thead>
@@ -222,8 +223,8 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
                 <td class="font-bold text-slate-900 text-left">
                   <div class="flex flex-col gap-1">
                     <span class="text-xs font-bold text-slate-900 leading-snug">{agm.title}</span>
-                    <a href={agm.documentUrl} target="_blank" class="text-[11px] text-[#0B4F9C] hover:underline font-semibold flex items-center gap-1 mt-0.5" title="Download Document">
-                      <Icon name="download" size={11} class="text-[#0B4F9C]" />
+                    <a href={agm.documentUrl} target="_blank" class="text-[11px] text-[color:var(--adm-primary)] hover:underline font-semibold flex items-center gap-1 mt-0.5" title="Download Document">
+                      <Icon name="download" size={11} class="text-[color:var(--adm-primary)]" />
                       <span>{agm.fileName}</span>
                     </a>
                   </div>
@@ -269,6 +270,8 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
         </tbody>
       </table>
     </div>
+    </div>
+
   </div>
 
   <!-- Add/Edit Modal -->
@@ -356,7 +359,7 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
           <input type="hidden" name="documentUrl" id="agm-documentUrl" required />
           
           <label class="flex items-center gap-2 p-1.5 bg-amber-50/70 border border-amber-200/80 rounded cursor-pointer hover:bg-amber-50 transition-colors select-none mt-2">
-            <input type="checkbox" id="agm-is-important-checkbox" class="w-3.5 h-3.5 rounded text-[#0B4F9C] border-slate-300 focus:ring-[#0B4F9C] cursor-pointer" />
+            <input type="checkbox" id="agm-is-important-checkbox" class="w-3.5 h-3.5 rounded text-[color:var(--adm-primary)] border-slate-300 focus:ring-[color:var(--adm-primary)] cursor-pointer" />
             <span class="text-[11px] font-bold text-amber-900 flex items-center gap-1.5"><Icon name="star" size={12} class="text-amber-600 shrink-0" /> Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
           </label>
           
@@ -636,7 +639,7 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
 
   <style>
     .btn-primary {
-      background-color: #0B4F9C;
+      background-color: var(--adm-primary);
       color: white;
       font-size: 0.75rem;
       font-weight: 700;
@@ -646,7 +649,7 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
       box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
     }
     .btn-primary:hover {
-      background-color: #084A8F;
+      background-color: var(--adm-primary-dark);
     }
     .form-input {
       border: 1px solid #e2e8f0;
@@ -656,7 +659,7 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
       transition-property: all;
     }
     .form-input:focus {
-      border-color: #0B4F9C;
+      border-color: var(--adm-primary);
       outline: 2px solid transparent;
       outline-offset: 2px;
     }
@@ -668,7 +671,7 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
       cursor: pointer;
     }
     .form-select:focus {
-      border-color: #0B4F9C;
+      border-color: var(--adm-primary);
       outline: none;
     }
     .btn-edit {

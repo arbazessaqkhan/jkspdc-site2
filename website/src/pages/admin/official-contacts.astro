@@ -115,6 +115,7 @@ try {
     )}
 
     <!-- Administrative Data Table -->
+    <div class="admin-table-card">
     <div class="admin-table-container">
       <table class="admin-table">
         <thead>
@@ -141,7 +142,7 @@ try {
                 <td class="text-center font-bold text-slate-400 text-xs">{c.viewOrder || idx + 1}</td>
                 <td>
                   <p class="font-bold text-slate-900 text-xs leading-snug">{c.name}</p>
-                  <p class="text-[11px] text-[#0B4F9C] font-semibold mt-0.5">{c.position}</p>
+                  <p class="text-[11px] text-[color:var(--adm-primary)] font-semibold mt-0.5">{c.position}</p>
                 </td>
                 <td class="text-xs">
                   {c.email ? (
@@ -199,6 +200,7 @@ try {
           )}
         </tbody>
       </table>
+    </div>
     </div>
 
   </div>

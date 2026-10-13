@@ -244,7 +244,7 @@ if (Astro.request.method === 'POST') {
 
       <!-- Section: Specifications -->
       <div>
-        <h3 class="text-xs font-bold text-[#0B4F9C] uppercase tracking-wider border-b border-slate-100 pb-2 mb-4">Tender Specifications</h3>
+        <h3 class="text-xs font-bold text-[color:var(--adm-primary)] uppercase tracking-wider border-b border-slate-100 pb-2 mb-4">Tender Specifications</h3>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="form-group flex flex-col gap-1.5">
@@ -355,7 +355,7 @@ if (Astro.request.method === 'POST') {
             </div>
 
             <label class="flex items-center gap-2 p-2 bg-amber-50/70 border border-amber-200/80 rounded-lg cursor-pointer hover:bg-amber-50 transition-colors select-none mt-1">
-              <input type="checkbox" id="is-important-checkbox" class="w-4 h-4 rounded text-[#0B4F9C] border-slate-300 focus:ring-[#0B4F9C] cursor-pointer" />
+              <input type="checkbox" id="is-important-checkbox" class="w-4 h-4 rounded text-[color:var(--adm-primary)] border-slate-300 focus:ring-[color:var(--adm-primary)] cursor-pointer" />
               <span class="text-xs font-bold text-amber-900 flex items-center gap-1.5"><Icon name="star" size={13} class="text-amber-600 shrink-0" /> Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
             </label>
             
@@ -388,8 +388,8 @@ if (Astro.request.method === 'POST') {
       <!-- Section: Corrigendums -->
       <div class="border-t border-slate-200 pt-6 mt-2">
         <div class="flex items-center justify-between border-b border-slate-100 pb-2 mb-4">
-          <h3 class="text-xs font-bold text-[#0B4F9C] uppercase tracking-wider">Corrigendums &amp; Amendments</h3>
-          <button type="button" id="btn-show-add-corr" class="px-2.5 py-1.5 border border-[#0B4F9C] text-[#0B4F9C] hover:bg-[#0B4F9C] hover:text-white rounded text-[11px] font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+          <h3 class="text-xs font-bold text-[color:var(--adm-primary)] uppercase tracking-wider">Corrigendums &amp; Amendments</h3>
+          <button type="button" id="btn-show-add-corr" class="px-2.5 py-1.5 border border-[color:var(--adm-primary)] text-[color:var(--adm-primary)] hover:bg-[color:var(--adm-primary)] hover:text-white rounded text-[11px] font-bold transition-all flex items-center gap-1.5 cursor-pointer">
             + Add Corrigendum / Amendment
           </button>
         </div>
@@ -432,7 +432,7 @@ if (Astro.request.method === 'POST') {
                 <span class="text-[10px] text-slate-400">PDF, JPG, PNG, DOCX, XLSX (Max 20MB / 100MB if Important)</span>
               </div>
               <label class="flex items-center gap-2 p-1.5 bg-amber-50/70 border border-amber-200/80 rounded cursor-pointer hover:bg-amber-50 transition-colors select-none">
-                <input type="checkbox" id="corr-is-important-checkbox" class="w-3.5 h-3.5 rounded text-[#0B4F9C] border-slate-300 focus:ring-[#0B4F9C] cursor-pointer" />
+                <input type="checkbox" id="corr-is-important-checkbox" class="w-3.5 h-3.5 rounded text-[color:var(--adm-primary)] border-slate-300 focus:ring-[color:var(--adm-primary)] cursor-pointer" />
                 <span class="text-[11px] font-bold text-amber-900 flex items-center gap-1.5"><Icon name="star" size={12} class="text-amber-600 shrink-0" /> Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
               </label>
               <input type="hidden" id="corr-file-url" />
@@ -448,7 +448,7 @@ if (Astro.request.method === 'POST') {
       <!-- Section: Descriptions -->
       <div class="flex flex-col gap-1.5">
         <label for="description" class="text-xs font-bold text-slate-700">Detailed Description / Salient Highlights</label>
-        <textarea name="description" id="description" rows="5" class="form-input text-xs font-sans" placeholder="Add further specifications, scope of work, EM deposit, or pre-qualification details here...">{tenderData.description}</textarea>
+        <textarea name="description" id="description" rows="5" class="admin-input" placeholder="Add further specifications, scope of work, EM deposit, or pre-qualification details here...">{tenderData.description}</textarea>
       </div>
 
       <!-- Actions -->
@@ -585,7 +585,7 @@ if (Astro.request.method === 'POST') {
         info.innerHTML = `
           <div class="font-bold text-slate-800 truncate">${corr.title}</div>
           <div class="text-slate-500 font-medium mt-0.5">
-            File: <a href="${corr.documentUrl}" target="_blank" class="text-[#0B4F9C] hover:underline font-bold">${filename}</a> (${Math.round(corr.fileSizeBytes / 1024)} KB)${datesText}
+            File: <a href="${corr.documentUrl}" target="_blank" class="text-[color:var(--adm-primary)] hover:underline font-bold">${filename}</a> (${Math.round(corr.fileSizeBytes / 1024)} KB)${datesText}
           </div>
         `;
         

@@ -115,6 +115,7 @@ try {
     )}
 
     <!-- Sub-Offices Directory Table -->
+    <div class="admin-table-card">
     <div class="admin-table-container">
       <table class="admin-table">
         <thead>
@@ -143,7 +144,7 @@ try {
                 <td class="text-xs font-bold text-slate-900">{s.wing}</td>
                 <td class="text-xs">
                   <p class="font-bold text-slate-900 leading-snug">{s.name}</p>
-                  <p class="text-[11px] text-[#0B4F9C] font-semibold mt-0.5">{s.designation}</p>
+                  <p class="text-[11px] text-[color:var(--adm-primary)] font-semibold mt-0.5">{s.designation}</p>
                 </td>
                 <td class="text-xs">
                   {s.email ? (
@@ -197,6 +198,7 @@ try {
           )}
         </tbody>
       </table>
+    </div>
     </div>
 
   </div>

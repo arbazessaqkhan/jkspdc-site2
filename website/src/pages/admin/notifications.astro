@@ -140,7 +140,7 @@ const currentYear = new Date().getFullYear();
     <!-- Standard Admin Page Header -->
     <div class="admin-page-header">
       <div>
-        <h1 class="text-lg font-extrabold text-[#0B4F9C] tracking-tight">Announcements &amp; Notifications</h1>
+        <h1 class="text-lg font-extrabold text-[color:var(--adm-primary)] tracking-tight">Announcements &amp; Notifications</h1>
         <p class="text-xs text-slate-500 mt-0.5">Publish and manage official notifications, circulars, public orders, and recruitment notices.</p>
       </div>
       <button 
@@ -172,7 +172,7 @@ const currentYear = new Date().getFullYear();
             type="text" 
             id="search-notif-input" 
             placeholder="Search notifications..." 
-            class="w-full bg-slate-50 border border-slate-300 rounded text-xs text-slate-800 pl-8 pr-3 py-1.5 focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none"
+            class="w-full bg-slate-50 border border-slate-300 rounded text-xs text-slate-800 pl-8 pr-3 py-1.5 focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none"
           />
           <div class="absolute left-2.5 top-2 text-slate-400">
             <Icon name="search" size={13} />
@@ -196,6 +196,7 @@ const currentYear = new Date().getFullYear();
     </div>
 
     <!-- Administrative Data Table -->
+    <div class="admin-table-card">
     <div class="admin-table-container">
       <table class="table-data min-w-full text-left" id="notifications-data-table">
         <thead>
@@ -289,6 +290,8 @@ const currentYear = new Date().getFullYear();
         </tbody>
       </table>
     </div>
+    </div>
+
   </div>
 
   <!-- Add/Edit Modal (Matching popup in screenshot) -->
@@ -364,7 +367,7 @@ const currentYear = new Date().getFullYear();
           <input type="hidden" name="documentUrl" id="notif-documentUrl" required />
           
           <label class="flex items-center gap-2 p-1.5 bg-amber-50/70 border border-amber-200/80 rounded cursor-pointer hover:bg-amber-50 transition-colors select-none mt-2">
-            <input type="checkbox" id="notif-is-important-checkbox" class="w-3.5 h-3.5 rounded text-[#0B4F9C] border-slate-300 focus:ring-[#0B4F9C] cursor-pointer" />
+            <input type="checkbox" id="notif-is-important-checkbox" class="w-3.5 h-3.5 rounded text-[color:var(--adm-primary)] border-slate-300 focus:ring-[color:var(--adm-primary)] cursor-pointer" />
             <span class="text-[11px] font-bold text-amber-900 flex items-center gap-1.5"><Icon name="star" size={12} class="text-amber-600 shrink-0" /> Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
           </label>
           
@@ -635,7 +638,7 @@ const currentYear = new Date().getFullYear();
   <style>
     /* Premium style refinements */
     .btn-primary {
-      background-color: #0B4F9C;
+      background-color: var(--adm-primary);
       color: white;
       font-size: 0.75rem;
       font-weight: 700;
@@ -645,7 +648,7 @@ const currentYear = new Date().getFullYear();
       box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
     }
     .btn-primary:hover {
-      background-color: #084A8F;
+      background-color: var(--adm-primary-dark);
     }
     .form-input {
       border: 1px solid #e2e8f0;
@@ -655,7 +658,7 @@ const currentYear = new Date().getFullYear();
       transition-property: all;
     }
     .form-input:focus {
-      border-color: #0B4F9C;
+      border-color: var(--adm-primary);
       outline: 2px solid transparent;
       outline-offset: 2px;
     }
@@ -667,7 +670,7 @@ const currentYear = new Date().getFullYear();
       cursor: pointer;
     }
     .form-select:focus {
-      border-color: #0B4F9C;
+      border-color: var(--adm-primary);
       outline: none;
     }
     .btn-edit {

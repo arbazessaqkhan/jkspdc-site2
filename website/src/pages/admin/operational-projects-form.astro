@@ -180,7 +180,7 @@ if (Astro.request.method === 'POST') {
     <!-- Standard Admin Page Header -->
     <div class="admin-page-header">
       <div>
-        <h1 class="text-lg font-extrabold text-[#0B4F9C] tracking-tight">
+        <h1 class="text-lg font-extrabold text-[color:var(--adm-primary)] tracking-tight">
           {editId ? `Edit ${projectData.name}` : 'Register Power Station'}
         </h1>
         <p class="text-xs text-slate-500 mt-0.5">
@@ -288,7 +288,7 @@ if (Astro.request.method === 'POST') {
               <!-- Upload Controller & Details -->
               <div class="flex-1 w-full space-y-2 text-center sm:text-left">
                 <div class="flex flex-wrap items-center justify-center sm:justify-start gap-3">
-                  <label for="image-file-input" class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-[#0B4F9C] bg-[#EAF4FF] hover:bg-blue-100 rounded-lg border border-[#BDD7EE] shadow-2xs transition-all">
+                  <label for="image-file-input" class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-[color:var(--adm-primary)] bg-[color:var(--adm-bg-subtle)] hover:bg-blue-100 rounded-lg border border-[color:var(--adm-border)] shadow-2xs transition-all">
                     <Icon name="upload" size={14} />
                     <span id="upload-btn-label">{existingPhotoUrl ? 'Change Image' : 'Upload Project Image'}</span>
                   </label>
@@ -315,7 +315,7 @@ if (Astro.request.method === 'POST') {
 
       <!-- Section: Detailed Descriptions -->
       <div>
-        <h3 class="text-xs font-bold text-[#0B4F9C] uppercase tracking-wider border-b border-slate-100 pb-2 mb-4">Detailed Content</h3>
+        <h3 class="text-xs font-bold text-[color:var(--adm-primary)] uppercase tracking-wider border-b border-slate-100 pb-2 mb-4">Detailed Content</h3>
         
         <div class="flex flex-col gap-6">
           <div class="space-y-1.5">

@@ -128,7 +128,7 @@ try {
     <!-- Standard Admin Page Header -->
     <div class="admin-page-header">
       <div>
-        <h1 class="text-lg font-extrabold text-[#0B4F9C] tracking-tight">Board of Directors (BOD)</h1>
+        <h1 class="text-lg font-extrabold text-[color:var(--adm-primary)] tracking-tight">Board of Directors (BOD)</h1>
         <p class="text-xs text-slate-500 mt-0.5">Manage board members, executive positions, government nominees, and serial ordering.</p>
       </div>
       <button 
@@ -154,6 +154,7 @@ try {
     )}
 
     <!-- Administrative Data Table -->
+    <div class="admin-table-card">
     <div class="admin-table-container">
       <table class="table-data min-w-full text-left">
         <thead>
@@ -178,7 +179,7 @@ try {
                 <td class="text-center text-xs font-bold text-slate-500">{dir.sNo}</td>
                 <td>
                   <div class="flex items-center gap-2.5">
-                    <div class="w-7 h-7 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-[11px] font-bold text-[#0B4F9C] shrink-0">
+                    <div class="w-7 h-7 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-[11px] font-bold text-[color:var(--adm-primary)] shrink-0">
                       {dir.name ? dir.name.replace(/Shri\s*|Er\s*|Dr\s*|\(IAS\)/gi, '').trim().charAt(0) : 'D'}
                     </div>
                     <div>
@@ -231,6 +232,7 @@ try {
           )}
         </tbody>
       </table>
+    </div>
     </div>
 
     <!-- Modal for Add / Edit Director -->

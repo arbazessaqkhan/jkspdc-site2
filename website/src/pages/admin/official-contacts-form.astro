@@ -179,7 +179,7 @@ if (Astro.request.method === 'POST') {
               required 
               value={contactData.name}
               placeholder="e.g. Managing Director / Sh. Pankaj Magotra, JKAS" 
-              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none" 
+              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none" 
             />
           </div>
 
@@ -193,7 +193,7 @@ if (Astro.request.method === 'POST') {
               required 
               value={contactData.position}
               placeholder="e.g. Managing Director / Executive Director (Civil)" 
-              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none" 
+              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none" 
             />
           </div>
 
@@ -206,7 +206,7 @@ if (Astro.request.method === 'POST') {
               id="email" 
               value={contactData.email}
               placeholder="e.g. md@jkspdcl.com" 
-              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none" 
+              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none" 
             />
           </div>
 
@@ -216,7 +216,7 @@ if (Astro.request.method === 'POST') {
             <select 
               name="viewOrder" 
               id="viewOrder" 
-              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none bg-white"
+              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none bg-white"
             >
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(n => (
                 <option value={n} selected={contactData.viewOrder === n}>{n}</option>
@@ -233,7 +233,7 @@ if (Astro.request.method === 'POST') {
               id="srinagarPhone" 
               value={contactData.srinagarPhone}
               placeholder="e.g. 01942500007" 
-              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none" 
+              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none" 
             />
           </div>
 
@@ -246,7 +246,7 @@ if (Astro.request.method === 'POST') {
               id="srinagarFax" 
               value={contactData.srinagarFax}
               placeholder="e.g. 01942500145" 
-              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none" 
+              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none" 
             />
           </div>
 
@@ -259,7 +259,7 @@ if (Astro.request.method === 'POST') {
               id="jammuPhone" 
               value={contactData.jammuPhone}
               placeholder="e.g. 01912479899" 
-              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none" 
+              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none" 
             />
           </div>
 
@@ -272,7 +272,7 @@ if (Astro.request.method === 'POST') {
               id="jammuFax" 
               value={contactData.jammuFax}
               placeholder="e.g. 01912479899" 
-              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none" 
+              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none" 
             />
           </div>
 
@@ -282,7 +282,7 @@ if (Astro.request.method === 'POST') {
             <select 
               name="isActive" 
               id="isActive" 
-              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none bg-white"
+              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none bg-white"
             >
               <option value="true" selected={contactData.isActive === true}>Active (Visible on public Contact Us page)</option>
               <option value="false" selected={contactData.isActive === false}>Inactive (Hidden from public site)</option>

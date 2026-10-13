@@ -77,7 +77,7 @@ try {
     <!-- Standard Admin Page Header -->
     <div class="admin-page-header">
       <div>
-        <h1 class="text-lg font-extrabold text-[#0B4F9C] tracking-tight">Projects Under Development</h1>
+        <h1 class="text-lg font-extrabold text-[color:var(--adm-primary)] tracking-tight">Projects Under Development</h1>
         <p class="text-xs text-slate-500 mt-0.5">Manage power stations currently under survey, DPR formulation, and pre-construction clearance.</p>
       </div>
       {userIsAdmin && (
@@ -111,7 +111,7 @@ try {
             type="text" 
             id="search-projects-input" 
             placeholder="Search project name, basin, configuration..." 
-            class="w-full bg-slate-50 border border-slate-300 rounded text-xs text-slate-800 pl-8 pr-3 py-1.5 focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none"
+            class="w-full bg-slate-50 border border-slate-300 rounded text-xs text-slate-800 pl-8 pr-3 py-1.5 focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none"
           />
           <div class="absolute left-2.5 top-2 text-slate-400">
             <Icon name="search" size={13} />
@@ -132,6 +132,8 @@ try {
         Showing <strong id="visible-projects-count" class="text-slate-800 font-bold">{projects.length}</strong> of {projects.length} projects
       </div>
     </div>
+
+    <div class="admin-table-card">
 
     <div class="admin-table-container overflow-x-auto">
       <table class="table-data min-w-[1000px] w-full text-left">
@@ -168,7 +170,7 @@ try {
                 <td class="font-bold text-slate-400 text-center text-xs row-idx">{idx + 1}</td>
                 <td class="font-bold text-slate-900 text-xs">{proj.name}</td>
                 <td class="text-slate-600 font-medium text-xs whitespace-nowrap">{proj.configuration || '—'}</td>
-                <td class="font-extrabold text-[#0B4F9C] whitespace-nowrap text-right text-xs">
+                <td class="font-extrabold text-[color:var(--adm-primary)] whitespace-nowrap text-right text-xs">
                   {proj.capacityMw.toFixed(2)} <span class="text-[10px] text-slate-400 font-normal">MW</span>
                 </td>
                 <td class="whitespace-nowrap font-medium text-slate-700 text-right text-xs">
@@ -223,6 +225,8 @@ try {
         </tbody>
       </table>
     </div>
+    </div>
+
   </div>
 
   <script is:inline>

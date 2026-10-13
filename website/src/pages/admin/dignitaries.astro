@@ -155,7 +155,7 @@ try {
       <!-- Standard Admin Page Header -->
       <div class="admin-page-header">
         <div>
-          <h1 class="text-lg font-extrabold text-[#0B4F9C] tracking-tight">Dignitaries Management</h1>
+          <h1 class="text-lg font-extrabold text-[color:var(--adm-primary)] tracking-tight">Dignitaries Management</h1>
           <p class="text-xs text-slate-500 mt-0.5">Manage state dignitaries, ministers, and top leadership profiles displayed across the portal.</p>
         </div>
         <button 
@@ -169,6 +169,7 @@ try {
       </div>
 
       <!-- Administrative Data Table -->
+      <div class="admin-table-card">
       <div class="admin-table-container">
         <table class="table-data min-w-full text-left">
           <thead>
@@ -209,7 +210,7 @@ try {
                         {dig.imageUrl ? (
                           <img src={dig.imageUrl} alt={dig.name} class="w-8 h-8 rounded-full object-cover object-top border border-slate-200 shrink-0" />
                         ) : (
-                          <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-[11px] font-bold text-[#0B4F9C] shrink-0">
+                          <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-[11px] font-bold text-[color:var(--adm-primary)] shrink-0">
                             {initials}
                           </div>
                         )}
@@ -275,6 +276,7 @@ try {
           </tbody>
           </table>
       </div>
+      </div>
 
     </div>
 
@@ -284,7 +286,7 @@ try {
       <!-- Back Navigation Bar -->
       <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-xs flex items-center justify-between gap-4">
         <div>
-          <h2 id="form-view-title" class="text-xl font-bold text-[#0B4F9C]">Add New Dignitary Profile</h2>
+          <h2 id="form-view-title" class="text-xl font-bold text-[color:var(--adm-primary)]">Add New Dignitary Profile</h2>
           <p class="text-xs text-slate-500 mt-1">Fill in official details below. Fields marked with (<span class="text-red-500 font-bold">*</span>) are required.</p>
         </div>
         <button 
@@ -382,7 +384,7 @@ try {
             <div class="flex flex-col sm:flex-row items-center gap-6">
               <!-- Live Image Avatar Preview -->
               <div class="shrink-0 flex flex-col items-center gap-1.5">
-                <div class="w-28 h-28 rounded-full overflow-hidden bg-slate-100 border-4 border-[#BDD7EE] shadow-sm relative flex items-center justify-center">
+                <div class="w-28 h-28 rounded-full overflow-hidden bg-slate-100 border-4 border-[color:var(--adm-border)] shadow-sm relative flex items-center justify-center">
                   <img id="image-preview-img" src="" alt="Preview" class="w-full h-full object-cover object-top hidden" />
                   <div id="image-preview-fallback" class="w-full h-full bg-slate-200 flex items-center justify-center">
                     <Icon name="user" size={48} class="text-slate-400" />
@@ -396,7 +398,7 @@ try {
                 <input type="hidden" name="imageUrl" id="field-imageUrl" value="" />
                 
                 <div class="flex flex-wrap items-center gap-3">
-                  <label for="field-imageFile" class="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-[#0B4F9C] bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 shadow-2xs transition-all">
+                  <label for="field-imageFile" class="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-[color:var(--adm-primary)] bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 shadow-2xs transition-all">
                     <Icon name="upload" size={14} /> Choose Image File from Device
                   </label>
                   <input type="file" id="field-imageFile" accept="image/*" class="hidden" />

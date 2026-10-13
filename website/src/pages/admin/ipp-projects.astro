@@ -168,7 +168,7 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
     <!-- Standard Admin Page Header -->
     <div class="admin-page-header">
       <div>
-        <h1 class="text-lg font-extrabold text-[#0B4F9C] tracking-tight">IPP Projects Allotments</h1>
+        <h1 class="text-lg font-extrabold text-[color:var(--adm-primary)] tracking-tight">IPP Projects Allotments</h1>
         <p class="text-xs text-slate-500 mt-0.5">Independent Power Producer (IPP) Hydroelectric Allotments Across Phase I–X Policies.</p>
       </div>
 
@@ -213,7 +213,7 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
       </div>
       <div class="bg-white rounded-lg border border-slate-200 p-3.5 shadow-2xs">
         <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Allocated Capacity</span>
-        <div class="text-xl font-extrabold text-[#0B4F9C] tracking-tight mt-0.5">{totalCapacity.toLocaleString('en-IN', { maximumFractionDigits: 1 })} <span class="text-xs font-medium text-slate-400">MW</span></div>
+        <div class="text-xl font-extrabold text-[color:var(--adm-primary)] tracking-tight mt-0.5">{totalCapacity.toLocaleString('en-IN', { maximumFractionDigits: 1 })} <span class="text-xs font-medium text-slate-400">MW</span></div>
         <span class="text-[11px] text-slate-500 font-medium">Generation Potential</span>
       </div>
       <div class="bg-white rounded-lg border border-slate-200 p-3.5 shadow-2xs">
@@ -236,7 +236,7 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
           <label for="filter-phase" class="text-xs font-bold text-slate-600 whitespace-nowrap">Phase:</label>
           <select 
             id="filter-phase" 
-            class="bg-slate-50 border border-slate-300 rounded text-xs font-medium text-slate-800 px-2.5 py-1.5 focus:ring-1 focus:ring-[#0B4F9C] outline-none"
+            class="bg-slate-50 border border-slate-300 rounded text-xs font-medium text-slate-800 px-2.5 py-1.5 focus:ring-1 focus:ring-[color:var(--adm-primary)] outline-none"
           >
             <option value="all">All Phases (10 Phases)</option>
             {phases.map((ph) => (
@@ -253,7 +253,7 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
             type="text" 
             id="search-ipp-input"
             placeholder="Search name, location, company..." 
-            class="w-full bg-slate-50 border border-slate-300 rounded text-xs text-slate-800 pl-8 pr-3 py-1.5 focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none"
+            class="w-full bg-slate-50 border border-slate-300 rounded text-xs text-slate-800 pl-8 pr-3 py-1.5 focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none"
           />
           <div class="absolute left-2.5 top-2 text-slate-400">
             <Icon name="search" size={13} />
@@ -267,6 +267,7 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
     </div>
 
     <!-- IPP Projects Data Table -->
+    <div class="admin-table-card">
     <div class="admin-table-container">
       <table class="table-data min-w-full text-left" id="ipp-table">
         <thead>
@@ -350,6 +351,7 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
         </tbody>
       </table>
     </div>
+    </div>
 
     <!-- MODAL: Add / Edit IPP Project (Matches Screenshot 2) -->
     {userIsAdmin && (
@@ -358,7 +360,7 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
         
         <!-- Modal Header -->
         <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/70 shrink-0">
-          <h3 id="modal-title" class="text-base font-extrabold text-[#0B4F9C] tracking-tight">Add IPP Project</h3>
+          <h3 id="modal-title" class="text-base font-extrabold text-[color:var(--adm-primary)] tracking-tight">Add IPP Project</h3>
           <button type="button" id="modal-close-btn" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 flex items-center justify-center text-lg font-bold cursor-pointer transition-colors">&times;</button>
         </div>
 
@@ -376,7 +378,7 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
               name="name" 
               required
               placeholder="Enter project name" 
-              class="w-full bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 px-3 py-2.5 focus:ring-2 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none"
+              class="w-full bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 px-3 py-2.5 focus:ring-2 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none"
             />
           </div>
 
@@ -391,7 +393,7 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
                 required 
                 autocomplete="off"
                 placeholder="Search or select location..." 
-                class="w-full bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 pl-3 pr-9 py-2.5 focus:ring-2 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] focus:bg-white outline-none transition-all cursor-pointer"
+                class="w-full bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 pl-3 pr-9 py-2.5 focus:ring-2 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] focus:bg-white outline-none transition-all cursor-pointer"
                 role="combobox"
                 aria-autocomplete="list"
                 aria-expanded="false"
@@ -420,7 +422,7 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
               >
                 {locations.map((loc) => (
                   <div 
-                    class="location-option px-3 py-2.5 hover:bg-[#EAF4FF] hover:text-[#0B4F9C] cursor-pointer text-slate-700 transition-colors flex items-center justify-between"
+                    class="location-option px-3 py-2.5 hover:bg-[color:var(--adm-bg-subtle)] hover:text-[color:var(--adm-primary)] cursor-pointer text-slate-700 transition-colors flex items-center justify-between"
                     role="option"
                     data-value={loc}
                   >
@@ -443,7 +445,7 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
               name="awardedTo" 
               required
               placeholder="Enter awarded to" 
-              class="w-full bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 px-3 py-2.5 focus:ring-2 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none"
+              class="w-full bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 px-3 py-2.5 focus:ring-2 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none"
             />
           </div>
 
@@ -458,7 +460,7 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
               name="capacityMw" 
               required
               placeholder="Enter capacity" 
-              class="w-full bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 px-3 py-2.5 focus:ring-2 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none"
+              class="w-full bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 px-3 py-2.5 focus:ring-2 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none"
             />
           </div>
 
@@ -471,7 +473,7 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
               rows="3"
               required
               placeholder="Enter status" 
-              class="w-full bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 px-3 py-2 focus:ring-2 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none resize-y"
+              class="w-full bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 px-3 py-2 focus:ring-2 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none resize-y"
             ></textarea>
           </div>
 
@@ -482,7 +484,7 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
               id="form-phase" 
               name="phase" 
               required
-              class="w-full bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 px-3 py-2.5 focus:ring-2 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none"
+              class="w-full bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 px-3 py-2.5 focus:ring-2 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none"
             >
               {phases.map((ph) => (
                 <option value={ph.value.toString()}>{ph.label}</option>
@@ -501,7 +503,7 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
             </button>
             <button 
               type="submit" 
-              class="bg-[#0B4F9C] hover:bg-[#084A8F] text-white text-xs font-bold px-5 py-2.5 rounded-lg shadow-xs hover:shadow-md transition-all cursor-pointer"
+              class="bg-[color:var(--adm-primary)] hover:bg-[var(--adm-primary-dark)] text-white text-xs font-bold px-5 py-2.5 rounded-lg shadow-xs hover:shadow-md transition-all cursor-pointer"
             >
               Submit
             </button>
