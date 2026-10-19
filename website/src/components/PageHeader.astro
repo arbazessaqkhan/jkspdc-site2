@@ -1,0 +1,54 @@
+---
+/**
+ * PageHeader — official page header band: breadcrumb slot, page title,
+ * optional intro paragraph. One presentation for every interior page.
+ * Color scheme adapts to a light variant via `variant="light"`.
+ */
+interface Props {
+  title: string;
+  intro?: string;
+  variant?: 'dark' | 'light';
+  class?: string;
+}
+const { title, intro, variant = 'dark', class: className = '' } = Astro.props;
+---
+<header class:list={['page-header', `page-header-${variant}`, className]}>
+  <slot name="breadcrumb" />
+  <h1 class="page-header-title">{title}</h1>
+  {intro && <p class="page-header-intro">{intro}</p>}
+</header>
+
+<style>
+  .page-header {
+    width: 100%;
+    padding: var(--space-5) 0 var(--space-5);
+    margin-bottom: var(--space-5);
+  }
+  .page-header-dark {
+    background: linear-gradient(180deg, var(--color-brand-primary-dark), var(--color-brand-primary));
+    color: #ffffff;
+  }
+  .page-header-light {
+    background-color: var(--color-brand-bg-light);
+    color: var(--color-brand-primary-deeper);
+    border-bottom: 3px solid var(--color-brand-accent);
+  }
+  .page-header :global(.breadcrumb-nav) {
+    margin-bottom: var(--space-3);
+    opacity: 0.9;
+  }
+  .page-header-title {
+    font-size: clamp(1.5rem, 1.2rem + 1.2vw, var(--text-2xl-rem));
+    font-weight: 700;
+    line-height: 1.15;
+    margin: 0;
+    letter-spacing: -0.015em;
+  }
+  .page-header-intro {
+    margin: var(--space-3) 0 0;
+    max-width: 60ch;
+    font-size: var(--text-base-rem);
+    line-height: 1.55;
+    opacity: 0.94;
+  }
+</style>

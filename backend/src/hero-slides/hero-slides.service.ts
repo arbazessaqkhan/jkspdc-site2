@@ -1,13 +1,31 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CreateHeroSlideDto, UpdateHeroSlideDto } from './hero-slides.dto';
+import { PaginationDto, wantsPagination, paginate } from '../common/pagination';
 
 @Injectable()
 export class HeroSlidesService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll() {
+  async findAllLegacy() {
     return this.prisma.heroSlide.findMany({ orderBy: { sortOrder: 'asc' } });
+  }
+
+  /**
+   * Paged variant used by admin list pages (?page/?pageSize). Without
+   * pagination params it returns the full array (legacy behaviour).
+   */
+  async findAll(q: PaginationDto = {}): Promise<any> {
+    if (!wantsPagination(q)) {
+      return this.prisma.heroSlide.findMany({ orderBy: { sortOrder: 'asc' } });
+    }
+    return paginate({
+      page: q.page,
+      pageSize: q.pageSize,
+      count: () => this.prisma.heroSlide.count({ where: undefined }),
+      find: (skip, take) =>
+        this.prisma.heroSlide.findMany({ where: undefined, orderBy: { sortOrder: 'asc' }, skip, take }),
+    });
   }
 
   async findActive() {

@@ -3,6 +3,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
 import { isAdmin } from '../../utils/roles';
 import { parseApiError, BACKEND_URL } from '../../utils/api-error';
+import { readPageParams, fetchPaged, pageUrl } from '../../utils/pagination';
+import PageNav from '../../components/PageNav.astro';
 
 // Check authentication
 const sessionToken = Astro.cookies.get('admin_session')?.value;
@@ -103,24 +105,22 @@ if (Astro.request.method === 'POST') {
 }
 
 // Fetch list of directors
-let directors = [];
+const { page, pageSize } = readPageParams(Astro.url);
+const pagedExtra: Record<string, string | undefined> = {  };
+let directors: any[] = [];
+let pagedTotal = 0;
+let pagedLastPage = 1;
 try {
-  const res = await fetch(`${BACKEND_URL}/api/directors`);
-  if (res.ok) {
-    directors = await res.json();
-    directors.sort((a: any, b: any) => a.sNo - b.sNo);
-  } else {
-    const apiErr = await parseApiError(res, 'load board of directors');
-    if (apiErr.isUnauthorized) {
-      return Astro.redirect('/admin/login');
-    }
-    errorMessage = apiErr.message;
-  }
+  const state = await fetchPaged('/api/directors', { BACKEND_URL, page, pageSize, extra: pagedExtra });
+  directors = state.rows;
+  pagedTotal = state.total;
+  pagedLastPage = state.lastPage;
+  if (state.error) errorMessage = errorMessage || state.error;
 } catch (e) {
   console.error('Error fetching directors:', e);
   errorMessage = 'Failed to load board of directors. Unable to communicate with the server.';
 }
----
+const pagedState = { rows: directors, total: pagedTotal, page, pageSize, lastPage: pagedLastPage, error: null };---
 
 <AdminLayout title="Board of Directors (BOD)" description="Manage Board of Directors, positions, roles, and serial orders." activeTab="directors">
   <div class="flex flex-col gap-6">
@@ -128,7 +128,7 @@ try {
     <!-- Standard Admin Page Header -->
     <div class="admin-page-header">
       <div>
-        <h1 class="text-lg font-extrabold text-[#0B4F9C] tracking-tight">Board of Directors (BOD)</h1>
+        <h1 class="text-lg font-extrabold text-[color:var(--adm-primary)] tracking-tight">Board of Directors (BOD)</h1>
         <p class="text-xs text-slate-500 mt-0.5">Manage board members, executive positions, government nominees, and serial ordering.</p>
       </div>
       <button 
@@ -154,6 +154,7 @@ try {
     )}
 
     <!-- Administrative Data Table -->
+    <div class="admin-table-card">
     <div class="admin-table-container">
       <table class="table-data min-w-full text-left">
         <thead>
@@ -178,7 +179,7 @@ try {
                 <td class="text-center text-xs font-bold text-slate-500">{dir.sNo}</td>
                 <td>
                   <div class="flex items-center gap-2.5">
-                    <div class="w-7 h-7 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-[11px] font-bold text-[#0B4F9C] shrink-0">
+                    <div class="w-7 h-7 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-[11px] font-bold text-[color:var(--adm-primary)] shrink-0">
                       {dir.name ? dir.name.replace(/Shri\s*|Er\s*|Dr\s*|\(IAS\)/gi, '').trim().charAt(0) : 'D'}
                     </div>
                     <div>
@@ -231,6 +232,9 @@ try {
           )}
         </tbody>
       </table>
+
+
+    <PageNav state={pagedState} url={(p: number) => pageUrl(Astro.url, p, pageSize, pagedExtra)} />    </div>
     </div>
 
     <!-- Modal for Add / Edit Director -->

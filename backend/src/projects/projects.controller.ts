@@ -12,8 +12,8 @@ export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
   @Get()
-  async findAll(@Query('status') status?: string) {
-    return this.projectsService.findAll(status);
+  async findAll(@Query() q: any, @Query('status') status?: string) {
+    return this.projectsService.findAll(q, status);
   }
 
   @Get(':id')

@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { deleteLocalFile } from '../upload/file-cleanup.helper';
 import { CreatePolicyDto, UpdatePolicyDto } from './policies.dto';
+import { PaginationDto, wantsPagination, paginate } from '../common/pagination';
 
 @Injectable()
 export class PoliciesService {
@@ -11,10 +12,28 @@ export class PoliciesService {
     private readonly auditLogsService: AuditLogsService,
   ) {}
 
-  async findAll(category?: string) {
+  async findAllLegacy(category?: string) {
     return this.prisma.policyDocument.findMany({
       where: category ? { category } : undefined,
       orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  /**
+   * Paged variant used by admin list pages (?page/?pageSize). Without
+   * pagination params it returns the full array (legacy behaviour).
+   */
+  async findAll(q: PaginationDto = {}, category?: string): Promise<any> {
+    const where = category ? { category } : undefined;
+    if (!wantsPagination(q)) {
+      return this.prisma.policyDocument.findMany({ where, orderBy: { createdAt: 'desc' } });
+    }
+    return paginate({
+      page: q.page,
+      pageSize: q.pageSize,
+      count: () => this.prisma.policyDocument.count({ where }),
+      find: (skip, take) =>
+        this.prisma.policyDocument.findMany({ where, orderBy: { createdAt: 'desc' }, skip, take }),
     });
   }
 

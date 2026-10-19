@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CreateContactSubOfficeDto, UpdateContactSubOfficeDto } from './contact-sub-offices.dto';
+import { PaginationDto, wantsPagination, paginate } from '../common/pagination';
 
 @Injectable()
 export class ContactSubOfficesService {
@@ -13,9 +14,26 @@ export class ContactSubOfficesService {
     });
   }
 
-  async findAll() {
+  async findAllLegacy() {
     return this.prisma.contactSubOffice.findMany({
       orderBy: { viewOrder: 'asc' },
+    });
+  }
+
+  /**
+   * Paged variant used by admin list pages (?page/?pageSize). Without
+   * pagination params it returns the full array (legacy behaviour).
+   */
+  async findAll(q: PaginationDto = {}): Promise<any> {
+    if (!wantsPagination(q)) {
+      return this.prisma.contactSubOffice.findMany({ orderBy: { viewOrder: 'asc' } });
+    }
+    return paginate({
+      page: q.page,
+      pageSize: q.pageSize,
+      count: () => this.prisma.contactSubOffice.count({ where: undefined }),
+      find: (skip, take) =>
+        this.prisma.contactSubOffice.findMany({ where: undefined, orderBy: { viewOrder: 'asc' }, skip, take }),
     });
   }
 

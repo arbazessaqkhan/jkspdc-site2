@@ -1,6 +1,7 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
+import FileUploader from '../../components/admin/FileUploader.astro';
 import { canUploadFile, canDeleteFile } from '../../utils/roles';
 import { parseApiError, BACKEND_URL } from '../../utils/api-error';
 
@@ -64,24 +65,17 @@ try {
         <div class="bg-white rounded-lg border border-slate-200 p-5 shadow-xs lg:col-span-1 flex flex-col gap-4 self-start">
           <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-2">Upload File</h2>
           
-          <div id="upload-container" class="border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-lg p-6 bg-slate-50 flex flex-col items-center justify-center gap-2 hover:bg-blue-50/20 transition-all cursor-pointer relative min-h-[150px]">
-            <input type="file" id="file-uploader" class="absolute inset-0 opacity-0 cursor-pointer" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" />
-            <Icon name="upload" size={26} class="text-slate-400" />
-            <span class="text-xs text-slate-700 font-bold text-center" id="upload-status-text">Click to browse or drag file here</span>
-            <span class="text-[10px] text-slate-500 text-center">PDF, JPG, PNG, DOCX, XLSX (Max 20MB / 100MB if Important)</span>
-          </div>
-
-          <label class="flex items-center gap-2 p-2 bg-amber-50/70 border border-amber-200/80 rounded cursor-pointer hover:bg-amber-50 transition-colors select-none">
-            <input type="checkbox" id="is-important-checkbox" class="w-3.5 h-3.5 rounded text-[#0B4F9C] border-slate-300 focus:ring-[#0B4F9C] cursor-pointer" />
-            <div class="flex flex-col">
-              <span class="text-xs font-bold text-amber-900 flex items-center gap-1.5"><Icon name="star" size={13} class="text-amber-600 shrink-0" /> Mark as Important</span>
-              <span class="text-[10px] text-amber-700">Increases upload limit from 20 MB to 100 MB</span>
-            </div>
-          </label>
+          <FileUploader
+            id="media-doc"
+            variant="document"
+            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"
+            helpText="PDF, JPG, PNG, DOCX, XLSX (Max 20MB / 100MB if Important)"
+            important
+          />
 
           <div class="text-[11px] text-slate-600 leading-relaxed bg-slate-50 border border-slate-200 rounded p-3">
             <p class="font-bold text-slate-800 mb-1 flex items-center gap-1">
-              <Icon name="info" size={12} class="text-[#0B4F9C]" /> Referencing Uploads:
+              <Icon name="info" size={12} class="text-[color:var(--adm-primary)]" /> Referencing Uploads:
             </p>
             Once uploaded, click <strong class="text-slate-800">Copy URL</strong> to reference the document anywhere across the admin portal.
           </div>
@@ -102,7 +96,7 @@ try {
               type="text" 
               id="search-files-input" 
               placeholder="Filter files..." 
-              class="w-full bg-white border border-slate-300 rounded text-xs text-slate-800 pl-8 pr-3 py-1.5 focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none"
+              class="w-full bg-white border border-slate-300 rounded text-xs text-slate-800 pl-8 pr-3 py-1.5 focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none"
             />
             <div class="absolute left-2.5 top-2 text-slate-400">
               <Icon name="search" size={13} />
@@ -117,6 +111,7 @@ try {
             <p class="text-[11px] text-slate-400">Use the upload box on the left to add documents or images.</p>
           </div>
         ) : (
+          <div class="admin-table-card">
           <div class="admin-table-container">
             <table class="admin-table min-w-full" id="files-table">
               <thead>
@@ -150,7 +145,7 @@ try {
                           {isImage ? (
                             <img src={file.url} alt={file.filename} class="w-full h-full object-cover" />
                           ) : (
-                            <span class="text-[9px] font-black text-[#0B4F9C] uppercase">
+                            <span class="text-[9px] font-black text-[color:var(--adm-primary)] uppercase">
                               {ext}
                             </span>
                           )}
@@ -210,6 +205,8 @@ try {
               </tbody>
             </table>
           </div>
+          </div>
+
         )}
       </div>
 
@@ -220,10 +217,9 @@ try {
   <!-- Client-side Scripts -->
   <script is:inline define:vars={{ sessionToken, canUpload, canDelete, backendUrl: BACKEND_URL }}>
     // Setup references
-    const fileUploader = document.getElementById('file-uploader');
-    const uploadStatusText = document.getElementById('upload-status-text');
-    const uploadContainer = document.getElementById('upload-container');
-    const isImportantCheckbox = document.getElementById('is-important-checkbox');
+    const fileUploader = document.getElementById('media-doc-input');
+        const uploadContainer = document.getElementById('media-doc-dropzone');
+    const isImportantCheckbox = document.getElementById('media-doc-important');
 
     // Handle Upload
     if (canUpload && fileUploader) {
@@ -232,24 +228,6 @@ try {
       if (!file) return;
 
       const isImportant = isImportantCheckbox?.checked || false;
-      const MAX_STANDARD = 20 * 1024 * 1024;
-      const MAX_IMPORTANT = 100 * 1024 * 1024;
-
-      if (!isImportant && file.size > MAX_STANDARD) {
-        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-        alert(`File size (${sizeMB} MB) exceeds the standard 20 MB limit.\n\nPlease check "Mark as Important" to allow uploading files up to 100 MB.`);
-        fileUploader.value = '';
-        return;
-      }
-
-      if (file.size > MAX_IMPORTANT) {
-        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-        alert(`File size (${sizeMB} MB) exceeds the maximum allowed limit of 100 MB.`);
-        fileUploader.value = '';
-        return;
-      }
-
-      uploadStatusText.textContent = `Uploading ${file.name}...`;
       uploadContainer.classList.add('opacity-60', 'pointer-events-none');
 
       const formData = new FormData();
@@ -282,7 +260,6 @@ try {
         window.location.reload();
       } catch (error) {
         alert(`Upload Error: ${error.message}`);
-        uploadStatusText.textContent = 'Click to browse or drag file here';
         fileUploader.value = '';
       } finally {
         uploadContainer.classList.remove('opacity-60', 'pointer-events-none');

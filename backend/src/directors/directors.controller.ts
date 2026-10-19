@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { Query, Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
 import { DirectorsService } from './directors.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -12,8 +12,8 @@ export class DirectorsController {
   constructor(private readonly directorsService: DirectorsService) {}
 
   @Get()
-  async findAll() {
-    return this.directorsService.findAll();
+  async findAll(@Query() q: any) {
+    return this.directorsService.findAll(q);
   }
 
   @Get(':id')

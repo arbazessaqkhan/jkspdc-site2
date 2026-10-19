@@ -5,7 +5,7 @@ import Icon from '../../../components/Icon.astro';
 function getDocUrl(url?: string) {
   if (!url) return '#';
   if (url.startsWith('/uploads/')) {
-    return `http://localhost:3000${url}`;
+    return `${import.meta.env.PUBLIC_API_BASE}${url}`;
   }
   return url;
 }
@@ -14,7 +14,7 @@ let policies: any[] = [];
 
 try {
   // Fetch from Resources / Downloads where category is Policies
-  const downloadsRes = await fetch('http://localhost:3000/api/downloads').catch(() => null);
+  const downloadsRes = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/downloads`).catch(() => null);
 
   if (downloadsRes && downloadsRes.ok) {
     const dlData = await downloadsRes.json();

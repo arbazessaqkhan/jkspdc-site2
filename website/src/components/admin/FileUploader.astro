@@ -1,0 +1,147 @@
+---
+/**
+ * FileUploader — THE single shared upload control for every admin module.
+ *
+ * Professional, standards-based pattern: a labelled drop zone that is
+ * click-to-browse, drag-and-drop and fully keyboard accessible, with
+ * client-side accept/size validation, selected-file name+size display with
+ * Remove, and an optional image preview.
+ *
+ * The page keeps its own upload JS: this component emits a normal
+ * `change` event on the native file input (id = `${id}-input`) after a
+ * validated selection, and clears it on Remove. Existing page scripts that
+ * listen for a change on a file input keep working unchanged — they only
+ * need to target the new input id and read the display elements below.
+ *
+ * Props:
+ *   id          unique base id (input becomes `${id}-input`)
+ *   label       visible field label (optional)
+ *   required    mark label required (default false)
+ *   accept      accept attr string (e.g. ".pdf,.docx" or "image/*")
+ *   helpText    formats + max size hint shown under the title
+ *   maxSizeMB   client-side size limit; omit to disable
+ *   important   show the "Mark as Important (100 MB)" checkbox (documents)
+ *   variant     'document' | 'image' | 'multi'
+ *   existingUrl current file URL when editing (image preview / file name)
+ *   multiple    allow multiple selection (multi variant)
+ *   icon        icon name (default 'upload'; use 'image' for image variant)
+ */
+import Icon from '../Icon.astro';
+
+export interface Props {
+  id: string;
+  label?: string;
+  required?: boolean;
+  accept?: string;
+  helpText?: string;
+  maxSizeMB?: number;
+  important?: boolean;
+  variant?: 'document' | 'image' | 'multi';
+  existingUrl?: string;
+  existingName?: string;
+  multiple?: boolean;
+  icon?: string;
+}
+const {
+  id,
+  label,
+  required = false,
+  accept = '',
+  helpText = '',
+  maxSizeMB,
+  important = false,
+  variant = 'document',
+  existingUrl = '',
+  existingName = '',
+  multiple = false,
+  icon = variant === 'image' ? 'image' : 'upload',
+} = Astro.props;
+
+const titleText =
+  variant === 'multi'
+    ? 'Click to choose or drag files here'
+    : 'Click to choose or drag file here';
+const initialName = existingName || (existingUrl ? existingUrl.split('/').pop() : '');
+const dataAttrs = [
+  maxSizeMB ? `data-max-size-mb="${maxSizeMB}"` : '',
+  accept ? `data-accept="${accept}"` : '',
+  `data-variant="${variant}"`,
+].filter(Boolean).join(' ');
+---
+<div class="admin-uploader-field flex flex-col gap-1.5" data-uploader-field={id}>
+  {label && (
+    <label class="text-xs font-bold text-slate-700" id={`${id}-label`}>
+      {label} {required && <span class="text-red-500">*</span>}
+    </label>
+  )}
+
+  <div
+    class={`admin-uploader variant-${variant} ${initialName ? 'has-file' : ''}`}
+    id={`${id}-dropzone`}
+    role="button"
+    tabindex="0"
+    aria-labelledby={label ? `${id}-label` : undefined}
+    aria-describedby={`${id}-help`}
+    {...dataAttrs}
+  >
+    <input
+      type="file"
+      id={`${id}-input`}
+      class="admin-uploader-native-input"
+      accept={accept || undefined}
+      multiple={multiple || undefined}
+      aria-describedby={`${id}-help ${id}-status`}
+    />
+
+    <Icon name={icon} size={variant === 'image' ? 22 : 24} class="admin-uploader-icon" />
+    <span class="admin-uploader-title" id={`${id}-title`}>{titleText}</span>
+    {helpText && <span class="admin-uploader-help" id={`${id}-help`}>{helpText}</span>}
+    <span class="admin-uploader-error" id={`${id}-error`} role="alert"></span>
+
+    <!-- Selected / existing file row -->
+    <div class="admin-uploader-file" id={`${id}-file`}>
+      <Icon name="check-circle-2" size={14} class="admin-uploader-file-icon" />
+      <span class="admin-uploader-file-name" id={`${id}-file-name`}>{initialName || ''}</span>
+      <span class="admin-uploader-file-size" id={`${id}-file-size`}></span>
+      <button
+        type="button"
+        class="admin-uploader-file-remove"
+        id={`${id}-remove`}
+        title="Remove file"
+        aria-label="Remove selected file"
+      >&times;</button>
+    </div>
+
+    {variant === 'image' && (
+      <div class="admin-uploader-preview" id={`${id}-preview`}>
+        <img id={`${id}-preview-img`} src={existingUrl || ''} alt="Selected image preview" class={existingUrl ? '' : 'invisible'} />
+      </div>
+    )}
+
+    <span id={`${id}-status`} class="sr-only" aria-live="polite"></span>
+  </div>
+
+  {important && (
+    <label class="flex items-center gap-2 p-2 bg-amber-50/70 border border-amber-200/80 rounded-lg cursor-pointer hover:bg-amber-50 transition-colors select-none">
+      <input type="checkbox" id={`${id}-important`} class="w-4 h-4 rounded text-[color:var(--adm-primary)] border-slate-300 focus:ring-[color:var(--adm-primary)] cursor-pointer" />
+      <span class="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+        <Icon name="star" size={13} class="text-amber-600 shrink-0" /> Mark as Important
+        <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span>
+      </span>
+    </label>
+  )}
+</div>
+
+<style>
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>

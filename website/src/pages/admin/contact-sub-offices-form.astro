@@ -174,7 +174,7 @@ if (Astro.request.method === 'POST') {
               required 
               value={subOfficeData.wing}
               placeholder="e.g. Generation BHEP, Generation Jammu, Generation Kashmir" 
-              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none" 
+              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none" 
             />
           </div>
 
@@ -188,7 +188,7 @@ if (Astro.request.method === 'POST') {
               required 
               value={subOfficeData.name}
               placeholder="e.g. Generation BHEP / Official Name" 
-              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none" 
+              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none" 
             />
           </div>
 
@@ -202,7 +202,7 @@ if (Astro.request.method === 'POST') {
               required 
               value={subOfficeData.designation}
               placeholder="e.g. Chief Engineer, Executive Engineer" 
-              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none" 
+              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none" 
             />
           </div>
 
@@ -215,7 +215,7 @@ if (Astro.request.method === 'POST') {
               id="email" 
               value={subOfficeData.email}
               placeholder="e.g. ceebhep@gmail.com" 
-              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none" 
+              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none" 
             />
           </div>
 
@@ -228,7 +228,7 @@ if (Astro.request.method === 'POST') {
               id="phone" 
               value={subOfficeData.phone}
               placeholder="e.g. 01998288376" 
-              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none" 
+              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none" 
             />
           </div>
 
@@ -238,7 +238,7 @@ if (Astro.request.method === 'POST') {
             <select 
               name="viewOrder" 
               id="viewOrder" 
-              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none bg-white"
+              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none bg-white"
             >
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map(n => (
                 <option value={n} selected={subOfficeData.viewOrder === n}>{n}</option>
@@ -255,7 +255,7 @@ if (Astro.request.method === 'POST') {
               id="address" 
               value={subOfficeData.address}
               placeholder="e.g. Chanderkote, Ramban, J&K" 
-              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none" 
+              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none" 
             />
           </div>
 
@@ -265,7 +265,7 @@ if (Astro.request.method === 'POST') {
             <select 
               name="isActive" 
               id="isActive" 
-              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none bg-white"
+              class="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none bg-white"
             >
               <option value="true" selected={subOfficeData.isActive === true}>Active (Visible on public Wing Contacts table)</option>
               <option value="false" selected={subOfficeData.isActive === false}>Inactive (Hidden from public site)</option>

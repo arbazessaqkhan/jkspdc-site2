@@ -1,0 +1,151 @@
+---
+/**
+ * DocumentList — the single presentation for government document records.
+ * Every document across the site (tenders, notifications, downloads, AGM,
+ * policies, RTI) renders through this so metadata and actions look identical.
+ *
+ * Each row shows (where data exists): format badge, title (meaningful link),
+ * reference number, date, file size, and one consistent action.
+ */
+export interface DocItem {
+  title: string;
+  href?: string;          // document URL (opens in new tab via global handler)
+  refNo?: string;         // tender/reference number
+  date?: string;          // already formatted for display
+  dateLabel?: string;     // e.g. "Published", "Due", "Updated"
+  format?: 'PDF' | 'DOC' | 'XLS' | 'ZIP' | 'OTHER';
+  size?: string;          // e.g. "1.2 MB"
+  status?: 'Active' | 'Closed' | 'Archived' | 'Important';
+  description?: string;
+}
+interface Props {
+  docs: DocItem[];
+  emptyMessage?: string;
+  class?: string;
+}
+const { docs, emptyMessage = 'No documents are currently available.', class: className = '' } = Astro.props;
+
+const formatClass: Record<string, string> = {
+  PDF: 'doc-format-pdf',
+  DOC: 'doc-format-doc',
+  XLS: 'doc-format-xls',
+  ZIP: 'doc-format-zip',
+  OTHER: 'doc-format-other',
+};
+const statusClass: Record<string, string> = {
+  Active: 'status-operational',
+  Closed: 'status-closed',
+  Archived: 'status-archived',
+  Important: 'status-important',
+};
+---
+{docs.length === 0 ? (
+  <div class:list={['registry-state registry-empty', className]}>
+    <p><span class="state-title">{emptyMessage}</span></p>
+  </div>
+) : (
+  <ul class:list={['doc-list', className]} role="list">
+    {docs.map((doc) => (
+      <li class="doc-row">
+        <div class="doc-main">
+          {doc.format && (
+            <span class:list={['doc-format', formatClass[doc.format]]} aria-label={`${doc.format} document`}>
+              {doc.format}
+            </span>
+          )}
+          <div class="doc-text">
+            {doc.href ? (
+              <a class="doc-title" href={doc.href} target="_blank" rel="noopener">{doc.title}</a>
+            ) : (
+              <span class="doc-title doc-title-static">{doc.title}</span>
+            )}
+            {doc.description && <p class="doc-desc">{doc.description}</p>}
+            <p class="doc-meta">
+              {doc.refNo && <span class="doc-meta-item">Ref: {doc.refNo}</span>}
+              {doc.date && (
+                <span class="doc-meta-item">
+                  {doc.dateLabel ? `${doc.dateLabel}: ` : ''}{doc.date}
+                </span>
+              )}
+              {doc.size && <span class="doc-meta-item">{doc.size}</span>}
+            </p>
+          </div>
+        </div>
+        {doc.status && (
+          <span class:list={['status', statusClass[doc.status]]}>{doc.status}</span>
+        )}
+      </li>
+    ))}
+  </ul>
+)}
+
+<style>
+  .doc-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--color-brand-border);
+    border-radius: var(--radius-card);
+    background: #ffffff;
+    overflow: hidden;
+  }
+  .doc-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--color-brand-border);
+  }
+  .doc-row:last-child {
+    border-bottom: 0;
+  }
+  .doc-row:hover {
+    background-color: #F8FAFC;
+  }
+  .doc-main {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+  .doc-text {
+    min-width: 0;
+  }
+  .doc-title {
+    display: block;
+    font-weight: 600;
+    font-size: var(--text-sm-rem);
+    color: var(--color-brand-primary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    line-height: 1.4;
+  }
+  .doc-title-static {
+    color: var(--color-brand-text);
+    text-decoration: none;
+  }
+  .doc-desc {
+    margin: var(--space-1) 0 0;
+    font-size: var(--text-xs-rem);
+    color: var(--color-brand-muted);
+    line-height: 1.5;
+  }
+  .doc-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-4);
+    margin: var(--space-1) 0 0;
+    font-size: var(--text-xs-rem);
+    color: var(--color-brand-muted);
+  }
+  .doc-meta-item {
+    white-space: nowrap;
+  }
+  @media (max-width: 640px) {
+    .doc-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

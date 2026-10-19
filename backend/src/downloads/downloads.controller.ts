@@ -12,8 +12,8 @@ export class DownloadsController {
   constructor(private readonly service: DownloadsService) {}
 
   @Get()
-  findAll(@Query('category') category?: string) {
-    return this.service.findAll(category);
+  findAll(@Query() q: any, @Query('category') category?: string) {
+    return this.service.findAll(q, category);
   }
 
   @Get(':id')

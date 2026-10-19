@@ -12,9 +12,9 @@ export class FinancialsController {
   constructor(private readonly service: FinancialsService) {}
 
   @Get()
-  findAll(@Query('category') category?: string) {
+  findAll(@Query() q: any, @Query('category') category?: string) {
     if (category) return this.service.findByCategory(category);
-    return this.service.findAll();
+    return this.service.findAll(q);
   }
 
   @Get(':id')

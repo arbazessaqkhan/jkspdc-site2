@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nestjs/common';
+import { Query, Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nestjs/common';
 import { ExecutivesService } from './executives.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -12,8 +12,8 @@ export class ExecutivesController {
   constructor(private readonly service: ExecutivesService) {}
 
   @Get()
-  findAll() {
-    return this.service.findAll();
+  findAll(@Query() q: any) {
+    return this.service.findAll(q);
   }
 
   @Get(':id')

@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import '../styles/admin.css';
 import Icon from '../components/Icon.astro';
 import type { AdminTab } from '../pages/admin/types';
 import { ClientRouter } from 'astro:transitions';
@@ -17,6 +18,62 @@ const currentYear = new Date().getFullYear();
 const user = Astro.locals.user;
 const userRole = (user?.role || 'VIEWER').toUpperCase();
 const userIsAdmin = isAdmin(userRole);
+
+const ACTIVE = 'sidebar-nav-link admin-nav-active';
+const INACTIVE = 'sidebar-nav-link';
+
+interface NavItem { href: string; tab: AdminTab; label: string; icon: string; }
+interface NavSection { title: string; items: NavItem[]; adminOnly?: boolean; }
+
+const NAV_SECTIONS: NavSection[] = [
+  { title: 'Overview', items: [{ href: '/admin/dashboard', tab: 'dashboard', label: 'Dashboard Overview', icon: 'bar-chart' }] },
+  {
+    title: 'Projects & Infrastructure',
+    items: [
+      { href: '/admin/operational-projects', tab: 'operational', label: 'Operational Projects', icon: 'zap' },
+      { href: '/admin/under-construction', tab: 'construction', label: 'Under Construction', icon: 'hardhat' },
+      { href: '/admin/upcoming-projects', tab: 'upcoming', label: 'Projects Under Development', icon: 'rocket' },
+      { href: '/admin/ipp-projects', tab: 'ipp', label: 'IPP Projects', icon: 'building' },
+    ],
+  },
+  { title: 'Tenders & Procurement', items: [{ href: '/admin/tenders', tab: 'tenders', label: 'Tenders & Bids', icon: 'file-text' }] },
+  {
+    title: 'Corporate Governance',
+    adminOnly: true,
+    items: [
+      { href: '/admin/dignitaries', tab: 'dignitaries', label: 'Dignitaries', icon: 'award' },
+      { href: '/admin/board-of-directors', tab: 'directors', label: 'Board of Directors', icon: 'users' },
+      { href: '/admin/notifications', tab: 'notifications', label: 'Notifications', icon: 'bell' },
+    ],
+  },
+  {
+    title: 'Media & Publications',
+    items: [
+      { href: '/admin/gallery', tab: 'gallery', label: 'Media Gallery', icon: 'image' },
+      { href: '/admin/policies', tab: 'policies', label: 'CSR Documents Manager', icon: 'file-text' },
+      { href: '/admin/resources', tab: 'resources', label: 'Resources', icon: 'archive' },
+    ],
+  },
+  {
+    title: 'Contact Directory',
+    items: [
+      { href: '/admin/official-contacts', tab: 'official-contacts', label: 'Official Contact', icon: 'phone' },
+      { href: '/admin/contact-sub-offices', tab: 'contact-sub-offices', label: 'Contact Sub-Offices', icon: 'building-2' },
+    ],
+  },
+  { title: 'Feedback & Inquiries', items: [{ href: '/admin/contacts', tab: 'contacts', label: 'Feedbacks & Inquiries', icon: 'mail' }] },
+  {
+    title: 'Security & Logs',
+    adminOnly: true,
+    items: [
+      { href: '/admin/users', tab: 'users', label: 'User Accounts', icon: 'shield-check' },
+      { href: '/admin/audit-logs', tab: 'audit-logs', label: 'Audit Logs Feed', icon: 'scroll-text' },
+      { href: '/admin/site-settings', tab: 'site-settings', label: 'Site Settings', icon: 'settings' },
+    ],
+  },
+];
+
+const visibleSections = NAV_SECTIONS.filter((s) => !s.adminOnly || userIsAdmin);
 ---
 
 <!DOCTYPE html>
@@ -24,203 +81,19 @@ const userIsAdmin = isAdmin(userRole);
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{title} | JKSPDCL Admin Portal</title>
+    <title>{title} | JKSPDC Admin Portal</title>
     <meta name="description" content={description} />
     <meta name="robots" content="noindex, nofollow" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="icon" type="image/png" href="/logo.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;850&family=Noto+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <!-- Quill.js Rich Text Editor Styles & Script (Admin Console Only) -->
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
     <script is:inline src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
     <ClientRouter />
 
-    <style is:global>
-      /* High-contrast, dark black navigation for Admin Sidebar */
-      #admin-sidebar nav a {
-        color: #0f172a !important; /* text-slate-900 */
-        font-weight: 700 !important;
-      }
-      #admin-sidebar nav a svg {
-        color: #0B4F9C !important;
-        stroke: #0B4F9C !important;
-      }
-      #admin-sidebar nav a.admin-nav-active,
-      #admin-sidebar nav a[class*="bg-\[#0B4F9C\]"],
-      #admin-sidebar nav a[class*="bg-blue-600"] {
-        background-color: #0B4F9C !important;
-        color: #ffffff !important;
-      }
-      #admin-sidebar nav a.admin-nav-active svg,
-      #admin-sidebar nav a[class*="bg-\[#0B4F9C\]"] svg,
-      #admin-sidebar nav a[class*="bg-blue-600"] svg {
-        color: #ffffff !important;
-        stroke: #ffffff !important;
-      }
-      #admin-sidebar nav a:hover:not(.admin-nav-active):not([class*="bg-\[#0B4F9C\]"]):not([class*="bg-blue-600"]) {
-        background-color: #EAF4FF !important;
-        color: #0B4F9C !important;
-      }
-
-      /* Fix Quill Rich Text Editors & Textareas: Never expand/grow in height, scroll vertically only */
-      .ql-container.ql-snow,
-      [data-rich-editor] {
-        height: 160px;
-        max-height: 160px;
-        overflow: hidden !important;
-        box-sizing: border-box !important;
-      }
-
-      [data-rich-editor="field-description"] {
-        height: 160px !important;
-        max-height: 160px !important;
-      }
-      [data-rich-editor="field-keyResponsibilities"] {
-        height: 160px !important;
-        max-height: 160px !important;
-      }
-      [data-rich-editor="field-salientFeatures"] {
-        height: 220px !important;
-        max-height: 220px !important;
-      }
-
-      .ql-container.ql-snow .ql-editor,
-      [data-rich-editor] .ql-editor {
-        height: 100% !important;
-        max-height: 100% !important;
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
-        box-sizing: border-box !important;
-      }
-
-      /* Ensure headings and content blocks in Quill editors span full 100% row width without balanced premature wrapping */
-      .ql-editor,
-      .ql-editor * {
-        box-sizing: border-box !important;
-      }
-      .ql-editor h1,
-      .ql-editor h2,
-      .ql-editor h3,
-      .ql-editor h4,
-      .ql-editor h5,
-      .ql-editor h6,
-      .ql-editor p,
-      .ql-editor ol,
-      .ql-editor ul,
-      .ql-editor li,
-      .ql-editor blockquote {
-        text-wrap: wrap !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        word-break: normal !important;
-        overflow-wrap: break-word !important;
-      }
-
-      .admin-page textarea {
-        overflow-y: auto !important;
-      }
-
-      .high-contrast,
-      .high-contrast * {
-        background-color: #000000 !important;
-        background-image: none !important;
-        color: #ffff00 !important;
-        border-color: #ffff00 !important;
-        box-shadow: none !important;
-      }
-      .high-contrast a,
-      .high-contrast button {
-        color: #ffff00 !important;
-        text-decoration: underline !important;
-      }
-      .high-contrast a:hover,
-      .high-contrast button:hover {
-        background-color: #333333 !important;
-        color: #ffffff !important;
-      }
-
-      /* Collapsible Sidebar Styles */
-      #admin-sidebar {
-        transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      #admin-sidebar.collapsed,
-      body.sidebar-collapsed #admin-sidebar,
-      html.sidebar-collapsed-preload #admin-sidebar {
-        width: 70px !important;
-      }
-
-      #admin-sidebar.collapsed .sidebar-text,
-      #admin-sidebar.collapsed .sidebar-section-title,
-      #admin-sidebar.collapsed .sidebar-label,
-      #admin-sidebar.collapsed .sidebar-footer,
-      body.sidebar-collapsed .sidebar-text,
-      body.sidebar-collapsed .sidebar-section-title,
-      body.sidebar-collapsed .sidebar-label,
-      body.sidebar-collapsed .sidebar-footer,
-      html.sidebar-collapsed-preload .sidebar-text,
-      html.sidebar-collapsed-preload .sidebar-section-title,
-      html.sidebar-collapsed-preload .sidebar-label,
-      html.sidebar-collapsed-preload .sidebar-footer {
-        display: none !important;
-      }
-
-      #admin-sidebar.collapsed .sidebar-brand-container,
-      body.sidebar-collapsed .sidebar-brand-container,
-      html.sidebar-collapsed-preload .sidebar-brand-container {
-        padding-left: 0.5rem !important;
-        padding-right: 0.5rem !important;
-        justify-content: center !important;
-      }
-
-      #admin-sidebar.collapsed .sidebar-nav-link,
-      body.sidebar-collapsed .sidebar-nav-link,
-      html.sidebar-collapsed-preload .sidebar-nav-link {
-        justify-content: center !important;
-        padding: 0 !important;
-        width: 44px !important;
-        height: 42px !important;
-        min-height: 42px !important;
-        max-height: 42px !important;
-        margin-left: auto !important;
-        margin-right: auto !important;
-        gap: 0 !important;
-        box-sizing: border-box !important;
-        overflow: hidden !important;
-        outline: none !important;
-      }
-
-      #admin-sidebar nav a:focus,
-      #admin-sidebar nav a:focus-visible {
-        outline: none !important;
-      }
-
-      #admin-nav-container {
-        overflow-anchor: none !important;
-        scroll-behavior: auto !important;
-      }
-
-      #admin-sidebar.collapsed #collapse-icon-expanded,
-      body.sidebar-collapsed #collapse-icon-expanded,
-      html.sidebar-collapsed-preload #collapse-icon-expanded {
-        display: none !important;
-      }
-
-      #admin-sidebar.collapsed #collapse-icon-collapsed,
-      body.sidebar-collapsed #collapse-icon-collapsed,
-      html.sidebar-collapsed-preload #collapse-icon-collapsed {
-        display: flex !important;
-      }
-
-      #admin-sidebar.collapsed #admin-nav-container,
-      body.sidebar-collapsed #admin-nav-container,
-      html.sidebar-collapsed-preload #admin-nav-container {
-        padding-left: 0.35rem !important;
-        padding-right: 0.35rem !important;
-      }
-    </style>
     <script is:inline>
       (function() {
         try {
@@ -232,17 +105,19 @@ const userIsAdmin = isAdmin(userRole);
       })();
     </script>
   </head>
-  <body class="admin-page min-h-screen flex bg-slate-50 text-slate-800 font-sans transition-colors duration-150 h-full overflow-x-hidden">
+  <body class="admin-page min-h-screen h-full overflow-x-hidden flex bg-[color:var(--adm-bg-subtle)]">
+    <div class="border-glow-overlay" aria-hidden="true"></div>
+
     <a href="#main-admin-content" class="skip-link">Skip to Main Content</a>
 
     <!-- Sidebar Navigation -->
-    <aside id="admin-sidebar" transition:persist="admin-sidebar" class="relative w-64 shrink-0 bg-white border-r border-slate-200 text-slate-700 flex flex-col h-full z-45 transform -translate-x-full md:translate-x-0 md:static fixed top-0 left-0 shadow-xs">
-      
-      <!-- Desktop Sidebar Toggle Button (positioned on the vertical boundary line between sidebar and main content) -->
-      <button 
+    <aside id="admin-sidebar" transition:persist="admin-sidebar" class="relative shrink-0 text-[color:var(--adm-text)] flex flex-col h-full z-45 transform -translate-x-full md:translate-x-0 md:static fixed top-0 left-0">
+
+      <!-- Desktop Sidebar Toggle Button -->
+      <button
         id="toggle-sidebar-collapse"
         type="button"
-        class="hidden md:flex absolute -right-3.5 top-5 z-50 w-7 h-7 rounded-full bg-white border border-slate-300 text-slate-600 hover:text-[#0B4F9C] hover:border-[#0B4F9C] shadow-md items-center justify-center cursor-pointer transition-all duration-150 hover:scale-110 focus:outline-none select-none"
+        class="sidebar-collapse-btn hidden md:flex absolute -right-3.5 top-5 z-50 w-7 h-7 rounded-full bg-white border border-[color:var(--adm-border)] text-[color:var(--adm-muted)] shadow-md items-center justify-center cursor-pointer transition-all duration-150 hover:scale-110 focus:outline-none select-none"
         aria-label="Toggle Navigation Sidebar"
         title="Toggle sidebar (icons only)"
       >
@@ -255,152 +130,38 @@ const userIsAdmin = isAdmin(userRole);
       </button>
 
       <!-- Brand Logo / Title -->
-      <div class="sidebar-brand-container h-16 flex items-center px-5 border-b border-slate-200 bg-[#EAF4FF]/40 gap-3 shrink-0 transition-all duration-200">
-        <img src="/logo.png" alt="JKSPDCL Logo" class="h-9 w-auto object-contain shrink-0" />
+      <div class="sidebar-brand-container h-16 flex items-center px-5 gap-3 shrink-0 transition-all duration-200">
+        <img src="/logo.png" alt="JKSPDC Logo" class="h-9 w-auto object-contain shrink-0" />
         <div class="sidebar-text flex flex-col min-w-0">
-          <span class="text-sm font-black text-[#0B4F9C] tracking-tight uppercase truncate">JKSPDC</span>
-          <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider truncate">Management Console</span>
+          <span class="admin-brand-name truncate">JKSPDC</span>
+          <span class="admin-brand-sub truncate">Admin Console</span>
         </div>
       </div>
 
       <!-- Navigation Links -->
-      <nav id="admin-nav-container" class="flex-grow py-5 px-3 overflow-y-auto flex flex-col gap-4" aria-label="Admin Navigation">
-        
-        <!-- SECTION: OVERVIEW -->
-        <div class="flex flex-col gap-0.5">
-          <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Overview</p>
-          <a href="/admin/dashboard" title="Dashboard Overview" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'dashboard' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="bar-chart" size={15} class={activeTab === 'dashboard' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-            <span class="sidebar-label">Dashboard Overview</span>
-          </a>
-        </div>
-
-        <!-- SECTION: PROJECTS & INFRASTRUCTURE -->
-        <div class="flex flex-col gap-0.5">
-          <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Projects &amp; Infrastructure</p>
-          
-          <a href="/admin/operational-projects" title="Operational Projects" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'operational' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="zap" size={15} class={activeTab === 'operational' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-            <span class="sidebar-label">Operational Projects</span>
-          </a>
-
-          <a href="/admin/under-construction" title="Under Construction" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'construction' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="hardhat" size={15} class={activeTab === 'construction' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-            <span class="sidebar-label">Under Construction</span>
-          </a>
-
-          <a href="/admin/upcoming-projects" title="Projects Under Development" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'upcoming' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="rocket" size={15} class={activeTab === 'upcoming' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-            <span class="sidebar-label">Projects Under Development</span>
-          </a>
-
-          <a href="/admin/ipp-projects" title="IPP Projects" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'ipp' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="building" size={15} class={activeTab === 'ipp' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-            <span class="sidebar-label">IPP Projects</span>
-          </a>
-        </div>
-
-        <!-- SECTION: TENDERS & PROCUREMENT -->
-        <div class="flex flex-col gap-0.5">
-          <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Tenders &amp; Procurement</p>
-          
-          <a href="/admin/tenders" title="Tenders & Bids" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'tenders' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="file-text" size={15} class={activeTab === 'tenders' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-            <span class="sidebar-label">Tenders &amp; Bids</span>
-          </a>
-        </div>
-
-        <!-- SECTION: CORPORATE GOVERNANCE -->
-        {userIsAdmin && (
+      <nav id="admin-nav-container" class="flex-grow py-5 px-3 overflow-y-auto flex flex-col gap-5" aria-label="Admin Navigation">
+        {visibleSections.map((section) => (
           <div class="flex flex-col gap-0.5">
-            <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Corporate Governance</p>
-            
-            <a href="/admin/dignitaries" title="Dignitaries" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'dignitaries' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-              <Icon name="award" size={15} class={activeTab === 'dignitaries' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-              <span class="sidebar-label">Dignitaries</span>
-            </a>
-
-            <a href="/admin/board-of-directors" title="Board of Directors" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'directors' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-              <Icon name="users" size={15} class={activeTab === 'directors' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-              <span class="sidebar-label">Board of Directors</span>
-            </a>
-
-            <a href="/admin/notifications" title="Notifications" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'notifications' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-              <Icon name="bell" size={15} class={activeTab === 'notifications' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-              <span class="sidebar-label">Notifications</span>
-            </a>
+            <p class="sidebar-section-title uppercase px-3 tracking-wider mb-1 select-none">{section.title}</p>
+            {section.items.map((item) => (
+              <a
+                href={item.href}
+                title={item.label}
+                class={`${activeTab === item.tab ? ACTIVE : INACTIVE}`}
+                aria-current={activeTab === item.tab ? 'page' : undefined}
+              >
+                <Icon name={item.icon} size={15} strokeWidth={2.2} />
+                <span class="sidebar-label">{item.label}</span>
+              </a>
+            ))}
           </div>
-        )}
-
-        <!-- SECTION: MEDIA & PUBLICATIONS -->
-        <div class="flex flex-col gap-0.5">
-          <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Media &amp; Publications</p>
-
-          <a href="/admin/gallery" title="Media Gallery" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'gallery' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="image" size={15} class={activeTab === 'gallery' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-            <span class="sidebar-label">Media Gallery</span>
-          </a>
-
-          <a href="/admin/policies" title="CSR Documents Manager" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'policies' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="file-text" size={15} class={activeTab === 'policies' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-            <span class="sidebar-label">CSR Documents Manager</span>
-          </a>
-
-          <a href="/admin/resources" title="Resources" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'resources' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="archive" size={15} class={activeTab === 'resources' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-            <span class="sidebar-label">Resources</span>
-          </a>
-        </div>
-
-        <!-- SECTION: CONTACT DIRECTORY -->
-        <div class="flex flex-col gap-0.5">
-          <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Contact Directory</p>
-          
-          <a href="/admin/official-contacts" title="Official Contacts" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'official-contacts' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="phone" size={15} class={activeTab === 'official-contacts' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-            <span class="sidebar-label">Official Contact</span>
-          </a>
-
-          <a href="/admin/contact-sub-offices" title="Contact Sub-Offices" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'contact-sub-offices' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="building-2" size={15} class={activeTab === 'contact-sub-offices' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-            <span class="sidebar-label">Contact Sub-Offices</span>
-          </a>
-        </div>
-
-        <!-- SECTION: INQUIRIES & FEEDBACK -->
-        <div class="flex flex-col gap-0.5">
-          <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Feedback &amp; Inquiries</p>
-          <a href="/admin/contacts" title="Feedbacks & Inquiries" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'contacts' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-            <Icon name="mail" size={15} class={activeTab === 'contacts' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-            <span class="sidebar-label">Feedbacks &amp; Inquiries</span>
-          </a>
-        </div>
-
-        <!-- SECTION: SECURITY & LOGS -->
-        {userIsAdmin && (
-          <div class="flex flex-col gap-0.5">
-            <p class="sidebar-section-title text-[10px] font-black text-[#0B4F9C] uppercase px-3 tracking-wider mb-1 select-none">Security &amp; Logs</p>
-            <a href="/admin/users" title="User Accounts" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'users' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-              <Icon name="shield-check" size={15} class={activeTab === 'users' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-              <span class="sidebar-label">User Accounts</span>
-            </a>
-            <a href="/admin/audit-logs" title="Audit Logs Feed" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'audit-logs' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-              <Icon name="scroll-text" size={15} class={activeTab === 'audit-logs' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-              <span class="sidebar-label">Audit Logs Feed</span>
-            </a>
-            <a href="/admin/site-settings" title="Site Settings" class={`sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors duration-150 ${activeTab === 'site-settings' ? 'bg-[#0B4F9C] text-white font-bold' : 'text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF] font-bold'}`}>
-              <Icon name="settings" size={15} class={activeTab === 'site-settings' ? 'text-white' : 'text-[#0B4F9C]'} strokeWidth={2.2} />
-              <span class="sidebar-label">Site Settings</span>
-            </a>
-          </div>
-        )}
-
+        ))}
       </nav>
 
       <!-- Sidebar Footer / Simple copyright -->
-      <div class="sidebar-footer p-4 border-t border-slate-200 bg-slate-50/70 text-[10px] text-slate-500 shrink-0 select-none">
-        <p class="font-bold text-slate-600">&copy; {currentYear} JKSPDCL Admin.</p>
-        <p class="mt-0.5 text-slate-400">Auditing Standard: GIGW 3.0</p>
+      <div class="sidebar-footer p-4 border-t border-[color:var(--adm-border)] bg-[color:var(--adm-bg-subtle)] text-[10px] text-[color:var(--adm-muted)] shrink-0 select-none">
+        <p class="font-semibold text-[color:var(--adm-text)]">&copy; {currentYear} JKSPDC Admin.</p>
+        <p class="mt-0.5 opacity-75">Auditing Standard: GIGW 3.0</p>
       </div>
     </aside>
 
@@ -409,33 +170,33 @@ const userIsAdmin = isAdmin(userRole);
 
     <!-- Main Content Panel -->
     <div class="flex-grow flex flex-col min-w-0 h-full overflow-hidden">
-      
-      <!-- Top Brand Accent Line (matching main website header) -->
-      <div class="h-1 bg-gradient-to-r from-[#D8681B] via-[#0B4F9C] to-[#1B3A6B] shrink-0"></div>
+
+      <!-- Top Brand Accent Line (locked palette) -->
+      <div class="admin-accent-line"></div>
 
       <!-- Top Action Bar -->
-      <header class="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0 select-none shadow-2xs">
-        
+      <header class="admin-topbar h-16 px-6 flex items-center justify-between shrink-0 select-none">
+
         <!-- Toggle button on mobile -->
-        <button id="toggle-sidebar-btn" class="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded focus:outline-none" aria-label="Toggle Navigation Sidebar">
+        <button id="toggle-sidebar-btn" class="md:hidden p-2 text-[color:var(--adm-muted)] hover:bg-[color:var(--adm-bg-subtle)] rounded focus:outline-none" aria-label="Toggle Navigation Sidebar">
           <Icon name="menu" size={20} />
         </button>
 
         <!-- Dynamic Page Title / Breadcrumb (desktop) -->
-        <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider hidden md:block">
-          JKSPDCL Admin / <span class="text-[#0B4F9C] font-extrabold">{title}</span>
+        <h2 class="admin-topbar-crumb hidden md:block">
+          JKSPDC Admin / <span class="admin-topbar-current">{title}</span>
         </h2>
 
         <!-- Right Utilities & Profile Session -->
         <div class="flex items-center gap-3 ml-auto">
           <!-- Profile Badge -->
-          <span class="bg-[#EAF4FF] text-[#0B4F9C] px-3 py-1.5 rounded-full border border-[#BDD7EE] text-[11px] font-bold flex items-center gap-1.5 select-none">
-            <span class="h-2 w-2 bg-emerald-500 rounded-full ring-2 ring-emerald-200 animate-pulse"></span>
+          <span class="admin-role-badge select-none">
+            <span class="admin-role-dot" aria-hidden="true"></span>
             {userRole}
           </span>
 
           <form method="POST" action="/admin/logout" class="inline m-0 p-0">
-            <button type="submit" id="admin-logout-btn" class="flex items-center gap-1.5 px-3 py-1.5 border border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg text-xs font-semibold cursor-pointer transition-colors">
+            <button type="submit" id="admin-logout-btn" class="admin-btn admin-btn-ghost-danger admin-btn-sm">
               <Icon name="x" size={13} strokeWidth={2.5} /> Sign Out
             </button>
           </form>
@@ -443,7 +204,7 @@ const userIsAdmin = isAdmin(userRole);
       </header>
 
       <!-- Main Slot Content -->
-      <main id="main-admin-content" transition:animate="fade" class="flex-1 min-w-0 overflow-y-auto overflow-x-hidden p-5 sm:p-6 md:p-8 bg-slate-50 focus:outline-none" tabindex="-1">
+      <main id="main-admin-content" transition:animate="fade" class="flex-1 min-w-0 overflow-y-auto overflow-x-hidden p-5 sm:p-6 md:p-8 bg-[color:var(--adm-bg-subtle)] focus:outline-none" tabindex="-1">
         <slot />
       </main>
 
@@ -470,9 +231,6 @@ const userIsAdmin = isAdmin(userRole);
 
       toggleBtn?.addEventListener('click', toggleSidebar);
       overlay?.addEventListener('click', toggleSidebar);
-
-      var ACTIVE_SIDEBAR_CLASS = 'sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs font-bold rounded-lg transition-all bg-[#0B4F9C] text-white shadow-xs admin-nav-active';
-      var INACTIVE_SIDEBAR_CLASS = 'sidebar-nav-link flex items-center gap-3 px-3 py-2 text-xs font-bold rounded-lg transition-all text-slate-900 hover:text-[#0B4F9C] hover:bg-[#EAF4FF]';
 
       function toggleSidebarCollapse() {
         var sidebar = document.getElementById('admin-sidebar');
@@ -519,24 +277,8 @@ const userIsAdmin = isAdmin(userRole);
 
       syncSidebarCollapseState();
 
-      function updateSidebarLinkIcons() {
-        var sidebarLinks = document.querySelectorAll('#admin-sidebar nav a[href]');
-        sidebarLinks.forEach(function(a) {
-          var svg = a.querySelector('svg');
-          if (svg) {
-            var isActive = a.classList.contains('admin-nav-active') || a.classList.contains('bg-[#0B4F9C]');
-            if (isActive) {
-              svg.classList.remove('text-[#0B4F9C]');
-              svg.classList.add('text-white');
-            } else {
-              svg.classList.remove('text-white');
-              svg.classList.add('text-[#0B4F9C]');
-            }
-          }
-        });
-      }
-
-      // Synchronize sidebar active tab highlighting with current route on client SPA navigation
+      // Synchronize sidebar active tab highlighting with current route on client SPA navigation.
+      // Active state is driven purely by the .admin-nav-active class (styled in admin.css).
       function syncAdminSidebarActive() {
         var currentPath = window.location.pathname.replace(/\/$/, '');
         var sidebarLinks = document.querySelectorAll('#admin-sidebar nav a[href]');
@@ -546,15 +288,13 @@ const userIsAdmin = isAdmin(userRole);
           if (href && (currentPath === href || (href !== '/admin/dashboard' && href !== '/admin' && currentPath.startsWith(href)))) {
             isActive = true;
           }
+          a.classList.toggle('admin-nav-active', isActive);
           if (isActive) {
-            a.classList.remove('text-slate-900', 'hover:text-[#0B4F9C]', 'hover:bg-[#EAF4FF]');
-            a.classList.add('admin-nav-active', 'bg-[#0B4F9C]', 'text-white');
+            a.setAttribute('aria-current', 'page');
           } else {
-            a.classList.remove('admin-nav-active', 'bg-[#0B4F9C]', 'text-white');
-            a.classList.add('text-slate-900', 'hover:text-[#0B4F9C]', 'hover:bg-[#EAF4FF]');
+            a.removeAttribute('aria-current');
           }
         });
-        updateSidebarLinkIcons();
       }
 
       function saveSidebarScroll() {
@@ -574,22 +314,6 @@ const userIsAdmin = isAdmin(userRole);
           }
         }
       }
-
-      // Intercept clicks on sidebar links for instant feedback & scroll preservation
-      document.addEventListener('click', function(e) {
-        var link = e.target.closest('#admin-sidebar nav a[href]');
-        if (link) {
-          saveSidebarScroll();
-          var allLinks = document.querySelectorAll('#admin-sidebar nav a[href]');
-          allLinks.forEach(function(a) {
-            a.classList.remove('admin-nav-active', 'bg-[#0B4F9C]', 'text-white');
-            a.classList.add('text-slate-900');
-          });
-          link.classList.remove('text-slate-900');
-          link.classList.add('admin-nav-active', 'bg-[#0B4F9C]', 'text-white');
-          updateSidebarLinkIcons();
-        }
-      });
 
       document.addEventListener('astro:before-preparation', saveSidebarScroll);
       document.addEventListener('astro:before-swap', function(e) {
@@ -675,6 +399,156 @@ const userIsAdmin = isAdmin(userRole);
         });
       };
       setTimeout(function() { if (window.initQuillRichEditors) window.initQuillRichEditors(); }, 100);
+    </script>
+
+    <!-- Unified admin file uploader: one delegated controller for every
+         .admin-uploader instance on the page (click / drag-drop / keyboard /
+         validation / remove). Pages keep their own upload fetch logic by
+         listening for the 'change' event on the native input. -->
+    <script is:inline>
+      (function() {
+        function formatSize(bytes) {
+          if (bytes >= 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+          if (bytes >= 1024) return Math.round(bytes / 1024) + ' KB';
+          return bytes + ' B';
+        }
+
+        function matchesAccept(file, accept) {
+          if (!accept) return true;
+          var parts = accept.split(',').map(function(s) { return s.trim().toLowerCase(); }).filter(Boolean);
+          var name = (file.name || '').toLowerCase();
+          return parts.some(function(p) {
+            if (p.startsWith('.')) return name.endsWith(p);
+            if (p.endsWith('/*')) return (file.type || '').toLowerCase().startsWith(p.slice(0, -1));
+            return (file.type || '').toLowerCase() === p;
+          });
+        }
+
+        function showInvalid(zone, input, msg) {
+          zone.classList.add('is-invalid');
+          var err = zone.querySelector('.admin-uploader-error');
+          if (err) err.textContent = msg;
+          input.value = '';
+          var status = zone.querySelector('[id$="-status"]');
+          if (status) status.textContent = msg;
+        }
+
+        function clearInvalid(zone) {
+          zone.classList.remove('is-invalid');
+          var err = zone.querySelector('.admin-uploader-error');
+          if (err) err.textContent = '';
+        }
+
+        function setSelection(zone, input, files) {
+          clearInvalid(zone);
+          var fileRow = zone.querySelector('.admin-uploader-file');
+          var nameEl = zone.querySelector('.admin-uploader-file-name');
+          var sizeEl = zone.querySelector('.admin-uploader-file-size');
+          var status = zone.querySelector('[id$="-status"]');
+          var preview = zone.querySelector('.admin-uploader-preview img');
+          if (!files || !files.length) { return; }
+          zone.classList.add('has-file');
+          if (nameEl) nameEl.textContent = files.length > 1 ? files.length + ' files selected' : files[0].name;
+          if (sizeEl) sizeEl.textContent = files.length > 1 ? formatSize(Array.from(files).reduce(function(a, f) { return a + f.size; }, 0)) : formatSize(files[0].size);
+          if (preview && files.length === 1 && (files[0].type || '').startsWith('image/')) {
+            preview.src = URL.createObjectURL(files[0]);
+            preview.classList.remove('invisible');
+          }
+          if (status) status.textContent = files.length > 1
+            ? files.length + ' files selected'
+            : files[0].name + ', ' + formatSize(files[0].size);
+        }
+
+        function clearSelection(zone, input) {
+          input.value = '';
+          zone.classList.remove('has-file');
+          clearInvalid(zone);
+          var nameEl = zone.querySelector('.admin-uploader-file-name');
+          var sizeEl = zone.querySelector('.admin-uploader-file-size');
+          var preview = zone.querySelector('.admin-uploader-preview img');
+          var status = zone.querySelector('[id$="-status"]');
+          if (nameEl) nameEl.textContent = '';
+          if (sizeEl) sizeEl.textContent = '';
+          if (preview) { preview.src = ''; preview.classList.add('invisible'); }
+          if (status) status.textContent = 'File removed';
+          // Notify page scripts the selection was cleared
+          input.dispatchEvent(new CustomEvent('uploader:cleared', { bubbles: true }));
+        }
+
+        function handleFiles(zone, input, files) {
+          if (!files || !files.length) return;
+          var maxMB = parseFloat(zone.dataset.maxSizeMb || '0');
+          var accept = zone.dataset.accept || '';
+          var importantCb = document.getElementById(zone.id.replace(/-dropzone$/, '') + '-important');
+          var effectiveMaxMB = (importantCb && importantCb.checked) ? 100 : maxMB;
+          for (var i = 0; i < files.length; i++) {
+            if (!matchesAccept(files[i], accept)) {
+              showInvalid(zone, input, 'File type not allowed. Allowed: ' + accept);
+              return;
+            }
+            if (effectiveMaxMB > 0 && files[i].size > effectiveMaxMB * 1024 * 1024) {
+              showInvalid(zone, input, 'File "' + files[i].name + '" exceeds the ' + effectiveMaxMB + ' MB limit.');
+              return;
+            }
+          }
+          setSelection(zone, input, files);
+        }
+
+        function bindZone(zone) {
+          if (zone.dataset.uploaderBound) return;
+          zone.dataset.uploaderBound = 'true';
+          var input = zone.querySelector('input[type="file"]');
+          if (!input) return;
+
+          zone.addEventListener('click', function(e) {
+            if (e.target.closest('.admin-uploader-file-remove')) return;
+            input.click();
+          });
+          zone.addEventListener('keydown', function(e) {
+            if ((e.key === 'Enter' || e.key === ' ') && e.target === zone) {
+              e.preventDefault();
+              input.click();
+            }
+          });
+          zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('is-dragover'); });
+          zone.addEventListener('dragleave', function(e) { e.preventDefault(); zone.classList.remove('is-dragover'); });
+          zone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            zone.classList.remove('is-dragover');
+            if (e.dataTransfer && e.dataTransfer.files) {
+              if (!input.multiple) { input.files = e.dataTransfer.files; }
+              handleFiles(zone, input, e.dataTransfer.files);
+              // Always fire change so page upload logic runs
+              input.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+          });
+          zone.addEventListener('change', function(e) {
+            if (e.target === input) handleFiles(zone, input, input.files);
+          });
+          var removeBtn = zone.querySelector('.admin-uploader-file-remove');
+          if (removeBtn) {
+            removeBtn.addEventListener('click', function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              clearSelection(zone, input);
+            });
+          }
+        }
+
+        function bindAll(root) {
+          (root || document).querySelectorAll('.admin-uploader').forEach(bindZone);
+        }
+
+        // Re-bind after Astro view transitions
+        document.addEventListener('astro:page-load', function() { bindAll(document); });
+        document.addEventListener('astro:after-swap', function() { bindAll(document); });
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', function() { bindAll(document); });
+        } else {
+          bindAll(document);
+        }
+        window.bindAdminUploaders = bindAll;
+      })();
     </script>
   </body>
 </html>

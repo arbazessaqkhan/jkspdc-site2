@@ -3,6 +3,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
 import { isAdmin } from '../../utils/roles';
 import { parseApiError, BACKEND_URL } from '../../utils/api-error';
+import { readPageParams, fetchPaged, pageUrl } from '../../utils/pagination';
+import PageNav from '../../components/PageNav.astro';
 
 // Check authentication
 const sessionToken = Astro.cookies.get('admin_session')?.value;
@@ -53,27 +55,22 @@ if (Astro.request.method === 'POST') {
 }
 
 // Fetch Contacts List
+const { page, pageSize } = readPageParams(Astro.url);
+const pagedExtra: Record<string, string | undefined> = {};
 let submissions: any[] = [];
+let pagedTotal = 0;
+let pagedLastPage = 1;
 try {
-  const res = await fetch(`${BACKEND_URL}/api/contact`, {
-    headers: {
-      'Authorization': `Bearer ${sessionToken}`,
-    },
-  });
-  if (res.ok) {
-    submissions = await res.json();
-  } else {
-    const apiErr = await parseApiError(res, 'load contact submissions');
-    if (apiErr.isUnauthorized) {
-      return Astro.redirect('/admin/login');
-    }
-    errorMessage = apiErr.message;
-  }
+  const state = await fetchPaged('/api/contact', { BACKEND_URL, token: sessionToken, page, pageSize, extra: pagedExtra });
+  submissions = state.rows;
+  pagedTotal = state.total;
+  pagedLastPage = state.lastPage;
+  if (state.error) errorMessage = errorMessage || state.error;
 } catch (e) {
-  console.error('Error fetching contact submissions:', e);
-  errorMessage = 'Failed to load contact submissions. Unable to communicate with the server.';
+  console.error('Error fetching list:', e);
+  errorMessage = 'Network failure: Unable to reach backend server.';
 }
-
+const pagedState = { rows: submissions, total: pagedTotal, page, pageSize, lastPage: pagedLastPage, error: null };
 // Parse Submissions
 function parseSubmission(sub: any) {
   const raw = sub.message || '';
@@ -197,7 +194,7 @@ const totalCount = parsedSubmissions.length;
           type="text" 
           id="search-input" 
           placeholder="Search name, email, subject..." 
-          class="w-full bg-white border border-slate-300 rounded text-xs text-slate-800 pl-8 pr-3 py-1.5 focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none"
+          class="w-full bg-white border border-slate-300 rounded text-xs text-slate-800 pl-8 pr-3 py-1.5 focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none"
         />
         <div class="absolute left-2.5 top-2 text-slate-400">
           <Icon name="search" size={13} />
@@ -218,6 +215,7 @@ const totalCount = parsedSubmissions.length;
     )}
 
     <!-- Administrative Data Table -->
+    <div class="admin-table-card">
     <div class="admin-table-container">
       <table class="admin-table min-w-full" id="contacts-table">
         <thead>
@@ -273,7 +271,7 @@ const totalCount = parsedSubmissions.length;
                     <div class="flex flex-col">
                       <span class="font-bold text-slate-900 text-xs leading-snug">{sub.name}</span>
                       {hasEmail ? (
-                        <span class="text-xs text-[#0B4F9C] font-mono mt-0.5">{sub.email}</span>
+                        <span class="text-xs text-[color:var(--adm-primary)] font-mono mt-0.5">{sub.email}</span>
                       ) : (
                         <span class="text-[11px] text-slate-400 italic mt-0.5">No email</span>
                       )}
@@ -289,7 +287,7 @@ const totalCount = parsedSubmissions.length;
                         <span class="font-bold text-xs text-slate-900 leading-snug">{sub.subject}</span>
                       )}
                       {sub.page && (
-                        <span class="text-[10px] text-[#0B4F9C] font-mono">Page: {sub.page}</span>
+                        <span class="text-[10px] text-[color:var(--adm-primary)] font-mono">Page: {sub.page}</span>
                       )}
                       <p class="text-xs text-slate-600 line-clamp-2 leading-relaxed">
                         {sub.cleanDetails}
@@ -352,6 +350,9 @@ const totalCount = parsedSubmissions.length;
           </tr>
         </tbody>
       </table>
+
+
+    <PageNav state={pagedState} url={(p: number) => pageUrl(Astro.url, p, pageSize, pagedExtra)} />    </div>
     </div>
 
     <!-- Detail View Modal -->
@@ -360,7 +361,7 @@ const totalCount = parsedSubmissions.length;
         <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/70 shrink-0">
           <div class="flex items-center gap-2">
             <span id="modal-badge"></span>
-            <h3 class="text-base font-extrabold text-[#0B4F9C] tracking-tight">Submission Details</h3>
+            <h3 class="text-base font-extrabold text-[color:var(--adm-primary)] tracking-tight">Submission Details</h3>
           </div>
           <button type="button" id="modal-close-btn" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 flex items-center justify-center text-lg font-bold cursor-pointer transition-colors">&times;</button>
         </div>
@@ -373,7 +374,7 @@ const totalCount = parsedSubmissions.length;
             </div>
             <div>
               <span class="text-[10px] uppercase font-bold text-slate-400 block">Email Address</span>
-              <span id="modal-email" class="font-mono text-[#0B4F9C] font-semibold"></span>
+              <span id="modal-email" class="font-mono text-[color:var(--adm-primary)] font-semibold"></span>
             </div>
             <div>
               <span class="text-[10px] uppercase font-bold text-slate-400 block">Phone</span>
@@ -396,7 +397,7 @@ const totalCount = parsedSubmissions.length;
         <div class="px-6 py-3 border-t border-slate-200 flex items-center justify-between bg-slate-50/70 shrink-0">
           <span id="modal-ip" class="text-[10px] font-mono text-slate-400"></span>
           <div class="flex items-center gap-2">
-            <a id="modal-reply-btn" href="#" class="px-4 py-2 bg-[#0B4F9C] hover:bg-[#084A8F] text-white text-xs font-bold rounded-lg transition-colors inline-flex items-center gap-1.5">
+            <a id="modal-reply-btn" href="#" class="px-4 py-2 bg-[color:var(--adm-primary)] hover:bg-[var(--adm-primary-dark)] text-white text-xs font-bold rounded-lg transition-colors inline-flex items-center gap-1.5">
               <Icon name="mail" size={13} /> Reply via Email
             </a>
             <button type="button" id="modal-dismiss-btn" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-lg transition-colors cursor-pointer">
@@ -415,9 +416,9 @@ const totalCount = parsedSubmissions.length;
     transition: all 0.15s ease-in-out;
   }
   .filter-tab[data-active="true"] {
-    background-color: #0B4F9C !important;
+    background-color: var(--adm-primary) !important;
     color: #ffffff !important;
-    border-color: #0B4F9C !important;
+    border-color: var(--adm-primary) !important;
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   }
   .filter-tab[data-active="true"]:hover {
@@ -432,7 +433,7 @@ const totalCount = parsedSubmissions.length;
   }
   .filter-tab[data-active="false"]:hover {
     background-color: #f1f5f9 !important;
-    color: #0B4F9C !important;
+    color: var(--adm-primary) !important;
     border-color: #cbd5e1 !important;
   }
 </style>

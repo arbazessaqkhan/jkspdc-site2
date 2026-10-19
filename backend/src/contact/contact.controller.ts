@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req, HttpCode, HttpStatus, Get, Delete, Param, UseGuards } from '@nestjs/common';
+import { Query, Controller, Post, Body, Req, HttpCode, HttpStatus, Get, Delete, Param, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
 import { ContactService } from './contact.service';
 import { CreateContactDto } from './contact.dto';
@@ -27,8 +27,8 @@ export class ContactController {
 
   @Get()
   @UseGuards(AuthGuard)
-  async getSubmissions() {
-    return this.contactService.findAll();
+  async getSubmissions(@Query() q: any) {
+    return this.contactService.findAll(q);
   }
 
   @Delete(':id')

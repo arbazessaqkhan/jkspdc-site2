@@ -138,7 +138,7 @@ const fallbackWingContacts = [
 // Fetch official corporate contacts dynamically from Admin-managed database
 let officialContacts = [];
 try {
-  const res = await fetch('http://localhost:3000/api/official-contacts');
+  const res = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/official-contacts`);
   if (res.ok) {
     officialContacts = await res.json();
   }
@@ -152,7 +152,7 @@ if (!officialContacts || officialContacts.length === 0) {
 // Fetch wing contacts & sub-offices dynamically from Admin-managed database
 let subOffices = [];
 try {
-  const res = await fetch('http://localhost:3000/api/contact-sub-offices');
+  const res = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/contact-sub-offices`);
   if (res.ok) {
     subOffices = await res.json();
   }

@@ -12,8 +12,8 @@ export class PoliciesController {
   constructor(private readonly policiesService: PoliciesService) {}
 
   @Get()
-  async findAll(@Query('category') category?: string) {
-    return this.policiesService.findAll(category);
+  async findAll(@Query() q: any, @Query('category') category?: string) {
+    return this.policiesService.findAll(q, category);
   }
 
   @Get(':id')

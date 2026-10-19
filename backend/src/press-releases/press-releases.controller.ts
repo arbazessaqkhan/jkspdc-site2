@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Req } from '@nestjs/common';
+import { Query, Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Req } from '@nestjs/common';
 import { PressReleasesService } from './press-releases.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -12,8 +12,8 @@ export class PressReleasesController {
   constructor(private readonly pressReleasesService: PressReleasesService) {}
 
   @Get()
-  async findAll() {
-    return this.pressReleasesService.findAll();
+  async findAll(@Query() q: any) {
+    return this.pressReleasesService.findAll(q);
   }
 
   @Get(':id')

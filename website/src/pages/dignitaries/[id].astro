@@ -8,12 +8,12 @@ let errorMessage = '';
 
 try {
   // Try fetching by ID first
-  const res = await fetch(`http://localhost:3000/api/dignitaries/${id}`);
+  const res = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/dignitaries/${id}`);
   if (res.ok) {
     dignitary = await res.json();
   } else {
     // If not found by ID, try fetching all dignitaries and matching slug or name
-    const allRes = await fetch('http://localhost:3000/api/dignitaries');
+    const allRes = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/dignitaries`);
     if (allRes.ok) {
       const all: any[] = await allRes.json();
       dignitary = all.find((d: any) => {

@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { deleteLocalFile } from '../upload/file-cleanup.helper';
 import { CreateNotificationDto, UpdateNotificationDto } from './notifications.dto';
+import { PaginationDto, wantsPagination, paginate } from '../common/pagination';
 
 @Injectable()
 export class NotificationsService {
@@ -11,9 +12,26 @@ export class NotificationsService {
     private readonly auditLogsService: AuditLogsService,
   ) {}
 
-  async findAll() {
+  async findAllLegacy() {
     return this.prisma.notification.findMany({
       orderBy: { publishDate: 'desc' },
+    });
+  }
+
+  /**
+   * Paged variant used by admin list pages (?page/?pageSize). Without
+   * pagination params it returns the full array (legacy behaviour).
+   */
+  async findAll(q: PaginationDto = {}): Promise<any> {
+    if (!wantsPagination(q)) {
+      return this.prisma.notification.findMany({ orderBy: { publishDate: 'desc' } });
+    }
+    return paginate({
+      page: q.page,
+      pageSize: q.pageSize,
+      count: () => this.prisma.notification.count({ where: undefined }),
+      find: (skip, take) =>
+        this.prisma.notification.findMany({ where: undefined, orderBy: { publishDate: 'desc' }, skip, take }),
     });
   }
 

@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { deleteLocalFile } from '../upload/file-cleanup.helper';
 import { CreateGalleryItemDto, UpdateGalleryItemDto } from './gallery.dto';
+import { PaginationDto, wantsPagination, paginate } from '../common/pagination';
 
 @Injectable()
 export class GalleryService {
@@ -11,9 +12,26 @@ export class GalleryService {
     private readonly auditLogsService: AuditLogsService,
   ) {}
 
-  async findAll() {
+  async findAllLegacy() {
     return this.prisma.galleryItem.findMany({
       orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  /**
+   * Paged variant used by admin list pages (?page/?pageSize). Without
+   * pagination params it returns the full array (legacy behaviour).
+   */
+  async findAll(q: PaginationDto = {}): Promise<any> {
+    if (!wantsPagination(q)) {
+      return this.prisma.galleryItem.findMany({ orderBy: { createdAt: 'desc' } });
+    }
+    return paginate({
+      page: q.page,
+      pageSize: q.pageSize,
+      count: () => this.prisma.galleryItem.count({ where: undefined }),
+      find: (skip, take) =>
+        this.prisma.galleryItem.findMany({ where: undefined, orderBy: { createdAt: 'desc' }, skip, take }),
     });
   }
 

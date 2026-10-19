@@ -1,0 +1,68 @@
+---
+/**
+ * PageNav — pagination controls for admin list pages.
+ * Props: state (PageState from utils/pagination), Astro (for URL building),
+ *        extra (extra query params to preserve).
+ */
+import Icon from './Icon.astro';
+import { pageWindow } from '../utils/pagination';
+
+interface Props {
+  state: import('../utils/pagination').PageState;
+  url: (page: number) => string;
+  extra?: Record<string, string | undefined>;
+}
+const { state, url = (_p: number) => "#", extra = {} } = Astro.props as Props;
+  void extra;
+const { page, lastPage, total, pageSize } = state;
+const show = lastPage > 1 || total > 0;
+const from = total === 0 ? 0 : (page - 1) * pageSize + 1;
+const to = Math.min(total, page * pageSize);
+const pages = pageWindow(page, lastPage);
+---
+{show && (
+  <nav class="admin-pagination-wrap" aria-label="Pagination">
+    <div class="admin-pagination-info text-xs text-slate-500 font-medium">
+      {total === 0
+        ? 'No records found.'
+        : <>Showing <span class="font-bold text-slate-800">{from}–{to}</span> of <span class="font-bold text-slate-800">{total}</span> records</>}
+    </div>
+    {lastPage > 1 && (
+      <div class="admin-pagination">
+        {page > 1 ? (
+          <a href={url(page - 1)} aria-label="Previous page" rel="prev"><Icon name="chevron-left" size={13} /></a>
+        ) : (
+          <button type="button" disabled aria-label="Previous page"><Icon name="chevron-left" size={13} /></button>
+        )}
+        {pages[0] > 1 && <span class="admin-pagination-ellipsis">…</span>}
+        {pages.map((p) => (
+          p === page
+            ? <span class="admin-pagination-current" aria-current="page">{p}</span>
+            : <a href={url(p)} aria-label={`Page ${p}`}>{p}</a>
+        ))}
+        {pages[pages.length - 1] < lastPage && <span class="admin-pagination-ellipsis">…</span>}
+        {page < lastPage ? (
+          <a href={url(page + 1)} aria-label="Next page" rel="next"><Icon name="chevron-right" size={13} /></a>
+        ) : (
+          <button type="button" disabled aria-label="Next page"><Icon name="chevron-right" size={13} /></button>
+        )}
+      </div>
+    )}
+  </nav>
+)}
+
+<style>
+  .admin-pagination-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 0.625rem 0.25rem 0;
+  }
+  .admin-pagination-ellipsis {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 1.5rem; height: 2rem; color: var(--adm-muted, #94a3b8); font-size: 0.8125rem;
+    border: none; background: transparent;
+  }
+</style>

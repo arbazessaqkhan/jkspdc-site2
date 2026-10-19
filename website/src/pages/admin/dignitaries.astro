@@ -1,8 +1,11 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
+import FileUploader from '../../components/admin/FileUploader.astro';
 import { isAdmin } from '../../utils/roles';
 import { parseApiError, BACKEND_URL } from '../../utils/api-error';
+import { readPageParams, fetchPaged, pageUrl } from '../../utils/pagination';
+import PageNav from '../../components/PageNav.astro';
 
 // Check authentication
 const sessionToken = Astro.cookies.get('admin_session')?.value;
@@ -115,24 +118,22 @@ if (Astro.request.method === 'POST') {
 }
 
 // Fetch list of dignitaries
-let dignitaries = [];
+const { page, pageSize } = readPageParams(Astro.url);
+const pagedExtra: Record<string, string | undefined> = {};
+let dignitaries: any[] = [];
+let pagedTotal = 0;
+let pagedLastPage = 1;
 try {
-  const res = await fetch(`${BACKEND_URL}/api/dignitaries`);
-  if (res.ok) {
-    dignitaries = await res.json();
-    dignitaries.sort((a: any, b: any) => a.sNo - b.sNo);
-  } else {
-    const apiErr = await parseApiError(res, 'load dignitaries');
-    if (apiErr.isUnauthorized) {
-      return Astro.redirect('/admin/login');
-    }
-    errorMessage = apiErr.message;
-  }
+  const state = await fetchPaged('/api/dignitaries', { BACKEND_URL, page, pageSize, extra: pagedExtra });
+  dignitaries = state.rows;
+  pagedTotal = state.total;
+  pagedLastPage = state.lastPage;
+  if (state.error) errorMessage = errorMessage || state.error;
 } catch (e) {
-  console.error('Error fetching dignitaries:', e);
-  errorMessage = 'Backend server connection failed.';
+  console.error('Error fetching list:', e);
+  errorMessage = 'Network failure: Unable to reach backend server.';
 }
----
+const pagedState = { rows: dignitaries, total: pagedTotal, page, pageSize, lastPage: pagedLastPage, error: null };---
 
 <AdminLayout title="Dignitaries Management" description="Manage JKSPDCL state dignitaries and corporate leadership profiles." activeTab="dignitaries">
   <div class="flex flex-col gap-6 max-w-6xl mx-auto w-full">
@@ -155,7 +156,7 @@ try {
       <!-- Standard Admin Page Header -->
       <div class="admin-page-header">
         <div>
-          <h1 class="text-lg font-extrabold text-[#0B4F9C] tracking-tight">Dignitaries Management</h1>
+          <h1 class="text-lg font-extrabold text-[color:var(--adm-primary)] tracking-tight">Dignitaries Management</h1>
           <p class="text-xs text-slate-500 mt-0.5">Manage state dignitaries, ministers, and top leadership profiles displayed across the portal.</p>
         </div>
         <button 
@@ -169,6 +170,7 @@ try {
       </div>
 
       <!-- Administrative Data Table -->
+      <div class="admin-table-card">
       <div class="admin-table-container">
         <table class="table-data min-w-full text-left">
           <thead>
@@ -209,7 +211,7 @@ try {
                         {dig.imageUrl ? (
                           <img src={dig.imageUrl} alt={dig.name} class="w-8 h-8 rounded-full object-cover object-top border border-slate-200 shrink-0" />
                         ) : (
-                          <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-[11px] font-bold text-[#0B4F9C] shrink-0">
+                          <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-[11px] font-bold text-[color:var(--adm-primary)] shrink-0">
                             {initials}
                           </div>
                         )}
@@ -274,6 +276,9 @@ try {
             )}
           </tbody>
           </table>
+
+
+    <PageNav state={pagedState} url={(p: number) => pageUrl(Astro.url, p, pageSize, pagedExtra)} />      </div>
       </div>
 
     </div>
@@ -284,7 +289,7 @@ try {
       <!-- Back Navigation Bar -->
       <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-xs flex items-center justify-between gap-4">
         <div>
-          <h2 id="form-view-title" class="text-xl font-bold text-[#0B4F9C]">Add New Dignitary Profile</h2>
+          <h2 id="form-view-title" class="text-xl font-bold text-[color:var(--adm-primary)]">Add New Dignitary Profile</h2>
           <p class="text-xs text-slate-500 mt-1">Fill in official details below. Fields marked with (<span class="text-red-500 font-bold">*</span>) are required.</p>
         </div>
         <button 
@@ -382,7 +387,7 @@ try {
             <div class="flex flex-col sm:flex-row items-center gap-6">
               <!-- Live Image Avatar Preview -->
               <div class="shrink-0 flex flex-col items-center gap-1.5">
-                <div class="w-28 h-28 rounded-full overflow-hidden bg-slate-100 border-4 border-[#BDD7EE] shadow-sm relative flex items-center justify-center">
+                <div class="w-28 h-28 rounded-full overflow-hidden bg-slate-100 border-4 border-[color:var(--adm-border)] shadow-sm relative flex items-center justify-center">
                   <img id="image-preview-img" src="" alt="Preview" class="w-full h-full object-cover object-top hidden" />
                   <div id="image-preview-fallback" class="w-full h-full bg-slate-200 flex items-center justify-center">
                     <Icon name="user" size={48} class="text-slate-400" />
@@ -391,28 +396,17 @@ try {
                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Live Preview</span>
               </div>
 
-              <!-- System File Chooser Controller -->
+              <!-- Unified Image Uploader -->
               <div class="flex-1 w-full space-y-3">
                 <input type="hidden" name="imageUrl" id="field-imageUrl" value="" />
-                
-                <div class="flex flex-wrap items-center gap-3">
-                  <label for="field-imageFile" class="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-[#0B4F9C] bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 shadow-2xs transition-all">
-                    <Icon name="upload" size={14} /> Choose Image File from Device
-                  </label>
-                  <input type="file" id="field-imageFile" accept="image/*" class="hidden" />
-                  
-                  <button 
-                    type="button" 
-                    id="clear-photo-btn" 
-                    class="px-3 py-2 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg border border-red-200 transition-colors hidden"
-                  >
-                    Remove Photo
-                  </button>
-                </div>
-
-                <div id="file-info-box" class="text-xs text-slate-500 font-medium">
-                  <span id="file-chosen-text" class="text-slate-600 italic">No image file selected. Click above to upload a photo from your computer.</span>
-                </div>
+                <FileUploader
+                  id="dignitary-photo"
+                  label="Photo"
+                  variant="image"
+                  accept="image/*"
+                  helpText="Portrait image (JPG, PNG, WEBP). Max size: 10 MB."
+                  maxSizeMB={10}
+                />
               </div>
             </div>
           </div>
@@ -514,7 +508,7 @@ try {
         fieldRole: document.getElementById('field-role'),
         fieldSNo: document.getElementById('field-sNo'),
         fieldImageUrl: document.getElementById('field-imageUrl'),
-        fieldImageFile: document.getElementById('field-imageFile'),
+        fieldImageFile: document.getElementById('dignitary-photo-input'),
         fileChosenText: document.getElementById('file-chosen-text'),
         clearPhotoBtn: document.getElementById('clear-photo-btn'),
         previewImg: document.getElementById('image-preview-img'),
@@ -642,25 +636,14 @@ try {
         return;
       }
 
-      var clearBtn = e.target.closest('#clear-photo-btn');
-      if (clearBtn) {
-        e.preventDefault();
-        var els = getElements();
-        if (els.fieldImageUrl) els.fieldImageUrl.value = '';
-        if (els.fieldImageFile) els.fieldImageFile.value = '';
-        if (els.fileChosenText) els.fileChosenText.textContent = 'Photo removed.';
-        updateLivePreview('');
-        return;
-      }
     });
 
     // File input listener for image upload & base64 conversion
     document.addEventListener('change', function(e) {
-      if (e.target && e.target.id === 'field-imageFile') {
+      if (e.target && e.target.id === 'dignitary-photo-input') {
         var file = e.target.files[0];
         var els = getElements();
         if (file) {
-          if (els.fileChosenText) els.fileChosenText.textContent = file.name;
           var reader = new FileReader();
           reader.onload = function(evt) {
             if (els.fieldImageUrl) els.fieldImageUrl.value = evt.target.result;
@@ -668,6 +651,15 @@ try {
           };
           reader.readAsDataURL(file);
         }
+      }
+    });
+
+    // Unified uploader remove action
+    document.addEventListener('uploader:cleared', function(e) {
+      if (e.target && e.target.id === 'dignitary-photo-input') {
+        var els = getElements();
+        if (els.fieldImageUrl) els.fieldImageUrl.value = '';
+        updateLivePreview('');
       }
     });
 

@@ -12,11 +12,11 @@ export class PageContentController {
   constructor(private readonly service: PageContentService) {}
 
   @Get()
-  findAllOrByQuery(@Query('slug') slug?: string) {
+  findAllOrByQuery(@Query() q: any, @Query('slug') slug?: string) {
     if (slug) {
       return this.service.findBySlug(slug);
     }
-    return this.service.findAll();
+    return this.service.findAll(q);
   }
 
   @Get('*')

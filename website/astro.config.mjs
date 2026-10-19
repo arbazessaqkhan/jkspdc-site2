@@ -9,6 +9,15 @@ export default defineConfig({
   adapter: node({
     mode: 'standalone',
   }),
+  security: {
+    // Trust forwarded Host headers for the public preview/production domains so
+    // Astro's CSRF origin check matches browser Origin headers behind the proxy.
+    allowedDomains: [
+      { hostname: '**.drytis.dev', protocol: 'https' },
+      { hostname: 'localhost' },
+      { hostname: '127.0.0.1' },
+    ],
+  },
   vite: {
     plugins: [tailwindcss()],
   },

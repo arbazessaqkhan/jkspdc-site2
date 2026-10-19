@@ -11,7 +11,7 @@ try {
   if (!id) {
     errorMessage = 'Power Station ID is required.';
   } else {
-    const res = await fetch(`http://localhost:3000/api/projects/${id}`);
+    const res = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/projects/${id}`);
     if (res.ok) {
       project = await res.json();
     } else {
@@ -27,8 +27,8 @@ try {
 const getProjectPhotoUrl = (proj: any) => {
   if (!proj) return null;
   if (proj.documentUrl && proj.documentUrl.trim() !== '') {
-    return proj.documentUrl.startsWith('http://localhost:3000/uploads/')
-      ? proj.documentUrl.replace('http://localhost:3000', '')
+    return proj.documentUrl.startsWith(`${import.meta.env.PUBLIC_API_BASE}/uploads/`)
+      ? proj.documentUrl.replace(`${import.meta.env.PUBLIC_API_BASE}`, '')
       : proj.documentUrl;
   }
   const slug = proj.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');

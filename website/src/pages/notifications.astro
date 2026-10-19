@@ -6,7 +6,7 @@ let notifications: any[] = [];
 let errorMessage = '';
 
 try {
-  const res = await fetch('http://localhost:3000/api/public/notifications');
+  const res = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/public/notifications`);
   if (res.ok) {
     notifications = await res.json();
   } else {
@@ -24,7 +24,7 @@ const years = Array.from(yearsSet).sort((a, b) => b - a);
 const getDocUrl = (url?: string) => {
   if (!url) return '#';
   if (url.startsWith('/uploads/')) {
-    return `http://localhost:3000${url}`;
+    return `${import.meta.env.PUBLIC_API_BASE}${url}`;
   }
   return url;
 };

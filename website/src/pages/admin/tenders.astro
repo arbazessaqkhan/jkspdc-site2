@@ -1,8 +1,11 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
+import FileUploader from '../../components/admin/FileUploader.astro';
 import { isAdmin } from '../../utils/roles';
 import { parseApiError, BACKEND_URL } from '../../utils/api-error';
+import { readPageParams, fetchPaged, pageUrl } from '../../utils/pagination';
+import PageNav from '../../components/PageNav.astro';
 
 // Check authentication
 const sessionToken = Astro.cookies.get('admin_session')?.value;
@@ -52,24 +55,22 @@ if (Astro.request.method === 'POST') {
   }
 }
 
-// Fetch Tenders List
+// Fetch Tenders List (paginated — ?page / ?pageSize)
+const { page, pageSize } = readPageParams(Astro.url);
 let tenders: any[] = [];
+let totalTenders = 0;
+let lastPage = 1;
 try {
-  const res = await fetch(`${BACKEND_URL}/api/tenders`);
-  if (res.ok) {
-    tenders = await res.json();
-    tenders.sort((a: any, b: any) => new Date(b.publishDate || b.createdAt || 0).getTime() - new Date(a.publishDate || a.createdAt || 0).getTime());
-  } else {
-    const apiErr = await parseApiError(res, 'load tenders list');
-    if (apiErr.isUnauthorized) {
-      return Astro.redirect('/admin/login');
-    }
-    errorMessage = apiErr.message;
-  }
+  const state = await fetchPaged('/api/tenders', { BACKEND_URL, page, pageSize });
+  tenders = state.rows;
+  totalTenders = state.total;
+  lastPage = state.lastPage;
+  if (state.error) errorMessage = state.error;
 } catch (e) {
   console.error('Error fetching tenders:', e);
   errorMessage = 'Network failure: Unable to reach backend server.';
 }
+const pagedState = { rows: tenders, total: totalTenders, page, pageSize, lastPage, error: errorMessage.includes('Network') ? errorMessage : null };
 ---
 
 <AdminLayout title="Tenders & Bids" description="Manage JKSPDCL Tenders, Bids, and Attached Corrigendums" activeTab="tenders">
@@ -78,7 +79,7 @@ try {
     <!-- Standard Admin Page Header -->
     <div class="admin-page-header">
       <div>
-        <h1 class="text-lg font-extrabold text-[#0B4F9C] tracking-tight">Tenders &amp; Procurement Notices</h1>
+        <h1 class="text-lg font-extrabold text-[color:var(--adm-primary)] tracking-tight">Tenders &amp; Procurement Notices</h1>
         <p class="text-xs text-slate-500 mt-0.5">Publish new tenders, attach corrigendums to active tenders, and manage bidding specifications.</p>
       </div>
       {userIsAdmin && (
@@ -121,9 +122,8 @@ try {
         <div class="relative w-full sm:w-72">
           <input 
             type="text" 
-            id="search-tenders-input" 
-            placeholder="Search eNIT, title, category, location..." 
-            class="w-full bg-slate-50 border border-slate-300 rounded text-xs text-slate-800 pl-8 pr-3 py-1.5 focus:ring-1 focus:ring-[#0B4F9C] focus:border-[#0B4F9C] outline-none"
+            id="search-tenders-input"             placeholder="Search eNIT, title, category, location..." 
+            class="w-full bg-slate-50 border border-slate-300 rounded text-xs text-slate-800 pl-9 pr-3 py-1.5 focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none"
           />
           <div class="absolute left-2.5 top-2 text-slate-400">
             <Icon name="search" size={13} />
@@ -142,11 +142,12 @@ try {
       </div>
 
       <div class="text-xs text-slate-500 font-medium shrink-0">
-        Showing <span id="visible-tenders-count" class="font-bold text-slate-800">{tenders.length}</span> of <span class="font-bold text-slate-800">{tenders.length}</span> notices
+        Showing <span id="visible-tenders-count" class="font-bold text-slate-800">{tenders.length}</span> of <span class="font-bold text-slate-800">{totalTenders}</span> notices
       </div>
     </div>
 
     <!-- Tenders Data Table -->
+    <div class="admin-table-card">
     <div class="admin-table-container">
       <table class="table-data min-w-full text-left" id="tenders-data-table">
         <thead>
@@ -181,7 +182,7 @@ try {
                     data-search={searchString}
                   >
                     <td class="text-center font-bold text-slate-400 text-xs row-idx">{idx + 1}</td>
-                    <td class="font-mono font-bold text-[#0B4F9C] text-xs whitespace-nowrap">
+                    <td class="font-mono font-bold text-[color:var(--adm-primary)] text-xs whitespace-nowrap">
                       {tender.referenceNo}
                     </td>
                     <td class="font-medium text-slate-800 text-left">
@@ -192,7 +193,7 @@ try {
                         )}
                         
                         <div class="flex items-center gap-1.5 flex-wrap mt-0.5 select-none">
-                          <span class="px-1.5 py-0.5 rounded bg-blue-50 border border-blue-200 text-[#0B4F9C] text-[9px] font-bold uppercase">{tender.documentType || 'NIT'}</span>
+                          <span class="px-1.5 py-0.5 rounded bg-blue-50 border border-blue-200 text-[color:var(--adm-primary)] text-[9px] font-bold uppercase">{tender.documentType || 'NIT'}</span>
                           <span class="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-700 text-[9px] font-bold">{tender.workCategory || 'Civil'}</span>
                           <span class="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-600 text-[9px] font-medium font-mono">{tender.locationTag?.replace(/^HQ_/i, 'HQ ')?.replace(/^HEP_/i, 'HEP ')?.replace(/_/g, ' ')}</span>
                           {corrs.length > 0 && (
@@ -300,7 +301,10 @@ try {
         </table>
       </div>
     </div>
+
+    <PageNav state={pagedState} url={(p: number) => pageUrl(Astro.url, p, pageSize)} />
   </div>
+</div>
 
   <!-- ATTACH CORRIGENDUM MODAL DIALOG (ADMIN ONLY) -->
   {userIsAdmin && (
@@ -309,7 +313,7 @@ try {
       
       <!-- Modal Header -->
       <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70 shrink-0">
-        <div class="flex items-center gap-2 text-[#0B4F9C]">
+        <div class="flex items-center gap-2 text-[color:var(--adm-primary)]">
           <Icon name="plus" size={18} />
           <h3 class="text-base font-extrabold">Attach Corrigendum / Amendment PDF</h3>
         </div>
@@ -339,7 +343,7 @@ try {
               <!-- Populated via JS search -->
             </div>
 
-            <div id="modal-selected-tender-badge" class="p-2.5 bg-blue-50 border border-blue-200 rounded text-xs text-[#0B4F9C] font-semibold hidden">
+            <div id="modal-selected-tender-badge" class="p-2.5 bg-blue-50 border border-blue-200 rounded text-xs text-[color:var(--adm-primary)] font-semibold hidden">
               Selected: <span id="selected-tender-text" class="font-bold"></span>
             </div>
           </div>
@@ -370,17 +374,15 @@ try {
 
           <!-- Corrigendum PDF File Attachment -->
           <div class="form-group flex flex-col gap-1.5">
-            <label class="text-xs font-bold text-slate-700">Corrigendum PDF Document <span class="text-red-500">*</span></label>
-            <div id="modal-upload-box" class="border-2 border-dashed border-slate-300 hover:border-amber-400 rounded-lg p-5 bg-slate-50 flex flex-col items-center justify-center gap-1.5 hover:bg-amber-50/20 transition-all cursor-pointer relative">
-              <input type="file" id="modal-file-uploader" class="absolute inset-0 opacity-0 cursor-pointer" accept=".pdf,.doc,.docx" />
-              <Icon name="upload" size={20} class="text-slate-400" />
-              <span id="modal-upload-status" class="text-xs text-slate-600 font-semibold">Click to choose Corrigendum PDF file</span>
-              <span class="text-[10px] text-slate-400">PDF, DOC, DOCX (Max 20MB / 100MB if Important)</span>
-            </div>
-            <label class="flex items-center gap-2 p-1.5 bg-amber-50/70 border border-amber-200/80 rounded cursor-pointer hover:bg-amber-50 transition-colors select-none mt-1">
-              <input type="checkbox" id="modal-is-important-checkbox" class="w-3.5 h-3.5 rounded text-[#0B4F9C] border-slate-300 focus:ring-[#0B4F9C] cursor-pointer" />
-              <span class="text-[11px] font-bold text-amber-900 flex items-center gap-1.5"><Icon name="star" size={12} class="text-amber-600 shrink-0" /> Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
-            </label>
+            <FileUploader
+              id="corr-modal-doc"
+              label="Corrigendum PDF Document"
+              required
+              variant="document"
+              accept=".pdf,.doc,.docx"
+              helpText="PDF, DOC, DOCX (Max 20MB / 100MB if Important)"
+              important
+            />
             <input type="hidden" id="modal-doc-url" />
             <input type="hidden" id="modal-file-size" />
           </div>
@@ -455,9 +457,8 @@ try {
           resultsBox: document.getElementById('modal-tender-results'),
           badgeBox: document.getElementById('modal-selected-tender-badge'),
           selectedTenderText: document.getElementById('selected-tender-text'),
-          fileUploader: document.getElementById('modal-file-uploader'),
-          uploadStatus: document.getElementById('modal-upload-status'),
-          uploadBox: document.getElementById('modal-upload-box'),
+          fileUploader: document.getElementById('corr-modal-doc-input'),
+          uploadBox: document.getElementById('corr-modal-doc-dropzone'),
           hiddenDocUrl: document.getElementById('modal-doc-url'),
           hiddenFileSize: document.getElementById('modal-file-size'),
           modalForm: document.getElementById('attach-corr-modal-form'),
@@ -491,8 +492,13 @@ try {
         if (els.hiddenFileSize) els.hiddenFileSize.value = '0';
         if (els.badgeBox) els.badgeBox.classList.add('hidden');
         if (els.resultsBox) els.resultsBox.classList.add('hidden');
-        if (els.uploadStatus) els.uploadStatus.textContent = 'Click to choose Corrigendum PDF file';
-        if (els.uploadBox) els.uploadBox.classList.remove('border-emerald-300', 'bg-emerald-50/20');
+        if (els.uploadBox) {
+          els.uploadBox.classList.remove('has-file');
+          var n = els.uploadBox.querySelector('.admin-uploader-file-name');
+          if (n) n.textContent = '';
+          var fi = els.uploadBox.querySelector('input[type="file"]');
+          if (fi) fi.value = '';
+        }
       }
 
       function selectTender(t) {
@@ -576,7 +582,7 @@ try {
           } else {
             els.resultsBox.innerHTML = matches.map(function(t) {
               return '<div class="p-2.5 hover:bg-amber-50/70 border-b border-slate-100 last:border-0 cursor-pointer text-xs select-none item-tender-option" data-id="' + t.id + '">' +
-                '<div class="font-bold text-[#0B4F9C]">' + t.referenceNo + '</div>' +
+                '<div class="font-bold text-[color:var(--adm-primary)]">' + t.referenceNo + '</div>' +
                 '<div class="font-semibold text-slate-800 leading-snug truncate">' + t.title + '</div>' +
               '</div>';
             }).join('');
@@ -585,33 +591,14 @@ try {
         }
       });
 
-      // File upload handler
+      // File upload handler (unified uploader — validated upstream)
       document.addEventListener('change', async function(e) {
-        if (e.target && e.target.id === 'modal-file-uploader') {
+        if (e.target && e.target.id === 'corr-modal-doc-input') {
           var file = e.target.files && e.target.files[0];
           if (!file) return;
 
           var els = getElements();
-          var isImportant = document.getElementById('modal-is-important-checkbox')?.checked || false;
-          var MAX_STANDARD = 20 * 1024 * 1024;
-          var MAX_IMPORTANT = 100 * 1024 * 1024;
-
-          if (!isImportant && file.size > MAX_STANDARD) {
-            var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-            alert(`File size (${sizeMB} MB) exceeds the standard 20 MB limit.\n\nPlease check "Mark as Important" to allow uploading files up to 100 MB.`);
-            e.target.value = '';
-            return;
-          }
-
-          if (file.size > MAX_IMPORTANT) {
-            var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-            alert(`File size (${sizeMB} MB) exceeds the maximum allowed limit of 100 MB.`);
-            e.target.value = '';
-            return;
-          }
-
-          if (els.uploadStatus) els.uploadStatus.textContent = `Uploading ${file.name}...`;
-          if (els.uploadBox) els.uploadBox.classList.add('opacity-60', 'pointer-events-none');
+          var isImportant = document.getElementById('corr-modal-doc-important')?.checked || false;
 
           var formData = new FormData();
           formData.append('file', file);
@@ -625,14 +612,8 @@ try {
             });
 
             if (!res.ok) {
-              if (res.status === 401) {
-                window.location.href = '/admin/login';
-                return;
-              }
-              if (res.status === 403) {
-                alert('Access Denied: You do not have permission to upload files.');
-                return;
-              }
+              if (res.status === 401) { window.location.href = '/admin/login'; return; }
+              if (res.status === 403) { alert('Access Denied: You do not have permission to upload files.'); return; }
               var err = await res.json().catch(function() { return {}; });
               throw new Error(err.message || 'Upload failed');
             }
@@ -640,14 +621,9 @@ try {
             var result = await res.json();
             if (els.hiddenDocUrl) els.hiddenDocUrl.value = result.url;
             if (els.hiddenFileSize) els.hiddenFileSize.value = result.sizeBytes;
-            if (els.uploadStatus) els.uploadStatus.textContent = `Attached: ${result.filename} (${Math.round(result.sizeBytes / 1024)} KB)`;
-            if (els.uploadBox) els.uploadBox.classList.add('border-emerald-300', 'bg-emerald-50/20');
           } catch (err) {
             alert(`Upload failed: ${err.message}`);
-            if (els.uploadStatus) els.uploadStatus.textContent = 'Click to choose Corrigendum PDF file';
             e.target.value = '';
-          } finally {
-            if (els.uploadBox) els.uploadBox.classList.remove('opacity-60', 'pointer-events-none');
           }
         }
       });

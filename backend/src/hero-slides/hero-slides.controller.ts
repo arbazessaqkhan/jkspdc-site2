@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nestjs/common';
+import { Query, Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nestjs/common';
 import { HeroSlidesService } from './hero-slides.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -12,8 +12,8 @@ export class HeroSlidesController {
   constructor(private readonly service: HeroSlidesService) {}
 
   @Get()
-  findAll() {
-    return this.service.findAll();
+  findAll(@Query() q: any) {
+    return this.service.findAll(q);
   }
 
   @Get('active')

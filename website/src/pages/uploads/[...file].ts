@@ -7,7 +7,7 @@ export const GET: APIRoute = async ({ params }) => {
   }
 
   try {
-    const backendRes = await fetch(`http://localhost:3000/uploads/${filePath}`);
+    const backendRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/uploads/${filePath}`);
     if (!backendRes.ok) {
       return new Response('Not found', { status: backendRes.status });
     }

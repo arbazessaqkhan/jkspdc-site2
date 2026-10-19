@@ -12,7 +12,7 @@ try {
     errorMessage = 'Tender ID is required.';
   } else {
     // Fetch tender
-    const res = await fetch(`http://localhost:3000/api/tenders/${id}`);
+    const res = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/tenders/${id}`);
     if (res.ok) {
       tender = await res.json();
       
@@ -30,7 +30,7 @@ try {
 const getDocUrl = (url?: string) => {
   if (!url) return '#';
   if (url.startsWith('/uploads/')) {
-    return `http://localhost:3000${url}`;
+    return `${import.meta.env.PUBLIC_API_BASE}${url}`;
   }
   return url;
 };
