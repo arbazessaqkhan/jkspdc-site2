@@ -4,6 +4,7 @@ import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { CreateTenderDto, UpdateTenderDto } from './tenders.dto';
 import { Tender } from '@prisma/client';
 import { deleteLocalFile } from '../upload/file-cleanup.helper';
+import { PaginationDto, wantsPagination, paginate } from '../common/pagination';
 
 @Injectable()
 export class TendersService {
@@ -32,11 +33,28 @@ export class TendersService {
     };
   }
 
-  async findAll(): Promise<any[]> {
+  async findAllLegacy(): Promise<any[]> {
     const tenders = await this.prisma.tender.findMany({
       orderBy: { publishDate: 'desc' },
     });
     return tenders.map((t) => this.formatTender(t));
+  }
+
+  /**
+   * Paged variant used by admin list pages (?page/?pageSize). Without
+   * pagination params it returns the full array (legacy behaviour).
+   */
+  async findAll(q: PaginationDto = {}): Promise<any> {
+    if (!wantsPagination(q)) {
+      return (await this.prisma.tender.findMany({ orderBy: { publishDate: 'desc' } })).map((t) => this.formatTender(t));
+    }
+    return paginate({
+      page: q.page,
+      pageSize: q.pageSize,
+      count: () => this.prisma.tender.count({ where: undefined }),
+      find: async (skip, take) =>
+        (await this.prisma.tender.findMany({ where: undefined, orderBy: { publishDate: 'desc' }, skip, take })).map((t) => this.formatTender(t)),
+    });
   }
 
   async findOne(id: string): Promise<any> {

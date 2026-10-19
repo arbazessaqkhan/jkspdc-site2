@@ -1,5 +1,6 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
+import FileUploader from '../../components/admin/FileUploader.astro';
 import Icon from '../../components/Icon.astro';
 import { isAdmin } from '../../utils/roles';
 import { parseApiError, BACKEND_URL } from '../../utils/api-error';
@@ -259,55 +260,17 @@ if (Astro.request.method === 'POST') {
             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
               Project Photograph (Image Upload &amp; Preview)
             </label>
-            <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col sm:flex-row items-center gap-5">
-              <!-- Live Preview Thumbnail Container with red X button -->
-              <div class="relative shrink-0 w-36 h-28 rounded-lg overflow-hidden bg-white border-2 border-dashed border-slate-300 flex items-center justify-center shadow-2xs group">
-                <img 
-                  id="project-image-preview" 
-                  src={existingPhotoUrl || ''} 
-                  alt="Project Preview" 
-                  class={`w-full h-full object-cover ${existingPhotoUrl ? '' : 'hidden'}`} 
-                />
-                <div id="project-image-fallback" class={`flex flex-col items-center justify-center text-slate-400 gap-1 ${existingPhotoUrl ? 'hidden' : ''}`}>
-                  <Icon name="image" size={28} />
-                  <span class="text-[10px] font-semibold">No Image</span>
-                </div>
-
-                <!-- Red X Remove Button -->
-                <button
-                  type="button"
-                  id="btn-remove-photo"
-                  class={`absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center shadow-md transition-all cursor-pointer ${existingPhotoUrl ? '' : 'hidden'}`}
-                  title="Remove photo"
-                  aria-label="Remove uploaded image"
-                >
-                  <Icon name="x" size={13} strokeWidth={2.5} />
-                </button>
-              </div>
-
-              <!-- Upload Controller & Details -->
-              <div class="flex-1 w-full space-y-2 text-center sm:text-left">
-                <div class="flex flex-wrap items-center justify-center sm:justify-start gap-3">
-                  <label for="image-file-input" class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-[color:var(--adm-primary)] bg-[color:var(--adm-bg-subtle)] hover:bg-blue-100 rounded-lg border border-[color:var(--adm-border)] shadow-2xs transition-all">
-                    <Icon name="upload" size={14} />
-                    <span id="upload-btn-label">{existingPhotoUrl ? 'Change Image' : 'Upload Project Image'}</span>
-                  </label>
-                  <input type="file" id="image-file-input" accept="image/jpeg,image/png,image/webp,image/gif" class="hidden" />
-                  
-                  <button 
-                    type="button" 
-                    id="btn-remove-photo-text"
-                    class={`text-xs font-bold text-red-600 hover:text-red-700 hover:underline cursor-pointer ${existingPhotoUrl ? '' : 'hidden'}`}
-                  >
-                    Remove Photo
-                  </button>
-                </div>
-
-                <p id="image-status-text" class="text-[11px] text-slate-500 font-medium">
-                  {existingPhotoUrl ? 'Current project photograph loaded. Click above to replace or remove.' : 'Supported formats: JPG, PNG, WEBP. Max size: 10 MB.'}
-                </p>
-                <input type="hidden" name="documentUrl" id="documentUrl" value={projectData.documentUrl || (existingPhotoUrl && !(BACKEND_URL && existingPhotoUrl.startsWith(BACKEND_URL)) ? existingPhotoUrl : '')} />
-              </div>
+            <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl">
+              <FileUploader
+                id="project-image"
+                label="Project Photograph"
+                variant="image"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                helpText="Supported formats: JPG, PNG, WEBP. Max size: 10 MB."
+                maxSizeMB={10}
+                existingUrl={existingPhotoUrl}
+              />
+              <input type="hidden" name="documentUrl" id="documentUrl" value={projectData.documentUrl || (existingPhotoUrl && !(BACKEND_URL && existingPhotoUrl.startsWith(BACKEND_URL)) ? existingPhotoUrl : '')} />
             </div>
           </div>
         </div>
@@ -347,61 +310,19 @@ if (Astro.request.method === 'POST') {
   </div>
 
   <script define:vars={{ sessionToken, backendUrl: BACKEND_URL }}>
-    const imageFileInput = document.getElementById('image-file-input');
-    const projectImagePreview = document.getElementById('project-image-preview');
-    const projectImageFallback = document.getElementById('project-image-fallback');
-    const btnRemovePhoto = document.getElementById('btn-remove-photo');
-    const btnRemovePhotoText = document.getElementById('btn-remove-photo-text');
-    const uploadBtnLabel = document.getElementById('upload-btn-label');
-    const imageStatusText = document.getElementById('image-status-text');
+    // Unified uploader: 'project-image-input' (validated by shared controller)
+    // fires 'change' here; we upload and store the returned URL.
     const documentUrlInput = document.getElementById('documentUrl');
+    const imageFileInput = document.getElementById('project-image-input');
 
     function removePhoto() {
       if (documentUrlInput) documentUrlInput.value = '';
       if (imageFileInput) imageFileInput.value = '';
-      if (projectImagePreview) {
-        projectImagePreview.src = '';
-        projectImagePreview.classList.add('hidden');
-      }
-      if (projectImageFallback) projectImageFallback.classList.remove('hidden');
-      if (btnRemovePhoto) btnRemovePhoto.classList.add('hidden');
-      if (btnRemovePhotoText) btnRemovePhotoText.classList.add('hidden');
-      if (uploadBtnLabel) uploadBtnLabel.textContent = 'Upload Project Image';
-      if (imageStatusText) imageStatusText.textContent = 'No image selected. Supported formats: JPG, PNG, WEBP.';
     }
-
-    btnRemovePhoto?.addEventListener('click', (e) => {
-      e.preventDefault();
-      removePhoto();
-    });
-
-    btnRemovePhotoText?.addEventListener('click', (e) => {
-      e.preventDefault();
-      removePhoto();
-    });
 
     imageFileInput?.addEventListener('change', async (event) => {
       const file = event.target?.files?.[0];
       if (!file) return;
-
-      const MAX_IMG_SIZE = 10 * 1024 * 1024; // 10MB
-      if (file.size > MAX_IMG_SIZE) {
-        alert('Image file size exceeds the 10 MB limit. Please select a smaller photo.');
-        imageFileInput.value = '';
-        return;
-      }
-
-      // Show instant temporary local preview
-      const localUrl = URL.createObjectURL(file);
-      if (projectImagePreview) {
-        projectImagePreview.src = localUrl;
-        projectImagePreview.classList.remove('hidden');
-      }
-      if (projectImageFallback) projectImageFallback.classList.add('hidden');
-      if (btnRemovePhoto) btnRemovePhoto.classList.remove('hidden');
-      if (btnRemovePhotoText) btnRemovePhotoText.classList.remove('hidden');
-      if (uploadBtnLabel) uploadBtnLabel.textContent = 'Uploading...';
-      if (imageStatusText) imageStatusText.textContent = `Uploading ${file.name}...`;
 
       const formData = new FormData();
       formData.append('file', file);
@@ -435,17 +356,20 @@ if (Astro.request.method === 'POST') {
           : result.url;
         // Store relative URL in hidden input for form submission
         if (documentUrlInput) documentUrlInput.value = serverUrl;
-        // Use full backend URL for preview so the image loads correctly
-        const previewUrl = serverUrl.startsWith('/uploads/')
-          ? `${backendUrl}${serverUrl}`
-          : serverUrl;
-        if (projectImagePreview) projectImagePreview.src = previewUrl;
-        if (uploadBtnLabel) uploadBtnLabel.textContent = 'Change Image';
-        if (imageStatusText) imageStatusText.textContent = `Image uploaded: ${file.name}`;
+        // Reflect the uploaded (not local) URL into the shared preview
+        const previewImg = document.getElementById('project-image-preview-img');
+        if (previewImg) {
+          previewImg.src = serverUrl.startsWith('/uploads/') ? `${backendUrl}${serverUrl}` : serverUrl;
+        }
       } catch (err) {
         alert(`Upload error: ${err.message}`);
         removePhoto();
       }
+    });
+
+    // Remove action from the unified uploader
+    imageFileInput?.addEventListener('uploader:cleared', () => {
+      if (documentUrlInput) documentUrlInput.value = '';
     });
   </script>
 </AdminLayout>

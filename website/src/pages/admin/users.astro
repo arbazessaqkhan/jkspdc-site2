@@ -3,6 +3,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
 import { isAdmin } from '../../utils/roles';
 import { parseApiError, BACKEND_URL } from '../../utils/api-error';
+import { readPageParams, fetchPaged, pageUrl } from '../../utils/pagination';
+import PageNav from '../../components/PageNav.astro';
 
 // Check authentication
 const sessionToken = Astro.cookies.get('admin_session')?.value;
@@ -53,27 +55,22 @@ if (Astro.request.method === 'POST') {
 }
 
 // Fetch Users List
-let users = [];
+const { page, pageSize } = readPageParams(Astro.url);
+const pagedExtra: Record<string, string | undefined> = {};
+let users: any[] = [];
+let pagedTotal = 0;
+let pagedLastPage = 1;
 try {
-  const res = await fetch(`${BACKEND_URL}/api/users`, {
-    headers: {
-      'Authorization': `Bearer ${sessionToken}`,
-    },
-  });
-  if (res.ok) {
-    users = await res.json();
-  } else {
-    const apiErr = await parseApiError(res, 'load user accounts');
-    if (apiErr.isUnauthorized) {
-      return Astro.redirect('/admin/login');
-    }
-    errorMessage = apiErr.message;
-  }
+  const state = await fetchPaged('/api/users', { BACKEND_URL, token: sessionToken, page, pageSize, extra: pagedExtra });
+  users = state.rows;
+  pagedTotal = state.total;
+  pagedLastPage = state.lastPage;
+  if (state.error) errorMessage = errorMessage || state.error;
 } catch (e) {
-  console.error('Error fetching users:', e);
-  errorMessage = 'Failed to load user accounts. Unable to communicate with the server.';
+  console.error('Error fetching list:', e);
+  errorMessage = 'Network failure: Unable to reach backend server.';
 }
----
+const pagedState = { rows: users, total: pagedTotal, page, pageSize, lastPage: pagedLastPage, error: null };---
 
 <AdminLayout title="User Accounts" description="Manage JKSPDCL administrative user accounts." activeTab="users">
   <div class="flex flex-col gap-6">
@@ -186,7 +183,9 @@ try {
           )}
         </tbody>
       </table>
-    </div>
+
+
+    <PageNav state={pagedState} url={(p: number) => pageUrl(Astro.url, p, pageSize, pagedExtra)} />    </div>
     </div>
 
   </div>

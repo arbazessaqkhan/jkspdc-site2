@@ -2,15 +2,23 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { deleteLocalFile } from '../upload/file-cleanup.helper';
 import { CreateProjectDto, UpdateProjectDto } from './projects.dto';
+import { PaginationDto, wantsPagination, paginate } from '../common/pagination';
 
 @Injectable()
 export class ProjectsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(status?: string) {
-    return this.prisma.powerStation.findMany({
-      where: status ? { status } : undefined,
-      orderBy: { name: 'asc' },
+  async findAll(q: PaginationDto = {}, status?: string): Promise<any> {
+    const where = status ? { status } : undefined;
+    if (!wantsPagination(q)) {
+      return this.prisma.powerStation.findMany({ where, orderBy: { name: 'asc' } });
+    }
+    return paginate({
+      page: q.page,
+      pageSize: q.pageSize,
+      count: () => this.prisma.powerStation.count({ where }),
+      find: (skip, take) =>
+        this.prisma.powerStation.findMany({ where, orderBy: { name: 'asc' }, skip, take }),
     });
   }
 

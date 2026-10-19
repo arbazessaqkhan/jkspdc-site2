@@ -1,6 +1,7 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
+import FileUploader from '../../components/admin/FileUploader.astro';
 import { isAdmin } from '../../utils/roles';
 import { parseApiError, BACKEND_URL } from '../../utils/api-error';
 
@@ -196,36 +197,33 @@ if (Astro.request.method === 'POST') {
             </datalist>
           </div>
 
-          <!-- File Upload Section -->
+          <!-- File Upload Section (unified uploader) -->
           <div class="form-group flex flex-col gap-1.5 col-span-1 md:col-span-2">
-            <label class="text-xs font-bold text-slate-700">Attach Document File <span class="text-red-500">*</span></label>
-            <div id="upload-container" class="border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-lg p-6 bg-slate-50 flex flex-col items-center justify-center gap-2 hover:bg-blue-50/20 transition-all cursor-pointer relative">
-              <input type="file" id="file-uploader" class="absolute inset-0 opacity-0 cursor-pointer" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" />
-              <Icon name="upload" size={24} class="text-slate-400" />
-              <span class="text-xs text-slate-600 font-semibold" id="upload-status-text">Click to choose or drag document file here</span>
-              <span class="text-[10px] text-slate-450">PDF, JPG, PNG, DOCX (Max 20MB / 100MB if Important)</span>
-            </div>
+            <FileUploader
+              id="csr-doc"
+              label="Attach Document File"
+              required
+              variant="document"
+              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"
+              helpText="PDF, JPG, PNG, DOCX (Max 20MB / 100MB if Important)"
+              important
+              existingUrl={docData.documentUrl}
+            />
 
-            <label class="flex items-center gap-2 p-2 bg-amber-50/70 border border-amber-200/80 rounded-lg cursor-pointer hover:bg-amber-50 transition-colors select-none mt-1">
-              <input type="checkbox" id="is-important-checkbox" class="w-4 h-4 rounded text-[color:var(--adm-primary)] border-slate-300 focus:ring-[color:var(--adm-primary)] cursor-pointer" />
-              <span class="text-xs font-bold text-amber-900 flex items-center gap-1.5"><Icon name="star" size={13} class="text-amber-600 shrink-0" /> Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
-            </label>
-            
-            <!-- Uploaded file details -->
-            <div id="attached-file-info" class={`p-3 bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 rounded flex items-center justify-between gap-2 mt-2 ${docData.documentUrl ? '' : 'hidden'}`}>
-              <div class="flex items-center gap-2 min-w-0">
-                <Icon name="info" size={16} class="text-emerald-600 shrink-0" />
-                <span class="font-semibold truncate" id="attached-filename">
-                  {docData.documentUrl ? docData.documentUrl.substring(docData.documentUrl.lastIndexOf('/') + 1) : 'No file attached'}
-                </span>
-              </div>
-              {docData.documentUrl && (
+            {docData.documentUrl && (
+              <div class="p-3 bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 rounded flex items-center justify-between gap-2 mt-2">
+                <div class="flex items-center gap-2 min-w-0">
+                  <Icon name="info" size={16} class="text-emerald-600 shrink-0" />
+                  <span class="font-semibold truncate">
+                    {docData.documentUrl.substring(docData.documentUrl.lastIndexOf('/') + 1)}
+                  </span>
+                </div>
                 <a href={docData.documentUrl} target="_blank" class="text-emerald-700 hover:text-emerald-900 underline font-bold shrink-0">
                   View File
                 </a>
-              )}
-            </div>
-            
+              </div>
+            )}
+
             <input type="hidden" name="documentUrl" id="documentUrl" value={docData.documentUrl} />
           </div>
 
@@ -255,51 +253,22 @@ if (Astro.request.method === 'POST') {
 
 <script is:inline define:vars={{ backendUrl: BACKEND_URL }}>
   (function() {
-    // Delegated click handler on upload container to ensure file input triggers
-    document.addEventListener('click', function(e) {
-      var container = e.target.closest('#upload-container');
-      if (container) {
-        var uploader = document.getElementById('file-uploader');
-        if (uploader && e.target !== uploader) {
-          uploader.click();
-        }
-      }
-    });
+    var FILE_INPUT = 'csr-doc-input';
+    var IMPORTANT_CB = 'csr-doc-important';
 
-    // Delegated change handler on document so uploading works instantly on any navigation without page refresh
+    // Delegated change handler: unified uploader fires change after a
+    // validated selection; here we upload and store the returned URL.
     document.addEventListener('change', async function(e) {
-      if (e.target && e.target.id === 'file-uploader') {
+      if (e.target && e.target.id === FILE_INPUT) {
         var file = e.target.files && e.target.files[0];
         if (!file) return;
 
-        var uploadContainer = document.getElementById('upload-container');
-        var uploadStatusText = document.getElementById('upload-status-text');
         var documentUrlInput = document.getElementById('documentUrl');
-        var attachedFileInfo = document.getElementById('attached-file-info');
-        var attachedFilename = document.getElementById('attached-filename');
         var submitBtn = document.getElementById('submit-btn');
 
-        var isImportant = (document.getElementById('is-important-checkbox') && document.getElementById('is-important-checkbox').checked) || false;
-        var MAX_STANDARD = 20 * 1024 * 1024;
-        var MAX_IMPORTANT = 100 * 1024 * 1024;
-
-        if (!isImportant && file.size > MAX_STANDARD) {
-          var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-          alert('File size (' + sizeMB + ' MB) exceeds the standard 20 MB limit.\n\nPlease check "Mark as Important" to allow uploading files up to 100 MB.');
-          e.target.value = '';
-          return;
-        }
-
-        if (file.size > MAX_IMPORTANT) {
-          var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-          alert('File size (' + sizeMB + ' MB) exceeds the maximum allowed limit of 100 MB.');
-          e.target.value = '';
-          return;
-        }
+        var isImportant = (document.getElementById(IMPORTANT_CB) && document.getElementById(IMPORTANT_CB).checked) || false;
 
         if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Uploading…'; }
-        if (uploadStatusText) uploadStatusText.textContent = 'Uploading ' + file.name + '…';
-        if (uploadContainer) uploadContainer.classList.add('opacity-60', 'pointer-events-none');
 
         var formData = new FormData();
         formData.append('file', file);
@@ -330,32 +299,10 @@ if (Astro.request.method === 'POST') {
           }
 
           var result = await response.json();
-
-          // Update input
           if (documentUrlInput) documentUrlInput.value = result.url;
-
-          // Update UI
-          if (uploadStatusText) uploadStatusText.textContent = 'Change attached file';
-          if (attachedFileInfo) {
-            attachedFileInfo.classList.remove('hidden');
-            if (attachedFilename) attachedFilename.textContent = result.filename || file.name;
-
-            var viewLink = attachedFileInfo.querySelector('a');
-            if (!viewLink) {
-              viewLink = document.createElement('a');
-              viewLink.target = '_blank';
-              viewLink.rel = 'noopener noreferrer';
-              viewLink.className = 'text-emerald-700 hover:text-emerald-900 underline font-bold shrink-0';
-              viewLink.textContent = 'View File';
-              attachedFileInfo.appendChild(viewLink);
-            }
-            var fullFileUrl = result.url.startsWith('/uploads/') ? ((backendUrl || '') + result.url) : result.url;
-            viewLink.href = fullFileUrl;
-          }
 
         } catch (error) {
           alert('Upload failed: ' + error.message);
-          if (uploadStatusText) uploadStatusText.textContent = 'Click to choose or drag document file here';
           if (documentUrlInput) documentUrlInput.value = '';
         } finally {
           if (submitBtn) {
@@ -363,8 +310,15 @@ if (Astro.request.method === 'POST') {
             var editId = document.getElementById('id') ? document.getElementById('id').value : '';
             submitBtn.textContent = editId ? 'Update Document' : 'Save Document';
           }
-          if (uploadContainer) uploadContainer.classList.remove('opacity-60', 'pointer-events-none');
         }
+      }
+    });
+
+    // Remove action: clear stored URL
+    document.addEventListener('uploader:cleared', function(e) {
+      if (e.target && e.target.id === FILE_INPUT) {
+        var documentUrlInput = document.getElementById('documentUrl');
+        if (documentUrlInput) documentUrlInput.value = '';
       }
     });
   })();

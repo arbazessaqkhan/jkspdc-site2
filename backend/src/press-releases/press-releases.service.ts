@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { deleteLocalFile } from '../upload/file-cleanup.helper';
 import { CreatePressReleaseDto, UpdatePressReleaseDto } from './press-releases.dto';
+import { PaginationDto, wantsPagination, paginate } from '../common/pagination';
 
 @Injectable()
 export class PressReleasesService {
@@ -11,9 +12,26 @@ export class PressReleasesService {
     private readonly auditLogsService: AuditLogsService,
   ) {}
 
-  async findAll() {
+  async findAllLegacy() {
     return this.prisma.pressRelease.findMany({
       orderBy: { publishDate: 'desc' },
+    });
+  }
+
+  /**
+   * Paged variant used by admin list pages (?page/?pageSize). Without
+   * pagination params it returns the full array (legacy behaviour).
+   */
+  async findAll(q: PaginationDto = {}): Promise<any> {
+    if (!wantsPagination(q)) {
+      return this.prisma.pressRelease.findMany({ orderBy: { publishDate: 'desc' } });
+    }
+    return paginate({
+      page: q.page,
+      pageSize: q.pageSize,
+      count: () => this.prisma.pressRelease.count({ where: undefined }),
+      find: (skip, take) =>
+        this.prisma.pressRelease.findMany({ where: undefined, orderBy: { publishDate: 'desc' }, skip, take }),
     });
   }
 

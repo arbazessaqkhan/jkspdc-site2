@@ -3,6 +3,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
 import { isAdmin } from '../../utils/roles';
 import { parseApiError, BACKEND_URL } from '../../utils/api-error';
+import { readPageParams, fetchPaged, pageUrl } from '../../utils/pagination';
+import PageNav from '../../components/PageNav.astro';
 
 // Check authentication
 const sessionToken = Astro.cookies.get('admin_session')?.value;
@@ -53,27 +55,22 @@ if (Astro.request.method === 'POST') {
 }
 
 // Fetch Contacts List
+const { page, pageSize } = readPageParams(Astro.url);
+const pagedExtra: Record<string, string | undefined> = {};
 let submissions: any[] = [];
+let pagedTotal = 0;
+let pagedLastPage = 1;
 try {
-  const res = await fetch(`${BACKEND_URL}/api/contact`, {
-    headers: {
-      'Authorization': `Bearer ${sessionToken}`,
-    },
-  });
-  if (res.ok) {
-    submissions = await res.json();
-  } else {
-    const apiErr = await parseApiError(res, 'load contact submissions');
-    if (apiErr.isUnauthorized) {
-      return Astro.redirect('/admin/login');
-    }
-    errorMessage = apiErr.message;
-  }
+  const state = await fetchPaged('/api/contact', { BACKEND_URL, token: sessionToken, page, pageSize, extra: pagedExtra });
+  submissions = state.rows;
+  pagedTotal = state.total;
+  pagedLastPage = state.lastPage;
+  if (state.error) errorMessage = errorMessage || state.error;
 } catch (e) {
-  console.error('Error fetching contact submissions:', e);
-  errorMessage = 'Failed to load contact submissions. Unable to communicate with the server.';
+  console.error('Error fetching list:', e);
+  errorMessage = 'Network failure: Unable to reach backend server.';
 }
-
+const pagedState = { rows: submissions, total: pagedTotal, page, pageSize, lastPage: pagedLastPage, error: null };
 // Parse Submissions
 function parseSubmission(sub: any) {
   const raw = sub.message || '';
@@ -353,7 +350,9 @@ const totalCount = parsedSubmissions.length;
           </tr>
         </tbody>
       </table>
-    </div>
+
+
+    <PageNav state={pagedState} url={(p: number) => pageUrl(Astro.url, p, pageSize, pagedExtra)} />    </div>
     </div>
 
     <!-- Detail View Modal -->

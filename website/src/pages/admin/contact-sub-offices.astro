@@ -3,6 +3,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
 import { canMutateRoutineContent, isAdmin } from '../../utils/roles';
 import { parseApiError, BACKEND_URL } from '../../utils/api-error';
+import { readPageParams, fetchPaged, pageUrl } from '../../utils/pagination';
+import PageNav from '../../components/PageNav.astro';
 
 // Check authentication
 const sessionToken = Astro.cookies.get('admin_session')?.value;
@@ -55,33 +57,22 @@ if (Astro.request.method === 'POST') {
 }
 
 // Fetch all sub-office / wing contacts
-let subOffices = [];
+const { page, pageSize } = readPageParams(Astro.url);
+const pagedExtra: Record<string, string | undefined> = {};
+let subOffices: any[] = [];
+let pagedTotal = 0;
+let pagedLastPage = 1;
 try {
-  const res = await fetch(`${BACKEND_URL}/api/contact-sub-offices/all`, {
-    headers: {
-      'Authorization': `Bearer ${sessionToken}`,
-    },
-  });
-  if (res.ok) {
-    subOffices = await res.json();
-  } else {
-    const apiErr = await parseApiError(res, 'load sub-offices');
-    if (apiErr.isUnauthorized) {
-      return Astro.redirect('/admin/login');
-    }
-    // Fallback to public endpoint
-    const pubRes = await fetch(`${BACKEND_URL}/api/contact-sub-offices`);
-    if (pubRes.ok) {
-      subOffices = await pubRes.json();
-    } else {
-      errorMessage = apiErr.message;
-    }
-  }
+  const state = await fetchPaged('/api/contact-sub-offices/all', { BACKEND_URL, token: sessionToken, page, pageSize, extra: pagedExtra });
+  subOffices = state.rows;
+  pagedTotal = state.total;
+  pagedLastPage = state.lastPage;
+  if (state.error) errorMessage = errorMessage || state.error;
 } catch (e) {
-  console.error('Error fetching contact sub-offices:', e);
-  errorMessage = 'Failed to load contact sub-offices. Unable to communicate with the server.';
+  console.error('Error fetching list:', e);
+  errorMessage = 'Network failure: Unable to reach backend server.';
 }
----
+const pagedState = { rows: subOffices, total: pagedTotal, page, pageSize, lastPage: pagedLastPage, error: null };---
 
 <AdminLayout title="Contact Sub-Offices" description="Manage Wing and Field Sub-Offices Directory" activeTab="contact-sub-offices">
   <div class="flex flex-col gap-6">
@@ -198,7 +189,9 @@ try {
           )}
         </tbody>
       </table>
-    </div>
+
+
+    <PageNav state={pagedState} url={(p: number) => pageUrl(Astro.url, p, pageSize, pagedExtra)} />    </div>
     </div>
 
   </div>

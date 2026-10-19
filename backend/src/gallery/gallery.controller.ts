@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Req } from '@nestjs/common';
+import { Query, Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Req } from '@nestjs/common';
 import { GalleryService } from './gallery.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -12,8 +12,8 @@ export class GalleryController {
   constructor(private readonly galleryService: GalleryService) {}
 
   @Get()
-  async findAll() {
-    return this.galleryService.findAll();
+  async findAll(@Query() q: any) {
+    return this.galleryService.findAll(q);
   }
 
   @Get(':id')

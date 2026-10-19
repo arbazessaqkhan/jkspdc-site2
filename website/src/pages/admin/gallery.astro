@@ -3,6 +3,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
 import { canMutateRoutineContent } from '../../utils/roles';
 import { parseApiError, BACKEND_URL } from '../../utils/api-error';
+import { readPageParams, fetchPaged, pageUrl } from '../../utils/pagination';
+import PageNav from '../../components/PageNav.astro';
 
 // Check authentication
 const sessionToken = Astro.cookies.get('admin_session')?.value;
@@ -53,23 +55,22 @@ if (Astro.request.method === 'POST') {
 }
 
 // Fetch Gallery List
-let galleryList = [];
+const { page, pageSize } = readPageParams(Astro.url);
+const pagedExtra: Record<string, string | undefined> = {};
+let galleryList: any[] = [];
+let pagedTotal = 0;
+let pagedLastPage = 1;
 try {
-  const res = await fetch(`${BACKEND_URL}/api/gallery`);
-  if (res.ok) {
-    galleryList = await res.json();
-  } else {
-    const apiErr = await parseApiError(res, 'load gallery items');
-    if (apiErr.isUnauthorized) {
-      return Astro.redirect('/admin/login');
-    }
-    errorMessage = apiErr.message;
-  }
+  const state = await fetchPaged('/api/gallery', { BACKEND_URL, page, pageSize, extra: pagedExtra });
+  galleryList = state.rows;
+  pagedTotal = state.total;
+  pagedLastPage = state.lastPage;
+  if (state.error) errorMessage = errorMessage || state.error;
 } catch (e) {
-  console.error('Error fetching gallery items:', e);
-  errorMessage = 'Failed to load gallery items. Unable to communicate with the server.';
+  console.error('Error fetching list:', e);
+  errorMessage = 'Network failure: Unable to reach backend server.';
 }
-
+const pagedState = { rows: galleryList, total: pagedTotal, page, pageSize, lastPage: pagedLastPage, error: null };
 function getImageUrl(url: string) {
   if (!url) return '';
   if (url.startsWith('/uploads/')) {
@@ -195,7 +196,9 @@ galleryList.forEach(item => {
                 ))}
               </tbody>
             </table>
-          </div>
+
+
+    <PageNav state={pagedState} url={(p: number) => pageUrl(Astro.url, p, pageSize, pagedExtra)} />          </div>
           </div>
 
         </div>

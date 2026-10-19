@@ -3,6 +3,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
 import { isAdmin } from '../../utils/roles';
 import { parseApiError, BACKEND_URL } from '../../utils/api-error';
+import { readPageParams, fetchPaged, pageUrl } from '../../utils/pagination';
+import PageNav from '../../components/PageNav.astro';
 
 // Check authentication
 const sessionToken = Astro.cookies.get('admin_session')?.value;
@@ -102,35 +104,22 @@ if (Astro.request.method === 'POST') {
 }
 
 // Fetch list of all IPP projects from backend
-interface IppProjectDto {
-  id: string;
-  name: string;
-  capacityMw: number;
-  status: string;
-  location: string;
-  awardedTo: string;
-  phase: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-let ippProjects: IppProjectDto[] = [];
+const { page, pageSize } = readPageParams(Astro.url);
+const pagedExtra: Record<string, string | undefined> = {};
+let ippProjects: any[] = [];
+let pagedTotal = 0;
+let pagedLastPage = 1;
 try {
-  const res = await fetch(`${BACKEND_URL}/api/ipp-projects`);
-  if (res.ok) {
-    ippProjects = await res.json();
-  } else {
-    const apiErr = await parseApiError(res, 'load IPP projects');
-    if (apiErr.isUnauthorized) {
-      return Astro.redirect('/admin/login');
-    }
-    errorMessage = apiErr.message;
-  }
+  const state = await fetchPaged('/api/ipp-projects', { BACKEND_URL, page, pageSize, extra: pagedExtra });
+  ippProjects = state.rows;
+  pagedTotal = state.total;
+  pagedLastPage = state.lastPage;
+  if (state.error) errorMessage = errorMessage || state.error;
 } catch (e) {
-  console.error('Error fetching IPP projects:', e);
-  errorMessage = 'Failed to load IPP projects. Unable to communicate with the server.';
+  console.error('Error fetching list:', e);
+  errorMessage = 'Network failure: Unable to reach backend server.';
 }
-
+const pagedState = { rows: ippProjects, total: pagedTotal, page, pageSize, lastPage: pagedLastPage, error: null };
 // All 56 locations provided by the user
 const locations = [
   'Akhnur', 'Anantnag', 'Awantipur', 'Badgam', 'Bandipore', 'Bandipura', 'Banihal', 'Baramula',
@@ -350,7 +339,8 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
           </tr>
         </tbody>
       </table>
-    </div>
+
+    <PageNav state={pagedState} url={(p: number) => pageUrl(Astro.url, p, pageSize, pagedExtra)} />    </div>
     </div>
 
     <!-- MODAL: Add / Edit IPP Project (Matches Screenshot 2) -->

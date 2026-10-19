@@ -3,6 +3,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
 import { canMutateRoutineContent, isAdmin } from '../../utils/roles';
 import { parseApiError, BACKEND_URL } from '../../utils/api-error';
+import { readPageParams, fetchPaged, pageUrl } from '../../utils/pagination';
+import PageNav from '../../components/PageNav.astro';
 
 // Check authentication
 const sessionToken = Astro.cookies.get('admin_session')?.value;
@@ -55,33 +57,22 @@ if (Astro.request.method === 'POST') {
 }
 
 // Fetch all official contacts (including inactive for admin)
-let contacts = [];
+const { page, pageSize } = readPageParams(Astro.url);
+const pagedExtra: Record<string, string | undefined> = {};
+let contacts: any[] = [];
+let pagedTotal = 0;
+let pagedLastPage = 1;
 try {
-  const res = await fetch(`${BACKEND_URL}/api/official-contacts/all`, {
-    headers: {
-      'Authorization': `Bearer ${sessionToken}`,
-    },
-  });
-  if (res.ok) {
-    contacts = await res.json();
-  } else {
-    const apiErr = await parseApiError(res, 'load official contacts');
-    if (apiErr.isUnauthorized) {
-      return Astro.redirect('/admin/login');
-    }
-    // Fallback to public endpoint
-    const pubRes = await fetch(`${BACKEND_URL}/api/official-contacts`);
-    if (pubRes.ok) {
-      contacts = await pubRes.json();
-    } else {
-      errorMessage = apiErr.message;
-    }
-  }
+  const state = await fetchPaged('/api/official-contacts/all', { BACKEND_URL, token: sessionToken, page, pageSize, extra: pagedExtra });
+  contacts = state.rows;
+  pagedTotal = state.total;
+  pagedLastPage = state.lastPage;
+  if (state.error) errorMessage = errorMessage || state.error;
 } catch (e) {
-  console.error('Error fetching official contacts:', e);
-  errorMessage = 'Failed to load official contacts. Unable to communicate with the server.';
+  console.error('Error fetching list:', e);
+  errorMessage = 'Network failure: Unable to reach backend server.';
 }
----
+const pagedState = { rows: contacts, total: pagedTotal, page, pageSize, lastPage: pagedLastPage, error: null };---
 
 <AdminLayout title="Official Contacts" description="Manage Corporate Office Contacts Directory" activeTab="official-contacts">
   <div class="flex flex-col gap-6">
@@ -200,7 +191,9 @@ try {
           )}
         </tbody>
       </table>
-    </div>
+
+
+    <PageNav state={pagedState} url={(p: number) => pageUrl(Astro.url, p, pageSize, pagedExtra)} />    </div>
     </div>
 
   </div>

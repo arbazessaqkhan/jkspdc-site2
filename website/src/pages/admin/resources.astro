@@ -1,8 +1,11 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
+import FileUploader from '../../components/admin/FileUploader.astro';
 import { canMutateRoutineContent } from '../../utils/roles';
 import { parseApiError, BACKEND_URL } from '../../utils/api-error';
+import { readPageParams, fetchPaged, pageUrl } from '../../utils/pagination';
+import PageNav from '../../components/PageNav.astro';
 
 const sessionToken = Astro.cookies.get('admin_session')?.value;
 if (!sessionToken) {
@@ -16,23 +19,22 @@ let errorMessage = '';
 let successMessage = '';
 
 // Fetch all resources
+const { page, pageSize } = readPageParams(Astro.url);
+const pagedExtra: Record<string, string | undefined> = {};
 let resources: any[] = [];
+let pagedTotal = 0;
+let pagedLastPage = 1;
 try {
-  const res = await fetch(`${BACKEND_URL}/api/downloads`);
-  if (res.ok) {
-    resources = await res.json();
-  } else {
-    const apiErr = await parseApiError(res, 'load resources');
-    if (apiErr.isUnauthorized) {
-      return Astro.redirect('/admin/login');
-    }
-    errorMessage = apiErr.message;
-  }
+  const state = await fetchPaged('/api/downloads', { BACKEND_URL, page, pageSize, extra: pagedExtra });
+  resources = state.rows;
+  pagedTotal = state.total;
+  pagedLastPage = state.lastPage;
+  if (state.error) errorMessage = errorMessage || state.error;
 } catch (e) {
-  console.error('Error fetching resources:', e);
-  errorMessage = 'Failed to load resources. Unable to communicate with the server.';
+  console.error('Error fetching list:', e);
+  errorMessage = 'Network failure: Unable to reach backend server.';
 }
-
+const pagedState = { rows: resources, total: pagedTotal, page, pageSize, lastPage: pagedLastPage, error: null };
 const defaultSeedResources = [
   {
     id: "seed-dl-1",
@@ -217,7 +219,9 @@ function getDocUrl(url?: string) {
           )}
         </tbody>
       </table>
-    </div>
+
+
+    <PageNav state={pagedState} url={(p: number) => pageUrl(Astro.url, p, pageSize, pagedExtra)} />    </div>
     </div>
 
   </div>
@@ -270,20 +274,15 @@ function getDocUrl(url?: string) {
 
       <!-- File Upload -->
       <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-bold text-slate-700">Upload File <span class="text-red-500">*</span></label>
-        <div id="modal-upload-area" class="border-2 border-dashed border-slate-300 hover:border-[color:var(--adm-primary)] rounded-lg p-4 bg-slate-50 flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all hover:bg-blue-50/20 relative">
-          <input type="file" id="modal-file-input" class="absolute inset-0 opacity-0 cursor-pointer" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" />
-          <Icon name="upload" size={20} class="text-slate-400" />
-          <span id="modal-upload-label" class="text-xs text-slate-600 font-semibold text-center">Click to choose or drag file here</span>
-          <span class="text-[10px] text-slate-400">PDF, JPG, PNG, DOCX (Max 20MB)</span>
-        </div>
-
-        <!-- Attached file info -->
-        <div id="modal-file-info" class="hidden p-2.5 bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 rounded-lg flex items-center gap-2">
-          <Icon name="file-text" size={14} class="text-emerald-600 shrink-0" />
-          <span id="modal-file-name-display" class="font-semibold truncate flex-1"></span>
-          <a id="modal-file-link" href="#" target="_blank" rel="noopener noreferrer" class="text-emerald-700 underline font-bold shrink-0">View</a>
-        </div>
+        <FileUploader
+          id="resource-doc"
+          label="Upload File"
+          required
+          variant="document"
+          accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"
+          helpText="PDF, JPG, PNG, DOCX (Max 20MB)"
+          maxSizeMB={20}
+        />
         <span id="modal-file-err" class="text-[11px] text-red-600 font-semibold hidden">Please upload a document file before submitting.</span>
         <input type="hidden" id="modal-doc-url" value="" />
       </div>
@@ -343,8 +342,8 @@ function getDocUrl(url?: string) {
     if (fileErr) fileErr.classList.add('hidden');
     var titleInput = document.getElementById('modal-title-input');
     if (titleInput) titleInput.classList.remove('border-red-400', 'ring-1', 'ring-red-400');
-    var uploadArea = document.getElementById('modal-upload-area');
-    if (uploadArea) uploadArea.classList.remove('border-red-400', 'bg-red-50/20');
+    var uploadArea = document.getElementById('resource-doc-dropzone');
+    if (uploadArea) uploadArea.classList.remove('is-invalid');
   }
 
   // ── CATEGORY FILTER ──────────────────────────────────────────
@@ -429,10 +428,10 @@ function getDocUrl(url?: string) {
     document.getElementById('modal-category').value = document.getElementById('modal-category').options[0].value;
     document.getElementById('modal-title-input').value = '';
     document.getElementById('modal-desc-input').value = '';
-    document.getElementById('modal-upload-label').textContent = 'Click to choose or drag file here';
+    var dz=document.getElementById('resource-doc-dropzone');
+    if (dz) { dz.classList.remove('has-file'); var n=dz.querySelector('.admin-uploader-file-name'); if(n) n.textContent=''; var pe=dz.querySelector('.admin-uploader-preview img'); if(pe){pe.src='';pe.classList.add('invisible');} }
     document.getElementById('modal-doc-url').value = '';
-    document.getElementById('modal-file-info').classList.add('hidden');
-    document.getElementById('modal-file-input').value = '';
+    document.getElementById('resource-doc-input').value = '';
     var submitBtn = document.getElementById('modal-submit');
     if (submitBtn) {
       submitBtn.disabled = false;
@@ -452,14 +451,13 @@ function getDocUrl(url?: string) {
       document.getElementById('modal-doc-url').value = editBtn.dataset.fileUrl || '';
       document.getElementById('modal-submit-text').textContent = 'Update';
 
-      var fileInfo = document.getElementById('modal-file-info');
-      var fileNameDisplay = document.getElementById('modal-file-name-display');
-      var fileLink = document.getElementById('modal-file-link');
       if (editBtn.dataset.fileUrl) {
-        fileInfo.classList.remove('hidden');
-        fileNameDisplay.textContent = editBtn.dataset.fileName || editBtn.dataset.fileUrl.split('/').pop() || 'Current file';
-        fileLink.href = getDocUrl(editBtn.dataset.fileUrl);
-        document.getElementById('modal-upload-label').textContent = 'Change file (optional)';
+        var dz = document.getElementById('resource-doc-dropzone');
+        if (dz) {
+          dz.classList.add('has-file');
+          var n = dz.querySelector('.admin-uploader-file-name');
+          if (n) n.textContent = editBtn.dataset.fileName || editBtn.dataset.fileUrl.split('/').pop() || 'Current file';
+        }
       }
       openModal();
     }
@@ -538,9 +536,6 @@ function getDocUrl(url?: string) {
       throw new Error('File size exceeds 20MB limit.');
     }
 
-    var label = document.getElementById('modal-upload-label');
-    label.textContent = 'Uploading ' + file.name + '…';
-
     var fd = new FormData();
     fd.append('file', file);
 
@@ -564,23 +559,10 @@ function getDocUrl(url?: string) {
 
     var result = await response.json();
     document.getElementById('modal-doc-url').value = result.url;
-
-    var fileInfo = document.getElementById('modal-file-info');
-    var fileNameDisplay = document.getElementById('modal-file-name-display');
-    var fileLink = document.getElementById('modal-file-link');
-    fileInfo.classList.remove('hidden');
-    fileNameDisplay.textContent = result.filename || file.name;
-    fileLink.href = getDocUrl(result.url);
-    label.textContent = 'Change file (optional)';
     return result.url;
   }
 
-  var modalUploadArea = document.getElementById('modal-upload-area');
-  var modalFileInput = document.getElementById('modal-file-input');
-
-  modalUploadArea.addEventListener('click', function(e) {
-    if (e.target !== modalFileInput) modalFileInput.click();
-  });
+  var modalFileInput = document.getElementById('resource-doc-input');
 
   modalFileInput.addEventListener('change', async function() {
     hideModalAlert();
@@ -595,7 +577,8 @@ function getDocUrl(url?: string) {
       await uploadFileObject(file);
     } catch(err) {
       showModalAlert('Upload failed: ' + err.message);
-      document.getElementById('modal-upload-label').textContent = 'Click to choose or drag file here';
+      var dz=document.getElementById('resource-doc-dropzone');
+    if (dz) { dz.classList.remove('has-file'); var n=dz.querySelector('.admin-uploader-file-name'); if(n) n.textContent=''; var pe=dz.querySelector('.admin-uploader-preview img'); if(pe){pe.src='';pe.classList.add('invisible');} }
       document.getElementById('modal-doc-url').value = '';
     } finally {
       if (submitBtn) {
@@ -615,7 +598,7 @@ function getDocUrl(url?: string) {
     var title = titleInput.value.trim();
     var description = document.getElementById('modal-desc-input').value.trim();
     var docUrl = document.getElementById('modal-doc-url').value.trim();
-    var fileInput = document.getElementById('modal-file-input');
+    var fileInput = document.getElementById('resource-doc-input');
     var pendingFile = fileInput.files && fileInput.files[0];
 
     // Validation 1: Title
@@ -646,7 +629,7 @@ function getDocUrl(url?: string) {
     }
 
     if (!docUrl) {
-      document.getElementById('modal-upload-area').classList.add('border-red-400', 'bg-red-50/20');
+      var dz2 = document.getElementById('resource-doc-dropzone'); if (dz2) dz2.classList.add('is-invalid');
       document.getElementById('modal-file-err').classList.remove('hidden');
       showModalAlert('Please select and upload a document file.');
       return;

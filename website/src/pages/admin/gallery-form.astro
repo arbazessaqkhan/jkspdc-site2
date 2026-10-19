@@ -1,6 +1,7 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
+import FileUploader from '../../components/admin/FileUploader.astro';
 import { canMutateRoutineContent } from '../../utils/roles';
 import { parseApiError, BACKEND_URL } from '../../utils/api-error';
 
@@ -156,18 +157,16 @@ if (Astro.request.method === 'POST' && editId) {
           <h3 class="text-xs font-bold text-[color:var(--adm-primary)] uppercase tracking-wider border-b border-slate-100 pb-2 mb-2">Image Specifications</h3>
           
           <div class="form-group flex flex-col gap-1.5">
-            <label class="text-xs font-bold text-slate-700">Gallery Image File <span class="text-red-500">*</span></label>
-            <div id="upload-container" class="border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-lg p-6 bg-slate-50 flex flex-col items-center justify-center gap-2 hover:bg-blue-50/20 transition-all cursor-pointer relative">
-              <input type="file" id="file-uploader" class="absolute inset-0 opacity-0 cursor-pointer" accept=".jpg,.jpeg,.png" />
-              <Icon name="image" size={24} class="text-slate-400" />
-              <span class="text-xs text-slate-600 font-semibold" id="upload-status-text">Click to choose or drag photo here</span>
-              <span class="text-[10px] text-slate-400">JPG, JPEG, PNG (Max 20MB / 100MB if Important)</span>
-            </div>
-
-            <label class="flex items-center gap-2 p-2 bg-amber-50/70 border border-amber-200/80 rounded-lg cursor-pointer hover:bg-amber-50 transition-colors select-none mt-1">
-              <input type="checkbox" id="is-important-checkbox" class="w-4 h-4 rounded text-[color:var(--adm-primary)] border-slate-300 focus:ring-[color:var(--adm-primary)] cursor-pointer" />
-              <span class="text-xs font-bold text-amber-900 flex items-center gap-1.5"><Icon name="star" size={13} class="text-amber-600 shrink-0" /> Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
-            </label>
+            <FileUploader
+              id="gallery-single"
+              label="Gallery Image File"
+              required
+              variant="image"
+              accept=".jpg,.jpeg,.png"
+              helpText="JPG, JPEG, PNG (Max 20MB / 100MB if Important)"
+              important
+              existingUrl={itemData.imageUrl ? getImageUrl(itemData.imageUrl) : ''}
+            />
 
             <!-- Image Preview -->
             <div id="attached-file-info" class={`p-3 bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 rounded flex flex-col gap-3 mt-2 ${itemData.imageUrl ? '' : 'hidden'}`}>
@@ -223,18 +222,15 @@ if (Astro.request.method === 'POST' && editId) {
           <h3 class="text-xs font-bold text-[color:var(--adm-primary)] uppercase tracking-wider border-b border-slate-100 pb-2 mb-2">Batch Upload Specifications</h3>
           
           <div class="form-group flex flex-col gap-1.5">
-            <label class="text-xs font-bold text-slate-700">Select Gallery Image Files <span class="text-red-500">*</span></label>
-            <div id="upload-container" class="border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-lg p-6 bg-slate-50 flex flex-col items-center justify-center gap-2 hover:bg-blue-50/20 transition-all cursor-pointer relative">
-              <input type="file" id="file-uploader" class="absolute inset-0 opacity-0 cursor-pointer" accept=".jpg,.jpeg,.png" multiple />
-              <Icon name="image" size={24} class="text-slate-400" />
-              <span class="text-xs text-slate-600 font-semibold" id="upload-status-text">Click to choose or drag multiple photos here</span>
-              <span class="text-[10px] text-slate-400">Select multiple JPG, JPEG, or PNG files (Max 20MB each / 100MB if Important)</span>
-            </div>
-
-            <label class="flex items-center gap-2 p-2 bg-amber-50/70 border border-amber-200/80 rounded-lg cursor-pointer hover:bg-amber-50 transition-colors select-none mt-1">
-              <input type="checkbox" id="batch-is-important-checkbox" class="w-4 h-4 rounded text-[color:var(--adm-primary)] border-slate-300 focus:ring-[color:var(--adm-primary)] cursor-pointer" />
-              <span class="text-xs font-bold text-amber-900 flex items-center gap-1.5"><Icon name="star" size={13} class="text-amber-600 shrink-0" /> Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB per image)</span></span>
-            </label>
+            <FileUploader
+              id="gallery-batch"
+              label="Select Gallery Image Files"
+              required
+              variant="document"
+              accept=".jpg,.jpeg,.png"
+              helpText="Select multiple JPG, JPEG, or PNG files (Max 20MB each / 100MB if Important)"
+              multiple
+            />
           </div>
 
           <!-- Partition Assignment for the batch -->
@@ -276,9 +272,8 @@ if (Astro.request.method === 'POST' && editId) {
   </div>
 
   <script define:vars={{ sessionToken, editId, backendUrl: BACKEND_URL }}>
-    const fileUploader = document.getElementById('file-uploader');
-    const uploadStatusText = document.getElementById('upload-status-text');
-    const uploadContainer = document.getElementById('upload-container');
+    const fileUploader = document.getElementById(editId ? 'gallery-single-input' : 'gallery-batch-input');
+        const uploadContainer = document.getElementById(editId ? 'gallery-single-dropzone' : 'gallery-batch-dropzone');
     const partitionInput = document.getElementById('partition');
     const submitBtn = document.getElementById('submit-btn');
     const galleryForm = document.getElementById('gallery-form');
@@ -301,25 +296,7 @@ if (Astro.request.method === 'POST' && editId) {
         const file = event.target?.files?.[0];
         if (!file) return;
 
-        const isImportant = document.getElementById('is-important-checkbox')?.checked || false;
-        const MAX_STANDARD = 20 * 1024 * 1024;
-        const MAX_IMPORTANT = 100 * 1024 * 1024;
-
-        if (!isImportant && file.size > MAX_STANDARD) {
-          const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-          alert(`File size (${sizeMB} MB) exceeds the standard 20 MB limit.\n\nPlease check "Mark as Important" to allow uploading files up to 100 MB.`);
-          fileUploader.value = '';
-          return;
-        }
-
-        if (file.size > MAX_IMPORTANT) {
-          const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-          alert(`File size (${sizeMB} MB) exceeds the maximum allowed limit of 100 MB.`);
-          fileUploader.value = '';
-          return;
-        }
-
-        uploadStatusText.textContent = `Uploading ${file.name}...`;
+        const isImportant = document.getElementById('gallery-single-important')?.checked || false;
         uploadContainer.classList.add('opacity-60', 'pointer-events-none');
 
         const formData = new FormData();
@@ -329,9 +306,7 @@ if (Astro.request.method === 'POST' && editId) {
         try {
           const response = await fetch(`${backendUrl}/api/upload`, {
             method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${sessionToken}`,
-            },
+            headers: { 'Authorization': `Bearer ${sessionToken}` },
             body: formData,
           });
 
@@ -342,38 +317,10 @@ if (Astro.request.method === 'POST' && editId) {
 
           const result = await response.json();
           imageUrlInput.value = result.url;
-
-          uploadStatusText.textContent = 'Change gallery image';
-          attachedFileInfo.classList.remove('hidden');
-          attachedFilename.textContent = result.filename;
-          
-          let previewImg = document.getElementById('image-preview');
-          if (!previewImg) {
-            const previewContainer = document.createElement('div');
-            previewContainer.className = 'max-w-[200px] h-auto border border-slate-200 rounded overflow-hidden shadow-sm bg-white self-start';
-            previewImg = document.createElement('img');
-            previewImg.id = 'image-preview';
-            previewImg.className = 'w-full h-auto object-cover';
-            previewImg.alt = 'Gallery Preview';
-            previewContainer.appendChild(previewImg);
-            attachedFileInfo.appendChild(previewContainer);
-          }
-          previewImg.src = formatImageUrl(result.url);
-
-          let viewLink = attachedFileInfo.querySelector('a');
-          if (!viewLink) {
-            viewLink = document.createElement('a');
-            viewLink.target = '_blank';
-            viewLink.className = 'text-emerald-700 hover:text-emerald-900 underline font-bold shrink-0';
-            viewLink.textContent = 'View Image';
-            const headerRow = attachedFileInfo.querySelector('.flex.items-center.justify-between') || attachedFileInfo.firstElementChild;
-            headerRow.appendChild(viewLink);
-          }
-          viewLink.href = formatImageUrl(result.url);
-
+          const previewImg = document.getElementById('gallery-single-preview-img');
+          if (previewImg) previewImg.src = formatImageUrl(result.url);
         } catch (error) {
           alert(`Upload error: ${error.message}`);
-          uploadStatusText.textContent = 'Click to choose or drag photo here';
           fileUploader.value = '';
         } finally {
           uploadContainer.classList.remove('opacity-60', 'pointer-events-none');
@@ -390,28 +337,13 @@ if (Astro.request.method === 'POST' && editId) {
         const files = event.target?.files;
         if (!files || files.length === 0) return;
 
-        const isImportant = document.getElementById('batch-is-important-checkbox')?.checked || false;
-        const MAX_STANDARD = 20 * 1024 * 1024;
-        const MAX_IMPORTANT = 100 * 1024 * 1024;
+        const isImportant = document.getElementById('gallery-batch-important')?.checked || false;
 
-        uploadStatusText.textContent = `Uploading ${files.length} file(s)...`;
         uploadContainer.classList.add('opacity-60', 'pointer-events-none');
 
         // Loop and upload each file
         for (let i = 0; i < files.length; i++) {
           const file = files[i];
-
-          if (!isImportant && file.size > MAX_STANDARD) {
-            const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-            alert(`Skipping "${file.name}": Size (${sizeMB} MB) exceeds the standard 20 MB limit.\n\nCheck "Mark as Important" to permit uploads up to 100 MB.`);
-            continue;
-          }
-
-          if (file.size > MAX_IMPORTANT) {
-            const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-            alert(`Skipping "${file.name}": Size (${sizeMB} MB) exceeds maximum allowed limit of 100 MB.`);
-            continue;
-          }
 
           const formData = new FormData();
           formData.append('file', file);
@@ -457,7 +389,6 @@ if (Astro.request.method === 'POST' && editId) {
           }
         }
 
-        uploadStatusText.textContent = 'Add more photos';
         uploadContainer.classList.remove('opacity-60', 'pointer-events-none');
 
         // Update list display

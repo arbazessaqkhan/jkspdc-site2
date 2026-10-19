@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Query, Controller, Get, UseGuards } from '@nestjs/common';
 import { AuditLogsService } from './audit-logs.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -12,7 +12,7 @@ export class AuditLogsController {
   constructor(private readonly auditLogsService: AuditLogsService) {}
 
   @Get()
-  async findAll() {
-    return this.auditLogsService.findAll();
+  async findAll(@Query() q: any) {
+    return this.auditLogsService.findAll(q);
   }
 }

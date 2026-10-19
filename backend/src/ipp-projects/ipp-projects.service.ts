@@ -1,16 +1,35 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CreateIppProjectDto, UpdateIppProjectDto } from './ipp-projects.dto';
+import { PaginationDto, wantsPagination, paginate } from '../common/pagination';
 
 @Injectable()
 export class IppProjectsService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(phase?: number) {
+  async findAllLegacy(phase?: number) {
     const where = phase ? { phase } : {};
     return this.prisma.ippProject.findMany({
       where,
       orderBy: [{ phase: 'asc' }, { name: 'asc' }],
+    });
+  }
+
+  /**
+   * Paged variant used by admin list pages (?page/?pageSize). Without
+   * pagination params it returns the full array (legacy behaviour).
+   */
+  async findAll(q: PaginationDto = {}, phase?: number): Promise<any> {
+    if (!wantsPagination(q)) {
+      return this.prisma.ippProject.findMany({ orderBy: [{ phase: 'asc' }, { name: 'asc' }] });
+    }
+    const where = phase ? { phase } : undefined;
+    return paginate({
+      page: q.page,
+      pageSize: q.pageSize,
+      count: () => this.prisma.ippProject.count({ where }),
+      find: (skip, take) =>
+        this.prisma.ippProject.findMany({ where, orderBy: [{ phase: 'asc' }, { name: 'asc' }], skip, take }),
     });
   }
 

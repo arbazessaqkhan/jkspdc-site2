@@ -1,6 +1,7 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
+import FileUploader from '../../components/admin/FileUploader.astro';
 import { isAdmin } from '../../utils/roles';
 import { parseApiError, BACKEND_URL } from '../../utils/api-error';
 
@@ -346,37 +347,32 @@ if (Astro.request.method === 'POST') {
           </div>
 
           <div class="form-group flex flex-col gap-1.5 col-span-1 md:col-span-2">
-            <label class="text-xs font-bold text-slate-700">Tender Document Attachment <span class="text-red-500">*</span></label>
-            <div id="upload-container" class="border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-lg p-6 bg-slate-50 flex flex-col items-center justify-center gap-2 hover:bg-blue-50/20 transition-all cursor-pointer relative">
-              <input type="file" id="file-uploader" class="absolute inset-0 opacity-0 cursor-pointer" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" />
-              <Icon name="upload" size={24} class="text-slate-400" />
-              <span class="text-xs text-slate-600 font-semibold" id="upload-status-text">Click to choose or drag document file here</span>
-              <span class="text-[10px] text-slate-400">PDF, JPG, PNG, DOCX, XLSX (Max 20MB / 100MB if Important)</span>
-            </div>
-
-            <label class="flex items-center gap-2 p-2 bg-amber-50/70 border border-amber-200/80 rounded-lg cursor-pointer hover:bg-amber-50 transition-colors select-none mt-1">
-              <input type="checkbox" id="is-important-checkbox" class="w-4 h-4 rounded text-[color:var(--adm-primary)] border-slate-300 focus:ring-[color:var(--adm-primary)] cursor-pointer" />
-              <span class="text-xs font-bold text-amber-900 flex items-center gap-1.5"><Icon name="star" size={13} class="text-amber-600 shrink-0" /> Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
-            </label>
-            
-            <!-- Attached file details -->
-            <div id="attached-file-info" class={`p-3 bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 rounded flex items-center justify-between gap-2 mt-2 ${tenderData.documentUrl ? '' : 'hidden'}`}>
-              <div class="flex items-center gap-2 min-w-0">
-                <Icon name="info" size={16} class="text-emerald-600 shrink-0" />
-                <span class="font-semibold truncate" id="attached-filename">
-                  {tenderData.documentUrl ? tenderData.documentUrl.substring(tenderData.documentUrl.lastIndexOf('/') + 1) : 'No file attached'}
-                </span>
-                <span class="text-emerald-600 shrink-0" id="attached-filesize">
-                  {tenderData.fileSizeBytes ? `(${Math.round(parseInt(tenderData.fileSizeBytes, 10) / 1024)} KB)` : ''}
-                </span>
-              </div>
-              {tenderData.documentUrl && (
+            <FileUploader
+              id="tender-doc"
+              label="Tender Document Attachment"
+              required
+              variant="document"
+              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"
+              helpText="PDF, JPG, PNG, DOCX, XLSX (Max 20MB / 100MB if Important)"
+              important
+              existingUrl={tenderData.documentUrl}
+            />
+            {tenderData.documentUrl && (
+              <div class={`p-3 bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 rounded flex items-center justify-between gap-2 mt-2`}>
+                <div class="flex items-center gap-2 min-w-0">
+                  <Icon name="info" size={16} class="text-emerald-600 shrink-0" />
+                  <span class="font-semibold truncate">
+                    {tenderData.documentUrl.substring(tenderData.documentUrl.lastIndexOf('/') + 1)}
+                  </span>
+                  {tenderData.fileSizeBytes && (
+                    <span class="text-emerald-600 shrink-0">({Math.round(parseInt(tenderData.fileSizeBytes, 10) / 1024)} KB)</span>
+                  )}
+                </div>
                 <a href={tenderData.documentUrl} target="_blank" class="text-emerald-700 hover:text-emerald-900 underline font-bold shrink-0">
                   View File
                 </a>
-              )}
-            </div>
-            
+              </div>
+            )}
             <input type="hidden" name="documentUrl" id="documentUrl" value={tenderData.documentUrl} />
             <input type="hidden" name="fileSizeBytes" id="fileSizeBytes" value={tenderData.fileSizeBytes} />
           </div>
@@ -424,17 +420,14 @@ if (Astro.request.method === 'POST') {
             </div>
 
             <div class="form-group flex flex-col gap-1.5 md:col-span-2">
-              <label class="text-xs font-bold text-slate-650">Attach Corrigendum File</label>
-              <div id="corr-upload-container" class="border border-dashed border-slate-300 hover:border-blue-400 rounded-lg p-4 bg-white flex flex-col items-center justify-center gap-1.5 hover:bg-blue-50/10 transition-all cursor-pointer relative">
-                <input type="file" id="corr-file-uploader" class="absolute inset-0 opacity-0 cursor-pointer" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" />
-                <Icon name="upload" size={16} class="text-slate-400" />
-                <span class="text-xs text-slate-500 font-semibold" id="corr-upload-status-text">Click to choose corrigendum file</span>
-                <span class="text-[10px] text-slate-400">PDF, JPG, PNG, DOCX, XLSX (Max 20MB / 100MB if Important)</span>
-              </div>
-              <label class="flex items-center gap-2 p-1.5 bg-amber-50/70 border border-amber-200/80 rounded cursor-pointer hover:bg-amber-50 transition-colors select-none">
-                <input type="checkbox" id="corr-is-important-checkbox" class="w-3.5 h-3.5 rounded text-[color:var(--adm-primary)] border-slate-300 focus:ring-[color:var(--adm-primary)] cursor-pointer" />
-                <span class="text-[11px] font-bold text-amber-900 flex items-center gap-1.5"><Icon name="star" size={12} class="text-amber-600 shrink-0" /> Mark as Important <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span></span>
-              </label>
+              <FileUploader
+                id="corr-doc"
+                label="Attach Corrigendum File"
+                variant="document"
+                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"
+                helpText="PDF, JPG, PNG, DOCX, XLSX (Max 20MB / 100MB if Important)"
+                important
+              />
               <input type="hidden" id="corr-file-url" />
               <input type="hidden" id="corr-file-size" />
             </div>
@@ -474,14 +467,10 @@ if (Astro.request.method === 'POST') {
       });
     }
 
-    const fileUploader = document.getElementById('file-uploader');
-    const uploadStatusText = document.getElementById('upload-status-text');
-    const attachedFileInfo = document.getElementById('attached-file-info');
-    const attachedFilename = document.getElementById('attached-filename');
-    const attachedFilesize = document.getElementById('attached-filesize');
-    const documentUrlInput = document.getElementById('documentUrl');
+    const fileUploader = document.getElementById('tender-doc-input');
+                    const documentUrlInput = document.getElementById('documentUrl');
     const fileSizeBytesInput = document.getElementById('fileSizeBytes');
-    const uploadContainer = document.getElementById('upload-container');
+    const uploadContainer = document.getElementById('tender-doc-dropzone');
     const submitBtn = document.querySelector('button[type="submit"]');
     let isUploading = false;
 
@@ -529,9 +518,7 @@ if (Astro.request.method === 'POST') {
     const corrExtendedOpening = document.getElementById('corr-extendedOpening');
     const corrFileUrl = document.getElementById('corr-file-url');
     const corrFileSize = document.getElementById('corr-file-size');
-    const corrFileUploader = document.getElementById('corr-file-uploader');
-    const corrUploadStatusText = document.getElementById('corr-upload-status-text');
-    const corrUploadContainer = document.getElementById('corr-upload-container');
+    const corrFileUploader = document.getElementById('corr-doc-input');
     const btnAddCorr = document.getElementById('btn-add-corr');
 
     // Toggle button elements
@@ -556,9 +543,7 @@ if (Astro.request.method === 'POST') {
       if (corrFileSize) corrFileSize.value = '';
       if (corrExtendedClosing) corrExtendedClosing.value = '';
       if (corrExtendedOpening) corrExtendedOpening.value = '';
-      if (corrFileUploader) corrFileUploader.value = '';
-      if (corrUploadStatusText) corrUploadStatusText.textContent = 'Click to choose corrigendum file';
-      if (corrUploadContainer) corrUploadContainer.classList.remove('border-emerald-300', 'bg-emerald-50/20');
+      if (corrFileUploader) { corrFileUploader.value = ''; corrFileUploader.dispatchEvent(new CustomEvent('uploader:cleared', { bubbles: true })); }
     }
 
     function renderCorrigendums() {
@@ -609,71 +594,6 @@ if (Astro.request.method === 'POST') {
 
     renderCorrigendums();
 
-    corrFileUploader?.addEventListener('change', async (event) => {
-      const file = event.target?.files?.[0];
-      if (!file) return;
-
-      const isImportant = document.getElementById('corr-is-important-checkbox')?.checked || false;
-      const MAX_STANDARD = 20 * 1024 * 1024;
-      const MAX_IMPORTANT = 100 * 1024 * 1024;
-
-      if (!isImportant && file.size > MAX_STANDARD) {
-        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-        alert(`Corrigendum file size (${sizeMB} MB) exceeds the standard 20 MB limit.\n\nPlease check "Mark as Important" to allow uploading files up to 100 MB.`);
-        corrFileUploader.value = '';
-        return;
-      }
-
-      if (file.size > MAX_IMPORTANT) {
-        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-        alert(`Corrigendum file size (${sizeMB} MB) exceeds the maximum allowed limit of 100 MB.`);
-        corrFileUploader.value = '';
-        return;
-      }
-
-      if (corrUploadStatusText) corrUploadStatusText.textContent = `Uploading ${file.name}...`;
-      if (corrUploadContainer) corrUploadContainer.classList.add('opacity-60', 'pointer-events-none');
-
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('isImportant', isImportant ? 'true' : 'false');
-
-      try {
-        const response = await fetch(`${backendUrl}/api/upload`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${sessionToken}`,
-          },
-          body: formData,
-        });
-
-        if (!response.ok) {
-          if (response.status === 401) {
-            window.location.href = '/admin/login';
-            return;
-          }
-          if (response.status === 403) {
-            alert('Access Denied: You do not have permission to upload files.');
-            return;
-          }
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.message || 'Upload failed');
-        }
-
-        const result = await response.json();
-        if (corrFileUrl) corrFileUrl.value = result.url;
-        if (corrFileSize) corrFileSize.value = result.sizeBytes;
-        if (corrUploadStatusText) corrUploadStatusText.textContent = `Attached: ${result.filename} (${Math.round(result.sizeBytes / 1024)} KB)`;
-        if (corrUploadContainer) corrUploadContainer.classList.add('border-emerald-300', 'bg-emerald-50/20');
-      } catch (error) {
-        alert(`Upload error: ${error.message}`);
-        if (corrUploadStatusText) corrUploadStatusText.textContent = 'Click to choose corrigendum file';
-        if (corrFileUploader) corrFileUploader.value = '';
-      } finally {
-        if (corrUploadContainer) corrUploadContainer.classList.remove('opacity-60', 'pointer-events-none');
-      }
-    });
-
     btnAddCorr?.addEventListener('click', () => {
       const title = corrTitle ? corrTitle.value.trim() : '';
       const url = corrFileUrl ? corrFileUrl.value : '';
@@ -712,30 +632,12 @@ if (Astro.request.method === 'POST') {
       const file = event.target?.files?.[0];
       if (!file) return;
 
-      const isImportant = document.getElementById('is-important-checkbox')?.checked || false;
-      const MAX_STANDARD = 20 * 1024 * 1024;
-      const MAX_IMPORTANT = 100 * 1024 * 1024;
-
-      if (!isImportant && file.size > MAX_STANDARD) {
-        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-        showUploadError(`File size (${sizeMB} MB) exceeds the standard 20 MB limit. Please check "Mark as Important" to allow uploading files up to 100 MB.`);
-        fileUploader.value = '';
-        return;
-      }
-
-      if (file.size > MAX_IMPORTANT) {
-        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-        showUploadError(`File size (${sizeMB} MB) exceeds the maximum allowed limit of 100 MB.`);
-        fileUploader.value = '';
-        return;
-      }
-
       clearUploadError();
       isUploading = true;
       if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Uploading…'; }
-      if (uploadStatusText) uploadStatusText.textContent = `Uploading ${file.name}…`;
       if (uploadContainer) uploadContainer.classList.add('opacity-60', 'pointer-events-none');
 
+      const isImportant = document.getElementById('tender-doc-important')?.checked || false;
       const formData = new FormData();
       formData.append('file', file);
       formData.append('isImportant', isImportant ? 'true' : 'false');
@@ -763,32 +665,10 @@ if (Astro.request.method === 'POST') {
         }
 
         const result = await response.json();
-        
-        // Update inputs
         if (documentUrlInput) documentUrlInput.value = result.url;
         if (fileSizeBytesInput) fileSizeBytesInput.value = result.sizeBytes;
-
-        // Update UI
-        if (uploadStatusText) uploadStatusText.textContent = 'Change attached file';
-        if (attachedFileInfo) {
-          attachedFileInfo.classList.remove('hidden');
-          if (attachedFilename) attachedFilename.textContent = result.filename;
-          const sizeKB = Math.round(result.sizeBytes / 1024);
-          if (attachedFilesize) attachedFilesize.textContent = `(${sizeKB} KB)`;
-          let viewLink = attachedFileInfo.querySelector('a');
-          if (!viewLink) {
-            viewLink = document.createElement('a');
-            viewLink.target = '_blank';
-            viewLink.className = 'text-emerald-700 hover:text-emerald-900 underline font-bold shrink-0';
-            viewLink.textContent = 'View File';
-            attachedFileInfo.appendChild(viewLink);
-          }
-          viewLink.href = result.url;
-        }
-
       } catch (error) {
         showUploadError(`Upload failed: ${error.message}. Please try again.`);
-        if (uploadStatusText) uploadStatusText.textContent = 'Click to choose or drag document file here';
         if (documentUrlInput) documentUrlInput.value = '';
         if (fileUploader) fileUploader.value = '';
       } finally {
@@ -799,6 +679,51 @@ if (Astro.request.method === 'POST') {
         }
         if (uploadContainer) uploadContainer.classList.remove('opacity-60', 'pointer-events-none');
       }
+    });
+
+    // Remove action on unified uploader clears stored URL + size
+    fileUploader?.addEventListener('uploader:cleared', () => {
+      if (documentUrlInput) documentUrlInput.value = '';
+      if (fileSizeBytesInput) fileSizeBytesInput.value = '';
+    });
+
+    // Corrigendum uploader (unified component)
+    const corrFileUploader = document.getElementById('corr-doc-input');
+    corrFileUploader?.addEventListener('change', async (event) => {
+      const file = event.target?.files?.[0];
+      if (!file) return;
+
+      const isImportant = document.getElementById('corr-doc-important')?.checked || false;
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('isImportant', isImportant ? 'true' : 'false');
+
+      try {
+        const response = await fetch(`${backendUrl}/api/upload`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${sessionToken}` },
+          body: formData,
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) { window.location.href = '/admin/login'; return; }
+          if (response.status === 403) { alert('Access Denied: You do not have permission to upload files.'); return; }
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || 'Upload failed');
+        }
+
+        const result = await response.json();
+        if (corrFileUrl) corrFileUrl.value = result.url;
+        if (corrFileSize) corrFileSize.value = result.sizeBytes;
+      } catch (error) {
+        alert(`Upload error: ${error.message}`);
+        if (corrFileUploader) corrFileUploader.value = '';
+      }
+    });
+
+    corrFileUploader?.addEventListener('uploader:cleared', () => {
+      if (corrFileUrl) corrFileUrl.value = '';
+      if (corrFileSize) corrFileSize.value = '';
     });
   </script>
 </AdminLayout>

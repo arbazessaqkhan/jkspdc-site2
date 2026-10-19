@@ -32,6 +32,7 @@ import { DignitariesModule } from './dignitaries/dignitaries.module';
 import { OfficialContactsModule } from './official-contacts/official-contacts.module';
 import { ContactSubOfficesModule } from './contact-sub-offices/contact-sub-offices.module';
 import { IppProjectsModule } from './ipp-projects/ipp-projects.module';
+import { DashboardSummaryModule } from './dashboard-summary/dashboard-summary.module';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { IppProjectsModule } from './ipp-projects/ipp-projects.module';
     OfficialContactsModule,
     ContactSubOfficesModule,
     IppProjectsModule,
+    DashboardSummaryModule,
   ],
   controllers: [
     ContactController,

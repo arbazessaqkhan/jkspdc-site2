@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { Query, Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
 import { DignitariesService } from './dignitaries.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -12,8 +12,8 @@ export class DignitariesController {
   constructor(private readonly dignitariesService: DignitariesService) {}
 
   @Get()
-  async findAll() {
-    return this.dignitariesService.findAll();
+  async findAll(@Query() q: any) {
+    return this.dignitariesService.findAll(q);
   }
 
   @Get(':id')

@@ -106,6 +106,8 @@ const visibleSections = NAV_SECTIONS.filter((s) => !s.adminOnly || userIsAdmin);
     </script>
   </head>
   <body class="admin-page min-h-screen h-full overflow-x-hidden flex bg-[color:var(--adm-bg-subtle)]">
+    <div class="border-glow-overlay" aria-hidden="true"></div>
+
     <a href="#main-admin-content" class="skip-link">Skip to Main Content</a>
 
     <!-- Sidebar Navigation -->
@@ -397,6 +399,156 @@ const visibleSections = NAV_SECTIONS.filter((s) => !s.adminOnly || userIsAdmin);
         });
       };
       setTimeout(function() { if (window.initQuillRichEditors) window.initQuillRichEditors(); }, 100);
+    </script>
+
+    <!-- Unified admin file uploader: one delegated controller for every
+         .admin-uploader instance on the page (click / drag-drop / keyboard /
+         validation / remove). Pages keep their own upload fetch logic by
+         listening for the 'change' event on the native input. -->
+    <script is:inline>
+      (function() {
+        function formatSize(bytes) {
+          if (bytes >= 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+          if (bytes >= 1024) return Math.round(bytes / 1024) + ' KB';
+          return bytes + ' B';
+        }
+
+        function matchesAccept(file, accept) {
+          if (!accept) return true;
+          var parts = accept.split(',').map(function(s) { return s.trim().toLowerCase(); }).filter(Boolean);
+          var name = (file.name || '').toLowerCase();
+          return parts.some(function(p) {
+            if (p.startsWith('.')) return name.endsWith(p);
+            if (p.endsWith('/*')) return (file.type || '').toLowerCase().startsWith(p.slice(0, -1));
+            return (file.type || '').toLowerCase() === p;
+          });
+        }
+
+        function showInvalid(zone, input, msg) {
+          zone.classList.add('is-invalid');
+          var err = zone.querySelector('.admin-uploader-error');
+          if (err) err.textContent = msg;
+          input.value = '';
+          var status = zone.querySelector('[id$="-status"]');
+          if (status) status.textContent = msg;
+        }
+
+        function clearInvalid(zone) {
+          zone.classList.remove('is-invalid');
+          var err = zone.querySelector('.admin-uploader-error');
+          if (err) err.textContent = '';
+        }
+
+        function setSelection(zone, input, files) {
+          clearInvalid(zone);
+          var fileRow = zone.querySelector('.admin-uploader-file');
+          var nameEl = zone.querySelector('.admin-uploader-file-name');
+          var sizeEl = zone.querySelector('.admin-uploader-file-size');
+          var status = zone.querySelector('[id$="-status"]');
+          var preview = zone.querySelector('.admin-uploader-preview img');
+          if (!files || !files.length) { return; }
+          zone.classList.add('has-file');
+          if (nameEl) nameEl.textContent = files.length > 1 ? files.length + ' files selected' : files[0].name;
+          if (sizeEl) sizeEl.textContent = files.length > 1 ? formatSize(Array.from(files).reduce(function(a, f) { return a + f.size; }, 0)) : formatSize(files[0].size);
+          if (preview && files.length === 1 && (files[0].type || '').startsWith('image/')) {
+            preview.src = URL.createObjectURL(files[0]);
+            preview.classList.remove('invisible');
+          }
+          if (status) status.textContent = files.length > 1
+            ? files.length + ' files selected'
+            : files[0].name + ', ' + formatSize(files[0].size);
+        }
+
+        function clearSelection(zone, input) {
+          input.value = '';
+          zone.classList.remove('has-file');
+          clearInvalid(zone);
+          var nameEl = zone.querySelector('.admin-uploader-file-name');
+          var sizeEl = zone.querySelector('.admin-uploader-file-size');
+          var preview = zone.querySelector('.admin-uploader-preview img');
+          var status = zone.querySelector('[id$="-status"]');
+          if (nameEl) nameEl.textContent = '';
+          if (sizeEl) sizeEl.textContent = '';
+          if (preview) { preview.src = ''; preview.classList.add('invisible'); }
+          if (status) status.textContent = 'File removed';
+          // Notify page scripts the selection was cleared
+          input.dispatchEvent(new CustomEvent('uploader:cleared', { bubbles: true }));
+        }
+
+        function handleFiles(zone, input, files) {
+          if (!files || !files.length) return;
+          var maxMB = parseFloat(zone.dataset.maxSizeMb || '0');
+          var accept = zone.dataset.accept || '';
+          var importantCb = document.getElementById(zone.id.replace(/-dropzone$/, '') + '-important');
+          var effectiveMaxMB = (importantCb && importantCb.checked) ? 100 : maxMB;
+          for (var i = 0; i < files.length; i++) {
+            if (!matchesAccept(files[i], accept)) {
+              showInvalid(zone, input, 'File type not allowed. Allowed: ' + accept);
+              return;
+            }
+            if (effectiveMaxMB > 0 && files[i].size > effectiveMaxMB * 1024 * 1024) {
+              showInvalid(zone, input, 'File "' + files[i].name + '" exceeds the ' + effectiveMaxMB + ' MB limit.');
+              return;
+            }
+          }
+          setSelection(zone, input, files);
+        }
+
+        function bindZone(zone) {
+          if (zone.dataset.uploaderBound) return;
+          zone.dataset.uploaderBound = 'true';
+          var input = zone.querySelector('input[type="file"]');
+          if (!input) return;
+
+          zone.addEventListener('click', function(e) {
+            if (e.target.closest('.admin-uploader-file-remove')) return;
+            input.click();
+          });
+          zone.addEventListener('keydown', function(e) {
+            if ((e.key === 'Enter' || e.key === ' ') && e.target === zone) {
+              e.preventDefault();
+              input.click();
+            }
+          });
+          zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('is-dragover'); });
+          zone.addEventListener('dragleave', function(e) { e.preventDefault(); zone.classList.remove('is-dragover'); });
+          zone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            zone.classList.remove('is-dragover');
+            if (e.dataTransfer && e.dataTransfer.files) {
+              if (!input.multiple) { input.files = e.dataTransfer.files; }
+              handleFiles(zone, input, e.dataTransfer.files);
+              // Always fire change so page upload logic runs
+              input.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+          });
+          zone.addEventListener('change', function(e) {
+            if (e.target === input) handleFiles(zone, input, input.files);
+          });
+          var removeBtn = zone.querySelector('.admin-uploader-file-remove');
+          if (removeBtn) {
+            removeBtn.addEventListener('click', function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              clearSelection(zone, input);
+            });
+          }
+        }
+
+        function bindAll(root) {
+          (root || document).querySelectorAll('.admin-uploader').forEach(bindZone);
+        }
+
+        // Re-bind after Astro view transitions
+        document.addEventListener('astro:page-load', function() { bindAll(document); });
+        document.addEventListener('astro:after-swap', function() { bindAll(document); });
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', function() { bindAll(document); });
+        } else {
+          bindAll(document);
+        }
+        window.bindAdminUploaders = bindAll;
+      })();
     </script>
   </body>
 </html>

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { Query, Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
 import { OfficialContactsService } from './official-contacts.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -18,8 +18,8 @@ export class OfficialContactsController {
 
   @Get('all')
   @UseGuards(AuthGuard)
-  async getAllContacts() {
-    return this.service.findAll();
+  async getAllContacts(@Query() q: any) {
+    return this.service.findAll(q);
   }
 
   @Get(':id')

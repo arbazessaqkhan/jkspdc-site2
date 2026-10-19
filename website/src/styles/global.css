@@ -1887,3 +1887,23 @@ summary:focus-visible,
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ── Soft border-glow on page edges (customer-selected default) ── */
+.border-glow-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 90;
+}
+.border-glow-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+  box-shadow:
+    inset 0 3px 14px -2px rgba(82, 181, 232, 0.45),
+    inset 0 10px 36px -14px rgba(82, 181, 232, 0.28);
+}
+@media (prefers-reduced-motion: reduce) {
+  .border-glow-overlay::before { animation: none; }
+}

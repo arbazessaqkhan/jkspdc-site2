@@ -1,14 +1,32 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CreateDirectorDto, UpdateDirectorDto } from './directors.dto';
+import { PaginationDto, wantsPagination, paginate } from '../common/pagination';
 
 @Injectable()
 export class DirectorsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll() {
+  async findAllLegacy() {
     return this.prisma.director.findMany({
       orderBy: { sNo: 'asc' },
+    });
+  }
+
+  /**
+   * Paged variant used by admin list pages (?page/?pageSize). Without
+   * pagination params it returns the full array (legacy behaviour).
+   */
+  async findAll(q: PaginationDto = {}): Promise<any> {
+    if (!wantsPagination(q)) {
+      return this.prisma.director.findMany({ orderBy: { sNo: 'asc' } });
+    }
+    return paginate({
+      page: q.page,
+      pageSize: q.pageSize,
+      count: () => this.prisma.director.count({ where: undefined }),
+      find: (skip, take) =>
+        this.prisma.director.findMany({ where: undefined, orderBy: { sNo: 'asc' }, skip, take }),
     });
   }
 

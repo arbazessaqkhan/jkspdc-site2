@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { PasswordUtil } from '../auth/password.util';
 import { CreateUserDto, UpdateUserDto } from './users.dto';
+import { PaginationDto, wantsPagination, paginate } from '../common/pagination';
 
 @Injectable()
 export class UsersService {
@@ -15,7 +16,7 @@ export class UsersService {
     return PasswordUtil.hashPassword(password);
   }
 
-  async findAll() {
+  async findAllLegacy() {
     return this.prisma.user.findMany({
       orderBy: { createdAt: 'desc' },
       select: {
@@ -27,6 +28,39 @@ export class UsersService {
         createdAt: true,
         updatedAt: true,
       },
+    });
+  }
+
+  /**
+   * Paged variant used by admin list pages (?page/?pageSize). Without
+   * pagination params it returns the full array (legacy behaviour).
+   */
+  async findAll(q: PaginationDto = {}): Promise<any> {
+    if (!wantsPagination(q)) {
+      return this.prisma.user.findMany({ orderBy: { createdAt: 'desc' }, select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+      } });
+    }
+    return paginate({
+      page: q.page,
+      pageSize: q.pageSize,
+      count: () => this.prisma.user.count({ where: undefined }),
+      find: (skip, take) =>
+        this.prisma.user.findMany({ where: undefined, orderBy: { createdAt: 'desc' }, select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+      }, skip, take }),
     });
   }
 

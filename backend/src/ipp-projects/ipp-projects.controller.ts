@@ -11,9 +11,9 @@ export class IppProjectsController {
   constructor(private readonly service: IppProjectsService) {}
 
   @Get()
-  findAll(@Query('phase') phase?: string) {
+  findAll(@Query() q: any, @Query('phase') phase?: string) {
     const phaseNum = phase ? parseInt(phase, 10) : undefined;
-    return this.service.findAll(phaseNum);
+    return this.service.findAll(q, phaseNum);
   }
 
   @Get(':id')

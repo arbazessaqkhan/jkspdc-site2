@@ -1,14 +1,15 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
-import type { Stats } from './types';
 import { isAdmin } from '../../utils/roles';
 import { BACKEND_URL } from '../../utils/api-error';
 
 function asArray<T>(value: unknown): T[] {
   if (Array.isArray(value)) return value as T[];
-  if (value && typeof value === 'object' && 'value' in value && Array.isArray((value as { value: unknown }).value)) {
-    return (value as { value: T[] }).value;
+  if (value && typeof value === 'object') {
+    const v = value as Record<string, unknown>;
+    if (Array.isArray(v.data)) return v.data as T[];
+    if (Array.isArray(v.value)) return v.value as T[];
   }
   return [];
 }
@@ -21,28 +22,6 @@ if (!sessionToken) {
 const user = Astro.locals.user;
 const userRole = (user?.role || 'VIEWER').toUpperCase();
 const userIsAdmin = isAdmin(userRole);
-
-const stats: Stats = {
-  operationalCount: 0,
-  constructionCount: 0,
-  upcomingCount: 0,
-  directorsCount: 0,
-  dignitariesCount: 0,
-  tendersCount: 0,
-  notificationsCount: 0,
-  downloadsCount: 0,
-  agmCount: 0,
-  policiesCount: 0,
-  galleryCount: 0,
-  inquiriesCount: 0,
-  usersCount: 0,
-  logsCount: 0,
-  officialContactsCount: 0,
-  subOfficesCount: 0,
-  ippCount: 0,
-};
-
-let errorMessage = '';
 
 const formattedDate = new Date().toLocaleDateString('en-GB', {
   weekday: 'long',
@@ -61,254 +40,120 @@ async function fetchJson<T>(url: string, options?: RequestInit): Promise<T | nul
   }
 }
 
-try {
-  const [
-    projectsData,
-    directorsData,
-    dignitariesData,
-    tendersData,
-    notificationsData,
-    downloadsData,
-    agmData,
-    policiesData,
-    galleryData,
-    officialContactsData,
-    subOfficesData,
-    submissionsData,
-    logsData,
-    usersData,
-    ippProjectsData,
-  ] = await Promise.all([
-    fetchJson<unknown>(`${BACKEND_URL}/api/projects`),
-    fetchJson<unknown>(`${BACKEND_URL}/api/directors`),
-    fetchJson<unknown>(`${BACKEND_URL}/api/dignitaries`),
-    fetchJson<unknown>(`${BACKEND_URL}/api/tenders`),
-    fetchJson<unknown>(`${BACKEND_URL}/api/notifications`),
-    fetchJson<unknown>(`${BACKEND_URL}/api/downloads`),
-    fetchJson<unknown>(`${BACKEND_URL}/api/agm`),
-    fetchJson<unknown>(`${BACKEND_URL}/api/policies`),
-    fetchJson<unknown>(`${BACKEND_URL}/api/gallery`),
-    fetchJson<unknown>(`${BACKEND_URL}/api/official-contacts`),
-    fetchJson<unknown>(`${BACKEND_URL}/api/contact-sub-offices`),
-    sessionToken ? fetchJson<unknown>(`${BACKEND_URL}/api/contact`, { headers: { Authorization: `Bearer ${sessionToken}` } }) : null,
-    userIsAdmin && sessionToken ? fetchJson<unknown>(`${BACKEND_URL}/api/audit-logs`, { headers: { Authorization: `Bearer ${sessionToken}` } }) : null,
-    userIsAdmin && sessionToken ? fetchJson<unknown>(`${BACKEND_URL}/api/users`, { headers: { Authorization: `Bearer ${sessionToken}` } }) : null,
-    fetchJson<unknown>(`${BACKEND_URL}/api/ipp-projects`),
-  ]);
+interface Summary {
+  kpis: { operationalProjects: number; openTenders: number; pendingApplications: number };
+  projectStages: { operational: number; underConstruction: number; upcoming: number };
+  tenderPipeline: {
+    open: number; closingSoon: number; closed: number;
+    nearestClosing: { id: string; title: string; referenceNo: string; closingDate: string | null } | null;
+  };
+  activitySeries: { date: string; count: number }[];
+}
 
-  const projectArray = asArray<{ id?: string; status?: string }>(projectsData);
-  stats.operationalCount = projectArray.filter((p) => p.status === 'Operational').length;
-  stats.constructionCount = projectArray.filter((p) => p.status === 'Under Construction').length;
-  stats.upcomingCount = projectArray.filter((p) => p.status === 'Upcoming' || p.status === 'Under Development').length;
-  stats.directorsCount = asArray(directorsData).length;
-  stats.dignitariesCount = asArray(dignitariesData).length;
-  stats.tendersCount = asArray<{ status?: string }>(tendersData).filter((t) => t.status === 'Active').length;
-  stats.notificationsCount = asArray(notificationsData).length;
-  stats.downloadsCount = asArray(downloadsData).length;
-  stats.agmCount = asArray(agmData).length;
-  stats.policiesCount = asArray(policiesData).length;
-  stats.galleryCount = asArray(galleryData).length;
-  stats.officialContactsCount = asArray(officialContactsData).length;
-  stats.subOfficesCount = asArray(subOfficesData).length;
-  stats.inquiriesCount = asArray(submissionsData).length;
-  stats.usersCount = asArray(usersData).length;
-  stats.logsCount = asArray(logsData).length;
-  stats.ippCount = asArray(ippProjectsData).length;
-} catch (e) {
-  console.error('Error fetching dashboard statistics:', e);
-  errorMessage = 'Failed to retrieve latest portal statistics. Ensure the backend REST service is online.';
+let summary: Summary | null = null;
+let errorMessage = '';
+
+// Raw data for actionable panels
+let activeTenders: { id: string; referenceNo: string; title: string; closingDate: string | null }[] = [];
+let pendingApplications: { id: string; name: string; email: string; createdAt: string }[] = [];
+interface AuditItem { action: string; details: string | null; createdAt: string; user?: { name?: string } | null }
+let recentActivity: AuditItem[] = [];
+
+if (userIsAdmin) {
+  const [summaryRes, tendersRes, submissionsRes, logsRes] = await Promise.all([
+    fetchJson<Summary>(`${BACKEND_URL}/api/dashboard-summary`, { headers: { Authorization: `Bearer ${sessionToken}` } }),
+    fetchJson<unknown>(`${BACKEND_URL}/api/tenders?status=Active&pageSize=50`, { headers: { Authorization: `Bearer ${sessionToken}` } }),
+    fetchJson<unknown>(`${BACKEND_URL}/api/contact?pageSize=50`, { headers: { Authorization: `Bearer ${sessionToken}` } }),
+    fetchJson<unknown>(`${BACKEND_URL}/api/audit-logs?pageSize=20`, { headers: { Authorization: `Bearer ${sessionToken}` } }),
+  ]);
+  summary = summaryRes;
+  if (!summary) {
+    errorMessage = 'Could not load dashboard metrics. Ensure the backend REST service is online.';
+  }
+  activeTenders = asArray<{ id: string; referenceNo?: string; title?: string; closingDate?: string | null }>(tendersRes)
+    .filter((t) => !t.closingDate || new Date(t.closingDate).getTime() > Date.now())
+    .sort((a, b) => new Date(a.closingDate || '2999-12-31').getTime() - new Date(b.closingDate || '2999-12-31').getTime())
+    .slice(0, 5) as typeof activeTenders;
+  pendingApplications = asArray<{ id: string; name?: string; email?: string; createdAt?: string }>(submissionsRes).slice(0, 5) as typeof pendingApplications;
+  recentActivity = asArray<{ action?: string; details?: string | null; createdAt?: string }>(logsRes).slice(0, 8).map((l) => ({
+    action: l.action || 'EVENT',
+    details: l.details || null,
+    createdAt: l.createdAt || '',
+  }));
+}
+
+function relativeTime(iso: string): string {
+  if (!iso) return '';
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return '';
+  const diff = Date.now() - then;
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins} min ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days} day${days === 1 ? '' : 's'} ago`;
+  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+}
+
+function prettyAction(action: string): string {
+  return action.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function detailLabel(details: string | null): string {
+  if (!details) return '';
+  try {
+    const d = JSON.parse(details);
+    return d.title || d.name || d.referenceNo || d.email || '';
+  } catch {
+    return details;
+  }
+}
+
+function daysUntil(iso: string | null): number | null {
+  if (!iso) return null;
+  const t = new Date(iso).getTime();
+  if (Number.isNaN(t)) return null;
+  return Math.ceil((t - Date.now()) / 86400000);
+}
+
+function fmtDate(iso: string | null): string {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '—';
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+// 14-day sparkline path from activitySeries (inline SVG, no chart lib)
+function sparkline(series: { date: string; count: number }[]): { path: string; area: string; max: number } {
+  const counts = series.map((p) => p.count);
+  const max = Math.max(...counts, 1);
+  const w = 120, h = 32, n = Math.max(counts.length, 2);
+  const pts = counts.map((c, i) => {
+    const x = (i / (n - 1)) * w;
+    const y = h - (c / max) * (h - 4) - 2;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+  const path = `M${pts.join(' L')}`;
+  const area = `${path} L${w},${h} L0,${h} Z`;
+  return { path, area, max };
+}
+
+function urgencyBadge(iso: string | null): { cls: string; label: string } {
+  const d = daysUntil(iso);
+  if (d === null || d < 0) return { cls: '', label: '' };
+  if (d <= 3) return { cls: 'dash-urgency-red', label: `in ${d}d` };
+  if (d <= 7) return { cls: 'dash-urgency-amber', label: `in ${d}d` };
+  return { cls: '', label: '' };
 }
 
 const adminUserName = user?.name || userRole;
-
-interface ModuleCard {
-  title: string;
-  count: number | string;
-  unit: string;
-  href: string;
-  icon: string;
-}
-
-interface ModuleGroup {
-  title: string;
-  modules: ModuleCard[];
-}
-
-const moduleGroups: ModuleGroup[] = [
-  {
-    title: 'Projects & Infrastructure',
-    modules: [
-      {
-        title: 'Operational Projects',
-        count: stats.operationalCount,
-        unit: 'Active Projects',
-        href: '/admin/operational-projects',
-        icon: 'zap',
-      },
-      {
-        title: 'Under Construction',
-        count: stats.constructionCount,
-        unit: 'In Execution',
-        href: '/admin/under-construction',
-        icon: 'hardhat',
-      },
-      {
-        title: 'In Development',
-        count: stats.upcomingCount ?? 0,
-        unit: 'In Pipeline',
-        href: '/admin/upcoming-projects',
-        icon: 'rocket',
-      },
-      {
-        title: 'IPP Projects',
-        count: stats.ippCount ?? 0,
-        unit: 'Allotted Projects',
-        href: '/admin/ipp-projects',
-        icon: 'building',
-      },
-    ],
-  },
-  {
-    title: 'Tenders & Procurement',
-    modules: [
-      {
-        title: 'Tenders & Bids',
-        count: stats.tendersCount,
-        unit: 'Active Tenders',
-        href: '/admin/tenders',
-        icon: 'file-text',
-      },
-    ],
-  },
-  {
-    title: 'Corporate Governance',
-    modules: [
-      {
-        title: 'Dignitaries',
-        count: stats.dignitariesCount ?? 0,
-        unit: 'Profiles',
-        href: '/admin/dignitaries',
-        icon: 'award',
-      },
-      {
-        title: 'Board of Directors',
-        count: stats.directorsCount ?? 0,
-        unit: 'Board Members',
-        href: '/admin/board-of-directors',
-        icon: 'users',
-      },
-      {
-        title: 'AGM Documents',
-        count: stats.agmCount ?? 0,
-        unit: 'Documents',
-        href: '/admin/agm',
-        icon: 'scroll-text',
-      },
-      {
-        title: 'Notifications',
-        count: stats.notificationsCount ?? 0,
-        unit: 'Notifications',
-        href: '/admin/notifications',
-        icon: 'bell',
-      },
-    ],
-  },
-  {
-    title: 'Media, Publications & Resources',
-    modules: [
-      {
-        title: 'Media Gallery',
-        count: stats.galleryCount ?? 0,
-        unit: 'Photo Albums',
-        href: '/admin/gallery',
-        icon: 'image',
-      },
-      {
-        title: 'Downloads & Resources',
-        count: stats.downloadsCount ?? 0,
-        unit: 'Documents',
-        href: '/admin/resources',
-        icon: 'download',
-      },
-      {
-        title: 'Corporate Policies & CSR',
-        count: stats.policiesCount ?? 0,
-        unit: 'Policies',
-        href: '/admin/policies',
-        icon: 'file-text',
-      },
-    ],
-  },
-  {
-    title: 'Contact Directory',
-    modules: [
-      {
-        title: 'Official Contacts',
-        count: stats.officialContactsCount ?? 0,
-        unit: 'Key Contacts',
-        href: '/admin/official-contacts',
-        icon: 'phone',
-      },
-      {
-        title: 'Contact Sub-Offices',
-        count: stats.subOfficesCount ?? 0,
-        unit: 'Field Offices',
-        href: '/admin/contact-sub-offices',
-        icon: 'map-pin',
-      },
-    ],
-  },
-  {
-    title: 'Citizen Services & Administration',
-    modules: [
-      {
-        title: 'Public Inquiries',
-        count: stats.inquiriesCount ?? 0,
-        unit: 'Inquiries',
-        href: '/admin/contacts',
-        icon: 'mail',
-      },
-      {
-        title: 'User Accounts & Roles',
-        count: stats.usersCount ?? 0,
-        unit: 'Users',
-        href: '/admin/users',
-        icon: 'shield-check',
-      },
-      {
-        title: 'System Audit Logs',
-        count: stats.logsCount ?? 0,
-        unit: 'Audit Events',
-        href: '/admin/audit-logs',
-        icon: 'scroll-text',
-      },
-      {
-        title: 'Site Settings',
-        count: 1,
-        unit: 'Configured',
-        href: '/admin/site-settings',
-        icon: 'settings',
-      },
-    ],
-  },
-];
-
-const filteredModuleGroups: ModuleGroup[] = moduleGroups
-  .map((group) => ({
-    ...group,
-    modules: group.modules.filter((mod) => {
-      if (['/admin/dignitaries', '/admin/board-of-directors', '/admin/agm', '/admin/notifications', '/admin/users', '/admin/audit-logs', '/admin/site-settings'].includes(mod.href)) {
-        return userIsAdmin;
-      }
-      return true;
-    }),
-  }))
-  .filter((group) => group.modules.length > 0);
 ---
 
 <AdminLayout title="Dashboard" description="JKSPDCL Administrative Control Panel Dashboard" activeTab="dashboard">
   <div class="flex flex-col gap-6 max-w-7xl">
-    
+
     <!-- Dashboard Header -->
     <div class="admin-page-header">
       <div>
@@ -316,12 +161,10 @@ const filteredModuleGroups: ModuleGroup[] = moduleGroups
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
           <h1 class="admin-page-title">Welcome back, {adminUserName}</h1>
         </div>
-        <p class="admin-page-subtitle">{formattedDate} &mdash; Administrative control &amp; module status overview for the JKSPDC web portal.</p>
+        <p class="admin-page-subtitle">{formattedDate} &mdash; Operational overview &amp; items needing your attention.</p>
       </div>
       <div class="flex items-center gap-2 self-start sm:self-auto">
-        <span class="admin-badge admin-badge-success">
-          Console Status: Online
-        </span>
+        <span class="admin-badge admin-badge-success">Console Status: Online</span>
       </div>
     </div>
 
@@ -332,43 +175,274 @@ const filteredModuleGroups: ModuleGroup[] = moduleGroups
       </div>
     )}
 
-    <!-- Module Groups with Compact Module Count Cards -->
-    <div class="flex flex-col gap-6">
-      {filteredModuleGroups.map((group) => (
-        <section class="flex flex-col gap-2.5" aria-label={group.title}>
-          <div class="flex items-center gap-2 pb-1.5 border-b border-slate-200">
-            <span class="w-1.5 h-3.5 bg-[color:var(--adm-primary)] rounded-xs"></span>
-            <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider">
-              {group.title}
-            </h2>
+    {userIsAdmin && summary && (
+    <div class="dashboard-layout">
+
+      <!-- ══ ZONE A · Executive Overview ══ -->
+      <section class="dash-zone dash-zone-a flex flex-col gap-5" aria-label="Executive overview">
+        <div class="dash-panel p-5">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <!-- KPI: Operational projects -->
+            <div class="dash-kpi">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <p class="dash-kpi-label">Operational Projects</p>
+                  <p class="dash-kpi-value">{summary.kpis.operationalProjects}</p>
+                  <p class="dash-kpi-delta">+{summary.kpis.deltas.operationalProjects} added this week</p>
+                </div>
+                <span class="dash-kpi-icon"><Icon name="zap" size={18} /></span>
+              </div>
+              <svg class="dash-spark" viewBox="0 0 120 32" preserveAspectRatio="none" aria-hidden="true">
+                <path d={sparkline(summary.activitySeries).area} class="dash-spark-area" />
+                <path d={sparkline(summary.activitySeries).path} class="dash-spark-line" />
+              </svg>
+            </div>
+            <!-- KPI: Open tenders -->
+            <div class="dash-kpi">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <p class="dash-kpi-label">Open Tenders</p>
+                  <p class="dash-kpi-value">{summary.tenderPipeline.open}</p>
+                  <p class="dash-kpi-delta">+{summary.kpis.deltas.openTenders} published this week</p>
+                </div>
+                <span class="dash-kpi-icon"><Icon name="file-text" size={18} /></span>
+              </div>
+              {summary.tenderPipeline.nearestClosing ? (
+                <p class="dash-kpi-callout dash-kpi-callout-danger">
+                  <Icon name="clock" size={12} strokeWidth={2.5} />
+                  {summary.tenderPipeline.nearestClosing.referenceNo} closes {fmtDate(summary.tenderPipeline.nearestClosing.closingDate)}
+                </p>
+              ) : (
+                <p class="dash-kpi-callout">No upcoming closing dates</p>
+              )}
+            </div>
+            <!-- KPI: Pending inquiries -->
+            <div class="dash-kpi">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <p class="dash-kpi-label">Pending Inquiries</p>
+                  <p class="dash-kpi-value">{summary.kpis.pendingApplications}</p>
+                  <p class="dash-kpi-delta">+{summary.kpis.deltas.pendingApplications} received this week</p>
+                </div>
+                <span class="dash-kpi-icon"><Icon name="mail" size={18} /></span>
+              </div>
+              <a href="/admin/contacts" class="dash-panel-link mt-auto">Review inbox <Icon name="arrow-right" size={11} strokeWidth={2.5} /></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <!-- Project stage segmented bar -->
+          <div class="dash-panel p-5">
+            <div class="flex items-center justify-between gap-3 mb-3">
+              <h3 class="dash-panel-title">Project portfolio by stage</h3>
+            </div>
+            {(() => {
+              const st = summary.projectStages;
+              const total = st.operational + st.underConstruction + st.upcoming;
+              const seg = (v: number) => (total > 0 ? `${(v / total) * 100}%` : '0%');
+              return (
+                <div>
+                  <div class="dash-segbar" role="img" aria-label={`${st.operational} operational, ${st.underConstruction} under construction, ${st.upcoming} upcoming of ${total} projects`}>
+                    <span class="dash-seg dash-seg-op" style={`width:${seg(st.operational)}`} title={`Operational: ${st.operational}`}></span>
+                    <span class="dash-seg dash-seg-uc" style={`width:${seg(st.underConstruction)}`} title={`Under Construction: ${st.underConstruction}`}></span>
+                    <span class="dash-seg dash-seg-up" style={`width:${seg(st.upcoming)}`} title={`Upcoming: ${st.upcoming}`}></span>
+                  </div>
+                  <div class="flex flex-wrap gap-x-5 gap-y-1.5 mt-3 text-xs font-semibold">
+                    <a class="dash-legend dash-legend-op" href="/admin/operational-projects">Operational · {st.operational}</a>
+                    <a class="dash-legend dash-legend-uc" href="/admin/under-construction">Under Construction · {st.underConstruction}</a>
+                    <a class="dash-legend dash-legend-up" href="/admin/upcoming-projects">Upcoming · {st.upcoming}</a>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-            {group.modules.map((mod) => (
-              <a
-                href={mod.href}
-                class="admin-stat group transition-shadow duration-150 hover:shadow-md focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-[color:var(--adm-primary)]"
-                aria-label={`Open ${mod.title} - ${mod.count} ${mod.unit}`}
-              >
-                <!-- Background module icon (subtle watermark) -->
-                <span class="admin-stat-bgicon" aria-hidden="true">
-                  <Icon name={mod.icon} size={64} strokeWidth={1.5} />
-                </span>
+          <!-- Tender pipeline stacked bar -->
+          <div class="dash-panel p-5">
+            <div class="flex items-center justify-between gap-3 mb-3">
+              <h3 class="dash-panel-title">Tender pipeline</h3>
+              <a href="/admin/tenders" class="dash-panel-link">View all <Icon name="arrow-right" size={11} strokeWidth={2.5} /></a>
+            </div>
+            {(() => {
+              const tp = summary.tenderPipeline;
+              const total = tp.open + tp.closingSoon + tp.closed;
+              const seg = (v: number) => (total > 0 ? `${(v / total) * 100}%` : '0%');
+              return (
+                <div>
+                  <div class="dash-segbar" role="img" aria-label={`${tp.open} open, ${tp.closingSoon} closing within 7 days, ${tp.closed} closed`}>
+                    <span class="dash-seg dash-seg-open" style={`width:${seg(tp.open)}`} title={`Open: ${tp.open}`}></span>
+                    <span class="dash-seg dash-seg-soon" style={`width:${seg(tp.closingSoon)}`} title={`Closing ≤7 days: ${tp.closingSoon}`}></span>
+                    <span class="dash-seg dash-seg-closed" style={`width:${seg(tp.closed)}`} title={`Closed: ${tp.closed}`}></span>
+                  </div>
+                  <div class="flex flex-wrap gap-x-5 gap-y-1.5 mt-3 text-xs font-semibold">
+                    <span class="dash-legend dash-legend-open">Open · {tp.open}</span>
+                    <span class="dash-legend dash-legend-soon">Closing ≤7 days · {tp.closingSoon}</span>
+                    <span class="dash-legend dash-legend-closed">Closed · {tp.closed}</span>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        </div>
+      </section>
 
-                <span class="admin-stat-label">{mod.title}</span>
-                <span class="admin-stat-value">{mod.count}</span>
-                <span class="admin-stat-unit">{mod.unit}</span>
+      <!-- ══ ZONE B · Actionable Panels ══ -->
+      <div class="dash-zone-b flex flex-col gap-5" role="list" aria-label="Actionable panels">
+        <!-- Active tenders mini-table -->
+        <section class="dash-panel" aria-label="Active tenders by deadline">
+          <div class="dash-panel-header">
+            <h2 class="dash-panel-title"><Icon name="file-text" size={14} /> Active tenders <span class="dash-panel-count">{activeTenders.length}</span></h2>
+            <a href="/admin/tenders" class="dash-panel-link">View all <Icon name="arrow-right" size={11} strokeWidth={2.5} /></a>
+          </div>
+          {activeTenders.length === 0 ? (
+            <div class="admin-empty-state py-6">
+              <p class="text-xs text-[color:var(--adm-muted)] font-medium">No active tenders with open deadlines.</p>
+            </div>
+          ) : (
+            <table class="dash-minitable">
+              <thead>
+                <tr><th scope="col">Tender</th><th scope="col">Closes</th><th scope="col" class="text-right">Action</th></tr>
+              </thead>
+              <tbody>
+                {activeTenders.map((t) => {
+                  const badge = urgencyBadge(t.closingDate);
+                  return (
+                    <tr>
+                      <td>
+                        <span class="block text-xs font-bold text-slate-800 truncate max-w-xs">{t.title}</span>
+                        <span class="block text-[11px] text-[color:var(--adm-muted)] font-medium">{t.referenceNo}</span>
+                      </td>
+                      <td>
+                        <span class="text-xs font-semibold text-slate-700 whitespace-nowrap">{fmtDate(t.closingDate)}</span>
+                        {badge.cls && <span class={`dash-urgency ${badge.cls}`}>{badge.label}</span>}
+                      </td>
+                      <td class="text-right">
+                        <a href={`/admin/tenders?edit=${t.id}`} class="dash-panel-link">Edit</a>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </section>
 
-                <span class="mt-2 pt-2 border-t border-[color:var(--adm-border)] text-xs font-semibold text-[color:var(--adm-primary)] inline-flex items-center gap-1 group-hover:translate-x-0.5 transition-transform duration-150">
-                  Manage
-                  <Icon name="arrow-right" size={11} strokeWidth={2.5} />
-                </span>
-              </a>
-            ))}
+        <!-- Pending inquiries mini-table -->
+        <section class="dash-panel" aria-label="Latest public inquiries">
+          <div class="dash-panel-header">
+            <h2 class="dash-panel-title"><Icon name="mail" size={14} /> Latest inquiries <span class="dash-panel-count">{pendingApplications.length}</span></h2>
+            <a href="/admin/contacts" class="dash-panel-link">View all <Icon name="arrow-right" size={11} strokeWidth={2.5} /></a>
+          </div>
+          {pendingApplications.length === 0 ? (
+            <div class="admin-empty-state py-6">
+              <p class="text-xs text-[color:var(--adm-muted)] font-medium">Inbox is clear — no pending public inquiries.</p>
+            </div>
+          ) : (
+            <table class="dash-minitable">
+              <thead>
+                <tr><th scope="col">From</th><th scope="col">Received</th><th scope="col" class="text-right">Action</th></tr>
+              </thead>
+              <tbody>
+                {pendingApplications.map((a) => (
+                  <tr>
+                    <td>
+                      <span class="block text-xs font-bold text-slate-800">{a.name}</span>
+                      <span class="block text-[11px] text-[color:var(--adm-muted)] font-medium truncate max-w-xs">{a.email}</span>
+                    </td>
+                    <td><span class="text-xs font-semibold text-slate-700 whitespace-nowrap">{relativeTime(a.createdAt)}</span></td>
+                    <td class="text-right"><a href="/admin/contacts" class="dash-panel-link">Open</a></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </section>
+      </div>
+
+      <!-- ══ ZONE C · Activity Rail ══ -->
+      <aside class="dash-zone-c flex flex-col gap-5" aria-label="Live activity and system health">
+        <!-- Activity timeline -->
+        <section class="dash-panel" aria-label="Recent administrative activity">
+          <div class="dash-panel-header">
+            <h2 class="dash-panel-title"><Icon name="zap" size={14} /> Live activity</h2>
+            <a href="/admin/audit-logs" class="dash-panel-link">All logs <Icon name="arrow-right" size={11} strokeWidth={2.5} /></a>
+          </div>
+          {recentActivity.length === 0 ? (
+            <div class="admin-empty-state py-6">
+              <p class="text-xs text-[color:var(--adm-muted)] font-medium">No activity recorded yet.</p>
+            </div>
+          ) : (
+            <ol class="dash-timeline" aria-label="Recent administrative actions grouped by day">
+              {(() => {
+                const todayKey = new Date().toDateString();
+                let currentGroup = '';
+                return recentActivity.map((item) => {
+                  const dayKey = new Date(item.createdAt);
+                  const groupLabel = Number.isNaN(dayKey.getTime())
+                    ? ''
+                    : dayKey.toDateString() === todayKey ? 'Today' : 'Earlier this week';
+                  const showGroup = groupLabel !== currentGroup;
+                  currentGroup = groupLabel;
+                  return (
+                    <Fragment>
+                      {showGroup && groupLabel && <li class="dash-timeline-day">{groupLabel}</li>}
+                      <li class="dash-timeline-item">
+                        <span class="dash-timeline-dot" aria-hidden="true"></span>
+                        <div class="min-w-0">
+                          <p class="text-xs font-bold text-slate-800">{prettyAction(item.action)}</p>
+                          {detailLabel(item.details) && (
+                            <p class="text-[11px] text-[color:var(--adm-muted)] font-medium truncate">{detailLabel(item.details)}</p>
+                          )}
+                        </div>
+                        <span class="dash-timeline-time">{relativeTime(item.createdAt)}</span>
+                      </li>
+                    </Fragment>
+                  );
+                });
+              })()}
+            </ol>
+          )}
+        </section>
+
+        <!-- System health -->
+        <section class="dash-panel p-4" aria-label="System health">
+          <h2 class="dash-panel-title mb-3"><Icon name="gear" size={14} /> System health</h2>
+          <ul class="flex flex-col gap-2 text-xs font-semibold">
+            <li class="flex items-center justify-between">
+              <span class="text-slate-600">API service</span>
+              <span class="dash-health dash-health-ok"><span class="dash-health-dot"></span> Online</span>
+            </li>
+            <li class="flex items-center justify-between">
+              <span class="text-slate-600">Database</span>
+              <span class={`dash-health ${summary ? 'dash-health-ok' : 'dash-health-bad'}`}><span class="dash-health-dot"></span> {summary ? 'Connected' : 'Unreachable'}</span>
+            </li>
+            <li class="flex items-center justify-between">
+              <span class="text-slate-600">Storage</span>
+              <span class="dash-health dash-health-ok"><span class="dash-health-dot"></span> Available</span>
+            </li>
+          </ul>
+        </section>
+
+        <!-- Quick actions -->
+        <section class="dash-panel p-4" aria-label="Quick actions">
+          <h2 class="dash-panel-title mb-3">Quick actions</h2>
+          <div class="grid grid-cols-3 gap-2">
+            <a href="/admin/tenders?action=new" class="dash-quick" aria-label="Publish new tender">
+              <Icon name="plus" size={16} /><span>Tender</span>
+            </a>
+            <a href="/admin/operational-projects?action=new" class="dash-quick" aria-label="Add new project">
+              <Icon name="zap" size={16} /><span>Project</span>
+            </a>
+            <a href="/admin/resources?action=new" class="dash-quick" aria-label="Upload resource">
+              <Icon name="upload" size={16} /><span>Upload</span>
+            </a>
           </div>
         </section>
-      ))}
+      </aside>
+
     </div>
+    )}
 
   </div>
 </AdminLayout>
