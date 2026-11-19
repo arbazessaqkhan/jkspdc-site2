@@ -18,9 +18,8 @@
  *   label       visible field label (optional)
  *   required    mark label required (default false)
  *   accept      accept attr string (e.g. ".pdf,.docx" or "image/*")
- *   helpText    formats + max size hint shown under the title
+ *   helpText    allowed formats hint shown under the title
  *   maxSizeMB   client-side size limit; omit to disable
- *   important   show the "Mark as Important (100 MB)" checkbox (documents)
  *   variant     'document' | 'image' | 'multi'
  *   existingUrl current file URL when editing (image preview / file name)
  *   multiple    allow multiple selection (multi variant)
@@ -35,7 +34,6 @@ export interface Props {
   accept?: string;
   helpText?: string;
   maxSizeMB?: number;
-  important?: boolean;
   variant?: 'document' | 'image' | 'multi';
   existingUrl?: string;
   existingName?: string;
@@ -49,7 +47,6 @@ const {
   accept = '',
   helpText = '',
   maxSizeMB,
-  important = false,
   variant = 'document',
   existingUrl = '',
   existingName = '',
@@ -62,11 +59,9 @@ const titleText =
     ? 'Click to choose or drag files here'
     : 'Click to choose or drag file here';
 const initialName = existingName || (existingUrl ? existingUrl.split('/').pop() : '');
-const dataAttrs = [
-  maxSizeMB ? `data-max-size-mb="${maxSizeMB}"` : '',
-  accept ? `data-accept="${accept}"` : '',
-  `data-variant="${variant}"`,
-].filter(Boolean).join(' ');
+const describedBy = [`${id}-help`];
+if (maxSizeMB) describedBy.push(`${id}-limit`);
+describedBy.push(`${id}-status`);
 ---
 <div class="admin-uploader-field flex flex-col gap-1.5" data-uploader-field={id}>
   {label && (
@@ -81,8 +76,12 @@ const dataAttrs = [
     role="button"
     tabindex="0"
     aria-labelledby={label ? `${id}-label` : undefined}
-    aria-describedby={`${id}-help`}
-    {...dataAttrs}
+    aria-describedby={describedBy.join(' ')}
+    data-max-size-mb={maxSizeMB || undefined}
+    data-accept={accept || undefined}
+    data-variant={variant}
+    data-existing-name={initialName || undefined}
+    data-existing-url={existingUrl || undefined}
   >
     <input
       type="file"
@@ -90,12 +89,17 @@ const dataAttrs = [
       class="admin-uploader-native-input"
       accept={accept || undefined}
       multiple={multiple || undefined}
-      aria-describedby={`${id}-help ${id}-status`}
+      aria-describedby={`${id}-help ${id}-limit ${id}-status`}
     />
 
     <Icon name={icon} size={variant === 'image' ? 22 : 24} class="admin-uploader-icon" />
     <span class="admin-uploader-title" id={`${id}-title`}>{titleText}</span>
     {helpText && <span class="admin-uploader-help" id={`${id}-help`}>{helpText}</span>}
+    {maxSizeMB ? (
+      <span class="admin-uploader-help admin-uploader-limit" id={`${id}-limit`}>
+        Maximum file size: {maxSizeMB} MB
+      </span>
+    ) : null}
     <span class="admin-uploader-error" id={`${id}-error`} role="alert"></span>
 
     <!-- Selected / existing file row -->
@@ -120,16 +124,6 @@ const dataAttrs = [
 
     <span id={`${id}-status`} class="sr-only" aria-live="polite"></span>
   </div>
-
-  {important && (
-    <label class="flex items-center gap-2 p-2 bg-amber-50/70 border border-amber-200/80 rounded-lg cursor-pointer hover:bg-amber-50 transition-colors select-none">
-      <input type="checkbox" id={`${id}-important`} class="w-4 h-4 rounded text-[color:var(--adm-primary)] border-slate-300 focus:ring-[color:var(--adm-primary)] cursor-pointer" />
-      <span class="text-xs font-bold text-amber-900 flex items-center gap-1.5">
-        <Icon name="star" size={13} class="text-amber-600 shrink-0" /> Mark as Important
-        <span class="text-[10px] font-normal text-amber-700">(Allow up to 100 MB)</span>
-      </span>
-    </label>
-  )}
 </div>
 
 <style>
