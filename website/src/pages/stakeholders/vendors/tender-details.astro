@@ -1,6 +1,7 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 import Icon from '../../../components/Icon.astro';
+import { getDocUrl } from '../../../utils/sanitizer';
 
 const id = Astro.url.searchParams.get('id')?.toString();
 let tender: any = null;
@@ -27,13 +28,7 @@ try {
   errorMessage = 'Failed to connect to the backend server.';
 }
 
-const getDocUrl = (url?: string) => {
-  if (!url) return '#';
-  if (url.startsWith('/uploads/')) {
-    return `${import.meta.env.PUBLIC_API_BASE}${url}`;
-  }
-  return url;
-};
+
 
 const formatDate = (dateStr: string) => {
   if (!dateStr) return '—';
@@ -90,7 +85,7 @@ const formatSize = (bytes: number) => {
             <table class="w-full border-collapse text-xs text-left" aria-label="Bid Submission and Opening Details Table">
               <tbody>
                 <!-- Row 1: Headers -->
-                <tr class="bg-[#EAF4FF] border-b border-slate-200 font-bold text-[#0B4F9C] uppercase tracking-wider text-[11px]">
+                <tr class="bg-[#EAF4FF] border-b border-slate-200 font-bold text-[#0B3B60] uppercase tracking-wider text-[11px]">
                   <td class="p-3 border-r border-slate-200 w-1/2">Bid Submission Start Date</td>
                   <td class="p-3">Bid Submission End Date</td>
                 </tr>
@@ -100,7 +95,7 @@ const formatSize = (bytes: number) => {
                   <td class="p-3">{formatDate(tender.closingDate)}</td>
                 </tr>
                 <!-- Row 3: Headers -->
-                <tr class="bg-[#EAF4FF] border-b border-slate-200 font-bold text-[#0B4F9C] uppercase tracking-wider text-[11px]">
+                <tr class="bg-[#EAF4FF] border-b border-slate-200 font-bold text-[#0B3B60] uppercase tracking-wider text-[11px]">
                   <td class="p-3 border-r border-slate-200">Bid Opening Date</td>
                   <td class="p-3">Download Document</td>
                 </tr>
@@ -113,7 +108,7 @@ const formatSize = (bytes: number) => {
                         href={getDocUrl(tender.documentUrl)} 
                         target="_blank" 
                         rel="noopener noreferrer" 
-                        class="text-[#0B4F9C] hover:underline font-extrabold flex items-center gap-1"
+                        class="text-[#0B3B60] hover:underline font-extrabold flex items-center gap-1"
                       >
                         View / Open PDF
                       </a>

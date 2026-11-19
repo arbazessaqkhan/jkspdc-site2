@@ -129,7 +129,7 @@ const pagedState = { rows: docList, total: pagedTotal, page, pageSize, lastPage:
           ) : (
             docList.map((doc: any, idx: number) => (
               <tr key={doc.id} class="transition-colors">
-                <td class="text-center font-bold text-slate-400 text-xs">{idx + 1}</td>
+                <td class="text-center font-bold text-slate-400 text-xs">{(page - 1) * pageSize + idx + 1}</td>
                 <td class="text-slate-900 font-bold text-xs leading-snug">{doc.title}</td>
                 <td class="text-slate-600 text-xs font-normal leading-relaxed">{doc.description || '—'}</td>
                 <td class="text-center whitespace-nowrap">

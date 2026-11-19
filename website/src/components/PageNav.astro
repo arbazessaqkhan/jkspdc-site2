@@ -9,10 +9,14 @@ import { pageWindow } from '../utils/pagination';
 
 interface Props {
   state: import('../utils/pagination').PageState;
-  url: (page: number) => string;
+  url?: (page: number) => string;
+  buildUrl?: (page: number) => string;
   extra?: Record<string, string | undefined>;
+  label?: string;
 }
-const { state, url = (_p: number) => "#", extra = {} } = Astro.props as Props;
+const props = Astro.props as Props;
+const { state, extra = {} } = props;
+const url = props.url || props.buildUrl || ((_p: number) => "#");
   void extra;
 const { page, lastPage, total, pageSize } = state;
 const show = lastPage > 1 || total > 0;

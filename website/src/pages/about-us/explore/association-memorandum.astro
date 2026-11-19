@@ -1,14 +1,7 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 import Icon from '../../../components/Icon.astro';
-
-function getDocUrl(url?: string) {
-  if (!url) return '#';
-  if (url.startsWith('/uploads/')) {
-    return `${import.meta.env.PUBLIC_API_BASE}${url}`;
-  }
-  return url;
-}
+import { getDocUrl } from '../../../utils/sanitizer';
 
 let memoDocs: any[] = [];
 
@@ -65,7 +58,7 @@ if (memoDocs.length === 0) {
 
         <!-- Document download boxes -->
         {memoDocs.map((doc) => (
-          <div class="bg-white border border-gray-200 hover:border-[#0B4F9C]/40 rounded-xl p-5 shadow-sm transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="bg-white border border-gray-200 hover:border-[#0B3B60]/40 rounded-xl p-5 shadow-sm transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h3 class="font-bold text-gray-900 text-sm mb-1">{doc.title}</h3>
               <p class="text-xs text-gray-550">{doc.description || "Official certified copies showing legal incorporation clauses under the Companies Act."}</p>

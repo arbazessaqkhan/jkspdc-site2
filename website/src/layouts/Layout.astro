@@ -36,106 +36,6 @@ function isSectionActive(section: string): boolean {
   return false;
 }
 
-function getDocUrl(url?: string) {
-  if (!url) return undefined;
-  if (url.startsWith('/uploads/')) {
-    return `${import.meta.env.PUBLIC_API_BASE}${url}`;
-  }
-  return url;
-}
-
-function isDocUrl(url?: string) {
-  if (!url) return false;
-  return (
-    url.includes('/uploads/') ||
-    /\.(pdf|docx?|xlsx?|pptx?|zip|rar|csv)$/i.test(url) ||
-    (url.startsWith('http') && url.includes('/uploads/'))
-  );
-}
-
-// Dynamically fetch ticker items from the public APIs (GIGW 3.0: Recent Active Tenders & Notices)
-let tickerItems: any[] = [];
-try {
-  const [tendersRes, notifsRes] = await Promise.all([
-    fetch(`${import.meta.env.PUBLIC_API_BASE}/api/public/tenders`).catch(() => null),
-    fetch(`${import.meta.env.PUBLIC_API_BASE}/api/public/notifications`).catch(() => null),
-  ]);
-
-  let tenders: any[] = [];
-  if (tendersRes && tendersRes.ok) {
-    tenders = await tendersRes.json();
-  }
-
-  let notifs: any[] = [];
-  if (notifsRes && notifsRes.ok) {
-    notifs = await notifsRes.json();
-  }
-
-  // Recent Active Tenders (Sorted by publication date descending, limit to recent 3)
-  const recentTenders = tenders
-    .filter((t: any) => t.status === 'Active')
-    .sort((a: any, b: any) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime())
-    .slice(0, 3);
-
-  recentTenders.forEach((t: any) => {
-    // Link directly to the official Tender Details page on the website
-    const tenderUrl = `/stakeholders/vendors/tender-details?id=${t.id}`;
-    tickerItems.push({
-      type: 'TENDER',
-      text: `${t.title} (NIT Ref: ${t.referenceNo})`,
-      colorClass: 'text-cyan-300 bg-cyan-500/10 border-cyan-400/20',
-      url: tenderUrl,
-    });
-
-    // Populate recent corrigendums if any
-    const corrs = t.corrigendums && Array.isArray(t.corrigendums) ? t.corrigendums : [];
-    corrs.slice(0, 1).forEach((c: any) => {
-      const corrUrl = `/stakeholders/vendors/tender-details?id=${t.id}#corrigendum-${c.id}`;
-      tickerItems.push({
-        type: 'CORRIGENDUM',
-        text: `Corrigendum: ${c.title} — ${t.title} (Ref: ${t.referenceNo})`,
-        colorClass: 'text-orange-400 bg-orange-500/10 border-orange-400/20',
-        url: corrUrl,
-      });
-    });
-  });
-
-  // Recent Notifications & Notices (Sorted by publication date descending, limit to recent 3)
-  const recentNotifs = notifs
-    .sort((a: any, b: any) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime())
-    .slice(0, 3);
-
-  recentNotifs.forEach((n: any) => {
-    // Directly open that specific notice document
-    const notifDocUrl = getDocUrl(n.documentUrl) || `/notifications`;
-    tickerItems.push({
-      type: 'NOTICE',
-      text: `${n.title}${n.fileName ? ` (${n.fileName})` : ''}`,
-      colorClass: 'text-yellow-400 bg-yellow-500/10 border-yellow-400/20',
-      url: notifDocUrl,
-    });
-  });
-} catch (e) {
-  console.error('Error fetching dynamic ticker items:', e);
-}
-
-// Fallback items if database or backend is offline
-if (tickerItems.length === 0) {
-  tickerItems = [
-    { 
-      type: 'TENDER', 
-      text: 'Active Notice Inviting Tenders (NITs) & Procurement Opportunities', 
-      colorClass: 'text-cyan-300 bg-cyan-500/10 border-cyan-400/20',
-      url: '/stakeholders/vendors/tender-bids'
-    },
-    { 
-      type: 'NOTICE', 
-      text: 'Official Notifications & Circulars Repository — JKSPDCL', 
-      colorClass: 'text-yellow-400 bg-yellow-500/10 border-yellow-400/20',
-      url: '/notifications'
-    }
-  ];
-}
 ---
 
 <!DOCTYPE html>
@@ -154,7 +54,7 @@ if (tickerItems.length === 0) {
     <!-- GIGW SEO & Browser Compatibility -->
     <meta name="robots" content="index, follow" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="icon" type="image/png" href="/logo.png" />
     <!-- Google Fonts: Noto Sans (Regular 400, Medium 500, Semi Bold 600, Bold 700) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -186,21 +86,10 @@ if (tickerItems.length === 0) {
         background-color: #333333 !important;
         color: #ffffff !important;
       }
-
-      /* ── Ticker scroll animation ───────────────────────────────── */
-      @keyframes ticker-scroll {
-        0%   { transform: translate3d(0, 0, 0); }
-        100% { transform: translate3d(-50%, 0, 0); }
-      }
-      .animate-ticker {
-        display: inline-flex !important;
-        width: max-content !important;
-        white-space: nowrap !important;
-        animation: ticker-scroll 30s linear infinite !important;
-        will-change: transform;
-      }
-      .animate-ticker:hover {
-        animation-play-state: paused !important;
+      .high-contrast .border-glow-overlay,
+      .high-contrast .border-glow-overlay::before,
+      .high-contrast .border-glow-overlay::after {
+        display: none !important;
       }
 
       /* ── Slow pulse for status dots ────────────────────────────── */
@@ -493,9 +382,6 @@ if (tickerItems.length === 0) {
     </script>
   </head>
   <body class="min-h-screen flex flex-col bg-slate-50 text-slate-800 font-sans transition-colors duration-150">
-    <div class="border-glow-overlay" aria-hidden="true"></div>
-
-    
     <!-- Skip to Main Content Link (GIGW Mandatory) -->
     <a href="#main-content" class="skip-link">Skip to Main Content</a>
 
@@ -628,7 +514,7 @@ if (tickerItems.length === 0) {
           <form action="/search" method="GET" class="flex items-center w-full justify-end relative" id="header-search-form" autocomplete="off">
             <div class="relative flex items-center w-full max-w-full md:max-w-[270px] lg:max-w-[290px]">
               <label for="header-search" class="sr-only">Search portal pages, tenders, notifications</label>
-              <div class="flex items-center w-full bg-white hover:bg-slate-50/50 focus-within:bg-white border border-slate-300 focus-within:border-[#0B3B60] rounded-lg pl-2.5 pr-1 py-0.5 transition-all duration-150 shadow-2xs outline-none focus-within:outline-none ring-0 focus-within:ring-0">
+              <div class="flex items-center w-full bg-white hover:bg-slate-50/50 focus-within:bg-white border border-slate-300 focus-within:border-[#0B3B60] focus-within:ring-2 focus-within:ring-[#0B3B60]/25 rounded-lg pl-2.5 pr-1 py-0.5 transition-all duration-150 shadow-2xs outline-none focus-within:outline-none">
                 <Icon name="search" size={13} strokeWidth={2.2} class="text-slate-400 shrink-0 mr-1.5" />
                 <input 
                   type="search" 
@@ -636,12 +522,12 @@ if (tickerItems.length === 0) {
                   id="header-search" 
                   placeholder="Search portal, tenders…" 
                   class="w-full bg-transparent text-xs text-slate-700 placeholder:text-slate-400 font-normal py-1 px-1 border-0 focus:ring-0"
-                  style="box-shadow: none !important; font-weight: 400 !important;"
+                  style="outline: none !important; box-shadow: none !important; font-weight: 400 !important;"
                   required
                 />
                 <button 
                   type="submit" 
-                  class="shrink-0 px-2.5 py-1 bg-[#0B3B60] hover:bg-[#0EA4E5] text-white text-[11px] font-semibold rounded-md transition-colors duration-150 shadow-2xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0B3B60] cursor-pointer" 
+                  class="shrink-0 px-2.5 py-1 bg-[#0B3B60] hover:bg-[#002B49] text-white text-[11px] font-semibold rounded-md transition-colors duration-150 shadow-2xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0B3B60] cursor-pointer" 
                   aria-label="Submit Search"
                 >
                   Search
@@ -656,43 +542,8 @@ if (tickerItems.length === 0) {
         </div>
       </div>
 
-      <!-- Live News Ticker Bar -->
-      <div class="bg-[#0B3B60] text-white relative overflow-hidden border-t border-b border-[#0B3B60]/30">
-        <div class="sr-only" aria-live="polite" aria-label="Latest announcements">
-          <p>Latest updates from JKSPDC:</p>
-          <ul>
-            {tickerItems.map((item: any) => (
-              <li>
-                <strong>{item.type}:</strong> {item.url ? <a href={item.url} target={isDocUrl(item.url) ? "_blank" : undefined} rel={isDocUrl(item.url) ? "noopener noreferrer" : undefined}>{item.text}</a> : item.text}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div class="flex items-center h-9 overflow-hidden" style="max-width:100%;" aria-hidden="true">
-          <div class="shrink-0 bg-[#1B3A6B] text-white text-xs font-bold px-4 h-full flex items-center gap-2 uppercase tracking-wide z-20 whitespace-nowrap">
-            <span class="w-2 h-2 rounded-full bg-slate-300 animate-slow-pulse shrink-0"></span>
-            Updates
-          </div>
-          <div class="flex-1 overflow-hidden relative h-full flex items-center" id="header-ticker-container">
-            <div class="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-[#0B3B60] to-transparent z-10 pointer-events-none"></div>
-            <div class="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[#0B3B60] to-transparent z-10 pointer-events-none"></div>
-            <div id="header-ticker-track" class="flex items-center whitespace-nowrap w-max shrink-0 cursor-pointer" style="gap: 3.5rem; font-size: 0.8rem; font-weight: 500; will-change: transform;">
-              {[...tickerItems, ...tickerItems].map((item: any) => (
-                <span class="inline-flex items-center whitespace-nowrap shrink-0" style="padding-right:4rem;">
-                  › <strong class={`font-extrabold uppercase tracking-wider text-[10px] mr-1.5 px-1.5 py-0.5 rounded border whitespace-nowrap shrink-0 ${item.colorClass}`}>{item.type}:</strong>
-                  {item.url ? (
-                    <a href={item.url} target={isDocUrl(item.url) ? "_blank" : undefined} rel={isDocUrl(item.url) ? "noopener noreferrer" : undefined} class="text-slate-100 hover:underline hover:text-white transition-colors whitespace-nowrap">
-                      {item.text}
-                    </a>
-                  ) : (
-                    <span class="text-slate-100 whitespace-nowrap">{item.text}</span>
-                  )}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- Homepage announcements ticker -->
+      <Ticker />
     </header>
 
     <!-- Navigation Bar (Sticky Top-0 Globally Across Entire Website) -->
@@ -935,10 +786,10 @@ if (tickerItems.length === 0) {
     <!-- Floating Scroll to Top Button -->
     <button
       id="scroll-to-top-btn"
-      class="fixed bottom-8 right-8 z-50 bg-[#0B3B60] hover:bg-[#0EA4E5] text-white w-12 h-12 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 opacity-0 pointer-events-none focus:outline-none focus:ring-2 focus:ring-[#BDD7EE] border-2 border-white/20 hover:scale-110"
+      class="fixed bottom-8 right-8 z-50 bg-[#0B3B60] hover:bg-[#002B49] text-white w-10 h-10 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 opacity-0 pointer-events-none focus:outline-none focus:ring-2 focus:ring-[#BDD7EE] border-2 border-white/20 hover:scale-105"
       aria-label="Scroll to top of page"
     >
-      <Icon name="arrow-up" size={20} strokeWidth={2.5} />
+      <Icon name="arrow-up" size={16} strokeWidth={2.5} />
     </button>
 
     <!-- Scroll to Top Script -->
@@ -1106,7 +957,7 @@ if (tickerItems.length === 0) {
             console.error('Failed to load sitemap search index:', err);
           }
           try {
-            var projectsRes = await fetch('window.__API_BASE__/api/projects');
+            var projectsRes = await fetch((window.__API_BASE__ || '') + '/api/projects');
             if (projectsRes.ok) {
               var projects = await projectsRes.json();
               projects.forEach(function(p) {
@@ -1237,34 +1088,6 @@ if (tickerItems.length === 0) {
       })();
     </script>
 
-    <!-- Header Ticker Smooth Continuous Horizontal Motion Script -->
-    <script is:inline>
-      (function() {
-        var track = document.getElementById('header-ticker-track');
-        var container = document.getElementById('header-ticker-container');
-        if (!track || !container) return;
-        
-        var pos = 0;
-        var speed = 0.75; // pixels per frame
-        var isPaused = false;
-
-        container.addEventListener('mouseenter', function() { isPaused = true; });
-        container.addEventListener('mouseleave', function() { isPaused = false; });
-
-        function step() {
-          if (!isPaused) {
-            pos += speed;
-            var halfWidth = track.scrollWidth / 2;
-            if (halfWidth > 0 && pos >= halfWidth) {
-              pos = pos - halfWidth;
-            }
-            track.style.transform = 'translate3d(-' + pos.toFixed(2) + 'px, 0, 0)';
-          }
-          requestAnimationFrame(step);
-        }
-        requestAnimationFrame(step);
-      })();
-    </script>
     <!-- Global Document Link Target Handler (Ensures all document/upload links open in a new blank tab) -->
     <script is:inline>
       document.addEventListener('click', function(e) {

@@ -1,0 +1,71 @@
+---
+/**
+ * TablePagination — public-facing pagination footer for listing tables.
+ * Renders nothing when all rows fit on a single page.
+ */
+interface Props {
+  page: number;
+  lastPage: number;
+  total: number;
+  pageSize: number;
+  baseUrl: URL;
+  itemLabel?: string;
+}
+
+const { page, lastPage, total, pageSize, baseUrl, itemLabel = 'projects' } = Astro.props;
+
+const from = total === 0 ? 0 : (page - 1) * pageSize + 1;
+const to = Math.min(total, page * pageSize);
+
+const hrefFor = (target: number) => {
+  const params = new URLSearchParams(baseUrl.search);
+  if (target > 1) params.set('page', String(target));
+  else params.delete('page');
+  const qs = params.toString();
+  return `${baseUrl.pathname}${qs ? `?${qs}` : ''}`;
+};
+
+const windowSize = 5;
+let start = Math.max(1, page - Math.floor(windowSize / 2));
+const end = Math.min(lastPage, start + windowSize - 1);
+start = Math.max(1, end - windowSize + 1);
+const pages: number[] = [];
+for (let i = start; i <= end; i += 1) pages.push(i);
+
+const linkClass =
+  'inline-flex items-center justify-center min-w-8 h-8 px-2.5 rounded-md border border-slate-200 bg-white text-xs font-semibold text-slate-600 transition-colors hover:bg-[#EAF4FF] hover:text-[#0B3B60] hover:border-[#BDD7EE]';
+const disabledClass = `${linkClass} opacity-40 cursor-not-allowed hover:bg-white hover:text-slate-600 hover:border-slate-200`;
+const currentClass =
+  'inline-flex items-center justify-center min-w-8 h-8 px-2.5 rounded-md border border-[#0B3B60] bg-[#0B3B60] text-xs font-bold text-white';
+const ellipsisClass =
+  'inline-flex items-center justify-center min-w-8 h-8 text-xs font-semibold text-slate-400';
+---
+
+{lastPage > 1 && (
+  <nav class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-3" aria-label="Pagination">
+    <p class="text-[11px] font-medium text-slate-500">
+      Showing <strong class="text-slate-700">{from}–{to}</strong> of <strong class="text-slate-700">{total}</strong> {itemLabel}
+    </p>
+    <div class="flex flex-wrap items-center gap-1.5">
+      {page > 1 ? (
+        <a href={hrefFor(page - 1)} class={linkClass} aria-label="Previous page" rel="prev">‹ Prev</a>
+      ) : (
+        <span class={disabledClass} aria-disabled="true">‹ Prev</span>
+      )}
+      {pages[0] > 1 && <span class={ellipsisClass}>…</span>}
+      {pages.map((p) => (
+        p === page ? (
+          <span class={currentClass} aria-current="page">{p}</span>
+        ) : (
+          <a href={hrefFor(p)} class={linkClass} aria-label={`Page ${p}`}>{p}</a>
+        )
+      ))}
+      {pages[pages.length - 1] < lastPage && <span class={ellipsisClass}>…</span>}
+      {page < lastPage ? (
+        <a href={hrefFor(page + 1)} class={linkClass} aria-label="Next page" rel="next">Next ›</a>
+      ) : (
+        <span class={disabledClass} aria-disabled="true">Next ›</span>
+      )}
+    </div>
+  </nav>
+)}

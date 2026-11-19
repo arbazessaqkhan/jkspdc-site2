@@ -2,16 +2,20 @@
 import Layout from '../../layouts/Layout.astro';
 import Icon from '../../components/Icon.astro';
 import { formatProjectName } from '../../utils/projectFormatter';
+import { BACKEND_URL } from '../../utils/api-error';
+import { sanitizeHtml } from '../../utils/sanitizer';
 
 const id = Astro.url.searchParams.get('id')?.toString();
 let project: any = null;
 let errorMessage = '';
 
+const apiBase = import.meta.env.PUBLIC_API_BASE || BACKEND_URL;
+
 try {
   if (!id) {
     errorMessage = 'Power Station ID is required.';
   } else {
-    const res = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/projects/${id}`);
+    const res = await fetch(`${apiBase}/api/projects/${id}`);
     if (res.ok) {
       project = await res.json();
     } else {
@@ -23,22 +27,13 @@ try {
   errorMessage = 'Failed to connect to the backend server.';
 }
 
-// Check if we have an image asset for this project
+// Check if an actual photograph has been uploaded for this project
 const getProjectPhotoUrl = (proj: any) => {
-  if (!proj) return null;
-  if (proj.documentUrl && proj.documentUrl.trim() !== '') {
-    return proj.documentUrl.startsWith(`${import.meta.env.PUBLIC_API_BASE}/uploads/`)
-      ? proj.documentUrl.replace(`${import.meta.env.PUBLIC_API_BASE}`, '')
-      : proj.documentUrl;
+  if (!proj || !proj.documentUrl || proj.documentUrl.trim() === '') return null;
+  if (proj.documentUrl.startsWith('/uploads/')) {
+    return `${apiBase}${proj.documentUrl}`;
   }
-  const slug = proj.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-  if (slug === 'ganderbal' || slug === 'ushp-i' || slug === 'sewa-iii') {
-    return `/projects/${slug}.png`;
-  }
-  if (['bhaderwah', 'bhep-i', 'bhep-ii', 'chep-i', 'chep-ii', 'chep-iii', 'karnah', 'ljhp', 'mhep-pahalgam', 'ushp-ii'].includes(slug)) {
-    return `/projects/${slug}.jpg`;
-  }
-  return '/slider1.jpg';
+  return proj.documentUrl;
 };
 const photoUrl = getProjectPhotoUrl(project);
 const formattedTitle = project ? formatProjectName(project.name) : "Power Station Details";
@@ -53,9 +48,7 @@ const getSalientSpecs = (proj: any) => {
   specs.push({ label: 'Installed Capacity', value: `${proj.capacityMw} MW (${proj.configuration || 'Multi-Unit Generation'})` });
   if (proj.type) specs.push({ label: 'Type of Hydel Scheme', value: proj.type });
   if (proj.status) specs.push({ label: 'Operational / Development Status', value: proj.status });
-  if (proj.basin) specs.push({ label: 'River Basin System', value: proj.basin });
   if (proj.location) specs.push({ label: 'District Location', value: proj.location });
-  if (proj.sector) specs.push({ label: 'Ownership Sector', value: `${proj.sector === 'JV' ? 'Joint Venture (JV)' : proj.sector} Sector (JKSPDCL)` });
   if (proj.designEnergy) specs.push({ label: 'Annual Design Energy', value: `${proj.designEnergy} Million Units (MU)` });
   if (proj.yearOfCommissioning) specs.push({ label: 'Year of Commercial Operation (COD)', value: `Year ${proj.yearOfCommissioning}` });
 
@@ -128,7 +121,7 @@ const salientSpecs = getSalientSpecs(project);
   title={formattedTitle} 
   description={project ? project.description : "Details of JKSPDCL power station."}
 >
-  <div class="space-y-0 max-w-5xl mx-auto">
+  <div class="max-w-6xl mx-auto space-y-8 pb-16">
     <!-- Premium Page Header Band -->
     <div class="page-header-band animate-fadeInUp">
       <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
@@ -149,213 +142,217 @@ const salientSpecs = getSalientSpecs(project);
     )}
 
     {project && (
-      <div class="mt-6">
-        <!-- Main Info -->
-        <article class="w-full space-y-6">
-          <header class="border-b border-gray-200 pb-4">
-            <div class="flex flex-wrap items-center gap-2 mb-2">
-              <span class="px-2.5 py-0.5 bg-[#0B4F9C]/10 rounded border border-[#0B4F9C]/20 text-[10px] font-bold text-[#0B4F9C] uppercase tracking-wide">
-                {project.sector === 'JV' ? 'Joint Venture (JV)' : (project.sector || 'State')} Sector
+      <article class="w-full space-y-8 animate-fadeInUp delay-100">
+        <!-- Title and Status Badge -->
+        <header class="border-b border-slate-200 pb-4">
+          <div class="flex flex-wrap items-center gap-2 mb-2">
+            {project.status && (
+              <span class={`px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider border ${
+                project.status === 'Operational' 
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+                  : project.status === 'Under Construction' 
+                    ? 'bg-blue-50 text-[#0B3B60] border-blue-200' 
+                    : 'bg-slate-100 text-slate-700 border-slate-300'
+              }`}>
+                {project.status}
               </span>
-              <span class="px-2.5 py-0.5 bg-emerald-50 rounded border border-emerald-200 text-[10px] font-bold text-emerald-700 uppercase tracking-wide">
-                {project.basin || 'Basin'}
-              </span>
-            </div>
-            <h2 class="text-3xl font-extrabold text-[#0B4F9C]">{project.name}</h2>
-          </header>
+            )}
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-[#0B3B60] tracking-tight">{project.name}</h2>
+        </header>
 
-          <!-- Top Card: Image and Technical Specifications combined -->
-          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 md:p-6 project-top-card">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center project-top-grid">
-              
-              <!-- Left Side: Image container -->
-              {photoUrl && (
-                <div class="project-image-card flex flex-col justify-center items-center">
-                  <img 
-                    src={photoUrl} 
-                    alt={`${project.name} Power House Facility`} 
-                    class={`w-full h-[322px] rounded-xl shadow-sm border border-slate-100 bg-slate-50 ${photoUrl === '/logo.png' ? 'object-contain p-8' : 'object-cover'}`}
-                    onerror="handleImageError(this);"
-                  />
-                  <div class="mt-2 text-center text-[10px] text-slate-500 font-semibold italic">
+        <!-- Top Card: Image (Left) & Technical Specifications (Right) Combined -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 project-top-card">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center project-top-grid">
+            
+            <!-- Left Side: Image container or Alt Text Placeholder -->
+            <div class="lg:col-span-6 project-image-card flex flex-col justify-center items-center">
+              {photoUrl ? (
+                <>
+                  <div class="w-full rounded-xl overflow-hidden shadow-xs border border-slate-200 bg-slate-50 flex items-center justify-center">
+                    <img 
+                      src={photoUrl} 
+                      alt={`${project.name} Power House Facility`} 
+                      class="w-full h-[320px] sm:h-[350px] object-cover"
+                    />
+                  </div>
+                  <div class="mt-2.5 text-center text-xs text-slate-500 font-medium italic">
                     Figure: {project.name} Hydroelectric Power House Facility
                   </div>
+                </>
+              ) : (
+                <div class="w-full h-[280px] sm:h-[320px] rounded-xl overflow-hidden border border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center p-6 text-center" aria-label={`No photograph uploaded for ${project.name}`}>
+                  <Icon name="image" size={36} class="text-slate-400 mb-2" />
+                  <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">{project.name}</span>
+                  <span class="text-[11px] text-slate-400 mt-1 italic">No photograph uploaded for this project</span>
                 </div>
               )}
+            </div>
 
-              <!-- Right Side: Technical Specifications -->
-                <h3 class="font-extrabold text-gray-900 border-b border-gray-100 pb-2 flex items-center gap-1.5 text-xs uppercase tracking-wider text-[#0B4F9C]">
-                  <Icon name="gear" size={14} class="text-[#0B4F9C]" />
+            <!-- Right Side: Technical Specifications Header and Grid -->
+            <div class="lg:col-span-6 flex flex-col justify-center h-full space-y-5">
+              <div class="border-b border-slate-100 pb-3">
+                <h3 class="font-extrabold text-[#0B3B60] flex items-center gap-2 text-xs uppercase tracking-wider">
+                  <Icon name="gear" size={16} class="text-[#0B3B60]" />
                   <span>Technical Specifications</span>
                 </h3>
-                
-                <dl class="grid grid-cols-2 gap-x-6 gap-y-4 mt-4">
-                  <div>
-                    <dt class="text-slate-500 font-semibold uppercase tracking-wider text-xs">Installed Capacity</dt>
-                    <dd class="text-xl font-extrabold text-[#0B4F9C] mt-0.5">{project.capacityMw} MW</dd>
-                  </div>
+              </div>
+              
+              <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="bg-slate-50/70 rounded-xl p-3.5 border border-slate-100">
+                  <dt class="text-slate-500 font-semibold uppercase tracking-wider text-[11px]">Installed Capacity</dt>
+                  <dd class="text-xl font-extrabold text-[#0B3B60] mt-0.5">{project.capacityMw} MW</dd>
+                </div>
 
-                  <div>
-                    <dt class="text-slate-500 font-semibold uppercase tracking-wider text-xs">Configuration</dt>
-                    <dd class="text-base font-bold text-slate-800 mt-0.5">{project.configuration || '—'}</dd>
-                  </div>
+                <div class="bg-slate-50/70 rounded-xl p-3.5 border border-slate-100">
+                  <dt class="text-slate-500 font-semibold uppercase tracking-wider text-[11px]">Configuration</dt>
+                  <dd class="text-sm font-bold text-slate-800 mt-0.5">{project.configuration || '—'}</dd>
+                </div>
 
-                  <div>
-                    <dt class="text-slate-500 font-semibold uppercase tracking-wider text-xs">Design Energy</dt>
-                    <dd class="text-base font-bold text-slate-800 mt-0.5">{project.designEnergy ? `${project.designEnergy} MU` : '—'}</dd>
-                  </div>
+                <div class="bg-slate-50/70 rounded-xl p-3.5 border border-slate-100">
+                  <dt class="text-slate-500 font-semibold uppercase tracking-wider text-[11px]">Design Energy</dt>
+                  <dd class="text-sm font-bold text-slate-800 mt-0.5">{project.designEnergy ? `${project.designEnergy} MU` : '—'}</dd>
+                </div>
 
-                  <div>
-                    <dt class="text-slate-500 font-semibold uppercase tracking-wider text-xs">Year of Commissioning</dt>
-                    <dd class="text-base font-bold text-slate-800 mt-0.5">{project.yearOfCommissioning || '—'}</dd>
-                  </div>
+                <div class="bg-slate-50/70 rounded-xl p-3.5 border border-slate-100">
+                  <dt class="text-slate-500 font-semibold uppercase tracking-wider text-[11px]">Year of Commissioning</dt>
+                  <dd class="text-sm font-bold text-slate-800 mt-0.5">{project.yearOfCommissioning || '—'}</dd>
+                </div>
 
-                  <div>
-                    <dt class="text-slate-500 font-semibold uppercase tracking-wider text-xs">River Basin</dt>
-                    <dd class="text-base font-bold text-slate-800 mt-0.5">{project.basin || '—'}</dd>
-                  </div>
+                <div class="bg-slate-50/70 rounded-xl p-3.5 border border-slate-100">
+                  <dt class="text-slate-500 font-semibold uppercase tracking-wider text-[11px]">River Basin</dt>
+                  <dd class="text-sm font-bold text-slate-800 mt-0.5">{project.basin || '—'}</dd>
+                </div>
 
-                  <div>
-                    <dt class="text-slate-500 font-semibold uppercase tracking-wider text-xs">District Location</dt>
-                    <dd class="text-base font-bold text-slate-800 mt-0.5">{project.location || '—'}</dd>
-                  </div>
-                </dl>
+                <div class="bg-slate-50/70 rounded-xl p-3.5 border border-slate-100">
+                  <dt class="text-slate-500 font-semibold uppercase tracking-wider text-[11px]">District Location</dt>
+                  <dd class="text-sm font-bold text-slate-800 mt-0.5">{project.location || '—'}</dd>
+                </div>
+              </dl>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Middle Row: 1:1 Split Grid - About Project (Left) & Salient Features Table (Right) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          
+          <!-- LEFT (50%): About Project -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 flex flex-col space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 class="text-xs font-bold text-[#0B3B60] uppercase tracking-wider flex items-center gap-2">
+                <Icon name="info" size={15} class="text-[#0B3B60]" />
+                <span>ABOUT PROJECT &amp; OVERVIEW</span>
+              </h3>
+              <span class="bg-slate-100 text-slate-700 border border-slate-200 px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
+                Executive Summary
+              </span>
+            </div>
+
+            <!-- Description Text (Rendered only when uploaded, no placeholder) -->
+            {project.description && (
+              <div class="text-slate-700 text-sm leading-relaxed whitespace-pre-line text-justify" set:html={sanitizeHtml(project.description)}></div>
+            )}
+
+            <!-- Quick Project Metrics Sub-Grid -->
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Capacity</span>
+                <span class="text-sm font-extrabold text-[#0B3B60] mt-0.5 block">{project.capacityMw} MW</span>
               </div>
 
+              <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">River Basin</span>
+                <span class="text-sm font-extrabold text-slate-800 mt-0.5 block">{project.basin || 'J&K Basin'}</span>
+              </div>
+
+              <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">District</span>
+                <span class="text-sm font-extrabold text-slate-800 mt-0.5 block">{project.location || 'UT of J&K'}</span>
+              </div>
+
+              <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Status</span>
+                <span class={`text-sm font-extrabold mt-0.5 block ${
+                  project.status === 'Operational' ? 'text-emerald-700' : 'text-[#0B3B60]'
+                }`}>{project.status}</span>
+              </div>
+            </div>
+
+            <!-- Strategic Highlights List -->
+            <div class="bg-slate-50/80 border border-slate-200 rounded-xl p-4 space-y-2.5">
+              <h4 class="text-[11px] font-extrabold text-[#0B3B60] uppercase tracking-wider flex items-center gap-1.5">
+                <Icon name="zap" size={14} class="text-[#0B3B60]" />
+                <span>Key Project Objectives</span>
+              </h4>
+              <ul class="text-xs text-slate-700 space-y-1.5 list-disc list-inside font-medium leading-relaxed">
+                <li>Clean, sustainable hydroelectric energy generation</li>
+                <li>Grid stability &amp; peak power support across J&amp;K UT</li>
+                <li>Execution under official State Power Development Policy</li>
+              </ul>
             </div>
           </div>
 
-          <!-- TOP ROW: 1:1 Split Grid - About Project (Left) & Salient Features Table (Right) -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-            
-            <!-- LEFT (50%): About Project -->
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col space-y-5 h-fit">
-              <div class="space-y-4">
-                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <h3 class="text-xs font-bold text-[#0B4F9C] uppercase tracking-wider flex items-center gap-1.5">
-                    <Icon name="info" size={14} class="text-[#0B4F9C]" /> ABOUT PROJECT &amp; OVERVIEW
-                  </h3>
-                  <span class="bg-[#0B4F9C]/10 text-[#0B4F9C] border border-[#0B4F9C]/20 px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
-                    Executive Summary
-                  </span>
-                </div>
-
-                <!-- Description Text -->
-                {project.description ? (
-                  <div class="text-slate-700 text-sm sm:text-base leading-relaxed whitespace-pre-line text-justify" set:html={project.description}></div>
-                ) : (
-                  <p class="text-slate-400 text-xs italic">No detailed description has been uploaded for this project.</p>
-                )}
-
-                <!-- Quick Project Metrics Sub-Grid -->
-                <div class="grid grid-cols-2 gap-3 pt-2">
-                  <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Capacity</span>
-                    <span class="text-sm font-extrabold text-[#0B4F9C] mt-0.5 block">{project.capacityMw} MW</span>
-                  </div>
-
-                  <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">River Basin</span>
-                    <span class="text-sm font-extrabold text-slate-800 mt-0.5 block">{project.basin || 'J&K Basin'}</span>
-                  </div>
-
-                  <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">District</span>
-                    <span class="text-sm font-extrabold text-slate-800 mt-0.5 block">{project.location || 'UT of J&K'}</span>
-                  </div>
-
-                  <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Status</span>
-                    <span class="text-sm font-extrabold text-emerald-700 mt-0.5 block">{project.status}</span>
-                  </div>
-                </div>
-
-                <!-- Strategic Highlights List -->
-                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
-                  <h4 class="text-[11px] font-extrabold text-[#0B4F9C] uppercase tracking-wider flex items-center gap-1.5">
-                    <Icon name="zap" size={13} class="text-[#0B4F9C]" />
-                    <span>Key Project Objectives</span>
-                  </h4>
-                  <ul class="text-xs text-slate-700 space-y-1.5 list-disc list-inside font-medium">
-                    <li>Clean, sustainable hydroelectric energy generation</li>
-                    <li>Grid stability &amp; peak power support across J&amp;K UT</li>
-                    <li>Execution under official State Power Development Policy</li>
-                  </ul>
-                </div>
-              </div>
-
-              <div class="pt-3 border-t border-slate-100 text-[11px] text-slate-500 font-semibold flex items-center justify-between">
-                <span>Ownership: {project.sector || 'State'} Sector (JKSPDCL)</span>
-                <span>Cell: Corporate Monitoring</span>
-              </div>
+          <!-- RIGHT (50%): Salient Features Specifications Table -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 flex flex-col space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 class="text-xs font-bold text-[#0B3B60] uppercase tracking-wider flex items-center gap-2">
+                <Icon name="file" size={15} class="text-[#0B3B60]" />
+                <span>SALIENT FEATURES TABLE</span>
+              </h3>
+              <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
+                Specifications Matrix
+              </span>
             </div>
 
-            <!-- RIGHT (50%): Salient Features Specifications Table -->
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col space-y-4 h-fit">
-              <div class="space-y-4">
-                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <h3 class="text-xs font-bold text-[#0B4F9C] uppercase tracking-wider flex items-center gap-1.5">
-                    <Icon name="file" size={14} class="text-[#0B4F9C]" /> SALIENT FEATURES TABLE
-                  </h3>
-                  <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
-                    Specifications Matrix
-                  </span>
-                </div>
-
-                <div class="table-wrapper">
-                  <table class="table-data min-w-full" aria-label="Specifications Matrix">
-                    <thead>
-                      <tr>
-                        <th scope="col" class="w-12 text-center">#</th>
-                        <th scope="col" class="w-5/12 text-left">Salient Feature</th>
-                        <th scope="col" class="text-left">Technical Specification</th>
+            <div class="table-wrapper overflow-x-auto border border-slate-200 rounded-xl">
+              <table class="table-data min-w-full text-xs" aria-label="Specifications Matrix">
+                <thead>
+                  <tr class="bg-slate-50/90 text-slate-600 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider">
+                    <th scope="col" class="w-10 text-center py-3 px-3">#</th>
+                    <th scope="col" class="w-5/12 text-left py-3 px-3">Salient Feature</th>
+                    <th scope="col" class="text-left py-3 px-3">Technical Specification</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  {salientSpecs.length > 0 ? (
+                    salientSpecs.map((spec: any, idx: number) => (
+                      <tr class="hover:bg-slate-50/60 transition-colors">
+                        <td class="text-center font-bold text-slate-400 py-2.5 px-3">{idx + 1}</td>
+                        <td class="font-bold text-slate-800 text-left py-2.5 px-3">{spec.label}</td>
+                        <td class="font-semibold text-[#0B3B60] text-left py-2.5 px-3">{spec.value}</td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {salientSpecs.length > 0 ? (
-                        salientSpecs.map((spec: any, idx: number) => (
-                          <tr class="transition-colors">
-                            <td class="text-center font-bold text-slate-400">{idx + 1}</td>
-                            <td class="font-bold text-slate-800 text-left">{spec.label}</td>
-                            <td class="font-semibold text-[#0B4F9C] text-left">{spec.value}</td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colspan="3" class="text-center py-6 text-xs text-slate-400 font-semibold italic">
-                            No salient technical features recorded.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-400 italic text-right font-medium">
-                Verified Technical Register &bull; JKSPDCL
-              </div>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colspan="3" class="text-center py-6 text-xs text-slate-400 font-semibold italic">
+                        No salient technical features recorded.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
-
           </div>
 
-          <!-- BOTTOM ROW: Scheme & Site Overview (Separate Card Below) -->
-          {project.salientFeatures && (
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 lg:p-8 space-y-4">
-              <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h3 class="text-xs font-bold text-[#0B4F9C] uppercase tracking-wider flex items-center gap-1.5">
-                  <Icon name="layers" size={14} class="text-[#0B4F9C]" /> SCHEME &amp; SITE OVERVIEW
-                </h3>
-                <span class="bg-blue-50 text-[#0B4F9C] border border-blue-200 px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
-                  Technical Documentation
-                </span>
-              </div>
-              <div class="text-slate-700 text-sm sm:text-base leading-relaxed salient-features-content text-justify" set:html={project.salientFeatures}></div>
-            </div>
-          )}
-        </article>
+        </div>
 
-      </div>
+        <!-- BOTTOM ROW: Scheme & Site Overview (Separate Card Below) -->
+        {project.salientFeatures && (
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 class="text-xs font-bold text-[#0B3B60] uppercase tracking-wider flex items-center gap-2">
+                <Icon name="layers" size={15} class="text-[#0B3B60]" />
+                <span>SCHEME &amp; SITE OVERVIEW</span>
+              </h3>
+              <span class="bg-slate-100 text-slate-700 border border-slate-200 px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
+                Technical Documentation
+              </span>
+            </div>
+            <div class="text-slate-700 text-sm leading-relaxed salient-features-content text-justify space-y-3" set:html={sanitizeHtml(project.salientFeatures)}></div>
+          </div>
+        )}
+      </article>
     )}
   </div>
 </Layout>
@@ -367,8 +364,13 @@ const salientSpecs = getSalientSpecs(project);
       card.style.display = 'none';
       const grid = card.closest('.project-top-grid');
       if (grid) {
-        grid.classList.remove('md:grid-cols-2');
-        grid.classList.add('md:grid-cols-1');
+        grid.classList.remove('lg:grid-cols-12');
+        grid.classList.add('grid-cols-1');
+        const specsCol = grid.querySelector('.lg\\:col-span-6');
+        if (specsCol) {
+          specsCol.classList.remove('lg:col-span-6');
+          specsCol.classList.add('w-full');
+        }
       }
     }
   }

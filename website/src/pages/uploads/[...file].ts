@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { BACKEND_URL } from '../../utils/api-error';
 
 export const GET: APIRoute = async ({ params }) => {
   const filePath = params.file;
@@ -7,7 +8,7 @@ export const GET: APIRoute = async ({ params }) => {
   }
 
   try {
-    const backendRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/uploads/${filePath}`);
+    const backendRes = await fetch(`${BACKEND_URL}/uploads/${filePath}`);
     if (!backendRes.ok) {
       return new Response('Not found', { status: backendRes.status });
     }

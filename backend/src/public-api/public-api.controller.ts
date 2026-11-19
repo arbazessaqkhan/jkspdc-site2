@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { PublicApiService } from './public-api.service';
 
 @Controller('public')
@@ -33,5 +33,20 @@ export class PublicApiController {
   @Get('agm')
   async getAgmDocuments() {
     return this.publicApiService.getAgmDocuments();
+  }
+
+  @Get('ticker')
+  async getTicker() {
+    return this.publicApiService.getTicker();
+  }
+
+  @Get('site-settings/:key')
+  async getSiteSetting(@Param('key') key: string) {
+    return this.publicApiService.getSiteSetting(key);
+  }
+
+  @Get('gallery')
+  async getGallery(@Query('projectId') projectId?: string) {
+    return this.publicApiService.getGallery(projectId);
   }
 }

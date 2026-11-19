@@ -164,7 +164,7 @@ async function bootstrap() {
     }),
   );
 
-  // Configure CORS using environment whitelist
+  // Configure CORS strictly using the configured environment whitelist
   const rawCorsOrigins = configService.get<string>('CORS_ORIGIN') || 'http://localhost';
   // Strip surrounding quotes that some .env parsers leave in, and trim each origin
   const allowedOrigins = rawCorsOrigins
@@ -173,7 +173,7 @@ async function bootstrap() {
     .map((o) => o.trim())
     .filter(Boolean);
 
-  // Low-level Express middleware — handles CORS safely and strictly.
+  // Low-level Express middleware — handles CORS strictly and safely per GIGW / OWASP guidelines.
   // Wildcard '*' MUST NEVER reflect arbitrary client origins when credentials are enabled.
   app.use((req: any, res: any, next: any) => {
     const origin = (req.headers['origin'] || req.headers['Origin']) as string | undefined;
@@ -215,7 +215,7 @@ async function bootstrap() {
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        // Disallow wildcard or unlisted origins with credentials
+        // Disallow unlisted origins with credentials
         callback(new Error('Not allowed by CORS'), false);
       }
     },

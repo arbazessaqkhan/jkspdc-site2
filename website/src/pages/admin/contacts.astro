@@ -188,17 +188,16 @@ const totalCount = parsedSubmissions.length;
         </button>
       </div>
 
-      <!-- Quick Search -->
-      <div class="relative w-full sm:w-64">
+      <div class="admin-search-wrapper relative w-full sm:w-64">
+        <div class="admin-search-icon">
+          <Icon name="search" size={15} strokeWidth={2.2} />
+        </div>
         <input 
           type="text" 
           id="search-input" 
           placeholder="Search name, email, subject..." 
-          class="w-full bg-white border border-slate-300 rounded text-xs text-slate-800 pl-8 pr-3 py-1.5 focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none"
+          class="admin-search-input w-full bg-white border border-slate-300 rounded text-xs text-slate-800 pr-3 py-1.5 focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none"
         />
-        <div class="absolute left-2.5 top-2 text-slate-400">
-          <Icon name="search" size={13} />
-        </div>
       </div>
     </div>
 
@@ -246,7 +245,7 @@ const totalCount = parsedSubmissions.length;
                   data-search={searchContent}
                   class="submission-row transition-colors"
                 >
-                  <td class="text-center font-bold text-slate-400 text-xs row-index">{totalCount - idx}</td>
+                  <td class="text-center font-bold text-slate-400 text-xs row-index">{(page - 1) * pageSize + idx + 1}</td>
                   
                   <td>
                     {sub.isWebsiteFeedback ? (
@@ -504,24 +503,24 @@ const totalCount = parsedSubmissions.length;
           document.getElementById('modal-ip').textContent = sub.ipAddress ? ('IP: ' + sub.ipAddress) : '';
 
           var metaContainer = document.getElementById('modal-meta-row');
-          metaContainer.innerHTML = '';
+          metaContainer.textContent = '';
+          function addBadge(className, label, val) {
+            if (!val) return;
+            var badge = document.createElement('span');
+            badge.className = className;
+            badge.textContent = label + ': ' + val;
+            metaContainer.appendChild(badge);
+          }
+
           if (sub.isWebsiteFeedback) {
-            if (sub.type) {
-              metaContainer.innerHTML += '<span class="admin-badge-success">Type: ' + sub.type + '</span>';
-            }
-            if (sub.page) {
-              metaContainer.innerHTML += '<span class="admin-badge-neutral">Page: ' + sub.page + '</span>';
-            }
+            addBadge('admin-badge-success', 'Type', sub.type);
+            addBadge('admin-badge-neutral', 'Page', sub.page);
             if (sub.rating && sub.rating !== 'Not rated') {
-              metaContainer.innerHTML += '<span class="admin-badge-warning">Rating: ' + sub.rating + ' / 5</span>';
+              addBadge('admin-badge-warning', 'Rating', sub.rating + ' / 5');
             }
           } else if (sub.isCitizenInquiry) {
-            if (sub.category) {
-              metaContainer.innerHTML += '<span class="admin-badge-info">Category: ' + sub.category + '</span>';
-            }
-            if (sub.subject) {
-              metaContainer.innerHTML += '<span class="admin-badge-neutral">Subject: ' + sub.subject + '</span>';
-            }
+            addBadge('admin-badge-info', 'Category', sub.category);
+            addBadge('admin-badge-neutral', 'Subject', sub.subject);
           }
 
           var replyBtn = document.getElementById('modal-reply-btn');

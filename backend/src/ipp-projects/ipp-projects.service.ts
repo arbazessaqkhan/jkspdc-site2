@@ -11,7 +11,7 @@ export class IppProjectsService {
     const where = phase ? { phase } : {};
     return this.prisma.ippProject.findMany({
       where,
-      orderBy: [{ phase: 'asc' }, { name: 'asc' }],
+      orderBy: [{ phase: 'asc' }, { createdAt: 'asc' }],
     });
   }
 
@@ -21,7 +21,7 @@ export class IppProjectsService {
    */
   async findAll(q: PaginationDto = {}, phase?: number): Promise<any> {
     if (!wantsPagination(q)) {
-      return this.prisma.ippProject.findMany({ orderBy: [{ phase: 'asc' }, { name: 'asc' }] });
+      return this.prisma.ippProject.findMany({ orderBy: [{ phase: 'asc' }, { createdAt: 'asc' }] });
     }
     const where = phase ? { phase } : undefined;
     return paginate({
@@ -29,7 +29,7 @@ export class IppProjectsService {
       pageSize: q.pageSize,
       count: () => this.prisma.ippProject.count({ where }),
       find: (skip, take) =>
-        this.prisma.ippProject.findMany({ where, orderBy: [{ phase: 'asc' }, { name: 'asc' }], skip, take }),
+        this.prisma.ippProject.findMany({ where, orderBy: [{ phase: 'asc' }, { createdAt: 'asc' }], skip, take }),
     });
   }
 

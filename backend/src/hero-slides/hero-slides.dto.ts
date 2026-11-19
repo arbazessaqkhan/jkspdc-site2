@@ -9,6 +9,10 @@ export class CreateHeroSlideDto {
   @IsString()
   subtitle?: string;
 
+  @IsOptional()
+  @IsString()
+  description?: string;
+
   @IsString()
   imageUrl!: string;
 
@@ -38,6 +42,10 @@ export class UpdateHeroSlideDto {
   @IsOptional()
   @IsString()
   subtitle?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
 
   @IsOptional()
   @IsString()

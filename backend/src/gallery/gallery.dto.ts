@@ -1,4 +1,4 @@
-import { IsString, IsOptional, MinLength } from 'class-validator';
+import { IsString, IsOptional, MinLength, IsInt, ValidateIf } from 'class-validator';
 
 export class CreateGalleryItemDto {
   @IsString()
@@ -11,6 +11,24 @@ export class CreateGalleryItemDto {
   @IsOptional()
   @IsString()
   partition?: string;
+
+  @IsOptional()
+  @ValidateIf((_, v) => v !== null && v !== undefined)
+  @IsString()
+  projectId?: string;
+
+  @IsOptional()
+  @ValidateIf((_, v) => v !== null && v !== undefined)
+  @IsString()
+  projectName?: string;
+
+  @IsOptional()
+  @IsString()
+  status?: string;
+
+  @IsOptional()
+  @IsInt()
+  displayOrder?: number;
 }
 
 export class UpdateGalleryItemDto {
@@ -25,5 +43,23 @@ export class UpdateGalleryItemDto {
 
   @IsOptional()
   @IsString()
+  status?: string;
+
+  @IsOptional()
+  @IsString()
   partition?: string;
+
+  @IsOptional()
+  @ValidateIf((_, v) => v !== null && v !== undefined)
+  @IsString()
+  projectId?: string;
+
+  @IsOptional()
+  @ValidateIf((_, v) => v !== null && v !== undefined)
+  @IsString()
+  projectName?: string;
+
+  @IsOptional()
+  @IsInt()
+  displayOrder?: number;
 }

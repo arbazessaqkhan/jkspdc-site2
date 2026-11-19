@@ -30,6 +30,21 @@ export function validateStartupEnvironment(configService: ConfigService): void {
       throw new Error('[FATAL] CORS_ORIGIN environment variable is required in production.');
     }
 
+    const rawJwt = configService.get<string>('JWT_SECRET') || process.env.JWT_SECRET;
+    if (!rawJwt || rawJwt.includes('dev_secret') || rawJwt.includes('replace_this')) {
+      throw new Error('[FATAL] JWT_SECRET must be set to a secure, random production secret (cannot use development placeholders).');
+    }
+
+    const rawSession = configService.get<string>('SESSION_SECRET') || process.env.SESSION_SECRET;
+    if (!rawSession || rawSession.includes('dev_session') || rawSession.includes('replace_this')) {
+      throw new Error('[FATAL] SESSION_SECRET must be set to a secure, random production secret (cannot use development placeholders).');
+    }
+
+    const rawMfaKey = configService.get<string>('MFA_ENCRYPTION_KEY') || process.env.MFA_ENCRYPTION_KEY;
+    if (!rawMfaKey || rawMfaKey.trim().length < 32) {
+      throw new Error('[FATAL] MFA_ENCRYPTION_KEY environment variable is required and must provide at least 256 bits of entropy (minimum 32 characters or 64 hex characters).');
+    }
+
     const origins = rawCorsOrigins
       .replace(/^["']|["']$/g, '')
       .split(',')

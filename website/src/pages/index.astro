@@ -8,6 +8,13 @@ let directors: any[] = [];
 let tenders: any[] = [];
 let projects: any[] = [];
 let notifications: any[] = [];
+let heroSlides: any[] = [];
+let heroSettings = { autoplay: true, duration: 6 };
+let welcomeSettings: { autoplay: boolean; duration: number; items: any[] } = {
+  autoplay: true,
+  duration: 5,
+  items: [],
+};
 let gallery = [
   {
     id: 'gallery-seed-1',
@@ -68,6 +75,45 @@ try {
   if (galleryRes.ok) {
     gallery = await galleryRes.json();
   }
+
+  // Fetch homepage hero carousel slides (admin-managed, active only, ordered by sortOrder)
+  const heroRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/api/hero-slides/active`);
+  if (heroRes.ok) {
+    const rawSlides = await heroRes.json();
+    heroSlides = Array.isArray(rawSlides) ? rawSlides : [];
+  }
+
+  // Fetch admin-configured carousel motion settings (autoplay + slide duration)
+  const heroSettingsRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/api/site-settings/homepage_hero_settings`);
+  if (heroSettingsRes.ok) {
+    const stored = await heroSettingsRes.json();
+    if (stored && typeof stored.value === 'string') {
+      try {
+        const parsed = JSON.parse(stored.value);
+        heroSettings = {
+          autoplay: parsed.autoplay !== false,
+          duration: Number(parsed.duration) >= 4 && Number(parsed.duration) <= 10 ? Number(parsed.duration) : 6,
+        };
+      } catch {}
+    }
+  }
+
+  // Fetch Corporate Overview carousel config (admin Media Gallery selection)
+  const welcomeRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/api/site-settings/homepage_welcome_settings`);
+  if (welcomeRes.ok) {
+    const stored = await welcomeRes.json();
+    if (stored && typeof stored.value === 'string') {
+      try {
+        const parsed = JSON.parse(stored.value);
+        const parsedDuration = Number(parsed.duration);
+        welcomeSettings = {
+          autoplay: parsed.autoplay !== false,
+          duration: parsedDuration >= 3 && parsedDuration <= 10 ? parsedDuration : 5,
+          items: Array.isArray(parsed.items) ? parsed.items : [],
+        };
+      } catch {}
+    }
+  }
 } catch (e) {
   console.error('Failed to sync index.astro from backend:', e);
 }
@@ -80,39 +126,13 @@ function getImageUrl(url: string) {
   return url;
 }
 
-// 1. Office & Corporate Events (Only gallery pictures uploaded by admin in galary section)
-const officePhotos = gallery.filter((item: any) => 
-  !item.partition || (item.partition.toLowerCase() !== 'projects' && item.partition.toLowerCase() !== 'project')
-);
-
-const fallbackOfficePhotos = [
-  {
-    id: 'office-seed-1',
-    title: 'Signing of Implementation Agreement between NHPC & JKSPDC',
-    imageUrl: '/gallery/signing_agreement.png',
-    partition: 'MoU & Official Events',
-  },
-  {
-    id: 'office-seed-2',
-    title: 'Retirement Ceremony & Service Felicitation of Executive Director (Civil)',
-    imageUrl: '/gallery/retirement_ed_civil.png',
-    partition: 'Retirements & Honors',
-  },
-  {
-    id: 'office-seed-5',
-    title: 'Corporate Headquarters Review Meeting',
-    imageUrl: '/slider2.jpg',
-    partition: 'Corporate',
-  },
-  {
-    id: 'office-seed-6',
-    title: 'Official Executive Board Meeting',
-    imageUrl: '/slider3.jpg',
-    partition: 'Official Events',
-  },
-];
-
-const displayOfficePhotos = officePhotos.length > 0 ? officePhotos : fallbackOfficePhotos;
+// 1. Corporate Overview carousel — ONLY items explicitly selected in the
+// Admin Media Gallery carousel config (homepage_welcome_settings), in the
+// administrator's order, excluding slides disabled by the administrator.
+const overviewSlides = welcomeSettings.items
+  .filter((item: any) => item && item.imageUrl && item.isActive !== false)
+  .slice()
+  .sort((a: any, b: any) => (Number(a.displayOrder) || 0) - (Number(b.displayOrder) || 0));
 
 // 2. Project Photographs ONLY (Hydroelectric Plants, Dams, Solar Assets)
 const projectGalleryPhotos = gallery.filter((item: any) => 
@@ -194,53 +214,9 @@ const fallbackOperationalProjects = [
   { id: 'op-sewa-iii', name: 'SEWA III', capacityMw: 9, designEnergy: 33.06, yearOfCommissioning: 2002, basin: 'Ravi Basin', location: 'Kathua', status: 'Operational', type: 'Hydro', configuration: '3x3MW' }
 ];
 
-function getCleanDesc(htmlStr) {
-  if (!htmlStr) return "Hydel power station operated by JKSPDC under state/central sector.";
-  const clean = htmlStr.replace(/<\/?[^>]+(>|$)/g, "").replace(/\s+/g, " ").trim();
-  if (clean.length > 180) {
-    return clean.substring(0, 180) + "...";
-  }
-  return clean;
-}
-
-const operationalProjects = projects.filter((p) => p.status === 'Operational');
-const displaySlides = operationalProjects.length > 0 ? operationalProjects : fallbackOperationalProjects;
-displaySlides.sort((a, b) => (b.capacityMw || 0) - (a.capacityMw || 0));
-
-const heroSlides = displaySlides.map((p, index) => {
-  const slug = p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-  let img = '/slider1.jpg';
-  
-  if (p.documentUrl && p.documentUrl.trim() !== '') {
-    if (p.documentUrl.startsWith('/uploads/')) {
-      img = `${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}${p.documentUrl}`;
-    } else {
-      img = p.documentUrl;
-    }
-  } else if (slug === 'ganderbal' || slug === 'ushp-i' || slug === 'sewa-iii') {
-    img = `/projects/${slug}.png`;
-  } else if (['bhaderwah', 'bhep-i', 'bhep-ii', 'chep-i', 'chep-ii', 'chep-iii', 'karnah', 'ljhp', 'mhep-pahalgam', 'ushp-ii'].includes(slug)) {
-    img = `/projects/${slug}.jpg`;
-  } else {
-    img = '/slider1.jpg';
-  }
-
-  return {
-    id: index,
-    badge: p.basin ? (p.basin.toLowerCase().includes('basin') ? p.basin : `${p.basin} Basin`) : 'River Basin',
-    title: p.name,
-    desc: getCleanDesc(p.description),
-    capacityMw: p.capacityMw,
-    configuration: p.configuration || '—',
-    designEnergy: p.designEnergy,
-    yearOfCommissioning: p.yearOfCommissioning,
-    basin: p.basin || '—',
-    location: p.location || '—',
-    img: img,
-    ctaText: 'Explore Details',
-    ctaHref: `/our-business/power-station-details?id=${p.id}`
-  };
-});
+// Hero carousel timing is fully admin-controlled. Defaults only guard against a
+// missing setting; they never introduce carousel content.
+const heroSlideMs = Math.max(4, Math.min(10, Number(heroSettings.duration) || 6)) * 1000;
 
 const quickLinks = [
   { icon: "building", label: "About JKSPDC", desc: "Corporate profile & leadership", href: "/about-us/explore/overview" },
@@ -530,86 +506,87 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
 
 <Layout title="Home | JKSPDC Official Portal" description="Official enterprise portal of Jammu and Kashmir State Power Development Corporation Ltd. Powering the future of J&K through clean, sustainable, and reliable energy generation." isHome={true}>
 
-  <!-- HERO SLIDER -->
-  <section id="home" class="hero-section relative w-full overflow-hidden bg-[#F4F8FB]" aria-roledescription="carousel" aria-label="Featured highlights from JKSPDC">
-    <div id="hero-slides" class="absolute inset-0">
-      {heroSlides.map((slide, i) => (
-        <div id={`slide-${slide.id}`} class={`absolute inset-0 transition-opacity duration-500 ${i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}>
-          <img src={slide.img} alt={slide.title} class="absolute inset-0 w-full h-full object-cover" fetchpriority={i === 0 ? 'high' : 'auto'} loading={i === 0 || i === 1 || i === heroSlides.length - 1 ? 'eager' : 'lazy'} onerror="this.onerror=null; this.src='/slider1.jpg';" />
+  <!-- HERO CAROUSEL (admin-managed slides) -->
+  <section
+    id="home"
+    class="hero-section relative w-full overflow-hidden bg-[#002B49]"
+    aria-roledescription="carousel"
+    aria-label="Featured highlights"
+    data-hero-duration={heroSlideMs}
+    data-hero-autoplay={heroSettings.autoplay ? 'true' : 'false'}
+  >
+    {heroSlides.length > 0 ? (
+      <>
+        <div id="hero-slides" class="absolute inset-0">
+          {heroSlides.map((slide, i) => (
+            <div
+              class={`hero-slide absolute inset-0 transition-opacity duration-700 ease-out ${i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}
+              aria-hidden={i === 0 ? undefined : 'true'}
+            >
+              {slide.imageUrl ? (
+                <img
+                  src={getImageUrl(slide.imageUrl)}
+                  alt={slide.title || ''}
+                  class="absolute inset-0 h-full w-full object-cover"
+                  fetchpriority={i === 0 ? 'high' : 'auto'}
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                />
+              ) : (
+                <div class="absolute inset-0 bg-[#002B49]"></div>
+              )}
 
-          <!-- Slide Content -->
-          <div class="absolute inset-0 z-20 flex items-center">
-            <div class="w-full max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
-              <div class="grid grid-cols-1 md:grid-cols-5 gap-6 sm:gap-8 items-center">
-                <!-- Left: Title, Desc, Buttons -->
-                <div class="md:col-span-3 text-white">
-                  <div class="inline-flex items-center border border-white/40 bg-black/30 text-white/90 text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1 mb-3 sm:mb-4">
-                    {slide.badge}
-                  </div>
-                  <h2 class="text-2xl sm:text-4xl lg:text-5xl font-bold leading-tight" style="text-shadow: 0 2px 8px rgba(0,0,0,0.45);">
-                    {slide.title}
-                  </h2>
-                  <p class="mt-3 sm:mt-4 text-xs sm:text-sm md:text-base text-white/95 max-w-xl leading-relaxed font-medium line-clamp-3 sm:line-clamp-4" style="text-shadow: 0 1px 4px rgba(0,0,0,0.65);">
-                    {slide.desc}
-                  </p>
-                  <div class="mt-4 sm:mt-6 flex flex-wrap items-center gap-3">
-                    <a href={slide.ctaHref} class="inline-flex items-center gap-2 bg-[#0B3B60] hover:bg-[#0EA4E5] text-white font-semibold px-6 h-11 rounded-sm transition-colors text-sm">
-                      Explore Details &rarr;
-                    </a>
-                  </div>
-                </div>
-
-                <!-- Right: Technical Specifications -->
-                <div class="md:col-span-2 hidden md:block">
-                  <div class="bg-black/40 border border-white/20 rounded-sm p-5 text-white max-w-sm ml-auto">
-                    <h3 class="font-bold text-xs uppercase tracking-wider text-brand-accent border-b border-white/10 pb-2 mb-3 flex items-center gap-1.5">
-                      <Icon name="gear" size={13} strokeWidth={2.5} class="text-brand-accent" />
-                      <span>Technical Specifications</span>
-                    </h3>
-                    <dl class="grid grid-cols-2 gap-x-4 gap-y-2.5">
-                      <div>
-                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-xs">Installed Capacity</dt>
-                        <dd class="text-base font-bold text-white mt-0.5">{slide.capacityMw} MW</dd>
-                      </div>
-                      <div>
-                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-xs">Configuration</dt>
-                        <dd class="text-base font-bold text-white mt-0.5">{slide.configuration}</dd>
-                      </div>
-                      <div>
-                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-xs">Design Energy</dt>
-                        <dd class="text-base font-bold text-white mt-0.5">{slide.designEnergy ? `${slide.designEnergy} MU` : '—'}</dd>
-                      </div>
-                      <div>
-                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-xs">Commissioning</dt>
-                        <dd class="text-base font-bold text-white mt-0.5">{slide.yearOfCommissioning || '—'}</dd>
-                      </div>
-                      <div>
-                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-xs">River Basin</dt>
-                        <dd class="text-base font-bold text-white mt-0.5">{slide.basin}</dd>
-                      </div>
-                      <div>
-                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-xs">District Location</dt>
-                        <dd class="text-base font-bold text-white mt-0.5">{slide.location}</dd>
-                      </div>
-                    </dl>
+              <!-- No dark scrim: images keep their natural brightness -->
+              <div class="absolute inset-0 z-20 flex items-end sm:items-center">
+                <div class="w-full max-w-7xl mx-auto pl-16 sm:pl-20 lg:pl-24 pr-6 sm:pr-8 lg:pr-10 pb-6 sm:pb-0">
+                  <div class="max-w-2xl text-white">
+                    <h2 class="text-2xl sm:text-4xl lg:text-[2.75rem] font-bold leading-tight tracking-tight" style="text-shadow: 0 2px 12px rgba(0,0,0,0.5);">
+                      {slide.title}
+                    </h2>
+                    <div class="mt-4 h-0.5 w-14 bg-[#0EA4E5]"></div>
+                    {slide.description && (
+                      <p class="mt-4 max-w-xl text-sm sm:text-base text-white/90 leading-relaxed line-clamp-3" style="text-shadow: 0 1px 6px rgba(0,0,0,0.55);">
+                        {slide.description}
+                      </p>
+                    )}
+                    {slide.ctaHref && (
+                      <a
+                        href={slide.ctaHref}
+                        class="mt-6 inline-flex h-11 items-center gap-2 rounded-sm bg-[#0B3B60] px-6 text-sm font-semibold text-white transition-colors hover:bg-[#002B49] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                      >
+                        {slide.ctaText || 'Explore Details'} &rarr;
+                      </a>
+                    )}
                   </div>
                 </div>
-
               </div>
             </div>
-          </div>
+          ))}
         </div>
-      ))}
-    </div>
 
-    <!-- Dots -->
-    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2.5 z-20">
-      {heroSlides.map((_, i) => (
-        <button data-dot={String(i)} class={`h-1.5 transition-all duration-300 ${i === 0 ? 'w-10 bg-white' : 'w-4 bg-white/40'}`} aria-label={`Slide ${i + 1}`}></button>
-      ))}
-    </div>
-    <button id="hero-prev" class="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-white/20 transition border border-white/20 text-xl" aria-label="Previous">&#8249;</button>
-    <button id="hero-next" class="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-white/20 transition border border-white/20 text-xl" aria-label="Next">&#8250;</button>
+        {heroSlides.length > 1 && (
+          <>
+            <button
+              id="hero-prev"
+              type="button"
+              class="absolute left-3 sm:left-5 top-1/2 z-30 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/25 text-white/90 backdrop-blur-sm transition-colors hover:bg-black/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+              aria-label="Previous slide"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+            </button>
+            <button
+              id="hero-next"
+              type="button"
+              class="absolute right-3 sm:right-5 top-1/2 z-30 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/25 text-white/90 backdrop-blur-sm transition-colors hover:bg-black/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+              aria-label="Next slide"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
+            </button>
+          </>
+        )}
+      </>
+    ) : (
+      <div aria-hidden="true"></div>
+    )}
   </section>
 
   <!-- PAGE BODY — unified container + consistent vertical rhythm -->
@@ -638,21 +615,24 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
         <!-- Welcome Card Container with Office Gallery Carousel -->
         <div class="bg-white border border-slate-200 rounded-md p-4 flex flex-col justify-between flex-grow h-[320px] shadow-xs overflow-hidden relative">
           <!-- Office Events, Retirements & Awards Carousel -->
-          <div class="relative w-full flex-grow rounded-md overflow-hidden shadow-xs border border-slate-200 bg-[#F4F8FB] group" id="office-carousel-container">
+          <div
+            class="relative w-full flex-grow rounded-md overflow-hidden shadow-xs border border-slate-200 bg-[#F4F8FB] group"
+            id="office-carousel-container"
+            data-overview-duration={String(welcomeSettings.duration * 1000)}
+            data-overview-autoplay={welcomeSettings.autoplay ? 'true' : 'false'}
+          >
             <div class="absolute inset-0" id="office-slides">
-              {displayOfficePhotos.map((photo: any, index: number) => (
+              {overviewSlides.map((photo: any, index: number) => (
                 <div class={`office-slide absolute inset-0 transition-opacity duration-700 ease-in-out ${index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
                   <img 
                     src={getImageUrl(photo.imageUrl)} 
-                    alt={photo.title} 
+                    alt={photo.title || ''} 
                     class="w-full h-full object-cover" 
                     loading={index === 0 ? 'eager' : 'lazy'}
                   />
                   <!-- Overlay Caption -->
                   <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent flex flex-col justify-end p-3 z-10 text-left">
-                    <span class="inline-block self-start text-xs font-bold uppercase bg-black/55 text-white/90 px-2 py-0.5 mb-1 tracking-[0.12em] border-l-2 border-brand-accent shadow-xs">
-                      {photo.partition || 'Office Happenings & Awards'}
-                    </span>
+                    <span class="block w-8 h-0.5 bg-brand-accent mb-1.5 shadow-xs" aria-hidden="true"></span>
                     <h4 class="text-white text-xs font-bold leading-snug line-clamp-1" style="text-shadow: 0 1px 3px rgba(0,0,0,0.6);">
                       {photo.title}
                     </h4>
@@ -661,16 +641,20 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
               ))}
             </div>
 
-            <!-- Controls -->
-            <button id="office-prev" class="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-6 h-6 rounded-full bg-black/45 text-white flex items-center justify-center hover:bg-black/65 transition text-xs font-bold shadow-xs focus-visible:outline-none" aria-label="Previous image">&#8249;</button>
-            <button id="office-next" class="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-6 h-6 rounded-full bg-black/45 text-white flex items-center justify-center hover:bg-black/65 transition text-xs font-bold shadow-xs focus-visible:outline-none" aria-label="Next image">&#8250;</button>
+            {overviewSlides.length > 1 && (
+              <>
+                <!-- Controls -->
+                <button id="office-prev" class="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-6 h-6 rounded-full bg-black/45 text-white flex items-center justify-center hover:bg-black/65 transition text-xs font-bold shadow-xs focus-visible:outline-none" aria-label="Previous image">&#8249;</button>
+                <button id="office-next" class="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-6 h-6 rounded-full bg-black/45 text-white flex items-center justify-center hover:bg-black/65 transition text-xs font-bold shadow-xs focus-visible:outline-none" aria-label="Next image">&#8250;</button>
 
-            <!-- Indicators (Dots) -->
-            <div class="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 z-20">
-              {displayOfficePhotos.map((_, i) => (
-                <button data-office-dot={String(i)} class={`w-1.5 h-1.5 transition-all duration-300 ${i === 0 ? 'bg-white w-3' : 'bg-white/50'}`} aria-label={`Go to slide ${i + 1}`}></button>
-              ))}
-            </div>
+                <!-- Indicators (Dots) -->
+                <div class="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 z-20">
+                  {overviewSlides.map((_: any, i: number) => (
+                    <button data-office-dot={String(i)} class={`w-1.5 h-1.5 transition-all duration-300 ${i === 0 ? 'bg-white w-3' : 'bg-white/50'}`} aria-label={`Go to slide ${i + 1}`}></button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
 
           <!-- Read More & Admin Gallery Link -->
@@ -1309,13 +1293,16 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
 
 <script is:inline>
 (function () {
-  /* ── HERO SLIDER ─────────────────────────────────────────── */
+  /* ── HERO CAROUSEL (admin-managed timing) ────────────────── */
+  var heroSection = document.getElementById('home');
   var heroContainer = document.getElementById('hero-slides');
   var slideEls = heroContainer ? Array.from(heroContainer.children) : [];
   var total = slideEls.length;
   var cur = 0;
-  var dots = Array.from(document.querySelectorAll('[data-dot]'));
-  var timer = null;
+  var heroTimer = null;
+  var heroMs = parseInt(heroSection && heroSection.dataset.heroDuration, 10);
+  if (!heroMs || isNaN(heroMs)) heroMs = 6000;
+  var heroAutoplay = !heroSection || heroSection.dataset.heroAutoplay !== 'false';
 
   function goTo(n) {
     if (total <= 1) return;
@@ -1323,9 +1310,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     if (slideEls[cur]) {
       slideEls[cur].classList.remove('opacity-100', 'z-10');
       slideEls[cur].classList.add('opacity-0', 'z-0', 'pointer-events-none');
-    }
-    if (dots[cur]) {
-      dots[cur].className = 'h-1.5 transition-all duration-300 w-4 bg-white/40';
+      slideEls[cur].setAttribute('aria-hidden', 'true');
     }
 
     cur = ((n % total) + total) % total;
@@ -1337,17 +1322,23 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
       }
       slideEls[cur].classList.remove('opacity-0', 'z-0', 'pointer-events-none');
       slideEls[cur].classList.add('opacity-100', 'z-10');
-    }
-    if (dots[cur]) {
-      dots[cur].className = 'h-1.5 transition-all duration-300 w-10 bg-white';
+      slideEls[cur].removeAttribute('aria-hidden');
     }
   }
 
-  function startTimer() {
-    if (timer) clearInterval(timer);
-    timer = setInterval(function () {
+  function stopHeroTimer() {
+    if (heroTimer) {
+      clearInterval(heroTimer);
+      heroTimer = null;
+    }
+  }
+
+  function startHeroTimer() {
+    stopHeroTimer();
+    if (!heroAutoplay || total <= 1) return;
+    heroTimer = setInterval(function () {
       goTo(cur + 1);
-    }, 6000);
+    }, heroMs);
   }
 
   var prev = document.getElementById('hero-prev');
@@ -1355,7 +1346,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     prev.onclick = function (e) {
       if (e) e.preventDefault();
       goTo(cur - 1);
-      startTimer();
+      startHeroTimer();
     };
   }
 
@@ -1364,27 +1355,30 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     next.onclick = function (e) {
       if (e) e.preventDefault();
       goTo(cur + 1);
-      startTimer();
+      startHeroTimer();
     };
   }
 
-  dots.forEach(function (d) {
-    d.onclick = function (e) {
-      if (e) e.preventDefault();
-      var idx = parseInt(d.dataset.dot, 10);
-      if (!isNaN(idx)) {
-        goTo(idx);
-        startTimer();
-      }
-    };
-  });
+  /* Pause the rotation while the pointer or keyboard focus is inside the hero */
+  if (heroSection) {
+    heroSection.addEventListener('mouseenter', stopHeroTimer);
+    heroSection.addEventListener('mouseleave', startHeroTimer);
+    heroSection.addEventListener('focusin', stopHeroTimer);
+    heroSection.addEventListener('focusout', function (e) {
+      if (!e.relatedTarget || !heroSection.contains(e.relatedTarget)) startHeroTimer();
+    });
+  }
 
-  startTimer();
+  startHeroTimer();
 
   /* ── OFFICE GALLERY CAROUSEL (Top Section) ───────────────── */
   var oSlides = document.querySelectorAll('.office-slide');
   var oTotal = oSlides.length;
   var oCur = 0, oDots = document.querySelectorAll('[data-office-dot]');
+  var oContainer = document.getElementById('office-carousel-container');
+  var oMs = parseInt(oContainer && oContainer.dataset.overviewDuration, 10);
+  if (!oMs || isNaN(oMs)) oMs = 5000;
+  var oAutoplay = !oContainer || oContainer.dataset.overviewAutoplay !== 'false';
 
   function goToOffice(n) {
     if (oTotal === 0) return;
@@ -1412,7 +1406,9 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
   oDots.forEach(function(d) {
     d.onclick = function() { goToOffice(parseInt(d.dataset.officeDot, 10)); };
   });
-  setInterval(function() { goToOffice(oCur + 1); }, 5000);
+  if (oAutoplay && oTotal > 1) {
+    setInterval(function() { goToOffice(oCur + 1); }, oMs);
+  }
 
   /* ── PROJECT GALLERY CAROUSEL (About Us Section) ─────────── */
   var pSlides = document.querySelectorAll('.project-slide');

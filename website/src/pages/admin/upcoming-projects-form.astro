@@ -19,6 +19,7 @@ if (!isAdmin(userRole)) {
 
 let errorMessage = '';
 let successMessage = '';
+let draftRevisionNotice = '';
 
 // Check if we are in Edit Mode
 const editId = Astro.url.searchParams.get('id')?.toString();
@@ -60,6 +61,37 @@ if (editId) {
         status: 'Upcoming',
         documentUrl: data.documentUrl || '',
       };
+
+      // Check for unpublished draft revision
+      try {
+        const revRes = await fetch(`${BACKEND_URL}/api/draft-revisions/project/${editId}`, {
+          headers: { 'Authorization': `Bearer ${sessionToken}` },
+        });
+        if (revRes.ok) {
+          const revData = await revRes.json();
+          if (revData && revData.draftData) {
+            draftRevisionNotice = 'You are editing an unpublished draft revision. Click "Update" to publish changes live to the website.';
+            const d = revData.draftData;
+            projectData = {
+              ...projectData,
+              name: d.name || projectData.name,
+              type: d.type || projectData.type,
+              configuration: d.configuration || projectData.configuration,
+              designEnergy: d.designEnergy !== null && d.designEnergy !== undefined ? d.designEnergy.toString() : projectData.designEnergy,
+              yearOfCommissioning: d.yearOfCommissioning !== null && d.yearOfCommissioning !== undefined ? d.yearOfCommissioning.toString() : projectData.yearOfCommissioning,
+              capacityMw: d.capacityMw !== null && d.capacityMw !== undefined ? d.capacityMw.toString() : projectData.capacityMw,
+              description: d.description || projectData.description,
+              salientFeatures: d.salientFeatures || projectData.salientFeatures,
+              sector: d.sector || projectData.sector,
+              basin: d.basin || projectData.basin,
+              location: d.location || projectData.location,
+              documentUrl: d.documentUrl || projectData.documentUrl,
+            };
+          }
+        }
+      } catch (revErr) {
+        console.error('Error fetching draft revision for project:', revErr);
+      }
     } else {
       const apiErr = await parseApiError(res, 'load project details for editing');
       if (apiErr.isUnauthorized) {
@@ -73,19 +105,10 @@ if (editId) {
   }
 }
 
-function getProjectPhotoPreviewUrl(name: string, docUrl?: string | null): string {
+function getProjectPhotoPreviewUrl(_name: string, docUrl?: string | null): string {
   if (docUrl && docUrl.trim() !== '') {
-    if (BACKEND_URL && docUrl.startsWith(`${BACKEND_URL}/uploads/`)) return docUrl;
-    if (docUrl.startsWith('/uploads/')) return `${BACKEND_URL}${docUrl}`;
-    return docUrl;
-  }
-  if (!name) return '';
-  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-  if (slug === 'ganderbal' || slug === 'ushp-i' || slug === 'sewa-iii') {
-    return `/projects/${slug}.png`;
-  }
-  if (['bhaderwah', 'bhep-i', 'bhep-ii', 'chep-i', 'chep-ii', 'chep-iii', 'karnah', 'ljhp', 'mhep-pahalgam', 'ushp-ii', 'ushp-ll'].includes(slug)) {
-    return `/projects/${slug}.jpg`;
+    if (docUrl.startsWith('http://') || docUrl.startsWith('https://')) return docUrl;
+    return docUrl.startsWith('/') ? docUrl : `/${docUrl}`;
   }
   return '';
 }
@@ -128,14 +151,22 @@ if (Astro.request.method === 'POST') {
       documentUrl: documentUrl || '',
     };
 
+    const isDraft = formData.get('_draft') === 'true';
+
     if (!name || !capacityMw) {
       errorMessage = 'Project Name and Capacity are required fields.';
+      if (Astro.request.headers.get('x-requested-with') === 'XMLHttpRequest') {
+        return new Response(JSON.stringify({ success: false, message: errorMessage }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
     } else {
-      const body = {
+      const body: any = {
         name,
         type,
         capacityMw: parseFloat(capacityMw),
-        status: 'Upcoming',
+        status: isDraft ? 'Draft' : 'Upcoming',
         location,
         configuration: configuration || null,
         designEnergy: designEnergy ? parseFloat(designEnergy) : null,
@@ -148,6 +179,38 @@ if (Astro.request.method === 'POST') {
           ? documentUrl.replace(BACKEND_URL, '')
           : (documentUrl || null),
       };
+
+      if (isDraft && id) {
+        // Section 7.C: If editing an already published project, NEVER downgrade live status!
+        try {
+          const checkRes = await fetch(`${BACKEND_URL}/api/projects/${id}`);
+          const currentProject = checkRes.ok ? await checkRes.json() : null;
+          if (currentProject && currentProject.status === 'Upcoming') {
+            await fetch(`${BACKEND_URL}/api/draft-revisions`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${sessionToken}`,
+              },
+              body: JSON.stringify({
+                entityType: 'project',
+                entityId: id,
+                draftData: body,
+                summary: `Draft revisions for ${name}`,
+              }),
+            });
+            if (Astro.request.headers.get('x-requested-with') === 'XMLHttpRequest') {
+              return new Response(JSON.stringify({ success: true, isDraft: true, message: 'Draft revision saved successfully.' }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' },
+              });
+            }
+            return Astro.redirect('/admin/upcoming-projects?success=' + encodeURIComponent(`Draft revision for "${name}" saved.`));
+          }
+        } catch (e) {
+          console.error('Error handling draft revision:', e);
+        }
+      }
 
       let apiRes;
       if (id) {
@@ -171,18 +234,50 @@ if (Astro.request.method === 'POST') {
       }
 
       if (apiRes.ok) {
+        if (id && !isDraft) {
+          try {
+            await fetch(`${BACKEND_URL}/api/draft-revisions/project/${id}`, {
+              method: 'DELETE',
+              headers: { 'Authorization': `Bearer ${sessionToken}` },
+            });
+          } catch (e) {}
+        }
+        if (Astro.request.headers.get('x-requested-with') === 'XMLHttpRequest') {
+          return new Response(JSON.stringify({ success: true, isEdit: Boolean(id) }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          });
+        }
         return Astro.redirect('/admin/upcoming-projects?success=' + encodeURIComponent(`Project "${name}" saved successfully.`));
       } else {
         const apiErr = await parseApiError(apiRes, id ? 'update upcoming project' : 'create upcoming project');
         if (apiErr.isUnauthorized) {
+          if (Astro.request.headers.get('x-requested-with') === 'XMLHttpRequest') {
+            return new Response(JSON.stringify({ success: false, unauthorized: true, message: 'Session expired. Please log in again.' }), {
+              status: 401,
+              headers: { 'Content-Type': 'application/json' },
+            });
+          }
           return Astro.redirect('/admin/login');
         }
         errorMessage = apiErr.message;
+        if (Astro.request.headers.get('x-requested-with') === 'XMLHttpRequest') {
+          return new Response(JSON.stringify({ success: false, message: errorMessage }), {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' },
+          });
+        }
       }
     }
   } catch (e) {
     console.error('Error saving project:', e);
     errorMessage = 'Network failure: Unable to communicate with the backend server.';
+    if (Astro.request.headers.get('x-requested-with') === 'XMLHttpRequest') {
+      return new Response(JSON.stringify({ success: false, message: errorMessage }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
   }
 }
 ---
@@ -208,6 +303,11 @@ if (Astro.request.method === 'POST') {
     {errorMessage && (
       <div class="alert-error" role="alert">
         <span class="font-bold">Error:</span> {errorMessage}
+      </div>
+    )}
+    {draftRevisionNotice && (
+      <div class="p-3 bg-blue-50 border border-blue-200 text-xs font-semibold text-blue-800 rounded flex items-center gap-2" role="alert">
+        <Icon name="info" size={14} class="text-blue-600 shrink-0" /> {draftRevisionNotice}
       </div>
     )}
 
@@ -253,24 +353,6 @@ if (Astro.request.method === 'POST') {
           </div>
 
           <div class="form-group">
-            <label for="sector" class="form-label">Ownership Sector</label>
-            <select name="sector" id="sector" class="form-select text-xs">
-              <option value="State" selected={projectData.sector === 'State'}>State Sector</option>
-              <option value="JV" selected={projectData.sector === 'JV'}>Joint Venture (JV)</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="basin" class="form-label">River Basin</label>
-            <select name="basin" id="basin" class="form-select text-xs">
-              <option value="Chenab" selected={projectData.basin === 'Chenab'}>Chenab Basin</option>
-              <option value="Jhelum" selected={projectData.basin === 'Jhelum'}>Jhelum Basin</option>
-              <option value="Ravi" selected={projectData.basin === 'Ravi'}>Ravi Basin</option>
-              <option value="Indus" selected={projectData.basin === 'Indus'}>Indus Basin</option>
-            </select>
-          </div>
-
-          <div class="form-group">
             <label for="location" class="form-label">Site / District Location</label>
             <input type="text" name="location" id="location" value={projectData.location} class="form-input text-xs" placeholder="e.g. Gulabgarh, Padder, District Kishtwar" />
           </div>
@@ -286,8 +368,8 @@ if (Astro.request.method === 'POST') {
                 label="Project Photograph"
                 variant="image"
                 accept="image/jpeg,image/png,image/webp,image/gif"
-                helpText="Supported formats: JPG, PNG, WEBP. Max size: 10 MB."
-                maxSizeMB={10}
+                helpText="Supported formats: JPG, PNG, WEBP."
+                maxSizeMB={2}
                 existingUrl={existingPhotoUrl}
               />
               <input type="hidden" name="documentUrl" id="documentUrl" value={projectData.documentUrl || (existingPhotoUrl && !(BACKEND_URL && existingPhotoUrl.startsWith(BACKEND_URL)) ? existingPhotoUrl : '')} />
@@ -324,72 +406,234 @@ if (Astro.request.method === 'POST') {
       <!-- Save controls -->
       <div class="flex justify-end gap-3 border-t border-slate-100 pt-6 mt-2">
         <a href="/admin/upcoming-projects" class="admin-btn admin-btn-secondary">Cancel</a>
+        {!editId && (
+          <button type="button" id="btn-clear-project" class="admin-btn admin-btn-secondary cursor-pointer">
+            Clear
+          </button>
+        )}
         <button type="submit" class="admin-btn admin-btn-primary cursor-pointer">
-          {editId ? 'Update Project' : 'Create Project'}
+          {editId ? 'Update' : 'Create Project'}
         </button>
       </div>
     </form>
   </div>
 
-  <script define:vars={{ sessionToken, backendUrl: BACKEND_URL }}>
-    // Unified uploader: 'project-image-input' fires 'change' after validated selection.
-    const documentUrlInput = document.getElementById('documentUrl');
-    const imageFileInput = document.getElementById('project-image-input');
+  <script>
+    function initUpcomingUploader() {
+      const documentUrlInput = document.getElementById('documentUrl');
+      const imageFileInput = document.getElementById('project-image-input');
+      const dropzone = document.getElementById('project-image-dropzone');
+      const previewImg = document.getElementById('project-image-preview-img');
+      const form = document.querySelector('form');
+      const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
+      const initialBtnText = submitBtn ? submitBtn.textContent.trim() : 'Save';
+      let isUploading = false;
 
-    function removePhoto() {
-      if (documentUrlInput) documentUrlInput.value = '';
-      if (imageFileInput) imageFileInput.value = '';
+      if (!imageFileInput || imageFileInput.dataset.bound) return;
+      imageFileInput.dataset.bound = 'true';
+
+      function removePhoto() {
+        if (documentUrlInput) documentUrlInput.value = '';
+        if (imageFileInput) imageFileInput.value = '';
+        if (previewImg) {
+          previewImg.src = '';
+          previewImg.classList.add('invisible');
+        }
+        if (dropzone) {
+          dropzone.classList.remove('has-file');
+          const nameEl = dropzone.querySelector('.admin-uploader-file-name');
+          if (nameEl) nameEl.textContent = '';
+        }
+      }
+
+      imageFileInput.addEventListener('change', async (event) => {
+        const file = event.target?.files?.[0];
+        if (!file) return;
+
+        isUploading = true;
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Uploading image…';
+        }
+        if (dropzone) dropzone.classList.add('opacity-50', 'pointer-events-none');
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('category', 'image');
+
+        try {
+          const response = await fetch('/api/admin/upload', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!response.ok) {
+            if (response.status === 401) {
+              window.location.href = '/admin/login';
+              return;
+            }
+            if (response.status === 403) {
+              alert('Access Denied: You do not have permission to upload files.');
+              removePhoto();
+              return;
+            }
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.message || 'Upload failed');
+          }
+
+          const result = await response.json();
+          const rawUrl = result.url || '';
+          const serverUrl = rawUrl.includes('/uploads/') ? '/uploads/' + rawUrl.split('/uploads/')[1] : rawUrl;
+
+          if (documentUrlInput) documentUrlInput.value = serverUrl;
+          if (previewImg) {
+            previewImg.src = serverUrl;
+            previewImg.classList.remove('invisible');
+          }
+          if (dropzone) {
+            dropzone.classList.add('has-file');
+            const nameEl = dropzone.querySelector('.admin-uploader-file-name');
+            if (nameEl) nameEl.textContent = file.name;
+          }
+          alert('Project photograph uploaded successfully.');
+        } catch (err) {
+          alert('Upload failed: ' + err.message);
+          removePhoto();
+        } finally {
+          isUploading = false;
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = initialBtnText;
+          }
+          if (dropzone) dropzone.classList.remove('opacity-50', 'pointer-events-none');
+        }
+      });
+
+      imageFileInput.addEventListener('uploader:cleared', removePhoto);
+
+      const btnClearProject = document.getElementById('btn-clear-project');
+      if (btnClearProject) {
+        btnClearProject.addEventListener('click', () => {
+          const nameInput = document.getElementById('name');
+          const capInput = document.getElementById('capacityMw');
+          const isDirty = (nameInput && nameInput.value.trim() !== '') ||
+            (capInput && capInput.value.trim() !== '') ||
+            (documentUrlInput && documentUrlInput.value.trim() !== '');
+
+          if (isDirty) {
+            if (!confirm('Are you sure you want to clear all entered form fields and selected photograph?')) {
+              return;
+            }
+          }
+
+          if (form) {
+            form.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"])').forEach(i => i.value = '');
+            form.querySelectorAll('textarea').forEach(t => t.value = '');
+            form.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+          }
+          removePhoto();
+          var descContainer = document.querySelector('[data-rich-editor="field-description"]');
+          if (descContainer && descContainer.__quill) descContainer.__quill.setText('');
+          var descInput = document.getElementById('field-description');
+          if (descInput) descInput.value = '';
+          var salientContainer = document.querySelector('[data-rich-editor="field-salientFeatures"]');
+          if (salientContainer && salientContainer.__quill) salientContainer.__quill.setText('');
+          var salientInput = document.getElementById('field-salientFeatures');
+          if (salientInput) salientInput.value = '';
+          if (nameInput) nameInput.focus();
+        });
+      }
+
+      const btnSaveDraft = document.getElementById('btn-save-draft');
+      if (btnSaveDraft) {
+        btnSaveDraft.addEventListener('click', () => {
+          let draftInput = form.querySelector('input[name="_draft"]');
+          if (!draftInput) {
+            draftInput = document.createElement('input');
+            draftInput.type = 'hidden';
+            draftInput.name = '_draft';
+            form.appendChild(draftInput);
+          }
+          draftInput.value = 'true';
+          form.requestSubmit();
+        });
+      }
+
+      if (form && !form.dataset.ajaxBound) {
+        form.dataset.ajaxBound = 'true';
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+
+          if (isUploading) {
+            alert('Please wait for the image upload to complete before saving.');
+            return;
+          }
+
+          const nameInput = document.getElementById('name');
+          const capacityInput = document.getElementById('capacityMw');
+          if (!nameInput || !nameInput.value.trim()) {
+            alert('Please enter the Name of the Project.');
+            nameInput?.focus();
+            return;
+          }
+          if (!capacityInput || !capacityInput.value.trim()) {
+            alert('Please enter the Installed Capacity in MW.');
+            capacityInput?.focus();
+            return;
+          }
+
+          const descContainer = document.querySelector('[data-rich-editor="field-description"]');
+          const descInput = document.getElementById('field-description');
+          if (descContainer && descContainer.__quill && descInput) {
+            descInput.value = descContainer.__quill.root.innerHTML === '<p><br></p>' ? '' : descContainer.__quill.root.innerHTML;
+          }
+
+          const salientContainer = document.querySelector('[data-rich-editor="field-salientFeatures"]');
+          const salientInput = document.getElementById('field-salientFeatures');
+          if (salientContainer && salientContainer.__quill && salientInput) {
+            salientInput.value = salientContainer.__quill.root.innerHTML === '<p><br></p>' ? '' : salientContainer.__quill.root.innerHTML;
+          }
+
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Saving…';
+          }
+
+          try {
+            const formData = new FormData(form);
+            const res = await fetch(window.location.href, {
+              method: 'POST',
+              headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+              },
+              body: formData,
+            });
+
+            const data = await res.json().catch(() => ({}));
+            if (res.ok && data.success) {
+              alert(data.isDraft ? 'Draft saved successfully!' : (data.isEdit ? 'Project updated successfully!' : 'Project created successfully!'));
+              window.location.href = '/admin/upcoming-projects';
+            } else {
+              if (data.unauthorized) {
+                alert('Session expired. Redirecting to login.');
+                window.location.href = '/admin/login';
+                return;
+              }
+              alert('Save failed: ' + (data.message || 'Please check all required fields and try again.'));
+            }
+          } catch (err) {
+            alert('Network error: ' + err.message);
+          } finally {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.textContent = initialBtnText;
+            }
+          }
+        });
+      }
     }
 
-    imageFileInput?.addEventListener('change', async (event) => {
-      const file = event.target?.files?.[0];
-      if (!file) return;
-
-      const formData = new FormData();
-      formData.append('file', file);
-
-      try {
-        const response = await fetch(`${backendUrl}/api/upload`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${sessionToken}`,
-          },
-          body: formData,
-        });
-
-        if (!response.ok) {
-          if (response.status === 401) {
-            window.location.href = '/admin/login';
-            return;
-          }
-          if (response.status === 403) {
-            alert('Access Denied: You do not have permission to upload files.');
-            removePhoto();
-            return;
-          }
-          const err = await response.json().catch(() => ({}));
-          throw new Error(err.message || 'Upload failed');
-        }
-
-        const result = await response.json();
-        const serverUrl = (backendUrl && result.url.startsWith(`${backendUrl}/uploads/`))
-          ? result.url.replace(backendUrl, '')
-          : result.url;
-
-        if (documentUrlInput) documentUrlInput.value = serverUrl;
-        const previewImg = document.getElementById('project-image-preview-img');
-        if (previewImg) {
-          previewImg.src = serverUrl.startsWith('/uploads/') ? `${backendUrl}${serverUrl}` : serverUrl;
-          previewImg.classList.remove('invisible');
-        }
-      } catch (err) {
-        alert(`Upload error: ${err.message}`);
-        removePhoto();
-      }
-    });
-
-    imageFileInput?.addEventListener('uploader:cleared', () => {
-      if (documentUrlInput) documentUrlInput.value = '';
-    });
+    initUpcomingUploader();
+    document.addEventListener('astro:page-load', initUpcomingUploader);
   </script>
 </AdminLayout>

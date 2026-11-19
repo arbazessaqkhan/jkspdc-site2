@@ -58,6 +58,7 @@ if (Astro.request.method === 'POST') {
 // Fetch Tenders List (paginated — ?page / ?pageSize)
 const { page, pageSize } = readPageParams(Astro.url);
 let tenders: any[] = [];
+let allTenders: any[] = [];
 let totalTenders = 0;
 let lastPage = 1;
 try {
@@ -66,10 +67,24 @@ try {
   totalTenders = state.total;
   lastPage = state.lastPage;
   if (state.error) errorMessage = state.error;
+
+  if (userIsAdmin) {
+    try {
+      const allRes = await fetch(`${BACKEND_URL}/api/tenders`, {
+        headers: { 'Authorization': `Bearer ${sessionToken}` }
+      });
+      if (allRes.ok) {
+        allTenders = await allRes.json();
+      }
+    } catch (e) {
+      console.error('Failed to load full tender list for modal:', e);
+    }
+  }
 } catch (e) {
   console.error('Error fetching tenders:', e);
   errorMessage = 'Network failure: Unable to reach backend server.';
 }
+const modalTenders = (allTenders && allTenders.length > 0) ? allTenders : tenders;
 const pagedState = { rows: tenders, total: totalTenders, page, pageSize, lastPage, error: errorMessage.includes('Network') ? errorMessage : null };
 ---
 
@@ -116,18 +131,27 @@ const pagedState = { rows: tenders, total: totalTenders, page, pageSize, lastPag
       </div>
     )}
 
+    <!-- Quick Status Tabs -->
+    <div class="flex items-center gap-1.5 border-b border-slate-200 pb-2">
+      <button type="button" class="tender-status-tab px-3 py-1 rounded text-xs font-bold transition-colors bg-[color:var(--adm-primary)] text-white cursor-pointer" data-status="All">All</button>
+      <button type="button" class="tender-status-tab px-3 py-1 rounded text-xs font-bold transition-colors bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 cursor-pointer" data-status="Active">Active</button>
+      <button type="button" class="tender-status-tab px-3 py-1 rounded text-xs font-bold transition-colors bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 cursor-pointer" data-status="Archived">Archive</button>
+      <button type="button" class="tender-status-tab px-3 py-1 rounded text-xs font-bold transition-colors bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 cursor-pointer" data-status="Draft">Draft</button>
+    </div>
+
     <!-- Search & Filter Toolbar -->
     <div class="admin-toolbar">
       <div class="flex items-center gap-3 flex-wrap flex-1 min-w-0">
-        <div class="relative w-full sm:w-72">
+        <div class="admin-search-wrapper relative w-full sm:w-72">
+          <div class="admin-search-icon">
+            <Icon name="search" size={15} strokeWidth={2.2} />
+          </div>
           <input 
             type="text" 
-            id="search-tenders-input"             placeholder="Search eNIT, title, category, location..." 
-            class="w-full bg-slate-50 border border-slate-300 rounded text-xs text-slate-800 pl-9 pr-3 py-1.5 focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none"
+            id="search-tenders-input" 
+            placeholder="Search eNIT, title, category, location..." 
+            class="admin-search-input w-full bg-slate-50 border border-slate-300 rounded text-xs text-slate-800 pr-3 py-1.5 focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none"
           />
-          <div class="absolute left-2.5 top-2 text-slate-400">
-            <Icon name="search" size={13} />
-          </div>
         </div>
 
         <div class="flex items-center gap-2">
@@ -135,6 +159,7 @@ const pagedState = { rows: tenders, total: totalTenders, page, pageSize, lastPag
           <select id="filter-tender-status" class="bg-slate-50 border border-slate-300 rounded text-xs py-1.5 px-2.5 text-slate-700 outline-none">
             <option value="All">All Statuses</option>
             <option value="Active">Active</option>
+            <option value="Draft">Drafts Only</option>
             <option value="Archived">Archived</option>
             <option value="Closed">Closed</option>
           </select>
@@ -173,7 +198,7 @@ const pagedState = { rows: tenders, total: totalTenders, page, pageSize, lastPag
                 const corrs = tender.corrigendums && Array.isArray(tender.corrigendums) ? tender.corrigendums : [];
                 const searchString = `${tender.referenceNo} ${tender.title} ${tender.description || ''} ${tender.workCategory || ''} ${tender.locationTag || ''}`.toLowerCase();
                 const statusType = tender.status?.toLowerCase() || 'active';
-                const badgeClass = statusType === 'active' ? 'admin-badge-success' : statusType === 'archived' ? 'admin-badge-neutral' : 'admin-badge-danger';
+                const badgeClass = statusType === 'active' ? 'admin-badge-success' : statusType === 'draft' ? 'admin-badge-warning' : statusType === 'archived' ? 'admin-badge-neutral' : 'admin-badge-danger';
                 return (
                   <tr 
                     key={tender.id} 
@@ -181,7 +206,7 @@ const pagedState = { rows: tenders, total: totalTenders, page, pageSize, lastPag
                     data-status={tender.status || 'Active'}
                     data-search={searchString}
                   >
-                    <td class="text-center font-bold text-slate-400 text-xs row-idx">{idx + 1}</td>
+                    <td class="text-center font-bold text-slate-400 text-xs row-idx">{(page - 1) * pageSize + idx + 1}</td>
                     <td class="font-mono font-bold text-[color:var(--adm-primary)] text-xs whitespace-nowrap">
                       {tender.referenceNo}
                     </td>
@@ -304,7 +329,6 @@ const pagedState = { rows: tenders, total: totalTenders, page, pageSize, lastPag
 
     <PageNav state={pagedState} url={(p: number) => pageUrl(Astro.url, p, pageSize)} />
   </div>
-</div>
 
   <!-- ATTACH CORRIGENDUM MODAL DIALOG (ADMIN ONLY) -->
   {userIsAdmin && (
@@ -325,27 +349,56 @@ const pagedState = { rows: tenders, total: totalTenders, page, pageSize, lastPag
       <!-- Form Body -->
       <form id="attach-corr-modal-form" class="flex flex-col overflow-hidden flex-1 min-h-0">
         <div class="p-6 space-y-4 overflow-y-auto flex-1">
-          <!-- Search & Select Target Tender -->
-          <div class="form-group flex flex-col gap-1.5 relative">
-            <label class="text-xs font-bold text-slate-700">Select Target Tender <span class="text-red-500">*</span></label>
-            <input 
-              type="text" 
-              id="modal-tender-search" 
-              class="form-input text-xs" 
-              placeholder="Type eNIT No, Tender ID, Title, or Keyword to search..." 
-              autocomplete="off"
-              required
-            />
-            <input type="hidden" id="modal-selected-tender-id" />
+          <!-- Select Target Tender (Searchable Combobox) -->
+          <div class="form-group flex flex-col gap-1.5 w-full relative" id="combobox-target-tender-group">
+            <label for="modal-tender-search" class="text-xs font-bold text-slate-700">
+              Select Target Tender <span class="text-red-500">*</span>
+            </label>
             
-            <!-- Dropdown search suggestions -->
-            <div id="modal-tender-results" class="absolute left-0 right-0 top-[64px] bg-white border border-slate-200 rounded-lg shadow-xl max-h-48 overflow-y-auto z-20 hidden">
-              <!-- Populated via JS search -->
-            </div>
+            <div class="relative w-full">
+              <input 
+                type="text" 
+                id="modal-tender-search" 
+                class="form-input text-xs w-full pl-3 pr-16 bg-white cursor-pointer placeholder:text-slate-400" 
+                placeholder="Type eNIT No, Title, or Keyword to search..." 
+                autocomplete="off"
+                required
+              />
+              <input type="hidden" id="modal-selected-tender-id" name="tenderId" />
+              
+              <!-- Action buttons inside the input box -->
+              <div class="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1 text-slate-400">
+                <button 
+                  type="button" 
+                  id="btn-combobox-clear" 
+                  class="p-1 hover:text-slate-600 rounded cursor-pointer transition-colors hidden" 
+                  title="Clear tender selection"
+                  aria-label="Clear tender selection"
+                >
+                  <Icon name="x" size={13} />
+                </button>
+                <button 
+                  type="button" 
+                  id="btn-combobox-toggle" 
+                  class="p-1 hover:text-slate-600 rounded cursor-pointer transition-colors" 
+                  title="Toggle tender list"
+                  aria-label="Toggle tender list"
+                >
+                  <Icon name="chevron-down" size={14} class="transition-transform duration-200" id="combobox-chevron-icon" />
+                </button>
+              </div>
 
-            <div id="modal-selected-tender-badge" class="p-2.5 bg-blue-50 border border-blue-200 rounded text-xs text-[color:var(--adm-primary)] font-semibold hidden">
-              Selected: <span id="selected-tender-text" class="font-bold"></span>
+              <!-- 100% Width Autocomplete Options Menu -->
+              <div 
+                id="modal-tender-options-menu" 
+                class="absolute left-0 right-0 top-[calc(100%+4px)] w-full bg-white border border-slate-300 rounded-lg shadow-xl max-h-56 overflow-y-auto z-40 hidden divide-y divide-slate-100"
+                role="listbox"
+                aria-label="Target Tenders"
+              >
+                <!-- Dynamically populated options -->
+              </div>
             </div>
+            <p class="text-[10px] text-slate-400">Type to filter or choose from the list to attach this corrigendum.</p>
           </div>
 
           <!-- Corrigendum Title -->
@@ -360,16 +413,17 @@ const pagedState = { rows: tenders, total: totalTenders, page, pageSize, lastPag
             />
           </div>
 
-          <!-- Extended Dates (Optional) -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="form-group flex flex-col gap-1.5">
-              <label for="modal-extended-closing" class="text-xs font-bold text-slate-700">Extended Closing Date (Optional)</label>
-              <input type="date" id="modal-extended-closing" class="form-input text-xs" />
-            </div>
-            <div class="form-group flex flex-col gap-1.5">
-              <label for="modal-extended-opening" class="text-xs font-bold text-slate-700">Extended Opening Date (Optional)</label>
-              <input type="date" id="modal-extended-opening" class="form-input text-xs" />
-            </div>
+          <!-- Extended Closing Date (Optional) -->
+          <div class="form-group flex flex-col gap-1.5">
+            <label for="modal-corr-closing-date" class="text-xs font-bold text-slate-700">
+              Extended Closing Date <span class="text-slate-400 font-normal">(Optional)</span>
+            </label>
+            <input 
+              type="date" 
+              id="modal-corr-closing-date" 
+              class="form-input text-xs" 
+            />
+            <p class="text-[10px] text-slate-400">Optional. Enter if this corrigendum extends the tender bid submission deadline.</p>
           </div>
 
           <!-- Corrigendum PDF File Attachment -->
@@ -380,8 +434,8 @@ const pagedState = { rows: tenders, total: totalTenders, page, pageSize, lastPag
               required
               variant="document"
               accept=".pdf,.doc,.docx"
-              helpText="PDF, DOC, DOCX (Max 20MB / 100MB if Important)"
-              important
+              helpText="PDF, DOC, DOCX"
+              maxSizeMB={10}
             />
             <input type="hidden" id="modal-doc-url" />
             <input type="hidden" id="modal-file-size" />
@@ -394,7 +448,7 @@ const pagedState = { rows: tenders, total: totalTenders, page, pageSize, lastPag
             Cancel
           </button>
           <button type="submit" id="btn-submit-corr-modal" class="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer">
-            Confirm Attach Corrigendum
+            Attach Corrigendum
           </button>
         </div>
       </form>
@@ -402,7 +456,7 @@ const pagedState = { rows: tenders, total: totalTenders, page, pageSize, lastPag
   </div>
   )}
 
-  <script define:vars={{ sessionToken, tenders, userIsAdmin, backendUrl: BACKEND_URL }}>
+  <script define:vars={{ tenders: (allTenders && allTenders.length > 0) ? allTenders : tenders, userIsAdmin }}>
     (function() {
       // Table Live Search & Status Filter
       var searchInput = document.getElementById('search-tenders-input');
@@ -411,6 +465,17 @@ const pagedState = { rows: tenders, total: totalTenders, page, pageSize, lastPag
       var rows = document.querySelectorAll('.tender-data-row');
       var emptyRow = document.getElementById('no-matching-tenders-row');
 
+      function updateTabStyles(currentStatus) {
+        document.querySelectorAll('.tender-status-tab').forEach(function(tab) {
+          var s = tab.getAttribute('data-status');
+          if (s === currentStatus || (s === 'Archived' && currentStatus === 'Archive')) {
+            tab.className = 'tender-status-tab px-3 py-1 rounded text-xs font-bold transition-colors bg-[color:var(--adm-primary)] text-white cursor-pointer';
+          } else {
+            tab.className = 'tender-status-tab px-3 py-1 rounded text-xs font-bold transition-colors bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 cursor-pointer';
+          }
+        });
+      }
+
       function filterTable() {
         var query = (searchInput ? searchInput.value : '').toLowerCase().trim();
         var status = statusSelect ? statusSelect.value : 'All';
@@ -418,9 +483,17 @@ const pagedState = { rows: tenders, total: totalTenders, page, pageSize, lastPag
 
         rows.forEach(function(row) {
           var rowSearch = (row.dataset.search || '').toLowerCase();
-          var rowStatus = row.dataset.status || '';
+          var rowStatus = (row.dataset.status || '').toLowerCase();
           var matchesQuery = !query || rowSearch.includes(query);
-          var matchesStatus = status === 'All' || rowStatus.toLowerCase() === status.toLowerCase();
+          
+          var matchesStatus = true;
+          if (status !== 'All') {
+            if (status.toLowerCase() === 'archived' || status.toLowerCase() === 'archive') {
+              matchesStatus = (rowStatus === 'archived' || rowStatus === 'archive');
+            } else {
+              matchesStatus = (rowStatus === status.toLowerCase());
+            }
+          }
 
           if (matchesQuery && matchesStatus) {
             row.style.display = '';
@@ -439,7 +512,22 @@ const pagedState = { rows: tenders, total: totalTenders, page, pageSize, lastPag
       }
 
       searchInput?.addEventListener('input', filterTable);
-      statusSelect?.addEventListener('change', filterTable);
+      statusSelect?.addEventListener('change', function() {
+        updateTabStyles(this.value);
+        filterTable();
+      });
+
+      document.querySelectorAll('.tender-status-tab').forEach(function(tab) {
+        tab.addEventListener('click', function(e) {
+          e.preventDefault();
+          var s = this.getAttribute('data-status') || 'All';
+          if (statusSelect) {
+            statusSelect.value = s;
+          }
+          updateTabStyles(s);
+          filterTable();
+        });
+      });
 
       // If user is not admin, do not attach modal or mutation script handlers
       if (!userIsAdmin) {
@@ -452,11 +540,13 @@ const pagedState = { rows: tenders, total: totalTenders, page, pageSize, lastPag
           btnOpenGlobal: document.getElementById('btn-open-global-corr-modal'),
           btnCloseModal: document.getElementById('btn-close-corr-modal'),
           btnCancelModal: document.getElementById('btn-cancel-corr-modal'),
-          searchInput: document.getElementById('modal-tender-search'),
+          comboboxGroup: document.getElementById('combobox-target-tender-group'),
+          tenderSearch: document.getElementById('modal-tender-search'),
           hiddenTenderId: document.getElementById('modal-selected-tender-id'),
-          resultsBox: document.getElementById('modal-tender-results'),
-          badgeBox: document.getElementById('modal-selected-tender-badge'),
-          selectedTenderText: document.getElementById('selected-tender-text'),
+          tenderMenu: document.getElementById('modal-tender-options-menu'),
+          btnToggle: document.getElementById('btn-combobox-toggle'),
+          btnClear: document.getElementById('btn-combobox-clear'),
+          chevronIcon: document.getElementById('combobox-chevron-icon'),
           fileUploader: document.getElementById('corr-modal-doc-input'),
           uploadBox: document.getElementById('corr-modal-doc-dropzone'),
           hiddenDocUrl: document.getElementById('modal-doc-url'),
@@ -464,6 +554,90 @@ const pagedState = { rows: tenders, total: totalTenders, page, pageSize, lastPag
           modalForm: document.getElementById('attach-corr-modal-form'),
           submitBtn: document.getElementById('btn-submit-corr-modal'),
         };
+      }
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      var highlightedIndex = -1;
+
+      function renderComboboxOptions(filteredList, query) {
+        var els = getElements();
+        if (!els.tenderMenu) return;
+        highlightedIndex = -1;
+
+        if (!filteredList || filteredList.length === 0) {
+          els.tenderMenu.innerHTML = '<div class="p-3 text-slate-400 italic text-xs text-center">No matching tenders found' + (query ? ' for "<span class="font-semibold text-slate-600">' + escapeHtml(query) + '</span>"' : '') + '</div>';
+          els.tenderMenu.classList.remove('hidden');
+          if (els.chevronIcon) els.chevronIcon.classList.add('rotate-180');
+          return;
+        }
+
+        var currentSelectedId = els.hiddenTenderId ? els.hiddenTenderId.value : '';
+
+        els.tenderMenu.innerHTML = filteredList.map(function(t, idx) {
+          var isSelected = t.id === currentSelectedId;
+          return '<div class="p-2.5 hover:bg-amber-50/80 cursor-pointer text-xs select-none transition-colors combobox-option ' + (isSelected ? 'bg-amber-50/70 font-semibold' : '') + '" data-id="' + t.id + '" data-index="' + idx + '" role="option" aria-selected="' + isSelected + '">' +
+            '<div class="flex items-center justify-between gap-2">' +
+              '<span class="font-bold text-[color:var(--adm-primary)] truncate">' + escapeHtml(t.referenceNo || 'No Reference') + '</span>' +
+              (t.workCategory ? '<span class="text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded font-semibold shrink-0">' + escapeHtml(t.workCategory) + '</span>' : '') +
+            '</div>' +
+            '<div class="font-medium text-slate-700 text-[11px] leading-snug mt-0.5 line-clamp-2">' + escapeHtml(t.title || 'Untitled Tender') + '</div>' +
+          '</div>';
+        }).join('');
+
+        els.tenderMenu.classList.remove('hidden');
+        if (els.chevronIcon) els.chevronIcon.classList.add('rotate-180');
+      }
+
+      function openCombobox() {
+        var els = getElements();
+        if (!els.tenderMenu) return;
+        var query = (els.tenderSearch ? els.tenderSearch.value : '').toLowerCase().trim();
+        var selectedTender = tenders.find(function(x) { return x.id === (els.hiddenTenderId ? els.hiddenTenderId.value : ''); });
+        var matches = tenders;
+        if (query && (!selectedTender || `${selectedTender.referenceNo} — ${selectedTender.title}`.toLowerCase() !== query)) {
+          matches = tenders.filter(function(t) {
+            return (t.referenceNo || '').toLowerCase().includes(query) ||
+              (t.title || '').toLowerCase().includes(query) ||
+              (t.workCategory || '').toLowerCase().includes(query) ||
+              (t.id || '').toLowerCase().includes(query);
+          });
+        }
+        renderComboboxOptions(matches, query);
+      }
+
+      function closeCombobox() {
+        var els = getElements();
+        if (els.tenderMenu) els.tenderMenu.classList.add('hidden');
+        if (els.chevronIcon) els.chevronIcon.classList.remove('rotate-180');
+        highlightedIndex = -1;
+      }
+
+      function selectTender(t) {
+        var els = getElements();
+        if (els.hiddenTenderId) els.hiddenTenderId.value = t.id;
+        if (els.tenderSearch) els.tenderSearch.value = `${t.referenceNo} — ${t.title}`;
+        if (els.btnClear) els.btnClear.classList.remove('hidden');
+        closeCombobox();
+      }
+
+      function clearTenderSelection() {
+        var els = getElements();
+        if (els.hiddenTenderId) els.hiddenTenderId.value = '';
+        if (els.tenderSearch) {
+          els.tenderSearch.value = '';
+          els.tenderSearch.focus();
+        }
+        if (els.btnClear) els.btnClear.classList.add('hidden');
+        renderComboboxOptions(tenders, '');
       }
 
       function openModal(preSelectedTender) {
@@ -475,6 +649,7 @@ const pagedState = { rows: tenders, total: totalTenders, page, pageSize, lastPag
         if (preSelectedTender) {
           selectTender(preSelectedTender);
         }
+        closeCombobox();
       }
 
       function closeModal() {
@@ -482,16 +657,20 @@ const pagedState = { rows: tenders, total: totalTenders, page, pageSize, lastPag
         if (!els.modalBackdrop) return;
         els.modalBackdrop.classList.add('hidden');
         resetModalForm();
+        closeCombobox();
       }
 
       function resetModalForm() {
         var els = getElements();
         if (els.modalForm) els.modalForm.reset();
         if (els.hiddenTenderId) els.hiddenTenderId.value = '';
+        if (els.tenderSearch) els.tenderSearch.value = '';
+        if (els.btnClear) els.btnClear.classList.add('hidden');
         if (els.hiddenDocUrl) els.hiddenDocUrl.value = '';
+        var extClosingDateInput = document.getElementById('modal-corr-closing-date');
+        if (extClosingDateInput) extClosingDateInput.value = '';
         if (els.hiddenFileSize) els.hiddenFileSize.value = '0';
-        if (els.badgeBox) els.badgeBox.classList.add('hidden');
-        if (els.resultsBox) els.resultsBox.classList.add('hidden');
+        closeCombobox();
         if (els.uploadBox) {
           els.uploadBox.classList.remove('has-file');
           var n = els.uploadBox.querySelector('.admin-uploader-file-name');
@@ -501,17 +680,87 @@ const pagedState = { rows: tenders, total: totalTenders, page, pageSize, lastPag
         }
       }
 
-      function selectTender(t) {
-        var els = getElements();
-        if (els.hiddenTenderId) els.hiddenTenderId.value = t.id;
-        if (els.searchInput) els.searchInput.value = `${t.referenceNo} — ${t.title}`;
-        if (els.selectedTenderText) els.selectedTenderText.textContent = `${t.referenceNo} (${t.title})`;
-        if (els.badgeBox) els.badgeBox.classList.remove('hidden');
-        if (els.resultsBox) els.resultsBox.classList.add('hidden');
-      }
+      // Live search input handler
+      document.addEventListener('input', function(e) {
+        if (e.target && e.target.id === 'modal-tender-search') {
+          var els = getElements();
+          var query = e.target.value.toLowerCase().trim();
+          if (els.hiddenTenderId && els.hiddenTenderId.value) {
+            var cur = tenders.find(function(x) { return x.id === els.hiddenTenderId.value; });
+            if (!cur || `${cur.referenceNo} — ${cur.title}`.toLowerCase() !== query) {
+              els.hiddenTenderId.value = '';
+            }
+          }
+          if (els.btnClear) {
+            if (e.target.value) els.btnClear.classList.remove('hidden');
+            else els.btnClear.classList.add('hidden');
+          }
+          var matches = tenders;
+          if (query) {
+            matches = tenders.filter(function(t) {
+              return (t.referenceNo || '').toLowerCase().includes(query) ||
+                (t.title || '').toLowerCase().includes(query) ||
+                (t.workCategory || '').toLowerCase().includes(query) ||
+                (t.id || '').toLowerCase().includes(query);
+            });
+          }
+          renderComboboxOptions(matches, query);
+        }
+      });
+
+      // Focus on search input opens combobox
+      document.addEventListener('focusin', function(e) {
+        if (e.target && e.target.id === 'modal-tender-search') {
+          openCombobox();
+        }
+      });
 
       // Delegated clicks for open, close, and row +Corr buttons
       document.addEventListener('click', function(e) {
+        // Toggle button
+        var toggleBtn = e.target.closest('#btn-combobox-toggle');
+        if (toggleBtn) {
+          e.preventDefault();
+          e.stopPropagation();
+          var els = getElements();
+          if (els.tenderMenu && !els.tenderMenu.classList.contains('hidden')) {
+            closeCombobox();
+          } else {
+            openCombobox();
+            if (els.tenderSearch) els.tenderSearch.focus();
+          }
+          return;
+        }
+
+        // Clear button
+        var clearBtn = e.target.closest('#btn-combobox-clear');
+        if (clearBtn) {
+          e.preventDefault();
+          e.stopPropagation();
+          clearTenderSelection();
+          return;
+        }
+
+        // Click on tender option
+        var opt = e.target.closest('.combobox-option');
+        if (opt) {
+          var id = opt.getAttribute('data-id');
+          var t = tenders.find(function(x) { return x.id === id; });
+          if (t) selectTender(t);
+          return;
+        }
+
+        // Click on the search input itself toggles/reopens options
+        if (e.target && e.target.id === 'modal-tender-search') {
+          openCombobox();
+        } else {
+          // Click outside combobox group closes it
+          var comboboxGroup = e.target.closest('#combobox-target-tender-group');
+          if (!comboboxGroup) {
+            closeCombobox();
+          }
+        }
+
         var openGlobal = e.target.closest('#btn-open-global-corr-modal');
         if (openGlobal) {
           e.preventDefault();
@@ -536,14 +785,6 @@ const pagedState = { rows: tenders, total: totalTenders, page, pageSize, lastPag
           return;
         }
 
-        var tenderOption = e.target.closest('.item-tender-option');
-        if (tenderOption) {
-          var id = tenderOption.getAttribute('data-id');
-          var t = tenders.find(function(x) { return x.id === id; });
-          if (t) selectTender(t);
-          return;
-        }
-
         // Close on outside backdrop click
         var els = getElements();
         if (els.modalBackdrop && !els.modalBackdrop.classList.contains('hidden') && e.target === els.modalBackdrop) {
@@ -551,43 +792,62 @@ const pagedState = { rows: tenders, total: totalTenders, page, pageSize, lastPag
         }
       });
 
-      // Close on Escape key
+      // Keyboard navigation
       document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
-          closeModal();
-        }
-      });
-
-      // Search input live filtering
-      document.addEventListener('input', function(e) {
-        if (e.target && e.target.id === 'modal-tender-search') {
           var els = getElements();
-          var query = e.target.value.toLowerCase().trim();
-          if (!query) {
-            if (els.resultsBox) els.resultsBox.classList.add('hidden');
+          if (els.tenderMenu && !els.tenderMenu.classList.contains('hidden')) {
+            closeCombobox();
+            e.stopPropagation();
             return;
           }
+          closeModal();
+          return;
+        }
 
-          var matches = tenders.filter(function(t) {
-            return (t.referenceNo || '').toLowerCase().includes(query) ||
-              (t.title || '').toLowerCase().includes(query) ||
-              (t.id || '').toLowerCase().includes(query) ||
-              (t.workCategory || '').toLowerCase().includes(query);
-          });
+        if (e.target && e.target.id === 'modal-tender-search') {
+          var els = getElements();
+          var items = els.tenderMenu ? els.tenderMenu.querySelectorAll('.combobox-option') : [];
+          if (!items || items.length === 0) return;
 
-          if (!els.resultsBox) return;
-
-          if (matches.length === 0) {
-            els.resultsBox.innerHTML = '<div class="p-3 text-slate-400 italic text-xs">No matching tenders found</div>';
-          } else {
-            els.resultsBox.innerHTML = matches.map(function(t) {
-              return '<div class="p-2.5 hover:bg-amber-50/70 border-b border-slate-100 last:border-0 cursor-pointer text-xs select-none item-tender-option" data-id="' + t.id + '">' +
-                '<div class="font-bold text-[color:var(--adm-primary)]">' + t.referenceNo + '</div>' +
-                '<div class="font-semibold text-slate-800 leading-snug truncate">' + t.title + '</div>' +
-              '</div>';
-            }).join('');
+          if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (els.tenderMenu && els.tenderMenu.classList.contains('hidden')) {
+              openCombobox();
+              return;
+            }
+            highlightedIndex = (highlightedIndex + 1) % items.length;
+            items.forEach(function(el, i) {
+              if (i === highlightedIndex) {
+                el.classList.add('bg-amber-100/90');
+                el.scrollIntoView({ block: 'nearest' });
+              } else {
+                el.classList.remove('bg-amber-100/90');
+              }
+            });
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (els.tenderMenu && els.tenderMenu.classList.contains('hidden')) {
+              openCombobox();
+              return;
+            }
+            highlightedIndex = (highlightedIndex - 1 + items.length) % items.length;
+            items.forEach(function(el, i) {
+              if (i === highlightedIndex) {
+                el.classList.add('bg-amber-100/90');
+                el.scrollIntoView({ block: 'nearest' });
+              } else {
+                el.classList.remove('bg-amber-100/90');
+              }
+            });
+          } else if (e.key === 'Enter') {
+            if (els.tenderMenu && !els.tenderMenu.classList.contains('hidden') && highlightedIndex >= 0 && items[highlightedIndex]) {
+              e.preventDefault();
+              var id = items[highlightedIndex].getAttribute('data-id');
+              var t = tenders.find(function(x) { return x.id === id; });
+              if (t) selectTender(t);
+            }
           }
-          els.resultsBox.classList.remove('hidden');
         }
       });
 
@@ -598,16 +858,13 @@ const pagedState = { rows: tenders, total: totalTenders, page, pageSize, lastPag
           if (!file) return;
 
           var els = getElements();
-          var isImportant = document.getElementById('corr-modal-doc-important')?.checked || false;
-
           var formData = new FormData();
           formData.append('file', file);
-          formData.append('isImportant', isImportant ? 'true' : 'false');
+          formData.append('category', 'corrigendum');
 
           try {
-            var res = await fetch(`${backendUrl}/api/upload`, {
+            var res = await fetch('/api/admin/upload', {
               method: 'POST',
-              headers: { 'Authorization': `Bearer ${sessionToken}` },
               body: formData,
             });
 
@@ -636,13 +893,15 @@ const pagedState = { rows: tenders, total: totalTenders, page, pageSize, lastPag
           var els = getElements();
           var targetId = els.hiddenTenderId?.value;
           var corrTitle = document.getElementById('modal-corr-title')?.value.trim();
-          var extClosing = document.getElementById('modal-extended-closing')?.value;
-          var extOpening = document.getElementById('modal-extended-opening')?.value;
           var docUrl = els.hiddenDocUrl?.value;
           var sizeBytes = parseInt(els.hiddenFileSize?.value || '0', 10);
+          var corrClosingDate = document.getElementById('modal-corr-closing-date')?.value;
+          var extClosingDateIso = corrClosingDate ? new Date(corrClosingDate).toISOString() : null;
 
           if (!targetId) {
-            alert('Please select a target tender first.');
+            alert('Please select a target tender from the dropdown list.');
+            els.tenderSearch?.focus();
+            openCombobox();
             return;
           }
           if (!corrTitle) {
@@ -657,11 +916,22 @@ const pagedState = { rows: tenders, total: totalTenders, page, pageSize, lastPag
           if (els.submitBtn) { els.submitBtn.disabled = true; els.submitBtn.textContent = 'Saving...'; }
 
           try {
-            var getRes = await fetch(`${backendUrl}/api/tenders/${targetId}`);
+            var getRes = await fetch('/api/admin/tenders/' + targetId);
             if (!getRes.ok) throw new Error('Could not fetch target tender details.');
             var tenderObj = await getRes.json();
 
-            var existingCorrs = Array.isArray(tenderObj.corrigendums) ? tenderObj.corrigendums : [];
+            var existingCorrs = [];
+            if (tenderObj && tenderObj.corrigendums) {
+              if (Array.isArray(tenderObj.corrigendums)) {
+                existingCorrs = tenderObj.corrigendums;
+              } else if (typeof tenderObj.corrigendums === 'string') {
+                try {
+                  existingCorrs = JSON.parse(tenderObj.corrigendums);
+                } catch (parseErr) {
+                  existingCorrs = [];
+                }
+              }
+            }
             
             var newCorr = {
               id: Math.random().toString(36).substring(2, 12),
@@ -669,21 +939,26 @@ const pagedState = { rows: tenders, total: totalTenders, page, pageSize, lastPag
               publishDate: new Date().toISOString(),
               documentUrl: docUrl,
               fileSizeBytes: sizeBytes,
-              extendedClosingDate: extClosing || null,
-              extendedBidOpeningDate: extOpening || null,
+              extendedClosingDate: extClosingDateIso,
             };
 
             var updatedCorrs = [...existingCorrs, newCorr];
 
-            var putRes = await fetch(`${backendUrl}/api/tenders/${targetId}`, {
+            var putPayload = {
+              corrigendums: updatedCorrs,
+            };
+            if (extClosingDateIso) {
+              putPayload.closingDate = extClosingDateIso;
+            } else if (tenderObj.closingDate) {
+              putPayload.closingDate = tenderObj.closingDate;
+            }
+
+            var putRes = await fetch('/api/admin/tenders/' + targetId, {
               method: 'PUT',
               headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${sessionToken}`,
               },
-              body: JSON.stringify({
-                corrigendums: updatedCorrs,
-              }),
+              body: JSON.stringify(putPayload),
             });
 
             if (putRes.ok) {
@@ -704,7 +979,7 @@ const pagedState = { rows: tenders, total: totalTenders, page, pageSize, lastPag
           } catch (err) {
             alert(`Error attaching corrigendum: ${err.message}`);
           } finally {
-            if (els.submitBtn) { els.submitBtn.disabled = false; els.submitBtn.textContent = 'Confirm Attach Corrigendum'; }
+            if (els.submitBtn) { els.submitBtn.disabled = false; els.submitBtn.textContent = 'Attach Corrigendum'; }
           }
         }
       });

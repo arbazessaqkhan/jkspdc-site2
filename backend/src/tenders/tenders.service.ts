@@ -4,7 +4,8 @@ import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { CreateTenderDto, UpdateTenderDto } from './tenders.dto';
 import { Tender } from '@prisma/client';
 import { deleteLocalFile } from '../upload/file-cleanup.helper';
-import { PaginationDto, wantsPagination, paginate } from '../common/pagination';
+import { wantsPagination, paginate } from '../common/pagination';
+import { detectFileFormat } from '../common/file-format.helper';
 
 @Injectable()
 export class TendersService {
@@ -44,16 +45,24 @@ export class TendersService {
    * Paged variant used by admin list pages (?page/?pageSize). Without
    * pagination params it returns the full array (legacy behaviour).
    */
-  async findAll(q: PaginationDto = {}): Promise<any> {
+  async findAll(q: any = {}): Promise<any> {
+    const where: any = {};
+    if (q.status && typeof q.status === 'string' && q.status.trim() && q.status !== 'All') {
+      if (q.status === 'Archived' || q.status === 'Archive') {
+        where.status = { in: ['Archived', 'Archive'] };
+      } else {
+        where.status = q.status.trim();
+      }
+    }
     if (!wantsPagination(q)) {
-      return (await this.prisma.tender.findMany({ orderBy: { publishDate: 'desc' } })).map((t) => this.formatTender(t));
+      return (await this.prisma.tender.findMany({ where, orderBy: { publishDate: 'desc' } })).map((t) => this.formatTender(t));
     }
     return paginate({
       page: q.page,
       pageSize: q.pageSize,
-      count: () => this.prisma.tender.count({ where: undefined }),
+      count: () => this.prisma.tender.count({ where }),
       find: async (skip, take) =>
-        (await this.prisma.tender.findMany({ where: undefined, orderBy: { publishDate: 'desc' }, skip, take })).map((t) => this.formatTender(t)),
+        (await this.prisma.tender.findMany({ where, orderBy: { publishDate: 'desc' }, skip, take })).map((t) => this.formatTender(t)),
     });
   }
 
@@ -66,7 +75,7 @@ export class TendersService {
   }
 
   async create(data: CreateTenderDto, user: { userId: string }, ip: string, ua: string): Promise<any> {
-    const { referenceNo, title, description, documentType, workCategory, locationTag, closingDate, bidOpeningDate, documentUrl, fileSizeBytes, status, corrigendums } = data;
+    const { referenceNo, title, description, documentType, workCategory, locationTag, closingDate, bidOpeningDate, documentUrl, fileSizeBytes, fileFormat, status, showInTicker, priority, corrigendums } = data;
     if (!referenceNo || !title || !documentUrl) {
       throw new Error('Missing required fields');
     }
@@ -87,7 +96,10 @@ export class TendersService {
         bidOpeningDate: bidOpeningDate ? new Date(bidOpeningDate) : null,
         documentUrl,
         fileSizeBytes: fileSizeBytes ? parseInt(fileSizeBytes.toString(), 10) : 0,
+        fileFormat: fileFormat || detectFileFormat(documentUrl),
         status: status || 'Active',
+        showInTicker: showInTicker !== undefined ? showInTicker : documentType === 'CORRIGENDUM',
+        priority: priority || 'Normal',
         corrigendums: serializedCorrs,
       },
     });
@@ -105,7 +117,7 @@ export class TendersService {
 
   async update(id: string, data: UpdateTenderDto, user: { userId: string }, ip: string, ua: string): Promise<any> {
     const oldTender = await this.findOne(id);
-    
+
     // Cleanup main document file if changed
     if (data.documentUrl !== undefined && data.documentUrl !== oldTender.documentUrl) {
       deleteLocalFile(oldTender.documentUrl);
@@ -144,11 +156,16 @@ export class TendersService {
         documentType: data.documentType,
         workCategory: data.workCategory,
         locationTag: data.locationTag,
-        closingDate: data.closingDate ? new Date(data.closingDate) : null,
+        closingDate: data.closingDate !== undefined ? (data.closingDate ? new Date(data.closingDate) : null) : undefined,
         bidOpeningDate: data.bidOpeningDate ? new Date(data.bidOpeningDate) : null,
         documentUrl: data.documentUrl,
         fileSizeBytes: data.fileSizeBytes !== undefined ? parseInt(data.fileSizeBytes.toString(), 10) : undefined,
+        fileFormat: data.fileFormat !== undefined
+          ? data.fileFormat
+          : (data.documentUrl !== undefined ? detectFileFormat(data.documentUrl) : undefined),
         status: data.status,
+        showInTicker: data.showInTicker,
+        priority: data.priority,
         corrigendums: serializedCorrs,
       },
     });

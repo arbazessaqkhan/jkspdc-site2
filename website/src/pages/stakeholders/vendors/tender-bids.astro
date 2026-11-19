@@ -1,6 +1,7 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 import Icon from '../../../components/Icon.astro';
+import { getDocUrl } from '../../../utils/sanitizer';
 
 let tenders = [];
 let errorMessage = '';
@@ -74,13 +75,7 @@ try {
   errorMessage = 'Failed to connect to the backend server.';
 }
 
-const getDocUrl = (url?: string) => {
-  if (!url) return '#';
-  if (url.startsWith('/uploads/')) {
-    return `${import.meta.env.PUBLIC_API_BASE}${url}`;
-  }
-  return url;
-};
+
 
 const tenderYears = Array.from(new Set(processedTenders.map((t: any) => new Date(t.publishDate).getFullYear()))).sort((a: any, b: any) => b - a);
 
@@ -126,7 +121,7 @@ const allFilterLocations = Array.from(new Set([
     <div id="filter-bar" class="bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-4">
       <div class="flex items-center justify-between border-b border-slate-200 pb-3">
         <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-          <Icon name="search" size={14} class="text-[#0B4F9C]" />
+          <Icon name="search" size={14} class="text-[#0B3B60]" />
           <span>Segregate &amp; Filter Tenders</span>
         </h3>
         <div class="text-xs font-semibold text-slate-500" id="tenders-count-display">
@@ -138,7 +133,7 @@ const allFilterLocations = Array.from(new Set([
         <!-- Filter By Project / Location -->
         <div class="flex flex-col gap-1">
           <label for="location-filter" class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">By Project / Location</label>
-          <select id="location-filter" class="w-full form-select text-xs bg-white border border-slate-200 rounded-lg py-1.5 focus:ring-2 focus:ring-[#0B4F9C]">
+          <select id="location-filter" class="w-full form-select text-xs bg-white border border-slate-200 rounded-lg py-1.5 focus:ring-2 focus:ring-focus">
             <option value="All">All Projects &amp; Locations</option>
             {allFilterLocations.map((loc: string) => {
               const label = loc.replace(/^HQ_/i, 'HQ ').replace(/^HEP_/i, 'HEP ').replace(/_/g, ' ');
@@ -150,7 +145,7 @@ const allFilterLocations = Array.from(new Set([
         <!-- Filter By Work Category -->
         <div class="flex flex-col gap-1">
           <label for="work-category" class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">By Work Category</label>
-          <select id="work-category" class="w-full form-select text-xs bg-white border border-slate-200 rounded-lg py-1.5 focus:ring-2 focus:ring-[#0B4F9C]">
+          <select id="work-category" class="w-full form-select text-xs bg-white border border-slate-200 rounded-lg py-1.5 focus:ring-2 focus:ring-focus">
             <option value="All">All Categories</option>
             <option value="Civil">Civil Works</option>
             <option value="Electro-Mechanical">Electro-Mechanical</option>
@@ -164,7 +159,7 @@ const allFilterLocations = Array.from(new Set([
         <!-- Filter By Published Year / Date -->
         <div class="flex flex-col gap-1">
           <label for="year-filter" class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">By Published Year</label>
-          <select id="year-filter" class="w-full form-select text-xs bg-white border border-slate-200 rounded-lg py-1.5 focus:ring-2 focus:ring-[#0B4F9C]">
+          <select id="year-filter" class="w-full form-select text-xs bg-white border border-slate-200 rounded-lg py-1.5 focus:ring-2 focus:ring-focus">
             <option value="All">All Years</option>
             {tenderYears.map((yr: any) => (
               <option value={String(yr)}>{yr}</option>
@@ -179,7 +174,7 @@ const allFilterLocations = Array.from(new Set([
             id="search-input" 
             type="text" 
             placeholder="Tender ID, NIT No, Title..." 
-            class="w-full form-input text-xs bg-white border border-slate-200 rounded-lg py-1.5 px-3 focus:outline-none focus:ring-2 focus:ring-[#0B4F9C]" 
+            class="w-full form-input text-xs bg-white border border-slate-200 rounded-lg py-1.5 px-3 focus:outline-none focus:ring-2 focus:ring-focus" 
           />
         </div>
       </div>
@@ -189,10 +184,10 @@ const allFilterLocations = Array.from(new Set([
     <div class="flex items-center justify-between border-b border-slate-200 pb-4 select-none">
       <span class="text-xs font-bold text-slate-600">Status Segregation:</span>
       <div class="flex items-center gap-2">
-        <button id="toggle-active" class="px-4 py-1.5 border rounded-md font-bold text-xs bg-[#0D7A87] text-white border-[#0D7A87] cursor-pointer shadow-sm transition-all duration-200">
+        <button id="toggle-active" class="px-4 py-1.5 border rounded-md font-bold text-xs bg-[#0B3B60] text-white border-[#0B3B60] cursor-pointer shadow-sm transition-all duration-200">
           Active Tenders
         </button>
-        <button id="toggle-archive" class="px-4 py-1.5 border rounded-md font-bold text-xs bg-white text-[#0D7A87] border-[#0D7A87] hover:bg-slate-50 cursor-pointer shadow-sm transition-all duration-200">
+        <button id="toggle-archive" class="px-4 py-1.5 border rounded-md font-bold text-xs bg-white text-[#0B3B60] border-slate-300 hover:bg-slate-50 cursor-pointer shadow-sm transition-all duration-200">
           Archives
         </button>
         <button id="toggle-all" class="px-4 py-1.5 border rounded-md font-bold text-xs bg-white text-slate-700 border-slate-300 hover:bg-slate-50 cursor-pointer shadow-sm transition-all duration-200">
@@ -201,104 +196,95 @@ const allFilterLocations = Array.from(new Set([
       </div>
     </div>
 
-    <!-- Content Sections -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      
-      <!-- Main Tenders List -->
-      <article class="lg:col-span-2 space-y-4">
-        <div id="tenders-list-container" class="space-y-4">
-          {processedTenders.map((tender: any) => (
-            <div 
-              class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 tender-card" 
-              data-status={tender.status} 
-              data-category={tender.workCategory} 
-              data-location={tender.locationTag}
-              data-year={new Date(tender.publishDate).getFullYear()}
-              data-search-keys={`${(tender.id || '').toLowerCase()} ${(tender.referenceNo || '').toLowerCase()} ${(tender.title || '').toLowerCase()} ${(tender.workCategory || '').toLowerCase()} ${(tender.locationTag || '').toLowerCase()} ${(tender.documentType || '').toLowerCase()} ${(tender.description || '').toLowerCase()} ${(tender.corrigendums || []).map((c: any) => `${c.title} ${c.id || ''}`).join(' ').toLowerCase()}`}
-            >
-              <div class="space-y-2 text-left flex-1 min-w-0">
-                <div>
-                  <span class="font-extrabold text-slate-800 text-sm">Tender Title : </span>
-                  <span class="text-slate-700 text-sm font-medium leading-relaxed">{tender.title}</span>
-                </div>
-                <div>
-                  <span class="font-extrabold text-slate-800 text-sm">NIT No. : </span>
-                  <span class="text-slate-700 text-sm font-semibold font-mono">{tender.referenceNo}</span>
-                </div>
-                {tender.corrigendums && tender.corrigendums.length > 0 && (
-                  <div class="mt-2.5 pt-2.5 border-t border-slate-100">
-                    <span class="font-extrabold text-slate-850 text-xs block mb-1">Attached Corrigendums:</span>
-                    <div class="flex flex-col gap-1.5">
-                      {tender.corrigendums.map((c: any) => (
+    <!-- Content Sections: Standardized Data Table -->
+    <div class="w-full">
+      <article class="w-full">
+        <!-- Tenders Table Card (Matching IPP & AGM modules) -->
+        <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
+          <div class="table-wrapper overflow-x-auto" tabindex="0" role="region" aria-label="Procurement Tenders Data Table">
+            <table class="table-data min-w-full text-left" id="tenders-table" style="table-layout: auto;">
+              <thead>
+                <tr>
+                  <th scope="col" class="w-16 text-center">S.No</th>
+                  <th scope="col" class="text-left">Tender Title</th>
+                  <th scope="col" class="text-left w-52 whitespace-nowrap">NIT No.</th>
+                  <th scope="col" class="text-left w-48">Location</th>
+                  <th scope="col" class="text-center w-32 whitespace-nowrap">Action</th>
+                </tr>
+              </thead>
+              <tbody id="tenders-table-body">
+                {processedTenders.map((tender: any, idx: number) => {
+                  const locationClean = tender.locationTag?.replace(/^HQ_/i, 'HQ ')?.replace(/^HEP_/i, 'HEP ')?.replace(/_/g, ' ') || 'Corporate';
+                  return (
+                    <tr 
+                      class="tender-table-row hover:bg-slate-50/80 transition-colors" 
+                      data-status={tender.status} 
+                      data-category={tender.workCategory} 
+                      data-location={tender.locationTag}
+                      data-year={new Date(tender.publishDate).getFullYear()}
+                      data-search-keys={`${(tender.id || '').toLowerCase()} ${(tender.referenceNo || '').toLowerCase()} ${(tender.title || '').toLowerCase()} ${(tender.workCategory || '').toLowerCase()} ${(tender.locationTag || '').toLowerCase()} ${(tender.documentType || '').toLowerCase()} ${(tender.description || '').toLowerCase()} ${(tender.corrigendums || []).map((c: any) => `${c.title} ${c.id || ''}`).join(' ').toLowerCase()}`}
+                    >
+                      <td class="text-center font-bold text-xs text-slate-400 row-idx">{idx + 1}</td>
+                      <td class="text-left">
+                        <div class="font-bold text-xs sm:text-sm text-slate-900 leading-snug">
+                          {tender.title}
+                        </div>
+                        {tender.corrigendums && tender.corrigendums.length > 0 && (
+                          <div class="mt-2 pt-1.5 border-t border-slate-100 flex flex-wrap items-center gap-1.5">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                              Corrigenda ({tender.corrigendums.length})
+                            </span>
+                            {tender.corrigendums.map((c: any) => (
+                              <a 
+                                href={`/stakeholders/vendors/tender-details?id=${tender.id}#corrigendum-${c.id}`} 
+                                class="text-[11px] font-semibold text-[#0B3B60] hover:underline inline-flex items-center gap-1 bg-slate-50 hover:bg-slate-100 px-2 py-0.5 rounded border border-slate-200 transition-colors"
+                                title={c.title}
+                              >
+                                <Icon name="paperclip" size={11} class="shrink-0 text-[#0B3B60]" />
+                                <span class="truncate max-w-[200px]">{c.title}</span>
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </td>
+                      <td class="text-left font-mono font-semibold text-xs text-slate-700 whitespace-nowrap">
+                        {tender.referenceNo}
+                      </td>
+                      <td class="text-left text-xs font-medium text-slate-600">
+                        {locationClean}
+                      </td>
+                      <td class="text-center whitespace-nowrap">
                         <a 
-                          href={`/stakeholders/vendors/tender-details?id=${tender.id}#corrigendum-${c.id}`} 
-                          class="text-xs font-bold text-[#0D7A87] hover:underline flex items-center gap-1.5"
+                          href={`/stakeholders/vendors/tender-details?id=${tender.id}`} 
+                          class="inline-flex items-center justify-center px-3.5 py-1.5 border border-[#0B3B60] hover:bg-[#0EA4E5] hover:text-white text-[#0B3B60] rounded text-xs font-bold transition-all shadow-2xs"
                         >
-                          <Icon name="paperclip" size={13} class="shrink-0 text-[#0D7A87]" />
-                          <span class="truncate">{c.title}</span>
+                          View Details
                         </a>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                <div>
-                  <span class="font-extrabold text-slate-800 text-sm">Location : </span>
-                  <span class="text-slate-700 text-sm font-medium">{tender.locationTag?.replace('HQ_', 'HQ ')?.replace('HEP_', 'HEP ')?.replace('_', ' ')}</span>
-                </div>
-              </div>
-              <div class="flex-shrink-0 flex items-center justify-end md:justify-center">
-                <a 
-                  href={`/stakeholders/vendors/tender-details?id=${tender.id}`} 
-                  class="w-full md:w-auto inline-flex items-center justify-center px-6 py-2 border border-[#0D7A87] text-[#0D7A87] hover:bg-[#0D7A87] hover:text-white rounded text-xs font-bold transition-all duration-200 whitespace-nowrap"
-                >
-                  View More
-                </a>
-              </div>
-            </div>
-          ))}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
 
           <!-- Empty State -->
           <div id="empty-state-container" class="hidden text-center py-12 bg-slate-50 border border-slate-200 border-dashed rounded-xl text-slate-500 font-semibold italic text-xs">
             No active or archived tenders found matching your search or filter criteria.
           </div>
+
+          <!-- Pagination Controls (10 items per page) -->
+          <nav id="tenders-pagination" class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-3" aria-label="Tenders Pagination">
+            <p class="text-[11px] font-medium text-slate-500">
+              Showing <strong class="text-slate-700 font-bold" id="tenders-page-from">0</strong>–<strong class="text-slate-700 font-bold" id="tenders-page-to">0</strong> of <strong class="text-slate-700 font-bold" id="tenders-page-total">0</strong> tenders
+            </p>
+            <div class="flex flex-wrap items-center gap-1.5" id="tenders-page-buttons"></div>
+          </nav>
         </div>
       </article>
-
-      <!-- Sidebar -->
-      <aside class="space-y-4" aria-label="Related links">
-
-        <div class="card-static">
-          <h3 class="font-bold text-gray-900 mb-2 border-b border-gray-100 pb-2 flex items-center gap-1.5">
-            <Icon name="megaphone" size={15} class="text-[#0D7A87] shrink-0" />
-            <span>Recent Corrigenda</span>
-          </h3>
-          {recentCorrigendums.length === 0 ? (
-            <p class="text-slate-400 italic text-[11px]">No recent updates published.</p>
-          ) : (
-            <ul class="flex flex-col gap-3 text-xs">
-              {recentCorrigendums.map((corr: any) => (
-                <li class="border-b border-slate-100 pb-2 last:border-0 last:pb-0">
-                  <a 
-                    href={`/stakeholders/vendors/tender-details?id=${corr.parentTenderId}#corrigendum-${corr.id}`} 
-                    class="font-bold text-slate-800 hover:text-[#0B4F9C] hover:underline leading-snug block"
-                  >
-                    {corr.title}
-                  </a>
-                  <span class="text-[10px] text-[#0D7A87] font-semibold block mt-0.5 uppercase tracking-wide">
-                    Ref: {corr.parentReferenceNo}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-        
-  
-      </aside>
     </div>
-
-
   </div>
+</div>
 </Layout>
 
 <script>
@@ -307,48 +293,164 @@ const allFilterLocations = Array.from(new Set([
     const toggleArchive = document.getElementById('toggle-archive');
     const toggleAll = document.getElementById('toggle-all');
     
-    const catSelect = document.getElementById('work-category') as HTMLSelectElement;
-    const locSelect = document.getElementById('location-filter') as HTMLSelectElement;
-    const yearSelect = document.getElementById('year-filter') as HTMLSelectElement;
-    const searchInput = document.getElementById('search-input') as HTMLInputElement;
+    const catSelect = document.getElementById('work-category') as HTMLSelectElement | null;
+    const locSelect = document.getElementById('location-filter') as HTMLSelectElement | null;
+    const yearSelect = document.getElementById('year-filter') as HTMLSelectElement | null;
+    const searchInput = document.getElementById('search-input') as HTMLInputElement | null;
     const countDisplay = document.getElementById('tenders-count-display');
+    const allRows = Array.from(document.querySelectorAll<HTMLTableRowElement>('.tender-table-row'));
+    const emptyState = document.getElementById('empty-state-container');
+    const paginationNav = document.getElementById('tenders-pagination');
+    const pageFromEl = document.getElementById('tenders-page-from');
+    const pageToEl = document.getElementById('tenders-page-to');
+    const pageTotalEl = document.getElementById('tenders-page-total');
+    const pageButtonsEl = document.getElementById('tenders-page-buttons');
+
+    if (!allRows.length) {
+      if (paginationNav) paginationNav.style.display = 'none';
+      return;
+    }
 
     let currentStatusFilter = 'Active'; // Active, Archived, or All
+    const pageSize = 10;
+    let currentPage = 1;
+    let matchedRows: HTMLTableRowElement[] = [];
 
     function setTabStyles(activeTab: string) {
       currentStatusFilter = activeTab;
       
-      const activeBtnClass = 'px-4 py-1.5 border rounded-md font-bold text-xs bg-[#0D7A87] text-white border-[#0D7A87] cursor-pointer shadow-sm transition-all duration-200';
-      const inactiveBtnClass = 'px-4 py-1.5 border rounded-md font-bold text-xs bg-white text-[#0D7A87] border-[#0D7A87] hover:bg-slate-50 cursor-pointer shadow-sm transition-all duration-200';
+      const activeBtnClass = 'px-4 py-1.5 border rounded-md font-bold text-xs bg-[#0B3B60] text-white border-[#0B3B60] cursor-pointer shadow-sm transition-all duration-200';
+      const inactiveBtnClass = 'px-4 py-1.5 border rounded-md font-bold text-xs bg-white text-[#0B3B60] border-slate-300 hover:bg-slate-50 cursor-pointer shadow-sm transition-all duration-200';
       const inactiveAllBtnClass = 'px-4 py-1.5 border rounded-md font-bold text-xs bg-white text-slate-700 border-slate-300 hover:bg-slate-50 cursor-pointer shadow-sm transition-all duration-200';
 
       if (toggleActive) toggleActive.className = activeTab === 'Active' ? activeBtnClass : inactiveBtnClass;
       if (toggleArchive) toggleArchive.className = activeTab === 'Archived' ? activeBtnClass : inactiveBtnClass;
       if (toggleAll) toggleAll.className = activeTab === 'All' ? activeBtnClass : inactiveAllBtnClass;
       
-      filterCards();
+      applyFilter();
     }
 
     toggleActive?.addEventListener('click', () => setTabStyles('Active'));
     toggleArchive?.addEventListener('click', () => setTabStyles('Archived'));
     toggleAll?.addEventListener('click', () => setTabStyles('All'));
 
-    // Real-time filtering function
-    function filterCards() {
+    function renderPage() {
+      const total = matchedRows.length;
+      const totalPages = Math.ceil(total / pageSize) || 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+
+      const startIdx = (currentPage - 1) * pageSize;
+      const endIdx = Math.min(startIdx + pageSize, total);
+
+      allRows.forEach((row) => (row.style.display = 'none'));
+      matchedRows.forEach((row, idx) => {
+        if (idx >= startIdx && idx < endIdx) {
+          row.style.display = '';
+          const idxCell = row.querySelector('.row-idx');
+          if (idxCell) idxCell.textContent = String(idx + 1);
+        }
+      });
+
+      if (pageFromEl) pageFromEl.textContent = total === 0 ? '0' : String(startIdx + 1);
+      if (pageToEl) pageToEl.textContent = String(endIdx);
+      if (pageTotalEl) pageTotalEl.textContent = String(total);
+      if (countDisplay) countDisplay.textContent = `Showing ${total} tender(s)`;
+
+      if (emptyState) emptyState.classList.toggle('hidden', total > 0);
+      if (paginationNav) paginationNav.style.display = total === 0 ? 'none' : 'flex';
+
+      if (!pageButtonsEl) return;
+      pageButtonsEl.innerHTML = '';
+      if (totalPages <= 1) return;
+
+      const btnBaseClass = 'inline-flex items-center justify-center min-w-8 h-8 px-2.5 rounded-md border text-xs font-semibold transition-colors cursor-pointer select-none';
+      const activeClass = `${btnBaseClass} border-[#0B3B60] bg-[#0B3B60] text-white font-bold shadow-2xs`;
+      const inactiveClass = `${btnBaseClass} border-slate-200 bg-white text-slate-700 hover:bg-[#EAF4FF] hover:text-[#0B3B60] hover:border-[#BDD7EE]`;
+      const disabledClass = `${btnBaseClass} border-slate-200 bg-white text-slate-400 opacity-40 cursor-not-allowed`;
+
+      // Prev
+      const prevBtn = document.createElement('button');
+      prevBtn.type = 'button';
+      prevBtn.innerHTML = '&lsaquo; Prev';
+      prevBtn.className = currentPage > 1 ? inactiveClass : disabledClass;
+      prevBtn.disabled = currentPage <= 1;
+      prevBtn.onclick = () => {
+        if (currentPage > 1) {
+          currentPage--;
+          renderPage();
+        }
+      };
+      pageButtonsEl.appendChild(prevBtn);
+
+      // Windowed pages
+      let startP = Math.max(1, currentPage - 2);
+      let endP = Math.min(totalPages, startP + 4);
+      if (endP - startP < 4) startP = Math.max(1, endP - 4);
+
+      if (startP > 1) {
+        pageButtonsEl.appendChild(createPageBtn(1));
+        if (startP > 2) {
+          const dots = document.createElement('span');
+          dots.className = 'inline-flex items-center justify-center min-w-6 h-8 text-xs font-semibold text-slate-400 select-none';
+          dots.textContent = '…';
+          pageButtonsEl.appendChild(dots);
+        }
+      }
+
+      for (let p = startP; p <= endP; p++) {
+        pageButtonsEl.appendChild(createPageBtn(p));
+      }
+
+      if (endP < totalPages) {
+        if (endP < totalPages - 1) {
+          const dots = document.createElement('span');
+          dots.className = 'inline-flex items-center justify-center min-w-6 h-8 text-xs font-semibold text-slate-400 select-none';
+          dots.textContent = '…';
+          pageButtonsEl.appendChild(dots);
+        }
+        pageButtonsEl.appendChild(createPageBtn(totalPages));
+      }
+
+      // Next
+      const nextBtn = document.createElement('button');
+      nextBtn.type = 'button';
+      nextBtn.innerHTML = 'Next &rsaquo;';
+      nextBtn.className = currentPage < totalPages ? inactiveClass : disabledClass;
+      nextBtn.disabled = currentPage >= totalPages;
+      nextBtn.onclick = () => {
+        if (currentPage < totalPages) {
+          currentPage++;
+          renderPage();
+        }
+      };
+      pageButtonsEl.appendChild(nextBtn);
+
+      function createPageBtn(pageNum: number) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = String(pageNum);
+        btn.className = pageNum === currentPage ? activeClass : inactiveClass;
+        btn.onclick = () => {
+          currentPage = pageNum;
+          renderPage();
+        };
+        return btn;
+      }
+    }
+
+    function applyFilter() {
       const selectedCat = catSelect ? catSelect.value : 'All';
       const selectedLoc = locSelect ? locSelect.value : 'All';
       const selectedYr = yearSelect ? yearSelect.value : 'All';
       const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
-      const cards = document.querySelectorAll('.tender-card');
-      let visibleCount = 0;
-      
-      cards.forEach((card: any) => {
-        const status = card.getAttribute('data-status') || 'Active';
-        const cat = card.getAttribute('data-category') || 'Civil';
-        const loc = card.getAttribute('data-location') || 'HQ_SRINAGAR';
-        const yr = card.getAttribute('data-year') || '';
-        const searchKeys = card.getAttribute('data-search-keys') || '';
+      matchedRows = allRows.filter((row) => {
+        const status = row.getAttribute('data-status') || 'Active';
+        const cat = row.getAttribute('data-category') || 'Civil';
+        const loc = row.getAttribute('data-location') || 'HQ_SRINAGAR';
+        const yr = row.getAttribute('data-year') || '';
+        const searchKeys = row.getAttribute('data-search-keys') || '';
 
         const matchesTab = currentStatusFilter === 'All' || status === currentStatusFilter;
         const matchesCat = selectedCat === 'All' || cat === selectedCat;
@@ -356,34 +458,18 @@ const allFilterLocations = Array.from(new Set([
         const matchesYr = selectedYr === 'All' || yr === selectedYr;
         const matchesSearch = query === '' || searchKeys.includes(query);
 
-        if (matchesTab && matchesCat && matchesLoc && matchesYr && matchesSearch) {
-          card.classList.remove('hidden');
-          visibleCount++;
-        } else {
-          card.classList.add('hidden');
-        }
+        return matchesTab && matchesCat && matchesLoc && matchesYr && matchesSearch;
       });
 
-      // Update empty state
-      const emptyState = document.getElementById('empty-state-container');
-      if (visibleCount === 0) {
-        emptyState?.classList.remove('hidden');
-      } else {
-        emptyState?.classList.add('hidden');
-      }
-
-      if (countDisplay) {
-        countDisplay.textContent = `Showing ${visibleCount} tender(s)`;
-      }
+      currentPage = 1;
+      renderPage();
     }
 
-    // Bind event listeners
-    catSelect?.addEventListener('change', filterCards);
-    locSelect?.addEventListener('change', filterCards);
-    yearSelect?.addEventListener('change', filterCards);
-    searchInput?.addEventListener('input', filterCards);
+    catSelect?.addEventListener('change', applyFilter);
+    locSelect?.addEventListener('change', applyFilter);
+    yearSelect?.addEventListener('change', applyFilter);
+    searchInput?.addEventListener('input', applyFilter);
 
-    // Initial filter run
-    filterCards();
+    applyFilter();
   });
 </script>

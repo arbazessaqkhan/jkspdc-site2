@@ -1,14 +1,7 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 import Icon from '../../../components/Icon.astro';
-
-function getDocUrl(url?: string) {
-  if (!url) return '#';
-  if (url.startsWith('/uploads/')) {
-    return `${import.meta.env.PUBLIC_API_BASE}${url}`;
-  }
-  return url;
-}
+import { getDocUrl } from '../../../utils/sanitizer';
 
 let policies: any[] = [];
 
@@ -70,7 +63,7 @@ if (policies.length === 0) {
           <div class="bg-white border border-gray-200 hover:border-[#9BC2E6] rounded-xl p-5 shadow-xs transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div class="space-y-2 flex-1">
               <div class="flex items-center gap-2 flex-wrap">
-                <span class="text-[9px] uppercase tracking-wider font-extrabold text-[#0B4F9C] bg-[#0B4F9C]/5 px-2.5 py-1 rounded-sm">
+                <span class="text-[9px] uppercase tracking-wider font-extrabold text-[#0B3B60] bg-[#0B3B60]/5 px-2.5 py-1 rounded-sm">
                   {p.category || "Policies"}
                 </span>
                 {p.status === "Active" ? (
@@ -85,7 +78,7 @@ if (policies.length === 0) {
               </div>
               <div class="flex items-start gap-2.5 pt-0.5">
                 <div class="w-1 h-5 bg-[#D8681B] rounded-full shrink-0 mt-0.5"></div>
-                <h3 class="font-bold text-[#0B4F9C] text-base leading-snug flex items-center gap-1.5">
+                <h3 class="font-bold text-[#0B3B60] text-base leading-snug flex items-center gap-1.5">
                   <span class="text-slate-500">{index + 1}.</span> {p.title}
                 </h3>
               </div>
@@ -102,7 +95,7 @@ if (policies.length === 0) {
                   href={getDocUrl(p.documentUrl)} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  class="w-full md:w-auto inline-flex items-center justify-center gap-2 bg-[#0B4F9C] hover:bg-[#084A8F] text-white font-bold text-xs px-5 py-2.5 rounded transition-all duration-150 shadow-sm cursor-pointer"
+                  class="w-full md:w-auto inline-flex items-center justify-center gap-2 bg-[#0B3B60] hover:bg-[#084A8F] text-white font-bold text-xs px-5 py-2.5 rounded transition-all duration-150 shadow-sm cursor-pointer"
                 >
                   <Icon name="search" size={13} strokeWidth={2.5} /> View Policy PDF
                 </a>

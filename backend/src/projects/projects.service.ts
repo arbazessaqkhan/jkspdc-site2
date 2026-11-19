@@ -9,16 +9,20 @@ export class ProjectsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll(q: PaginationDto = {}, status?: string): Promise<any> {
-    const where = status ? { status } : undefined;
+    const where = status
+      ? status.includes(',')
+        ? { status: { in: status.split(',').map((s) => s.trim()) } }
+        : { status }
+      : undefined;
     if (!wantsPagination(q)) {
-      return this.prisma.powerStation.findMany({ where, orderBy: { name: 'asc' } });
+      return this.prisma.powerStation.findMany({ where, orderBy: { createdAt: 'asc' } });
     }
     return paginate({
       page: q.page,
       pageSize: q.pageSize,
       count: () => this.prisma.powerStation.count({ where }),
       find: (skip, take) =>
-        this.prisma.powerStation.findMany({ where, orderBy: { name: 'asc' }, skip, take }),
+        this.prisma.powerStation.findMany({ where, orderBy: { createdAt: 'asc' }, skip, take }),
     });
   }
 

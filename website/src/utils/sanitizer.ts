@@ -39,3 +39,41 @@ export function sanitizeHtml(htmlString?: string | null): string {
 
   return clean;
 }
+
+/**
+ * Safely resolves document and asset URLs per OWASP and GIGW 3.0 guidelines.
+ * Disallows javascript:, data:, vbscript:, and other executable pseudo-protocols.
+ */
+export function getDocUrl(url?: string | null, fallbackBase?: string): string {
+  if (!url || typeof url !== 'string') return '#';
+  const clean = url.trim();
+  if (!clean) return '#';
+
+  // Strictly block dangerous pseudo-protocols
+  if (/^(javascript|data|vbscript|file):/i.test(clean)) {
+    return '#';
+  }
+
+  // Handle local /uploads/ URLs
+  if (clean.startsWith('/uploads/')) {
+    const apiBase = fallbackBase || (typeof import.meta !== 'undefined' && import.meta.env?.PUBLIC_API_BASE) || '';
+    return `${apiBase}${clean}`;
+  }
+
+  // Safe root-relative paths
+  if (clean.startsWith('/')) {
+    return clean;
+  }
+
+  // Safe HTTP/HTTPS protocols
+  if (/^https?:\/\//i.test(clean)) {
+    return clean;
+  }
+
+  if (clean.startsWith('#')) {
+    return clean;
+  }
+
+  return '#';
+}
+

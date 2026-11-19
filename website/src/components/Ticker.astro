@@ -1,159 +1,317 @@
 ---
-export interface TickerItem {
-  type: string;
-  text: string;
-  colorClass: string;
-  url?: string;
+/**
+ * Homepage updates ticker.
+ *
+ * The strip is never curated by hand. It is derived from the same records the
+ * admin panel publishes and edits: Tenders (with their attached corrigenda) and
+ * Notifications. Records are kept only while they are current (Active status and
+ * no passed closing / valid-till date), de-duplicated, then ordered strictly by
+ * publication date (newest first) and trimmed to five.
+ *
+ * The closing date is never used for ordering.
+ */
+
+const API_BASE = process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE;
+
+type TickerType = 'Tender' | 'Corrigendum' | 'Notification';
+
+interface TickerRecord {
+  key: string;
+  type: TickerType;
+  title: string;
+  referenceNo: string | null;
+  url: string;
+  publishDate: Date;
+  closingDate: Date | null;
+  fileFormat: string | null;
+  fileSizeBytes: number | null;
 }
 
-export interface Props {
-  items?: TickerItem[];
-}
+const toDate = (value: unknown): Date | null => {
+  if (!value) return null;
+  const d = value instanceof Date ? value : new Date(String(value));
+  return Number.isNaN(d.getTime()) ? null : d;
+};
 
-const { items = [] } = Astro.props;
-
-let tickerItems: TickerItem[] = items;
-
-if (tickerItems.length === 0) {
-  try {
-    const [tendersRes, notifsRes] = await Promise.all([
-      fetch(`${import.meta.env.PUBLIC_API_BASE}/api/public/tenders`).catch(() => null),
-      fetch(`${import.meta.env.PUBLIC_API_BASE}/api/public/notifications`).catch(() => null),
-    ]);
-
-    let tenders: any[] = [];
-    if (tendersRes && tendersRes.ok) tenders = await tendersRes.json();
-
-    let notifs: any[] = [];
-    if (notifsRes && notifsRes.ok) notifs = await notifsRes.json();
-
-    const fetched: TickerItem[] = [];
-
-    // Recent Active Tenders (Sorted by publication date descending, limit to recent 3)
-    const recentTenders = tenders
-      .filter((t: any) => t.status === 'Active')
-      .sort((a: any, b: any) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime())
-      .slice(0, 3);
-
-    recentTenders.forEach((t: any) => {
-      fetched.push({
-        type: 'TENDER',
-        text: `${t.title} (NIT Ref: ${t.referenceNo})`,
-        colorClass: 'text-cyan-300 bg-cyan-500/10 border-cyan-400/20',
-        url: `/stakeholders/vendors/tender-details?id=${t.id}`,
-      });
-
-      // Recent corrigendums if any
-      const corrs = t.corrigendums && Array.isArray(t.corrigendums) ? t.corrigendums : [];
-      corrs.slice(0, 1).forEach((c: any) => {
-        fetched.push({
-          type: 'CORRIGENDUM',
-          text: `Corrigendum: ${c.title} — ${t.title} (Ref: ${t.referenceNo})`,
-          colorClass: 'text-orange-400 bg-orange-500/10 border-orange-400/20',
-          url: `/stakeholders/vendors/tender-details?id=${t.id}#corrigendum-${c.id}`,
-        });
-      });
-    });
-
-    // Recent Notifications & Notices (Sorted by publication date descending, limit to recent 3)
-    const recentNotifs = notifs
-      .sort((a: any, b: any) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime())
-      .slice(0, 3);
-
-    recentNotifs.forEach((n: any) => {
-      const docUrl = n.documentUrl ? (n.documentUrl.startsWith('/uploads/') ? `${import.meta.env.PUBLIC_API_BASE}${n.documentUrl}` : n.documentUrl) : '/notifications';
-      fetched.push({
-        type: 'NOTICE',
-        text: `${n.title}${n.fileName ? ` (${n.fileName})` : ''}`,
-        colorClass: 'text-yellow-400 bg-yellow-500/10 border-yellow-400/20',
-        url: docUrl,
-      });
-    });
-
-    if (fetched.length > 0) {
-      tickerItems = fetched;
+const parseCorrigendums = (value: unknown): any[] => {
+  if (Array.isArray(value)) return value;
+  if (typeof value === 'string' && value.trim()) {
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
     }
-  } catch (e) {
-    console.error('Error fetching ticker items:', e);
   }
+  return [];
+};
+
+const detectFormat = (url?: string | null): string | null => {
+  if (!url) return null;
+  const match = /\.([a-z0-9]{2,5})(?:[?#]|$)/i.exec(url);
+  return match ? match[1].toUpperCase() : null;
+};
+
+const resolveDocUrl = (url?: string | null): string => {
+  if (!url) return '/notifications';
+  if (/^https?:\/\//i.test(url)) return url;
+  if (url.startsWith('/uploads/')) return `${API_BASE}${url}`;
+  return url;
+};
+
+const formatBytes = (bytes?: number | null): string => {
+  if (!bytes || bytes <= 0) return '';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+const badgeClass: Record<TickerType, string> = {
+  Tender: 'text-[#8FD8FF] border-[#0EA4E5]/35 bg-[#0EA4E5]/10',
+  Corrigendum: 'text-[#FFCB7A] border-[#E58A00]/35 bg-[#E58A00]/10',
+  Notification: 'text-[#8CE6C6] border-[#2BC59A]/35 bg-[#2BC59A]/10',
+};
+
+// Short display labels; record types stay unchanged.
+const badgeLabel: Record<TickerType, string> = {
+  Tender: 'Tender',
+  Corrigendum: 'Corr',
+  Notification: 'Notice',
+};
+
+const now = new Date();
+const records: TickerRecord[] = [];
+
+try {
+  const [tendersRes, notificationsRes] = await Promise.all([
+    fetch(`${API_BASE}/api/public/tenders`).catch(() => null),
+    fetch(`${API_BASE}/api/public/notifications`).catch(() => null),
+  ]);
+
+  const tenders: any[] = tendersRes && tendersRes.ok ? await tendersRes.json() : [];
+  const notifications: any[] = notificationsRes && notificationsRes.ok ? await notificationsRes.json() : [];
+
+  // Tenders (a tender published as a standalone corrigendum keeps that type).
+  for (const t of Array.isArray(tenders) ? tenders : []) {
+    if (t.status !== 'Active') continue;
+    const closing = toDate(t.closingDate);
+    if (closing && closing.getTime() < now.getTime()) continue;
+
+    const type: TickerType = t.documentType === 'CORRIGENDUM' ? 'Corrigendum' : 'Tender';
+    records.push({
+      key: `tender-${t.id}`,
+      type,
+      title: t.title,
+      referenceNo: t.referenceNo ?? null,
+      url: `/stakeholders/vendors/tender-details?id=${t.id}`,
+      publishDate: toDate(t.publishDate) ?? now,
+      closingDate: closing,
+      fileFormat: t.fileFormat || detectFormat(t.documentUrl),
+      fileSizeBytes: t.fileSizeBytes ?? null,
+    });
+  }
+
+  // Corrigenda attached to a tender are announced as their own entry.
+  for (const t of Array.isArray(tenders) ? tenders : []) {
+    if (t.status !== 'Active') continue;
+    const parentClosing = toDate(t.closingDate);
+
+    for (const corr of parseCorrigendums(t.corrigendums)) {
+      if (!corr || typeof corr !== 'object') continue;
+      const closing = toDate(corr.extendedClosingDate) ?? parentClosing;
+      if (closing && closing.getTime() < now.getTime()) continue;
+
+      const corrId = corr.id ?? `${t.id}-${records.length}`;
+      records.push({
+        key: `corrigendum-${t.id}-${corrId}`,
+        type: 'Corrigendum',
+        title: corr.title || `Corrigendum to ${t.title}`,
+        referenceNo: t.referenceNo ?? null,
+        url: `/stakeholders/vendors/tender-details?id=${t.id}#corrigendum-${corrId}`,
+        publishDate: toDate(corr.publishDate) ?? toDate(corr.uploadedAt) ?? toDate(t.publishDate) ?? now,
+        closingDate: closing,
+        fileFormat: corr.fileFormat || detectFormat(corr.documentUrl) || t.fileFormat || detectFormat(t.documentUrl),
+        fileSizeBytes: corr.fileSizeBytes ?? null,
+      });
+    }
+  }
+
+  // Notifications / notices.
+  for (const n of Array.isArray(notifications) ? notifications : []) {
+    if (n.status !== 'Active') continue;
+    const closing = toDate(n.validTillDate);
+    if (closing && closing.getTime() < now.getTime()) continue;
+
+    records.push({
+      key: `notice-${n.id}`,
+      type: 'Notification',
+      title: n.title,
+      referenceNo: null,
+      url: resolveDocUrl(n.documentUrl),
+      publishDate: toDate(n.publishDate) ?? now,
+      closingDate: closing,
+      fileFormat: n.fileFormat || detectFormat(n.documentUrl),
+      fileSizeBytes: n.fileSizeBytes ?? null,
+    });
+  }
+} catch (error) {
+  console.error('Error fetching ticker records:', error);
 }
 
-if (tickerItems.length === 0) {
-  tickerItems = [
-    { 
-      type: 'TENDER', 
-      text: 'Active Notice Inviting Tenders (NITs) & Procurement Opportunities', 
-      colorClass: 'text-cyan-300 bg-cyan-500/10 border-cyan-400/20',
-      url: '/stakeholders/vendors/tender-bids'
-    },
-    { 
-      type: 'NOTICE', 
-      text: 'Official Notifications & Circulars Repository — JKSPDCL', 
-      colorClass: 'text-yellow-400 bg-yellow-500/10 border-yellow-400/20',
-      url: '/notifications'
-    }
-  ];
-}
+// De-duplicate, order strictly by publication date (newest first), keep five.
+const seen = new Set<string>();
+const tickerItems = records
+  .filter((record) => {
+    if (seen.has(record.key)) return false;
+    seen.add(record.key);
+    return true;
+  })
+  .sort((a, b) => {
+    const aTime = a.publishDate?.getTime() ?? -1;
+    const bTime = b.publishDate?.getTime() ?? -1;
+    return bTime - aTime;
+  })
+  .slice(0, 5);
 ---
 
-<div class="bg-[#E58A00] text-[#002B49] relative overflow-hidden border-t border-b border-[#0B3B60]/30 h-9 flex items-center" aria-live="polite" aria-label="Live announcements">
-  <div class="flex items-center h-full overflow-hidden" style="max-width:100%;">
-    <div class="shrink-0 bg-[#002B49] text-white text-xs font-bold px-4 h-full flex items-center gap-2 uppercase tracking-wide z-20 whitespace-nowrap">
-      <span class="w-2 h-2 rounded-full bg-slate-300 animate-slow-pulse shrink-0"></span>
-      Updates
-    </div>
-    <div class="flex-1 overflow-hidden relative h-full flex items-center" id="component-ticker-container">
-      <!-- Fade-out overlays -->
-      <div class="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-[#0B3B60] to-transparent z-10 pointer-events-none"></div>
-      <div class="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[#0B3B60] to-transparent z-10 pointer-events-none"></div>
+<div
+  data-ticker
+  class="relative flex h-10 w-full items-stretch overflow-hidden border-y border-[#0B3B60] bg-[#003366] text-slate-200"
+  aria-label="Latest updates"
+>
+  <!-- UPDATES label -->
+  <div class="relative z-20 flex shrink-0 items-center gap-2 border-r border-white/10 bg-[#0B3B60] px-4">
+    <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-[#0EA4E5]" aria-hidden="true"></span>
+    <span class="text-[11px] font-bold uppercase tracking-[0.16em] text-white">Updates</span>
+  </div>
 
-      <div id="component-ticker-track" class="flex items-center whitespace-nowrap w-max shrink-0 cursor-pointer" style="gap: 3.5rem; font-size: 0.8rem; font-weight: 500; will-change: transform;">
-        {[...tickerItems, ...tickerItems].map((item) => (
-          <span class="inline-flex items-center whitespace-nowrap shrink-0" style="padding-right:4rem;">
-            › <strong class={`font-extrabold uppercase tracking-wider text-[10px] mr-1.5 px-1.5 py-0.5 rounded border whitespace-nowrap shrink-0 ${item.colorClass}`}>{item.type}:</strong> 
-            {item.url ? (
-              <a 
-                href={item.url} 
-                target={item.url.startsWith('http') ? "_blank" : undefined} 
-                rel={item.url.startsWith('http') ? "noopener noreferrer" : undefined} 
-                class="text-slate-100 hover:underline hover:text-white transition-colors whitespace-nowrap"
-              >
-                {item.text}
-              </a>
-            ) : (
-              <span class="text-slate-100 whitespace-nowrap">{item.text}</span>
-            )}
-          </span>
+  <!-- Marquee viewport -->
+  <div id="ticker-viewport" class="relative flex min-w-0 flex-1 items-center overflow-hidden">
+    <div class="pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-gradient-to-r from-[#002B49] to-transparent" aria-hidden="true"></div>
+    <div class="pointer-events-none absolute inset-y-0 right-0 z-10 w-6 bg-gradient-to-l from-[#002B49] to-transparent" aria-hidden="true"></div>
+
+    {tickerItems.length > 0 ? (
+      <div id="ticker-track" class="ticker-track flex w-max items-center pl-4">
+        {[false, true].map((isClone) => (
+          <div
+            class="ticker-group flex shrink-0 items-center"
+            data-ticker-group
+            aria-hidden={isClone ? 'true' : undefined}
+          >
+            {tickerItems.map((item) => (
+              <span class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap pr-14">
+                <strong class={`rounded-sm border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${badgeClass[item.type]}`}>
+                  {badgeLabel[item.type]}
+                </strong>
+                <a
+                  href={item.url}
+                  target={item.url.startsWith('http') ? '_blank' : undefined}
+                  rel={item.url.startsWith('http') ? 'noopener noreferrer' : undefined}
+                  tabindex={isClone ? -1 : undefined}
+                  class="text-[12px] text-slate-100 transition-colors hover:text-white hover:underline"
+                >
+                  {item.title}
+                </a>
+                {item.fileFormat && (
+                  <span class="text-[11px] text-white/40">
+                    {item.fileFormat}{formatBytes(item.fileSizeBytes) ? ` · ${formatBytes(item.fileSizeBytes)}` : ''}
+                  </span>
+                )}
+              </span>
+            ))}
+          </div>
         ))}
       </div>
-    </div>
+    ) : (
+      <p class="px-4 text-[12px] text-white/60">No current updates.</p>
+    )}
   </div>
+
+  {tickerItems.length > 0 && (
+    <button
+      id="ticker-toggle"
+      type="button"
+      class="relative z-20 flex shrink-0 items-center gap-1.5 border-l border-white/10 px-3 text-[11px] font-semibold uppercase tracking-wider text-white/75 transition-colors hover:bg-white/10 hover:text-white focus-visible:bg-white/10 focus-visible:outline-none"
+      aria-label="Pause updates"
+      aria-pressed="true"
+    >
+      <svg id="ticker-icon-pause" width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true">
+        <rect x="2" y="1.5" width="2" height="7" rx="0.5"></rect>
+        <rect x="6" y="1.5" width="2" height="7" rx="0.5"></rect>
+      </svg>
+      <svg id="ticker-icon-play" class="hidden" width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true">
+        <path d="M2.5 1.4v7.2a.4.4 0 0 0 .61.34l5.6-3.6a.4.4 0 0 0 0-.68l-5.6-3.6a.4.4 0 0 0-.61.34Z"></path>
+      </svg>
+    </button>
+  )}
 </div>
 
 <script is:inline>
-  (function() {
-    var track = document.getElementById('component-ticker-track');
-    var container = document.getElementById('component-ticker-container');
-    if (!track || !container) return;
-    
-    var pos = 0;
-    var speed = 0.75;
-    var isPaused = false;
+  (function () {
+    var roots = Array.prototype.slice.call(document.querySelectorAll('[data-ticker]'));
 
-    container.addEventListener('mouseenter', function() { isPaused = true; });
-    container.addEventListener('mouseleave', function() { isPaused = false; });
+    roots.forEach(function (root) {
+      var track = root.querySelector('#ticker-track');
+      var group = root.querySelector('[data-ticker-group]');
+      var viewport = root.querySelector('#ticker-viewport');
+      var toggle = root.querySelector('#ticker-toggle');
+      if (!track || !group || !viewport) return;
 
-    function step() {
-      if (!isPaused) {
-        pos += speed;
-        var halfWidth = track.scrollWidth / 2;
-        if (halfWidth > 0 && pos >= halfWidth) {
-          pos = pos - halfWidth;
-        }
-        track.style.transform = 'translate3d(-' + pos.toFixed(2) + 'px, 0, 0)';
+      // Size the seamless loop: the track carries two identical groups, so it is
+      // shifted left by exactly one group width. A gentle ~55px/s keeps long
+      // reference numbers readable.
+      function calibrate() {
+        var width = group.getBoundingClientRect().width;
+        if (!width) return;
+        root.style.setProperty('--ticker-shift', width + 'px');
+        root.style.setProperty('--ticker-duration', Math.max(18, width / 55).toFixed(1) + 's');
       }
-      requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
+
+      calibrate();
+      window.addEventListener('resize', calibrate);
+      if (typeof ResizeObserver !== 'undefined') {
+        new ResizeObserver(calibrate).observe(group);
+      }
+
+      // Autoplay is the default state.
+      root.classList.add('is-running');
+
+      var pauseIcon = root.querySelector('#ticker-icon-pause');
+      var playIcon = root.querySelector('#ticker-icon-play');
+
+      function renderToggle() {
+        var running = root.classList.contains('is-running');
+        if (pauseIcon) pauseIcon.classList.toggle('hidden', !running);
+        if (playIcon) playIcon.classList.toggle('hidden', running);
+        if (toggle) {
+          toggle.setAttribute('aria-label', running ? 'Pause updates' : 'Play updates');
+          toggle.setAttribute('aria-pressed', running ? 'true' : 'false');
+        }
+      }
+
+      if (toggle) {
+        toggle.addEventListener('click', function () {
+          root.classList.toggle('is-running');
+          renderToggle();
+        });
+      }
+
+      // Hovering (or focusing into) the strip freezes the motion so an item can be
+      // read or followed. The Play/Pause state is untouched.
+      function freeze() {
+        root.classList.add('is-hover-paused');
+      }
+      function resume() {
+        root.classList.remove('is-hover-paused');
+      }
+      viewport.addEventListener('mouseenter', freeze);
+      viewport.addEventListener('mouseleave', resume);
+      viewport.addEventListener('focusin', freeze);
+      viewport.addEventListener('focusout', function (event) {
+        if (!viewport.contains(event.relatedTarget)) resume();
+      });
+
+      renderToggle();
+    });
   })();
 </script>

@@ -404,8 +404,8 @@ const pagedState = { rows: dignitaries, total: pagedTotal, page, pageSize, lastP
                   label="Photo"
                   variant="image"
                   accept="image/*"
-                  helpText="Portrait image (JPG, PNG, WEBP). Max size: 10 MB."
-                  maxSizeMB={10}
+                  helpText="Portrait image (JPG, PNG, WEBP)"
+                  maxSizeMB={2}
                 />
               </div>
             </div>
@@ -479,6 +479,13 @@ const pagedState = { rows: dignitaries, total: pagedTotal, page, pageSize, lastP
               Cancel
             </button>
             <button 
+              type="button" 
+              id="clear-form-btn" 
+              class="px-5 py-2.5 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer"
+            >
+              Clear
+            </button>
+            <button 
               type="submit" 
               class="px-6 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-md transition-colors cursor-pointer"
             >
@@ -542,9 +549,11 @@ const pagedState = { rows: dignitaries, total: pagedTotal, page, pageSize, lastP
       var els = getElements();
       if (!els.tableView || !els.formView) return;
 
+      var clearBtn = document.getElementById('clear-form-btn');
       if (isEdit && data) {
         if (els.formTitle) els.formTitle.textContent = 'Edit Dignitary Profile';
         if (els.formAction) els.formAction.value = 'update';
+        if (clearBtn) clearBtn.classList.add('hidden');
         if (els.formId) els.formId.value = data.id || '';
         if (els.fieldName) els.fieldName.value = data.name || '';
         if (els.fieldPosition) els.fieldPosition.value = data.position || '';
@@ -565,6 +574,7 @@ const pagedState = { rows: dignitaries, total: pagedTotal, page, pageSize, lastP
       } else {
         if (els.formTitle) els.formTitle.textContent = 'Add New Dignitary Profile';
         if (els.formAction) els.formAction.value = 'create';
+        if (clearBtn) clearBtn.classList.remove('hidden');
         if (els.formId) els.formId.value = '';
         if (els.fieldName) els.fieldName.value = '';
         if (els.fieldPosition) els.fieldPosition.value = '';
@@ -633,6 +643,22 @@ const pagedState = { rows: dignitaries, total: pagedTotal, page, pageSize, lastP
       if (backBtn) {
         e.preventDefault();
         closeFormView();
+        return;
+      }
+
+      var clearBtn = e.target.closest('#clear-form-btn');
+      if (clearBtn) {
+        e.preventDefault();
+        var els = getElements();
+        var isDirty = (els.fieldName?.value || '') !== '' ||
+          (els.fieldPosition?.value || '') !== '' ||
+          (els.fieldImageUrl?.value || '') !== '';
+        if (isDirty) {
+          if (!confirm('Are you sure you want to clear all entered form fields?')) {
+            return;
+          }
+        }
+        openFormView(false);
         return;
       }
 

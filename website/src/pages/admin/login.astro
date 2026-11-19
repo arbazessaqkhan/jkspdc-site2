@@ -4,71 +4,210 @@ import '../../styles/admin.css';
 import Icon from '../../components/Icon.astro';
 
 let errorMessage = '';
-const preferredLang = 'en';
+let step: 'login' | 'mfa-verify' | 'mfa-setup' | 'mfa-recovery-codes' = 'login';
+let mfaTicket = '';
+let mfaSecret = '';
+let mfaQrDataUrl = '';
+let mfaUserEmail = '';
+let mfaUserName = '';
+let recoveryCodes: string[] = [];
+let isRecoveryMode = false;
 
-const BACKEND_URL = (import.meta.env.BACKEND_URL || process.env.BACKEND_URL || '').replace(/\/+$/, '');
+// Set when the absolute 30-minute admin session lapses and the user is returned here.
+
+const BACKEND_URL = (import.meta.env.BACKEND_URL || process.env.BACKEND_URL || 'http://localhost:3000').replace(/\/+$/, '');
+
+const clientIp = Astro.request.headers.get('x-forwarded-for') || Astro.request.headers.get('x-real-ip');
+const forwardedHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
+if (clientIp) {
+  forwardedHeaders['X-Forwarded-For'] = clientIp;
+}
+const incomingProto = Astro.request.headers.get('x-forwarded-proto');
+if (incomingProto) {
+  forwardedHeaders['X-Forwarded-Proto'] = incomingProto;
+}
+
+const isSecure =
+  Astro.url.protocol === 'https:' ||
+  Astro.request.headers.get('x-forwarded-proto') === 'https' ||
+  import.meta.env.PROD;
+
+function setSessionCookies(token: string, userName: string) {
+  Astro.cookies.set('admin_session', token, {
+    path: '/',
+    httpOnly: true,
+    secure: isSecure,
+    sameSite: 'lax',
+    maxAge: 60 * 30, // 30 minutes (absolute session cap)
+  });
+
+  Astro.cookies.set('admin_user_name', userName || 'Administrator', {
+    path: '/',
+    httpOnly: false,
+    secure: isSecure,
+    sameSite: 'lax',
+    maxAge: 60 * 30,
+  });
+}
 
 if (Astro.request.method === 'POST') {
   try {
     const data = await Astro.request.formData();
-    const email = data.get('email')?.toString();
-    const password = data.get('password')?.toString();
+    const action = data.get('_action')?.toString() || 'login';
 
-    if (!email || !password) {
-      errorMessage = 'Email and password are required.';
-    } else {
-      // Send login request to NestJS backend
-      const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+    if (action === 'login') {
+      const email = data.get('email')?.toString()?.trim();
+      const password = data.get('password')?.toString();
 
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        errorMessage = errData.message || 'Invalid email or password.';
+      if (!email || !password) {
+        errorMessage = 'Email and password are required.';
       } else {
-        const sessionData = await response.json();
-        
-        // Determine if connection is secure or running behind an HTTPS proxy / production environment
-        const isSecure =
-          Astro.url.protocol === 'https:' ||
-          Astro.request.headers.get('x-forwarded-proto') === 'https' ||
-          import.meta.env.PROD;
-
-        // Set the secure cookie
-        Astro.cookies.set('admin_session', sessionData.token, {
-          path: '/',
-          httpOnly: true,
-          secure: isSecure,
-          sameSite: 'lax',
-          maxAge: 60 * 60 * 2, // 2 hours
+        const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
+          method: 'POST',
+          headers: forwardedHeaders,
+          body: JSON.stringify({ email, password }),
         });
 
-        // Store user info in cookies (non-sensitive) so Astro can read it on next request
-        Astro.cookies.set('admin_user_name', sessionData.user.name, {
-          path: '/',
-          httpOnly: false,
-          secure: isSecure,
-          sameSite: 'lax',
-          maxAge: 60 * 60 * 2,
+        const resData = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          errorMessage = resData.message || 'Invalid email or password.';
+        } else if (resData.mfaRequired) {
+          // Password valid -> Transition to TOTP verification
+          step = 'mfa-verify';
+          mfaTicket = resData.ticket;
+          mfaUserEmail = resData.user?.email || email;
+          mfaUserName = resData.user?.name || '';
+        } else if (resData.mfaEnrollmentRequired) {
+          // Initial enrollment requires out-of-band authorization code
+          step = 'mfa-enroll-auth';
+          mfaTicket = resData.ticket;
+          mfaUserEmail = resData.user?.email || email;
+          mfaUserName = resData.user?.name || '';
+        } else if (resData.mfaSetupRequired) {
+          // Direct setup if pre-authorized
+          step = 'mfa-setup';
+          mfaTicket = resData.ticket;
+          mfaSecret = resData.secret;
+          mfaQrDataUrl = resData.qrDataUrl;
+          mfaUserEmail = resData.user?.email || email;
+          mfaUserName = resData.user?.name || '';
+        } else if (resData.token) {
+          // Standard login without MFA (e.g. VIEWER)
+          setSessionCookies(resData.token, resData.user?.name);
+          return Astro.redirect('/admin/dashboard');
+        } else {
+          errorMessage = 'Unexpected response from authentication service.';
+        }
+      }
+    } else if (action === 'mfa-authorize-enrollment') {
+      mfaTicket = data.get('ticket')?.toString() || '';
+      mfaUserEmail = data.get('userEmail')?.toString() || '';
+      mfaUserName = data.get('userName')?.toString() || '';
+      const enrollmentCode = data.get('enrollmentCode')?.toString()?.trim() || '';
+
+      if (!mfaTicket || !enrollmentCode) {
+        step = 'mfa-enroll-auth';
+        errorMessage = 'Please enter your single-use Enrolment Authorization Code.';
+      } else {
+        const response = await fetch(`${BACKEND_URL}/api/auth/mfa/authorize-enrollment`, {
+          method: 'POST',
+          headers: forwardedHeaders,
+          body: JSON.stringify({
+            ticket: mfaTicket,
+            enrollmentCode,
+          }),
         });
 
-        return Astro.redirect('/admin/dashboard');
+        const resData = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          step = 'mfa-enroll-auth';
+          errorMessage = resData.message || 'Invalid or expired enrolment authorization code.';
+        } else {
+          step = 'mfa-setup';
+          mfaTicket = resData.ticket;
+          mfaSecret = resData.secret;
+          mfaQrDataUrl = resData.qrDataUrl;
+        }
+      }
+    } else if (action === 'mfa-verify') {
+      mfaTicket = data.get('ticket')?.toString() || '';
+      mfaUserEmail = data.get('userEmail')?.toString() || '';
+      mfaUserName = data.get('userName')?.toString() || '';
+      const code = data.get('code')?.toString()?.trim() || '';
+      isRecoveryMode = data.get('isRecoveryCode')?.toString() === 'true';
+
+      if (!mfaTicket || !code) {
+        step = 'mfa-verify';
+        errorMessage = isRecoveryMode ? 'Please enter a valid recovery code.' : 'Please enter the 6-digit code from your authenticator app.';
+      } else {
+        const response = await fetch(`${BACKEND_URL}/api/auth/mfa/verify`, {
+          method: 'POST',
+          headers: forwardedHeaders,
+          body: JSON.stringify({
+            ticket: mfaTicket,
+            code,
+            isRecoveryCode: isRecoveryMode,
+          }),
+        });
+
+        const resData = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          step = 'mfa-verify';
+          errorMessage = resData.message || 'Invalid authentication code. Please try again.';
+        } else {
+          setSessionCookies(resData.token, resData.user?.name);
+          return Astro.redirect('/admin/dashboard');
+        }
+      }
+    } else if (action === 'mfa-setup-confirm') {
+      mfaTicket = data.get('ticket')?.toString() || '';
+      mfaSecret = data.get('secret')?.toString() || '';
+      mfaQrDataUrl = data.get('qrDataUrl')?.toString() || '';
+      mfaUserEmail = data.get('userEmail')?.toString() || '';
+      mfaUserName = data.get('userName')?.toString() || '';
+      const code = data.get('code')?.toString()?.trim() || '';
+
+      if (!mfaTicket || !code) {
+        step = 'mfa-setup';
+        errorMessage = 'Please enter the 6-digit code generated by your authenticator app.';
+      } else {
+        const response = await fetch(`${BACKEND_URL}/api/auth/mfa/setup-confirm`, {
+          method: 'POST',
+          headers: forwardedHeaders,
+          body: JSON.stringify({
+            ticket: mfaTicket,
+            code,
+          }),
+        });
+
+        const resData = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          step = 'mfa-setup';
+          errorMessage = resData.message || 'Verification failed. Please check the code and try again.';
+        } else {
+          // MFA verified! Save session and show recovery codes
+          setSessionCookies(resData.token, resData.user?.name);
+          step = 'mfa-recovery-codes';
+          recoveryCodes = resData.recoveryCodes || [];
+        }
       }
     }
   } catch (error) {
-    console.error('Error logging in:', error);
-    errorMessage = 'An error occurred during login. Please ensure the backend server is running.';
+    console.error('Error during authentication flow:', error);
+    errorMessage = 'An error occurred during authentication. Please ensure the backend server is reachable.';
   }
 }
 
-// Redirect to dashboard only if session cookie is verified valid by backend
-const sessionToken = Astro.cookies.get('admin_session')?.value;
-if (sessionToken) {
+// Redirect to dashboard only if session cookie is already active and verified
+const existingSession = Astro.cookies.get('admin_session')?.value;
+if (existingSession && step === 'login') {
   try {
     const checkRes = await fetch(`${BACKEND_URL}/api/auth/session`, {
-      headers: { Authorization: `Bearer ${sessionToken}` },
+      headers: { Authorization: `Bearer ${existingSession}` },
     });
     if (checkRes.ok) {
       return Astro.redirect('/admin/dashboard');
@@ -90,14 +229,22 @@ const currentYear = new Date().getFullYear();
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login | JKSPDC Administrative Portal</title>
-    <meta name="description" content="Administrative login page for the Jammu & Kashmir State Power Development Corporation Limited." />
+    <title>
+      {step === 'mfa-verify'
+        ? 'Two-Factor Verification | JKSPDC Admin'
+        : step === 'mfa-setup'
+        ? 'Enrol Multi-Factor Authentication | JKSPDC Admin'
+        : step === 'mfa-recovery-codes'
+        ? 'Backup Recovery Codes | JKSPDC Admin'
+        : 'Administrative Sign In | JKSPDC Admin'}
+    </title>
+    <meta name="description" content="Administrative authentication portal for the Jammu & Kashmir State Power Development Corporation Limited." />
     <meta name="robots" content="noindex, nofollow" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="icon" type="image/png" href="/logo.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
 
     <style is:global>
       .high-contrast,
@@ -123,6 +270,11 @@ const currentYear = new Date().getFullYear();
         background-color: #333333 !important;
         color: #ffffff !important;
       }
+      .high-contrast .border-glow-overlay,
+      .high-contrast .border-glow-overlay::before,
+      .high-contrast .border-glow-overlay::after {
+        display: none !important;
+      }
       *:focus-visible {
         outline: 3px solid #106EE9;
         outline-offset: 2px;
@@ -147,92 +299,422 @@ const currentYear = new Date().getFullYear();
       })();
     </script>
   </head>
-  <body class="admin-page min-h-screen flex flex-col transition-colors duration-150">
-    <div class="border-glow-overlay" aria-hidden="true"></div>
+  <body class="admin-page min-h-screen flex flex-col transition-colors duration-150 construct-mesh-bg">
     <a href="#main-login-content" class="absolute top-[-100px] left-0 bg-[color:var(--adm-primary)] text-white p-3 z-50 focus:top-0 focus:outline-none">Skip to Content</a>
 
     <!-- Top utility accessibility bar -->
-    <div class="bg-[color:var(--adm-primary-dark)] text-slate-100 text-xs py-2 select-none">
+    <div class="bg-[color:var(--adm-primary-dark)] text-slate-100 text-xs py-2 select-none border-b border-white/10">
       <div class="max-w-4xl mx-auto px-4 flex justify-between items-center">
-        <span class="font-bold tracking-wide uppercase">JKSPDC Official Portal</span>
-        <button class="flex items-center gap-1.5 px-2 py-0.5 bg-white/10 hover:bg-white/20 rounded text-[10px] font-semibold text-white cursor-pointer" onclick="toggleHighContrast()" aria-label="Toggle High Contrast Mode">
+        <span class="font-bold tracking-wide uppercase flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          JKSPDC Government Portal &bull; Secure Authentication
+        </span>
+        <button class="flex items-center gap-1.5 px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded text-[11px] font-semibold text-white cursor-pointer transition-colors" onclick="toggleHighContrast()" aria-label="Toggle High Contrast Mode">
           <Icon name="contrast" size={12} strokeWidth={2} /> Contrast
         </button>
       </div>
     </div>
 
     <!-- Login Content -->
-    <main id="main-login-content" class="flex-grow flex items-center justify-center px-4 py-16" tabindex="-1">
-      <div class="w-full max-w-md bg-white rounded-[10px] border border-[color:var(--adm-border)] shadow-xl p-8 flex flex-col gap-6 relative overflow-hidden">
+    <main id="main-login-content" class="flex-grow flex items-center justify-center px-4 py-12" tabindex="-1">
+      <div class="w-full max-w-lg bg-white rounded-2xl border border-slate-200 shadow-xl p-8 sm:p-10 flex flex-col gap-6 relative overflow-hidden">
 
         <!-- Brand accent line -->
-        <div class="admin-accent-line absolute top-0 left-0 right-0"></div>
+        <div class="admin-accent-line absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#0B3B60] via-[#0D7A87] to-[#0B3B60]"></div>
 
         <!-- Header -->
         <div class="text-center flex flex-col items-center gap-2">
           <img src="/logo.png" alt="JKSPDC Logo" class="h-16 w-auto object-contain mb-1" />
-          <h1 class="text-xl font-bold text-[color:var(--adm-primary-dark)]">Administrative Sign In</h1>
-          <p class="text-xs text-[color:var(--adm-muted)] font-medium">Jammu &amp; Kashmir State Power Development Corporation Limited</p>
+          <h1 class="text-xl sm:text-2xl font-extrabold text-[color:var(--adm-primary-dark)] tracking-tight">
+            {step === 'mfa-verify'
+              ? 'Multi-Factor Verification'
+              : step === 'mfa-enroll-auth'
+              ? 'Enrolment Authorization'
+              : step === 'mfa-setup'
+              ? 'Enrol Authenticator App'
+              : step === 'mfa-recovery-codes'
+              ? 'Security Recovery Codes'
+              : 'Administrative Sign In'}
+          </h1>
+          <p class="text-xs text-slate-500 font-medium max-w-xs">
+            {step === 'mfa-verify'
+              ? 'Enter the one-time passcode from your authenticator application to verify your identity.'
+              : step === 'mfa-enroll-auth'
+              ? 'Enter the single-use enrolment code issued by your JKSPDC System Administrator to initialize MFA registration.'
+              : step === 'mfa-setup'
+              ? 'Scan the QR code with your authenticator app (Google Authenticator, Microsoft Authenticator).'
+              : step === 'mfa-recovery-codes'
+              ? 'Save these single-use recovery codes in a secure location. They allow access if you lose your phone.'
+              : 'Jammu & Kashmir State Power Development Corporation Limited (JKSPDCL)'}
+          </p>
         </div>
 
         <!-- Alert messages -->
-        {errorMessage && (
-          <div class="admin-alert admin-alert-error text-xs font-semibold items-start" role="alert">
-            <Icon name="alert-triangle" size={14} class="shrink-0 mt-0.5" />
-            <span>{errorMessage}</span>
+        {errorMessage ? (
+          <div class="p-3.5 bg-red-50 border border-red-200 text-red-800 text-xs font-semibold rounded-lg flex items-start gap-2.5" role="alert">
+            <Icon name="alert-triangle" size={16} class="shrink-0 text-red-600 mt-0.5" />
+            <span class="flex-1 leading-relaxed">{errorMessage}</span>
+          </div>
+        ) : null}
+
+        <!-- ── STEP 1: PASSWORD LOGIN ── -->
+        {step === 'login' && (
+          <form method="POST" class="flex flex-col gap-4">
+            <input type="hidden" name="_action" value="login" />
+
+            <div class="flex flex-col gap-1.5">
+              <label for="email" class="text-xs font-bold text-slate-700">Official Email ID <span class="text-red-500">*</span></label>
+              <input
+                type="email"
+                name="email"
+                id="email"
+                placeholder="e.g. admin@jkspdc.co.in"
+                class="form-input text-xs w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 focus:bg-white focus:ring-2 focus:ring-focus focus:border-[#0B3B60] outline-none"
+                required
+                autocomplete="email"
+              />
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label for="password" class="text-xs font-bold text-slate-700">Password <span class="text-red-500">*</span></label>
+              <input
+                type="password"
+                name="password"
+                id="password"
+                placeholder="••••••••••••"
+                class="form-input text-xs w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 focus:bg-white focus:ring-2 focus:ring-focus focus:border-[#0B3B60] outline-none"
+                required
+                autocomplete="current-password"
+              />
+            </div>
+
+            <button
+              type="submit"
+              class="w-full py-3 px-4 bg-[#0B3B60] hover:bg-[#0EA4E5] text-white rounded-lg text-xs font-bold transition-colors shadow-md mt-2 cursor-pointer flex items-center justify-center gap-2"
+            >
+              <Icon name="lock" size={14} />
+              <span>Verify Password</span>
+            </button>
+          </form>
+        )}
+
+        <!-- ── STEP 2: MFA VERIFICATION ── -->
+        {step === 'mfa-verify' && (
+          <div class="flex flex-col gap-5">
+            <div class="p-3 bg-blue-50/70 border border-blue-200 rounded-lg text-xs text-blue-900 flex items-center gap-2">
+              <Icon name="shield" size={16} class="text-[#0B3B60] shrink-0" />
+              <span>Authenticating account: <strong class="font-mono">{mfaUserEmail}</strong></span>
+            </div>
+
+            <!-- Standard TOTP Form -->
+            <form method="POST" id="mfa-verify-form" class={`flex flex-col gap-4 ${isRecoveryMode ? 'hidden' : ''}`}>
+              <input type="hidden" name="_action" value="mfa-verify" />
+              <input type="hidden" name="ticket" value={mfaTicket} />
+              <input type="hidden" name="userEmail" value={mfaUserEmail} />
+              <input type="hidden" name="userName" value={mfaUserName} />
+              <input type="hidden" name="isRecoveryCode" value="false" />
+
+              <div class="flex flex-col gap-1.5 text-center">
+                <label for="totp-code" class="text-xs font-bold text-slate-700">6-Digit Authenticator Code <span class="text-red-500">*</span></label>
+                <input
+                  type="text"
+                  name="code"
+                  id="totp-code"
+                  placeholder="000 000"
+                  class="font-mono text-center tracking-[0.3em] text-lg font-bold w-full bg-slate-50 border-2 border-slate-300 rounded-lg p-3 text-slate-900 focus:bg-white focus:ring-2 focus:ring-focus focus:border-[#0B3B60] outline-none"
+                  maxlength="6"
+                  inputmode="numeric"
+                  pattern="[0-9]{6}"
+                  required
+                  autofocus
+                  autocomplete="one-time-code"
+                />
+                <span class="text-[11px] text-slate-500 mt-0.5">Open Google Authenticator or Microsoft Authenticator</span>
+              </div>
+
+              <button
+                type="submit"
+                class="w-full py-3 px-4 bg-[#0B3B60] hover:bg-[#0EA4E5] text-white rounded-lg text-xs font-bold transition-colors shadow-md mt-2 cursor-pointer flex items-center justify-center gap-2"
+              >
+                <Icon name="check-circle" size={14} />
+                <span>Confirm Verification Code</span>
+              </button>
+
+              <button
+                type="button"
+                id="btn-switch-to-recovery"
+                class="text-xs text-[color:var(--adm-primary)] hover:underline font-semibold text-center mt-2 cursor-pointer"
+              >
+                Lost your phone? Use a backup recovery code &rarr;
+              </button>
+            </form>
+
+            <!-- Backup Recovery Code Form -->
+            <form method="POST" id="mfa-recovery-form" class={`flex flex-col gap-4 ${isRecoveryMode ? '' : 'hidden'}`}>
+              <input type="hidden" name="_action" value="mfa-verify" />
+              <input type="hidden" name="ticket" value={mfaTicket} />
+              <input type="hidden" name="userEmail" value={mfaUserEmail} />
+              <input type="hidden" name="userName" value={mfaUserName} />
+              <input type="hidden" name="isRecoveryCode" value="true" />
+
+              <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900">
+                <strong>Emergency Access:</strong> Recovery codes are single-use. Once used, the code cannot be reused.
+              </div>
+
+              <div class="flex flex-col gap-1.5 text-center">
+                <label for="recovery-code" class="text-xs font-bold text-slate-700">Backup Recovery Code <span class="text-red-500">*</span></label>
+                <input
+                  type="text"
+                  name="code"
+                  id="recovery-code"
+                  placeholder="e.g. 7KM4-P82X"
+                  class="font-mono text-center uppercase tracking-widest text-base font-bold w-full bg-slate-50 border-2 border-slate-300 rounded-lg p-3 text-slate-900 focus:bg-white focus:ring-2 focus:ring-focus focus:border-[#0B3B60] outline-none"
+                  maxlength="15"
+                  required
+                  autocomplete="off"
+                />
+              </div>
+
+              <button
+                type="submit"
+                class="w-full py-3 px-4 bg-amber-700 hover:bg-amber-800 text-white rounded-lg text-xs font-bold transition-colors shadow-md mt-2 cursor-pointer flex items-center justify-center gap-2"
+              >
+                <Icon name="key" size={14} />
+                <span>Sign In with Recovery Code</span>
+              </button>
+
+              <button
+                type="button"
+                id="btn-switch-to-totp"
+                class="text-xs text-[color:var(--adm-primary)] hover:underline font-semibold text-center mt-2 cursor-pointer"
+              >
+                &larr; Return to 6-digit authenticator code
+              </button>
+            </form>
+
+            <a href="/admin/login" class="text-xs text-slate-500 hover:underline text-center">
+              Cancel and sign in as different user
+            </a>
           </div>
         )}
 
-        <!-- Form -->
-        <form method="POST" class="flex flex-col gap-4">
-          <div class="flex flex-col gap-1.5">
-            <label for="email" class="admin-form-label">Official Email ID <span class="text-[color:var(--adm-error)]">*</span></label>
-            <input
-              type="email"
-              name="email"
-              id="email"
-              placeholder="e.g. admin@jkspdc.co.in"
-              class="admin-input"
-              required
-              autocomplete="email"
-            />
+        <!-- ── STEP 2.5: ENROLMENT AUTHORIZATION ── -->
+        {step === 'mfa-enroll-auth' && (
+          <form method="POST" class="flex flex-col gap-4">
+            <input type="hidden" name="_action" value="mfa-authorize-enrollment" />
+            <input type="hidden" name="ticket" value={mfaTicket} />
+            <input type="hidden" name="userEmail" value={mfaUserEmail} />
+            <input type="hidden" name="userName" value={mfaUserName} />
+
+            <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900 flex items-start gap-2.5">
+              <Icon name="shield-alert" size={18} class="shrink-0 text-amber-600 mt-0.5" />
+              <div>
+                <strong>Enrolment Authorization Required:</strong>
+                <p class="mt-1 text-slate-700">In accordance with JKSPDC IT Security Policy, registering an authenticator requires a single-use authorization code issued by your JKSPDC System Administrator.</p>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-1.5 text-center">
+              <label for="enrollment-code" class="text-xs font-bold text-slate-700">Enrolment Authorization Code <span class="text-red-500">*</span></label>
+              <input
+                type="text"
+                name="enrollmentCode"
+                id="enrollment-code"
+                placeholder="ENR-XXXX-XXXX-XXXX"
+                class="font-mono text-center uppercase tracking-wider text-base font-bold w-full bg-slate-50 border-2 border-slate-300 rounded-lg p-3 text-slate-900 focus:bg-white focus:ring-2 focus:ring-focus focus:border-[#0B3B60] outline-none"
+                required
+                autofocus
+                autocomplete="off"
+              />
+              <span class="text-[11px] text-slate-500 mt-0.5">Contact your System Administrator if you have not received your enrolment code.</span>
+            </div>
+
+            <button
+              type="submit"
+              class="w-full py-3 px-4 bg-[#0B3B60] hover:bg-[#0EA4E5] text-white rounded-lg text-xs font-bold transition-colors shadow-md mt-2 cursor-pointer flex items-center justify-center gap-2"
+            >
+              <Icon name="check-circle" size={14} />
+              <span>Authorize &amp; Continue Enrolment</span>
+            </button>
+
+            <a href="/admin/login" class="text-xs text-slate-500 hover:underline text-center">
+              Cancel and sign in as different user
+            </a>
+          </form>
+        )}
+
+        <!-- ── STEP 3: MANDATORY MFA ENROLMENT ── -->
+        {step === 'mfa-setup' && (
+          <div class="flex flex-col gap-5">
+            <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900 flex items-start gap-2">
+              <Icon name="shield-alert" size={16} class="text-amber-700 shrink-0 mt-0.5" />
+              <span><strong>MFA Enrollment Required:</strong> In accordance with JKSPDC IT Security Policy, all administrative accounts must be protected with an Authenticator Application.</span>
+            </div>
+
+            <!-- QR Code Display -->
+            <div class="flex flex-col items-center gap-3 p-4 bg-slate-50 border border-slate-200 rounded-xl text-center">
+              <span class="text-xs font-extrabold text-slate-700 uppercase tracking-wide">1. Scan with Authenticator App</span>
+              <div class="p-2 bg-white rounded-lg shadow-sm border border-slate-200 inline-block">
+                <img src={mfaQrDataUrl} alt="JKSPDC MFA Setup QR Code" class="w-48 h-48 object-contain" />
+              </div>
+              <span class="text-[11px] text-slate-500">Supports Google Authenticator, Microsoft Authenticator, Apple Keychain, Authy</span>
+
+              <div class="w-full border-t border-slate-200 pt-3 mt-1">
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Or Enter Secret Key Manually:</span>
+                <code class="px-2.5 py-1 bg-white border border-slate-200 rounded font-mono font-bold text-xs text-[color:var(--adm-primary)] select-all tracking-wider block truncate" title="Click to select all">
+                  {mfaSecret}
+                </code>
+              </div>
+            </div>
+
+            <!-- Confirmation Form -->
+            <form method="POST" class="flex flex-col gap-4">
+              <input type="hidden" name="_action" value="mfa-setup-confirm" />
+              <input type="hidden" name="ticket" value={mfaTicket} />
+              <input type="hidden" name="secret" value={mfaSecret} />
+              <input type="hidden" name="qrDataUrl" value={mfaQrDataUrl} />
+              <input type="hidden" name="userEmail" value={mfaUserEmail} />
+              <input type="hidden" name="userName" value={mfaUserName} />
+
+              <div class="flex flex-col gap-1.5 text-center">
+                <label for="confirm-code" class="text-xs font-bold text-slate-700">2. Enter 6-Digit Code Generated by App <span class="text-red-500">*</span></label>
+                <input
+                  type="text"
+                  name="code"
+                  id="confirm-code"
+                  placeholder="000 000"
+                  class="font-mono text-center tracking-[0.3em] text-lg font-bold w-full bg-slate-50 border-2 border-slate-300 rounded-lg p-3 text-slate-900 focus:bg-white focus:ring-2 focus:ring-focus focus:border-[#0B3B60] outline-none"
+                  maxlength="6"
+                  inputmode="numeric"
+                  pattern="[0-9]{6}"
+                  required
+                  autofocus
+                  autocomplete="one-time-code"
+                />
+              </div>
+
+              <button
+                type="submit"
+                class="w-full py-3 px-4 bg-[#0B3B60] hover:bg-[#0EA4E5] text-white rounded-lg text-xs font-bold transition-colors shadow-md mt-2 cursor-pointer flex items-center justify-center gap-2"
+              >
+                <Icon name="check-circle" size={14} />
+                <span>Verify &amp; Activate Protection</span>
+              </button>
+            </form>
           </div>
+        )}
 
-          <div class="flex flex-col gap-1.5">
-            <label for="password" class="admin-form-label">Secure Password <span class="text-[color:var(--adm-error)]">*</span></label>
-            <input
-              type="password"
-              name="password"
-              id="password"
-              placeholder="••••••••"
-              class="admin-input"
-              required
-              autocomplete="current-password"
-            />
+        <!-- ── STEP 4: RECOVERY CODES PRESENTATION ── -->
+        {step === 'mfa-recovery-codes' && (
+          <div class="flex flex-col gap-5">
+            <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-900 flex items-start gap-2">
+              <Icon name="check-circle" size={16} class="text-emerald-600 shrink-0 mt-0.5" />
+              <span><strong>MFA Activated Successfully!</strong> Save these 8 emergency recovery codes. Each code can be used only once if you lose access to your device.</span>
+            </div>
+
+            <div class="p-4 bg-slate-900 rounded-xl border border-slate-800 shadow-inner">
+              <div class="grid grid-cols-2 gap-2 text-center" id="recovery-codes-grid">
+                {recoveryCodes.map((code) => (
+                  <div class="p-2 bg-slate-800/80 rounded border border-slate-700/60 font-mono text-xs font-bold text-emerald-400 tracking-wider">
+                    {code}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div class="flex gap-2">
+              <button
+                type="button"
+                id="btn-copy-codes"
+                class="flex-1 py-2.5 px-3 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs"
+              >
+                <Icon name="copy" size={14} />
+                <span id="copy-text">Copy All Codes</span>
+              </button>
+              <button
+                type="button"
+                id="btn-print-codes"
+                class="py-2.5 px-3 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs"
+                title="Print or save as PDF"
+              >
+                <Icon name="printer" size={14} />
+                <span>Print</span>
+              </button>
+            </div>
+
+            <a
+              href="/admin/dashboard"
+              class="w-full py-3 px-4 bg-[#0B3B60] hover:bg-[#0EA4E5] text-white rounded-lg text-xs font-bold transition-colors shadow-md text-center flex items-center justify-center gap-2 cursor-pointer mt-2"
+            >
+              <span>Proceed to Administrative Console &rarr;</span>
+            </a>
           </div>
+        )}
 
-          <button
-            type="submit"
-            class="admin-btn admin-btn-primary w-full py-2.5 mt-2"
-          >
-            Authenticate Credentials
-          </button>
-        </form>
-
-        <div class="border-t border-[color:var(--adm-border)] pt-4 text-center">
-          <a href="/" class="text-xs text-[color:var(--adm-primary)] hover:underline font-semibold flex items-center justify-center gap-1.5">
-            &larr; Back to Public Portal
+        <div class="border-t border-slate-200 pt-4 text-center">
+          <a href="/" class="text-xs text-[#0B3B60] hover:underline font-semibold flex items-center justify-center gap-1.5">
+            &larr; Back to Public Citizen Portal
           </a>
         </div>
       </div>
     </main>
 
     <!-- Footer -->
-    <footer class="bg-[color:var(--adm-primary-dark)] text-slate-300 py-6 text-xs text-center select-none">
+    <footer class="bg-[color:var(--adm-primary-dark)] text-slate-300 py-6 text-xs text-center select-none border-t border-white/10">
       <div class="max-w-4xl mx-auto px-4">
         <p>&copy; {currentYear} Jammu &amp; Kashmir State Power Development Corporation Limited. Administrative Session.</p>
-        <p class="text-[10px] text-[color:var(--adm-hydro-teal)] mt-1">GIGW 3.0 &amp; WCAG 2.2 Level AA Compliant Interface.</p>
       </div>
     </footer>
+
+    <!-- Client-side script for dynamic UI toggles & code copying -->
+    <script is:inline define:vars={{ recoveryCodes }}>
+      (function() {
+        var verifyForm = document.getElementById('mfa-verify-form');
+        var recoveryForm = document.getElementById('mfa-recovery-form');
+        var btnSwitchToRecovery = document.getElementById('btn-switch-to-recovery');
+        var btnSwitchToTotp = document.getElementById('btn-switch-to-totp');
+
+        if (btnSwitchToRecovery && recoveryForm && verifyForm) {
+          btnSwitchToRecovery.addEventListener('click', function() {
+            verifyForm.classList.add('hidden');
+            recoveryForm.classList.remove('hidden');
+            var recInput = document.getElementById('recovery-code');
+            if (recInput) recInput.focus();
+          });
+        }
+
+        if (btnSwitchToTotp && recoveryForm && verifyForm) {
+          btnSwitchToTotp.addEventListener('click', function() {
+            recoveryForm.classList.add('hidden');
+            verifyForm.classList.remove('hidden');
+            var totpInput = document.getElementById('totp-code');
+            if (totpInput) totpInput.focus();
+          });
+        }
+
+        var btnCopy = document.getElementById('btn-copy-codes');
+        var copyText = document.getElementById('copy-text');
+        if (btnCopy && recoveryCodes && recoveryCodes.length) {
+          btnCopy.addEventListener('click', function() {
+            var text = 'JKSPDC Administrative Portal Backup Recovery Codes:\n' + recoveryCodes.join('\n');
+            navigator.clipboard.writeText(text).then(function() {
+              if (copyText) copyText.textContent = 'Copied to Clipboard!';
+              btnCopy.classList.add('bg-emerald-50', 'text-emerald-700', 'border-emerald-300');
+              setTimeout(function() {
+                if (copyText) copyText.textContent = 'Copy All Codes';
+                btnCopy.classList.remove('bg-emerald-50', 'text-emerald-700', 'border-emerald-300');
+              }, 3000);
+            });
+          });
+        }
+
+        var btnPrint = document.getElementById('btn-print-codes');
+        if (btnPrint) {
+          btnPrint.addEventListener('click', function() {
+            window.print();
+          });
+        }
+      })();
+    </script>
   </body>
 </html>

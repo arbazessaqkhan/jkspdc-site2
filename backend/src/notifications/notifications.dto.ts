@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsDateString, MinLength } from 'class-validator';
+import { IsString, IsOptional, IsDateString, IsInt, IsBoolean, IsIn, MinLength, ValidateIf } from 'class-validator';
 
 export class CreateNotificationDto {
   @IsString()
@@ -11,6 +11,31 @@ export class CreateNotificationDto {
 
   @IsString()
   documentUrl!: string;
+
+  @IsOptional()
+  @IsInt()
+  fileSizeBytes?: number;
+
+  @IsOptional()
+  @IsString()
+  fileFormat?: string;
+
+  @IsOptional()
+  @ValidateIf((_, v) => v !== null && v !== undefined && v !== '')
+  @IsDateString()
+  validTillDate?: string | null;
+
+  @IsOptional()
+  @IsString()
+  status?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  showInTicker?: boolean;
+
+  @IsOptional()
+  @IsIn(['Normal', 'Urgent'])
+  priority?: string;
 
   @IsOptional()
   @IsDateString({}, { message: 'Publish date must be a valid ISO date string' })
@@ -31,6 +56,31 @@ export class UpdateNotificationDto {
   @IsOptional()
   @IsString()
   documentUrl?: string;
+
+  @IsOptional()
+  @IsInt()
+  fileSizeBytes?: number;
+
+  @IsOptional()
+  @IsString()
+  fileFormat?: string;
+
+  @IsOptional()
+  @ValidateIf((_, v) => v !== null && v !== undefined && v !== '')
+  @IsDateString({}, { message: 'Valid till date must be a valid ISO date string' })
+  validTillDate?: string | null;
+
+  @IsOptional()
+  @IsString()
+  status?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  showInTicker?: boolean;
+
+  @IsOptional()
+  @IsIn(['Normal', 'Urgent'])
+  priority?: string;
 
   @IsOptional()
   @IsDateString({}, { message: 'Publish date must be a valid ISO date string' })

@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 
-export const POST: APIRoute = async ({ cookies, redirect }) => {
+export const POST: APIRoute = async ({ cookies, redirect, url }) => {
   const sessionToken = cookies.get('admin_session')?.value;
   const BACKEND_URL = (
     import.meta.env.BACKEND_URL ||
@@ -25,7 +25,10 @@ export const POST: APIRoute = async ({ cookies, redirect }) => {
   cookies.delete('admin_session', { path: '/' });
   cookies.delete('admin_user_name', { path: '/' });
 
-  const res = redirect('/admin/login', 303);
+  const res = redirect(
+    url.searchParams.get('reason') === 'timeout' ? '/admin/login?reason=timeout' : '/admin/login',
+    303,
+  );
   res.headers.set('Cache-Control', 'no-store, private');
   res.headers.set('Pragma', 'no-cache');
   return res;

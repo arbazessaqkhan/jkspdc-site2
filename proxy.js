@@ -14,11 +14,15 @@ const FRONTEND     = { host: 'localhost', port: 4321 };
 const BACKEND      = { host: 'localhost', port: 3000  };
 
 function targetFor(reqUrl) {
+  if (reqUrl.startsWith('/api/admin')) {
+    return FRONTEND;
+  }
   return (reqUrl.startsWith('/api') || reqUrl.startsWith('/uploads')) ? BACKEND : FRONTEND;
 }
 
 function forwardRequest(req, res) {
   const target = targetFor(req.url);
+  const clientIp = req.socket.remoteAddress || '127.0.0.1';
 
   const options = {
     hostname : target.host,
@@ -28,6 +32,9 @@ function forwardRequest(req, res) {
     headers  : {
       ...req.headers,
       host: `${target.host}:${target.port}`,
+      'x-real-ip': clientIp,
+      'x-forwarded-for': req.headers['x-forwarded-for'] ? `${req.headers['x-forwarded-for']}, ${clientIp}` : clientIp,
+      'x-forwarded-proto': 'http',
     },
   };
 

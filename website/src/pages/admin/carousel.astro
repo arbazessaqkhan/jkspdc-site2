@@ -1,0 +1,838 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/Icon.astro';
+import PageNav from '../../components/PageNav.astro';
+import { canMutateRoutineContent, isAdmin } from '../../utils/roles';
+import { parseApiError, BACKEND_URL } from '../../utils/api-error';
+import { readPageParams, fetchPaged, pageUrl } from '../../utils/pagination';
+
+// Check authentication
+const sessionToken = Astro.cookies.get('admin_session')?.value;
+if (!sessionToken) {
+  return Astro.redirect('/admin/login');
+}
+
+const userRole = Astro.locals.user?.role;
+const canMutate = canMutateRoutineContent(userRole);
+const userIsAdmin = isAdmin(userRole);
+
+let errorMessage = '';
+let successMessage = '';
+
+// Handle POST actions (Create, Update, Delete, Toggle Active)
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData();
+    const action = formData.get('_action')?.toString();
+
+    if (action === 'create' || action === 'update') {
+      if (!canMutate) {
+        errorMessage = 'Access denied: You do not have permission to modify carousel items.';
+      } else {
+        const id = formData.get('id')?.toString();
+        const title = formData.get('title')?.toString()?.trim() || '';
+        const description = formData.get('description')?.toString()?.trim() || '';
+        const subtitle = formData.get('subtitle')?.toString()?.trim() || '';
+        const imageUrl = formData.get('imageUrl')?.toString()?.trim() || '';
+        const ctaText = formData.get('ctaText')?.toString()?.trim() || '';
+        const ctaHref = formData.get('ctaHref')?.toString()?.trim() || '';
+        const sortOrderVal = parseInt(formData.get('sortOrder')?.toString() || '1', 10);
+        const isActive = formData.get('isActive') === 'on' || formData.get('isActive') === 'true';
+
+        if (!title) {
+          errorMessage = 'Title is required.';
+        } else if (!imageUrl) {
+          errorMessage = 'Please upload or provide an image for the carousel item.';
+        } else {
+          const body: Record<string, any> = {
+            title,
+            description: description || null,
+            subtitle: subtitle || null,
+            imageUrl,
+            ctaText: ctaText || null,
+            ctaHref: ctaHref || null,
+            sortOrder: isNaN(sortOrderVal) ? 1 : sortOrderVal,
+            isActive,
+          };
+
+          const url = action === 'create' ? `${BACKEND_URL}/api/hero-slides` : `${BACKEND_URL}/api/hero-slides/${id}`;
+          const method = action === 'create' ? 'POST' : 'PUT';
+
+          const res = await fetch(url, {
+            method,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${sessionToken}`,
+            },
+            body: JSON.stringify(body),
+          });
+
+          if (res.ok) {
+            successMessage = `Carousel item successfully ${action === 'create' ? 'created' : 'updated'}.`;
+          } else {
+            const apiErr = await parseApiError(res, `${action} carousel item`);
+            if (apiErr.isUnauthorized) {
+              return Astro.redirect('/admin/login');
+            }
+            errorMessage = apiErr.message;
+          }
+        }
+      }
+    } else if (action === 'delete') {
+      if (!userIsAdmin) {
+        errorMessage = 'Access denied: Only Administrators can delete carousel items.';
+      } else {
+        const id = formData.get('id')?.toString();
+        if (id) {
+          const res = await fetch(`${BACKEND_URL}/api/hero-slides/${id}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${sessionToken}`,
+            },
+          });
+
+          if (res.ok) {
+            successMessage = 'Carousel item successfully deleted.';
+          } else {
+            const apiErr = await parseApiError(res, 'delete carousel item');
+            if (apiErr.isUnauthorized) {
+              return Astro.redirect('/admin/login');
+            }
+            errorMessage = apiErr.message;
+          }
+        }
+      }
+    } else if (action === 'save-hero-settings') {
+      if (!canMutate) {
+        errorMessage = 'Access denied: You do not have permission to modify carousel settings.';
+      } else {
+        const autoplay = formData.get('autoplay') === 'true' || formData.get('autoplay') === 'on';
+        const durationVal = parseInt(formData.get('duration')?.toString() || '6', 10);
+        const duration = Math.min(10, Math.max(4, isNaN(durationVal) ? 6 : durationVal));
+
+        const res = await fetch(`${BACKEND_URL}/api/site-settings/homepage_hero_settings`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${sessionToken}`,
+          },
+          body: JSON.stringify({
+            value: JSON.stringify({ autoplay, duration }),
+          }),
+        });
+
+        if (res.ok) {
+          successMessage = 'Hero Carousel settings (autoplay and duration) saved successfully.';
+        } else {
+          errorMessage = 'Failed to save hero carousel settings.';
+        }
+      }
+    } else if (action === 'toggle-active') {
+      if (!canMutate) {
+        errorMessage = 'Access denied: You do not have permission to modify slides.';
+      } else {
+        const id = formData.get('id')?.toString();
+        const currentActive = formData.get('currentActive')?.toString() === 'true';
+        if (id) {
+          const res = await fetch(`${BACKEND_URL}/api/hero-slides/${id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${sessionToken}`,
+            },
+            body: JSON.stringify({
+              isActive: !currentActive,
+            }),
+          });
+
+          if (res.ok) {
+            successMessage = `Slide ${!currentActive ? 'activated' : 'hidden'} successfully.`;
+          } else {
+            const apiErr = await parseApiError(res, 'update slide status');
+            errorMessage = apiErr.message;
+          }
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Error handling carousel action:', e);
+    errorMessage = 'An error occurred while processing the request.';
+  }
+}
+
+// Fetch Carousel Items List & Settings & Media Gallery
+const { page, pageSize } = readPageParams(Astro.url);
+const pagedExtra: Record<string, string | undefined> = {};
+let slidesList: any[] = [];
+let pagedTotal = 0;
+let pagedLastPage = 1;
+
+let heroSettings = { autoplay: true, duration: 6 };
+let galleryList: any[] = [];
+
+try {
+  const [state, heroSettingRes, galleryRes] = await Promise.all([
+    fetchPaged('/api/hero-slides', { BACKEND_URL, token: sessionToken, page, pageSize, extra: pagedExtra }),
+    fetch(`${BACKEND_URL}/api/site-settings/homepage_hero_settings`, {
+      headers: { 'Authorization': `Bearer ${sessionToken}` }
+    }).catch(() => null),
+    fetch(`${BACKEND_URL}/api/gallery`).catch(() => null),
+  ]);
+
+  slidesList = state.rows;
+  pagedTotal = state.total;
+  pagedLastPage = state.lastPage;
+  if (state.error) errorMessage = errorMessage || state.error;
+
+  if (heroSettingRes && heroSettingRes.ok) {
+    const sData = await heroSettingRes.json();
+    if (sData?.value) {
+      try { heroSettings = Object.assign(heroSettings, JSON.parse(sData.value)); } catch {}
+    }
+  }
+
+  if (galleryRes && galleryRes.ok) {
+    galleryList = await galleryRes.json();
+  }
+} catch (e) {
+  console.error('Error fetching carousel data:', e);
+  errorMessage = 'Network failure: Unable to reach backend server.';
+}
+
+const pagedState = { rows: slidesList, total: pagedTotal, page, pageSize, lastPage: pagedLastPage, error: null };
+
+function getImageUrl(url: string) {
+  if (!url) return '/slider1.jpg';
+  if (url.startsWith('/uploads/')) {
+    return `${BACKEND_URL}${url}`;
+  }
+  return url;
+}
+---
+
+<AdminLayout title="Carousel" description="Manage homepage carousel images, titles, and order independently." activeTab="carousel">
+  <div class="flex flex-col gap-6">
+
+    <!-- Header matching old portal style and modern standards -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-800 tracking-tight">Carousel</h1>
+        <p class="text-xs text-slate-500 mt-1">Upload and organize standalone homepage carousel slides independently of operational projects.</p>
+      </div>
+      {canMutate && (
+        <button
+          type="button"
+          id="open-add-modal-btn"
+          class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-[#0B5C9E] hover:bg-[#094b82] text-white text-xs font-bold rounded-md shadow-xs transition-colors cursor-pointer self-start sm:self-auto"
+        >
+          <Icon name="plus" size={15} strokeWidth={2.5} />
+          <span>+ Add item</span>
+        </button>
+      )}
+    </div>
+
+    <!-- Feedback alerts -->
+    {errorMessage && (
+      <div class="alert-error" role="alert">
+        <span class="font-bold">Error:</span> {errorMessage}
+      </div>
+    )}
+    {successMessage && (
+      <div class="alert-success" role="alert">
+        <span class="font-bold">Success:</span> {successMessage}
+      </div>
+    )}
+
+    <!-- Homepage Hero Carousel Motion & Autoplay Settings Card -->
+    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-xs">
+      <form method="POST" class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <input type="hidden" name="_action" value="save-hero-settings" />
+        <div class="flex items-center gap-6 flex-wrap">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-bold text-slate-700">Autoplay:</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" name="autoplay" value="true" class="sr-only peer" checked={heroSettings.autoplay !== false} />
+              <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[color:var(--adm-primary)]"></div>
+            </label>
+          </div>
+          <div class="flex items-center gap-2">
+            <label for="hero-duration" class="text-xs font-bold text-slate-700">Slide Timing:</label>
+            <select 
+              id="hero-duration" 
+              name="duration" 
+              class="admin-input text-xs font-bold py-1.5 px-3 bg-white border border-slate-300 rounded cursor-pointer focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            >
+              {[4, 5, 6, 7, 8, 9, 10].map((sec) => (
+                <option value={sec} selected={Number(heroSettings.duration || 6) === sec}>
+                  {sec}
+                </option>
+              ))}
+            </select>
+            <span class="text-xs text-slate-500 font-medium">seconds (4–10s)</span>
+          </div>
+        </div>
+        {canMutate && (
+          <button type="submit" class="admin-btn admin-btn-primary text-xs px-4 py-2 cursor-pointer self-start sm:self-auto">
+            Save Timing Settings
+          </button>
+        )}
+      </form>
+    </div>
+
+    <!-- Table Container matching Old Site (#, Title, Description, Order, Image, Status, Action) -->
+    <div class="admin-table-card bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+      <div class="admin-table-container overflow-x-auto">
+        <table class="admin-table w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
+              <th scope="col" class="py-3.5 px-4 w-12 text-center">#</th>
+              <th scope="col" class="py-3.5 px-4 min-w-[140px]">Title</th>
+              <th scope="col" class="py-3.5 px-4 min-w-[200px]">Description</th>
+              <th scope="col" class="py-3.5 px-4 w-20 text-center">Order</th>
+              <th scope="col" class="py-3.5 px-4 min-w-[140px]">Image</th>
+              <th scope="col" class="py-3.5 px-4 w-24 text-center">Status</th>
+              {canMutate && <th scope="col" class="py-3.5 px-4 w-24 text-center">Action</th>}
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-xs">
+            {slidesList.length === 0 ? (
+              <tr>
+                <td colspan={canMutate ? 7 : 6} class="text-center text-slate-500 py-12 text-xs font-semibold italic">
+                  <Icon name="folder" size={32} class="mx-auto text-slate-300 mb-2" />
+                  No carousel items added yet. Click "+ Add item" to upload a new slide.
+                </td>
+              </tr>
+            ) : (
+              slidesList.map((slide, idx) => (
+                <tr key={slide.id} class="hover:bg-slate-50/60 transition-colors">
+                  <td class="py-3.5 px-4 text-center font-bold text-slate-400">
+                    {(page - 1) * pageSize + idx + 1}
+                  </td>
+                  <td class="py-3.5 px-4 font-bold text-slate-800">
+                    <div class="flex flex-col gap-0.5">
+                      <span>{slide.title}</span>
+                      {slide.subtitle && (
+                        <span class="text-[10px] text-slate-400 font-normal">{slide.subtitle}</span>
+                      )}
+                    </div>
+                  </td>
+                  <td class="py-3.5 px-4 text-slate-600 font-medium">
+                    {slide.description || <span class="text-slate-400 italic">—</span>}
+                  </td>
+                  <td class="py-3.5 px-4 text-center font-mono font-bold text-slate-700">
+                    {slide.sortOrder ?? 0}
+                  </td>
+                  <td class="py-3.5 px-4">
+                    <div class="w-28 h-16 rounded border border-slate-200 bg-slate-100 overflow-hidden shadow-2xs group relative">
+                      <img 
+                        src={getImageUrl(slide.imageUrl)} 
+                        alt={slide.title} 
+                        class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105" 
+                        loading="lazy"
+                        onerror="this.onerror=null; this.src='/slider1.jpg';"
+                      />
+                    </div>
+                  </td>
+                  <td class="py-3.5 px-4 text-center">
+                    {canMutate ? (
+                      <form method="POST" class="inline m-0 p-0">
+                        <input type="hidden" name="_action" value="toggle-active" />
+                        <input type="hidden" name="id" value={slide.id} />
+                        <input type="hidden" name="currentActive" value={String(slide.isActive !== false)} />
+                        <button 
+                          type="submit" 
+                          class={`px-2.5 py-1 rounded-full text-[10px] font-bold cursor-pointer transition-colors ${slide.isActive !== false ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border border-emerald-300' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-300'}`}
+                          title="Click to toggle status"
+                        >
+                          {slide.isActive !== false ? 'Active' : 'Inactive'}
+                        </button>
+                      </form>
+                    ) : (
+                      <span class={`px-2.5 py-1 rounded-full text-[10px] font-bold ${slide.isActive !== false ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-slate-100 text-slate-600 border border-slate-300'}`}>
+                        {slide.isActive !== false ? 'Active' : 'Inactive'}
+                      </span>
+                    )}
+                  </td>
+                  {canMutate && (
+                    <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                      <div class="flex items-center justify-center gap-2">
+                        <!-- Edit Button (Opens Modal) -->
+                        <button
+                          type="button"
+                          class="p-1.5 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors cursor-pointer edit-slide-btn"
+                          title="Edit carousel item"
+                          data-slide={JSON.stringify(slide)}
+                          aria-label={`Edit ${slide.title}`}
+                        >
+                          <Icon name="pencil" size={15} strokeWidth={2.2} />
+                        </button>
+
+                        <!-- Delete Button -->
+                        {userIsAdmin && (
+                          <form 
+                            method="POST" 
+                            class="inline"
+                            onsubmit="return confirm('Are you sure you want to delete this carousel item?');"
+                          >
+                            <input type="hidden" name="_action" value="delete" />
+                            <input type="hidden" name="id" value={slide.id} />
+                            <button 
+                              type="submit" 
+                              class="p-1.5 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer"
+                              title="Delete carousel item"
+                              aria-label={`Delete ${slide.title}`}
+                            >
+                              <Icon name="trash-2" size={15} strokeWidth={2.2} />
+                            </button>
+                          </form>
+                        )}
+                      </div>
+                    </td>
+                  )}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <PageNav 
+      state={pagedState} 
+      buildUrl={(p) => pageUrl(Astro.url, p)} 
+      label="Carousel pagination" 
+    />
+
+    <!-- MODAL DIALOG FOR ADD / EDIT CAROUSEL ITEM -->
+    <div 
+      id="carousel-modal" 
+      class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+    >
+      <div class="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-xl overflow-hidden max-h-[90vh] flex flex-col animate-fadeInUp">
+        
+        <!-- Modal Header -->
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/90 shrink-0">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
+              <Icon name="settings" size={16} strokeWidth={2.5} />
+            </div>
+            <div>
+              <h2 id="modal-title" class="font-bold text-slate-800 text-sm">Add Carousel Item</h2>
+              <p class="text-[11px] text-slate-400">Set slide title, description, and upload image.</p>
+            </div>
+          </div>
+          <button 
+            type="button" 
+            id="close-modal-btn" 
+            class="text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 p-1.5 rounded-md transition-colors text-lg leading-none font-bold cursor-pointer"
+            aria-label="Close dialog"
+          >
+            &times;
+          </button>
+        </div>
+
+        <!-- Modal Body / Form -->
+        <form method="POST" id="carousel-form" class="overflow-y-auto p-6 space-y-4 text-xs">
+          <input type="hidden" name="_action" id="modal-action" value="create" />
+          <input type="hidden" name="id" id="modal-id" value="" />
+          <input type="hidden" name="imageUrl" id="modal-imageUrl" value="" />
+
+          <!-- Display Order & Status -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label for="modal-field-order" class="block font-bold text-slate-700 uppercase tracking-wider text-[11px] mb-1">
+                Display Order
+              </label>
+              <input 
+                type="number" 
+                name="sortOrder" 
+                id="modal-field-order" 
+                value="1" 
+                min="1" 
+                max="99" 
+                class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg font-bold" 
+              />
+            </div>
+            <div>
+              <label for="modal-field-isActive" class="block font-bold text-slate-700 uppercase tracking-wider text-[11px] mb-1">
+                Status
+              </label>
+              <select 
+                name="isActive" 
+                id="modal-field-isActive" 
+                class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg font-bold bg-white cursor-pointer"
+              >
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+              </select>
+            </div>
+          </div>
+          <input type="hidden" name="subtitle" id="modal-field-subtitle" value="" />
+          <input type="hidden" name="ctaText" id="modal-field-ctaText" value="" />
+          <input type="hidden" name="ctaHref" id="modal-field-ctaHref" value="" />
+
+          <!-- Title -->
+          <div class="space-y-1">
+            <label for="modal-field-title" class="block font-bold text-slate-700 uppercase tracking-wider text-[11px]">
+              Title <span class="text-red-500">*</span>
+            </label>
+            <input 
+              type="text" 
+              name="title" 
+              id="modal-field-title" 
+              required 
+              placeholder="e.g. BHEP"
+              class="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none font-semibold"
+            />
+          </div>
+
+          <!-- Description -->
+          <div class="space-y-1">
+            <label for="modal-field-desc" class="block font-bold text-slate-700 uppercase tracking-wider text-[11px]">
+              Description
+            </label>
+            <input 
+              type="text" 
+              name="description" 
+              id="modal-field-desc" 
+              placeholder="e.g. Dam Site / Dam Gates"
+              class="w-full px-3.5 py-2.5 text-xs border border-slate-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+
+          <!-- Carousel Image (Upload) -->
+          <div class="space-y-3 p-4 bg-slate-50/80 rounded-xl border border-slate-200">
+            <label class="block font-bold text-slate-800 uppercase tracking-wider text-[11px]">
+              Carousel Image <span class="text-red-500">*</span>
+            </label>
+            
+            <div class="flex flex-col sm:flex-row gap-4 items-start">
+              <!-- Thumbnail Preview Box -->
+              <div class="shrink-0 flex flex-col items-center gap-1.5">
+                <div class="w-36 h-24 rounded-lg overflow-hidden bg-slate-200 border-2 border-slate-300 shadow-xs relative flex items-center justify-center">
+                  <img id="modal-preview-img" src="/slider1.jpg" alt="Preview" class="w-full h-full object-cover hidden" />
+                  <div id="modal-preview-placeholder" class="w-full h-full flex flex-col items-center justify-center text-slate-400 gap-1 p-2 text-center">
+                    <Icon name="image" size={24} />
+                    <span class="text-[10px] leading-tight">No image selected</span>
+                  </div>
+                </div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Image Preview</span>
+              </div>
+
+              <!-- Upload Drag & Drop Area -->
+              <div class="flex-1 w-full space-y-2">
+                <div 
+                  id="modal-dropzone" 
+                  class="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-lg p-4 text-center cursor-pointer transition-colors bg-white flex flex-col items-center justify-center gap-1.5"
+                >
+                  <Icon name="upload" size={20} class="text-blue-600" />
+                  <p class="font-semibold text-slate-700 text-xs">Click or drag image file here to upload</p>
+                  <p class="text-[10px] text-slate-400">JPG, PNG, WEBP</p>
+                  <input 
+                    type="file" 
+                    id="modal-file-input" 
+                    accept="image/*" 
+                    class="hidden" 
+                  />
+                </div>
+                
+                <div id="modal-upload-status" class="text-[11px] font-semibold text-blue-600 hidden">
+                  Uploading image to server...
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer Actions -->
+          <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-2.5">
+            <button 
+              type="button" 
+              id="cancel-modal-btn" 
+              class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button 
+              type="button" 
+              id="clear-carousel-btn" 
+              class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+            >
+              Clear
+            </button>
+            <button 
+              type="submit" 
+              id="modal-submit-btn" 
+              class="px-5 py-2 text-xs font-bold text-white bg-[#0B5C9E] hover:bg-[#094b82] rounded-lg shadow-sm transition-colors cursor-pointer"
+            >
+              Save Item
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <script is:inline define:vars={{ totalCount: slidesList.length, backendUrl: BACKEND_URL }}>
+    function initCarouselPage() {
+      var modal = document.getElementById('carousel-modal');
+      var openAddBtn = document.getElementById('open-add-modal-btn');
+      var closeBtn = document.getElementById('close-modal-btn');
+      var cancelBtn = document.getElementById('cancel-modal-btn');
+      var submitBtn = document.getElementById('modal-submit-btn');
+
+      var modalTitle = document.getElementById('modal-title');
+      var modalAction = document.getElementById('modal-action');
+      var modalId = document.getElementById('modal-id');
+      var modalImageUrl = document.getElementById('modal-imageUrl');
+
+      var fieldTitle = document.getElementById('modal-field-title');
+      var fieldDesc = document.getElementById('modal-field-desc');
+      var fieldOrder = document.getElementById('modal-field-order');
+      var fieldSubtitle = document.getElementById('modal-field-subtitle');
+      var fieldCtaText = document.getElementById('modal-field-ctaText');
+      var fieldCtaHref = document.getElementById('modal-field-ctaHref');
+      var fieldIsActive = document.getElementById('modal-field-isActive');
+
+      var previewImg = document.getElementById('modal-preview-img');
+      var previewPlaceholder = document.getElementById('modal-preview-placeholder');
+
+      var dropzone = document.getElementById('modal-dropzone');
+      var fileInput = document.getElementById('modal-file-input');
+      var uploadStatus = document.getElementById('modal-upload-status');
+      var form = document.getElementById('carousel-form');
+
+      function formatImageUrl(url) {
+        if (!url) return '';
+        var apiBase = (backendUrl || '').replace(/\/+$/, '');
+        if (url.startsWith('/uploads/')) {
+          return apiBase + url;
+        }
+        return url;
+      }
+
+      function updateImagePreview(url) {
+        if (url && url.trim()) {
+          modalImageUrl.value = url.trim();
+          previewImg.src = formatImageUrl(url.trim());
+          previewImg.classList.remove('hidden');
+          previewPlaceholder.classList.add('hidden');
+        } else {
+          modalImageUrl.value = '';
+          previewImg.src = '';
+          previewImg.classList.add('hidden');
+          previewPlaceholder.classList.remove('hidden');
+        }
+      }
+
+      function openModal(isEdit, data) {
+        if (!modal) return;
+        var clearBtn = document.getElementById('clear-carousel-btn');
+        if (isEdit && data) {
+          modalTitle.textContent = 'Edit Carousel Item';
+          modalAction.value = 'update';
+          if (clearBtn) clearBtn.classList.add('hidden');
+          modalId.value = data.id || '';
+          fieldTitle.value = data.title || '';
+          fieldDesc.value = data.description || '';
+          if (fieldOrder) fieldOrder.value = data.sortOrder != null ? data.sortOrder : 1;
+          if (fieldSubtitle) fieldSubtitle.value = data.subtitle || '';
+          if (fieldCtaText) fieldCtaText.value = data.ctaText || '';
+          if (fieldCtaHref) fieldCtaHref.value = data.ctaHref || '';
+          if (fieldIsActive) fieldIsActive.value = data.isActive !== false ? 'true' : 'false';
+          updateImagePreview(data.imageUrl || '');
+          submitBtn.textContent = 'Update Item';
+        } else {
+          modalTitle.textContent = 'Add Carousel Item';
+          modalAction.value = 'create';
+          if (clearBtn) clearBtn.classList.remove('hidden');
+          modalId.value = '';
+          fieldTitle.value = '';
+          fieldDesc.value = '';
+          if (fieldOrder) fieldOrder.value = totalCount + 1;
+          if (fieldSubtitle) fieldSubtitle.value = '';
+          if (fieldCtaText) fieldCtaText.value = '';
+          if (fieldCtaHref) fieldCtaHref.value = '';
+          if (fieldIsActive) fieldIsActive.value = 'true';
+          updateImagePreview('');
+          submitBtn.textContent = 'Add Item';
+        }
+        modal.classList.remove('hidden');
+        fieldTitle.focus();
+      }
+
+      function closeModal() {
+        if (modal) modal.classList.add('hidden');
+      }
+
+      if (openAddBtn) {
+        openAddBtn.addEventListener('click', function() {
+          openModal(false);
+        });
+      }
+
+      if (closeBtn) closeBtn.addEventListener('click', closeModal);
+      if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+      var clearBtn = document.getElementById('clear-carousel-btn');
+      if (clearBtn) {
+        clearBtn.addEventListener('click', function() {
+          var isDirty = (fieldTitle?.value || '') !== '' ||
+            (fieldDesc?.value || '') !== '' ||
+            (modalImageUrl?.value || '') !== '';
+          if (isDirty) {
+            if (!confirm('Are you sure you want to clear all entered form fields?')) {
+              return;
+            }
+          }
+          openModal(false);
+        });
+      }
+
+      // Close modal on click outside
+      modal?.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          closeModal();
+        }
+      });
+
+      // Close modal on Escape
+      window.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && !modal?.classList.contains('hidden')) {
+          closeModal();
+        }
+      });
+
+      // Form submission validation
+      form?.addEventListener('submit', function(e) {
+        if (!modalImageUrl.value || !modalImageUrl.value.trim()) {
+          e.preventDefault();
+          alert('Please click or drag an image file to upload before saving.');
+          return false;
+        }
+      });
+
+      // Hook up all edit buttons
+      var editButtons = document.querySelectorAll('.edit-slide-btn');
+      editButtons.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var rawData = btn.getAttribute('data-slide');
+          if (rawData) {
+            try {
+              var data = JSON.parse(rawData);
+              openModal(true, data);
+            } catch (err) {
+              console.error('Failed to parse slide data:', err);
+            }
+          }
+        });
+      });
+
+      // File upload dropzone trigger
+      dropzone?.addEventListener('click', function() {
+        fileInput?.click();
+      });
+
+      dropzone?.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        dropzone.classList.add('border-blue-500', 'bg-blue-50/50');
+      });
+
+      dropzone?.addEventListener('dragleave', function() {
+        dropzone.classList.remove('border-blue-500', 'bg-blue-50/50');
+      });
+
+      dropzone?.addEventListener('drop', function(e) {
+        e.preventDefault();
+        dropzone.classList.remove('border-blue-500', 'bg-blue-50/50');
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+          handleFileUpload(e.dataTransfer.files[0]);
+        }
+      });
+
+      fileInput?.addEventListener('change', function(e) {
+        var file = e.target?.files?.[0];
+        if (file) {
+          handleFileUpload(file);
+        }
+      });
+
+      async function handleFileUpload(file) {
+        if (!file) return;
+
+        if (file.size > 2 * 1024 * 1024) {
+          alert('Image exceeds the maximum allowed size of 2 MB.');
+          if (fileInput) fileInput.value = '';
+          return;
+        }
+
+        if (uploadStatus) {
+          uploadStatus.textContent = 'Uploading ' + file.name + '...';
+          uploadStatus.classList.remove('hidden');
+        }
+        if (dropzone) {
+          dropzone.classList.add('opacity-50', 'pointer-events-none');
+        }
+        if (submitBtn) {
+          submitBtn.disabled = true;
+        }
+
+        var formData = new FormData();
+        formData.append('file', file);
+        formData.append('category', 'image');
+
+        try {
+          var response = await fetch('/api/admin/upload', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!response.ok) {
+            var errData = await response.json().catch(function() { return {}; });
+            throw new Error(errData.message || 'File upload failed');
+          }
+
+          var res = await response.json();
+          if (res && res.url) {
+            updateImagePreview(res.url);
+            if (uploadStatus) {
+              uploadStatus.textContent = 'Upload successful!';
+              uploadStatus.classList.remove('text-red-500');
+              uploadStatus.classList.add('text-emerald-600');
+              setTimeout(function() {
+                uploadStatus.classList.add('hidden');
+              }, 2500);
+            }
+          }
+        } catch (err) {
+          console.error('Upload failed:', err);
+          if (uploadStatus) {
+            uploadStatus.textContent = 'Upload error: ' + (err.message || 'Server error');
+            uploadStatus.classList.remove('text-emerald-600');
+            uploadStatus.classList.add('text-red-500');
+          }
+          alert('Upload failed: ' + (err.message || 'Server error'));
+        } finally {
+          if (dropzone) {
+            dropzone.classList.remove('opacity-50', 'pointer-events-none');
+          }
+          if (submitBtn) {
+            submitBtn.disabled = false;
+          }
+          if (fileInput) {
+            fileInput.value = '';
+          }
+        }
+      }
+    }
+
+    // Initialize on initial page load and after client-side transitions
+    initCarouselPage();
+    document.addEventListener('astro:page-load', initCarouselPage);
+  </script>
+</AdminLayout>

@@ -54,16 +54,19 @@ export async function fetchPaged(
   },
 ): Promise<PageState> {
   const { BACKEND_URL, token, page, pageSize, extra } = opts;
-  const params: Record<string, string> = {};
-  for (const [k, v] of Object.entries(extra || {})) {
-    if (v !== undefined && v !== null && v !== '') params[k] = String(v);
-  }
-  params.page = String(page);
-  params.pageSize = String(pageSize);
-  const qs = new URLSearchParams(params).toString();
   const state: PageState = { rows: [], total: 0, page, pageSize, lastPage: 1, error: null };
   try {
-    const res = await fetch(`${BACKEND_URL}${endpoint}?${qs}`, {
+    const rawUrl = endpoint.startsWith('http')
+      ? endpoint
+      : `${BACKEND_URL.replace(/\/+$/, '')}/${endpoint.replace(/^\/+/, '')}`;
+    const targetUrl = new URL(rawUrl);
+    for (const [k, v] of Object.entries(extra || {})) {
+      if (v !== undefined && v !== null && v !== '') targetUrl.searchParams.set(k, String(v));
+    }
+    targetUrl.searchParams.set('page', String(page));
+    targetUrl.searchParams.set('pageSize', String(pageSize));
+
+    const res = await fetch(targetUrl.toString(), {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
       signal: opts.signal,
     });

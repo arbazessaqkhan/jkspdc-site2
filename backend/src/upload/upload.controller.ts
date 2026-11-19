@@ -31,8 +31,11 @@ import {
   validateFileContent,
 } from './file-validator.helper';
 
-const MAX_STANDARD_BYTES = 20 * 1024 * 1024; // 20 MB standard limit
-const MAX_IMPORTANT_BYTES = 100 * 1024 * 1024; // 100 MB critical/important limit
+const LIMIT_TENDER_BYTES = 10 * 1024 * 1024;    // 10 MB for tenders & corrigenda
+const LIMIT_NOTICE_BYTES = 5 * 1024 * 1024;     // 5 MB for notices & notifications
+const LIMIT_IMAGE_BYTES = 2 * 1024 * 1024;      // 2 MB for images & photographs
+const LIMIT_STANDARD_BYTES = 20 * 1024 * 1024;  // 20 MB for general official documents (policies, AGM, reports)
+const MULTER_CEILING_BYTES = 25 * 1024 * 1024;  // 25 MB hard ceiling for multipart overhead
 
 @Controller('upload')
 @UseGuards(AuthGuard, RolesGuard)
@@ -40,6 +43,7 @@ export class UploadController {
   constructor(private readonly auditLogsService: AuditLogsService) {}
 
   @Get()
+  @Roles(Role.ADMIN, Role.EDITOR)
   listFiles() {
     const dirPath = path.join(process.cwd(), 'uploads');
     if (!fs.existsSync(dirPath)) {
@@ -141,8 +145,8 @@ export class UploadController {
         },
       }),
       limits: {
-        fileSize: MAX_IMPORTANT_BYTES, // Multer hard ceiling (100MB)
-        files: 1,                      // Exactly 1 file per upload request
+        fileSize: MULTER_CEILING_BYTES, // Multer ceiling (25 MB)
+        files: 1,                       // Exactly 1 file per upload request
       },
       fileFilter: (_req: any, file: any, cb: any) => {
         // Step 1: Validate original filename format and extensions
@@ -169,8 +173,32 @@ export class UploadController {
 
     const filePath = path.join(process.cwd(), 'uploads', file.filename);
     const ext = path.extname(file.originalname).toLowerCase() as AllowedExtension;
-    const isImportant =
-      body?.isImportant === 'true' || body?.isImportant === true || body?.isImportant === '1';
+
+    // Determine category and applicable limit
+    const rawCategory = (body?.category || '').toString().toLowerCase().trim();
+    const isImageFile = ['.jpg', '.jpeg', '.png'].includes(ext);
+
+    let maxAllowedBytes = LIMIT_STANDARD_BYTES;
+    let limitLabel = '20 MB';
+    let prefix = 'File';
+
+    if (rawCategory === 'tender' || rawCategory === 'corrigendum') {
+      maxAllowedBytes = LIMIT_TENDER_BYTES;
+      limitLabel = '10 MB';
+      prefix = 'File';
+    } else if (rawCategory === 'notice' || rawCategory === 'notification') {
+      maxAllowedBytes = LIMIT_NOTICE_BYTES;
+      limitLabel = '5 MB';
+      prefix = 'File';
+    } else if (rawCategory === 'image' || rawCategory === 'photograph' || isImageFile) {
+      maxAllowedBytes = LIMIT_IMAGE_BYTES;
+      limitLabel = '2 MB';
+      prefix = 'Image';
+    } else {
+      maxAllowedBytes = LIMIT_STANDARD_BYTES;
+      limitLabel = '20 MB';
+      prefix = 'File';
+    }
 
     // Step 3: Size limit validation
     if (file.size === 0) {
@@ -180,23 +208,12 @@ export class UploadController {
       throw new BadRequestException('File is empty (0 bytes).');
     }
 
-    if (file.size > MAX_STANDARD_BYTES && !isImportant) {
+    if (file.size > maxAllowedBytes) {
       try {
         if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
       } catch (e) {}
-      const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
       throw new BadRequestException(
-        `File size (${sizeMB} MB) exceeds standard 20 MB limit. Check "Important" to allow uploads up to 100 MB.`,
-      );
-    }
-
-    if (file.size > MAX_IMPORTANT_BYTES) {
-      try {
-        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-      } catch (e) {}
-      const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-      throw new BadRequestException(
-        `File size (${sizeMB} MB) exceeds maximum permissible limit of 100 MB.`,
+        `${prefix} exceeds the maximum allowed size of ${limitLabel}.`,
       );
     }
 
@@ -219,7 +236,7 @@ export class UploadController {
         originalFilename: path.basename(file.originalname),
         sizeBytes: file.size,
         mimetype: file.mimetype,
-        isImportant,
+        category: rawCategory || (isImageFile ? 'image' : 'document'),
       });
     }
 
@@ -233,7 +250,6 @@ export class UploadController {
       filename: file.filename,
       originalName: sanitizedOriginalName,
       sizeBytes: file.size,
-      isImportant,
     };
   }
 }

@@ -103,7 +103,7 @@ if (Astro.request.method === 'POST') {
       });
 
       if (res.ok) {
-        return Astro.redirect('/admin/users');
+        return Astro.redirect('/admin/users?saved=true');
       } else {
         const apiErr = await parseApiError(res, 'save user account');
         if (apiErr.isUnauthorized) {
@@ -141,6 +141,9 @@ if (Astro.request.method === 'POST') {
         <Icon name="alert-triangle" size={14} class="text-red-600 shrink-0" />
         <span>{errorMessage}</span>
       </div>
+      <script is:inline define:vars={{ msg: errorMessage }}>
+        alert('Action Failed: ' + msg);
+      </script>
     )}
 
     <!-- Form -->

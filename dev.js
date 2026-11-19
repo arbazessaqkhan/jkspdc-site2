@@ -5,12 +5,10 @@ const fs = require('fs');
 const isWindows = process.platform === 'win32';
 const npmCmd = isWindows ? 'npm.cmd' : 'npm';
 
-// Prepend local Node/NPM directory to PATH if it exists
-const localNodeBinDir = path.resolve(__dirname, '.node/node-v20.15.0-win-x64');
-if (fs.existsSync(localNodeBinDir)) {
-  const pathKey = process.platform === 'win32' ? 'Path' : 'PATH';
-  process.env[pathKey] = localNodeBinDir + path.delimiter + (process.env[pathKey] || '');
-  console.log(`Using local Node/NPM from: ${localNodeBinDir}`);
+// Runtime verification: ensure running Node satisfies modern requirements (>= 22)
+const nodeMajorVersion = parseInt(process.versions.node.split('.')[0], 10);
+if (nodeMajorVersion < 22) {
+  console.warn(`[WARNING] Active Node version is v${process.versions.node}. Astro 7 and NestJS 11 require Node >= 22.23.4.`);
 }
 
 // Clear lingering processes on port 3000 / 4321 to prevent EADDRINUSE errors

@@ -1,0 +1,173 @@
+Created At: 2026-11-17T14:41:17+05:30
+Completed At: 2026-11-17T14:41:17+05:30
+Created At: 2026-11-17T14:41:17+05:30
+Completed At: 2026-11-17T14:41:17+05:30
+Command exited with code 0.
+
+Command output:
+ M .env.example
+ M .gitignore
+ M backend/package-lock.json
+ M backend/package.json
+ M backend/prisma/schema.prisma
+ M backend/prisma/seed.js
+ M backend/src/app.module.ts
+ M backend/src/auth/auth.controller.ts
+ M backend/src/auth/auth.service.ts
+ M backend/src/config/env.validation.ts
+ M backend/src/contact/contact.controller.ts
+ M backend/src/gallery/gallery.dto.ts
+ M backend/src/gallery/gallery.service.ts
+ M backend/src/hero-slides/hero-slides.controller.ts
+ M backend/src/hero-slides/hero-slides.dto.ts
+ M backend/src/http-throttler.guard.ts
+ D backend/src/hydro/dto/index.ts
+ D backend/src/hydro/hydro.controller.ts
+ D backend/src/hydro/hydro.module.ts
+ D backend/src/hydro/ingestion/chunker.service.ts
+ D backend/src/hydro/ingestion/database-indexer.service.ts
+ D backend/src/hydro/ingestion/document-parser.service.ts
+ D backend/src/hydro/ingestion/ingestion.service.ts
+ D backend/src/hydro/ingestion/page-crawler.service.ts
+ D backend/src/hydro/prompts/system-prompt.ts
+ D backend/src/hydro/services/analytics.service.ts
+ D backend/src/hydro/services/citation.service.ts
+ D backend/src/hydro/services/conversation.service.ts
+ D backend/src/hydro/services/embedding.service.ts
+ D backend/src/hydro/services/grounding.service.ts
+ D backend/src/hydro/services/hydro.service.ts
+ D backend/src/hydro/services/llm.service.ts
+ D backend/src/hydro/services/query.service.ts
+ D backend/src/hydro/services/retrieval.service.ts
+ D backend/src/hydro/services/scope.service.ts
+ D backend/src/hydro/services/vector-store.service.ts
+ M backend/src/ipp-projects/ipp-projects.service.ts
+ M backend/src/main.ts
+ M backend/src/notifications/notifications.dto.ts
+ M backend/src/notifications/notifications.service.ts
+ M backend/src/projects/projects.service.ts
+ M backend/src/public-api/public-api.controller.ts
+ M backend/src/public-api/public-api.service.ts
+ M backend/src/tenders/tenders.dto.ts
+ M backend/src/tenders/tenders.service.ts
+ M backend/src/upload/upload.controller.ts
+ M backend/src/users/users.controller.ts
+ M backend/src/users/users.dto.ts
+ M backend/src/users/users.service.ts
+ M dev.js
+ M docker-compose.yml
+ M docker/nginx/nginx.conf
+ M proxy.js
+ M website/package-lock.json
+ M website/package.json
+ M website/public/favicon.png
+ D website/public/hydro_ai_logo.png
+ M website/src/components/Header.astro
+ M website/src/components/PageHeader.astro
+ M website/src/components/PageNav.astro
+ M website/src/components/TableWrapper.astro
+ M website/src/components/Ticker.astro
+ M website/src/components/admin/FileUploader.astro
+ M website/src/env.d.ts
+ M website/src/layouts/AdminLayout.astro
+ M website/src/layouts/Layout.astro
+ M website/src/middleware.ts
+ M website/src/pages/404.astro
+ M website/src/pages/about-us/explore/association-memorandum.astro
+ M website/src/pages/about-us/explore/gstin-registration.astro
+ M website/src/pages/about-us/explore/organization-chart.astro
+ M website/src/pages/about-us/explore/policies.astro
+ M website/src/pages/about-us/explore/rti.astro
+ M website/src/pages/about-us/management/board.astro
+ M website/src/pages/about-us/others/contact.astro
+ M website/src/pages/accessibility-statement.astro
+ M website/src/pages/admin/agm.astro
+ M website/src/pages/admin/audit-logs.astro
+ M website/src/pages/admin/contact-sub-offices.astro
+ M website/src/pages/admin/contacts.astro
+ M website/src/pages/admin/dignitaries.astro
+ M website/src/pages/admin/gallery-form.astro
+ M website/src/pages/admin/gallery.astro
+ M website/src/pages/admin/ipp-projects.astro
+ M website/src/pages/admin/login.astro
+ M website/src/pages/admin/logout.ts
+ M website/src/pages/admin/media-manager.astro
+ M website/src/pages/admin/notifications.astro
+ M website/src/pages/admin/official-contacts.astro
+ M website/src/pages/admin/operational-projects-form.astro
+ M website/src/pages/admin/operational-projects.astro
+ M website/src/pages/admin/policies-form.astro
+ M website/src/pages/admin/policies.astro
+ M website/src/pages/admin/resources.astro
+ M website/src/pages/admin/tenders-form.astro
+ M website/src/pages/admin/tenders.astro
+ M website/src/pages/admin/types.ts
+ M website/src/pages/admin/under-construction-form.astro
+ M website/src/pages/admin/under-construction.astro
+ M website/src/pages/admin/upcoming-projects-form.astro
+ M website/src/pages/admin/upcoming-projects.astro
+ M website/src/pages/admin/users-form.astro
+ M website/src/pages/admin/users.astro
+ M website/src/pages/copyright.astro
+ M website/src/pages/dignitaries/[id].astro
+ M website/src/pages/dignitaries/ashwani-kumar.astro
+ M website/src/pages/dignitaries/manoj-sinha.astro
+ M website/src/pages/dignitaries/omar-abdullah.astro
+ M website/src/pages/dignitaries/rahul-yadav.astro
+ M website/src/pages/disclaimer.astro
+ M website/src/pages/feedback.astro
+ M website/src/pages/help.astro
+ M website/src/pages/hyperlinking-policy.astro
+ M website/src/pages/index.astro
+ M website/src/pages/media/downloads.astro
+ M website/src/pages/media/gallery.astro
+ M website/src/pages/notifications.astro
+ M website/src/pages/our-business/construction.astro
+ M website/src/pages/our-business/power-station-details.astro
+ M website/src/pages/our-business/power-stations.astro
+ M website/src/pages/our-business/under-development.astro
+ M website/src/pages/privacy-policy.astro
+ M website/src/pages/search.astro
+ M website/src/pages/sitemap.astro
+ M website/src/pages/stakeholders/investors/agm.astro
+ M website/src/pages/stakeholders/investors/ipp-project-details.astro
+ M website/src/pages/stakeholders/investors/ipp-projects.astro
+ M website/src/pages/stakeholders/investors/more.astro
+ M website/src/pages/stakeholders/vendors/tender-bids.astro
+ M website/src/pages/stakeholders/vendors/tender-details.astro
+ M website/src/pages/sustainability/csr/policy.astro
+ M website/src/pages/terms-conditions.astro
+ M website/src/pages/uploads/[...file].ts
+ M website/src/styles/admin.css
+ M website/src/styles/global.css
+ M website/src/utils/api-error.ts
+ M website/src/utils/pagination.ts
+ M website/src/utils/projectFormatter.ts
+ M website/src/utils/sanitizer.ts
+?? .agents/teamwork/
+?? backend/.e
+?? backend/Dockerfile
+?? backend/prisma/add-agm-status.js
+?? backend/prisma/add-status-columns.js
+?? backend/prisma/create-draft-revisions-table.js
+?? backend/prisma/dev.db.bak
+?? backend/prisma/migrations/20261111000000_remove_hydro_ai/
+?? backend/prisma/migrations/20261111120000_add_mfa_support/
+?? backend/prisma/migrations/20261111160000_mfa_security_hardening/
+?? backend/prisma/migrations/20261114120000_homepage_ticker_fields/
+?? backend/src/auth/mfa-crypto.util.ts
+?? backend/src/auth/totp.util.ts
+?? backend/src/common/file-format.helper.ts
+?? backend/src/draft-revisions/
+?? backend/test/
+?? docker-compose.prod.yml
+?? projects_dump.json
+?? scripts/
+?? website/Dockerfile
+?? website/src/components/ProjectCard.astro
+?? website/src/components/TablePagination.astro
+?? website/src/pages/admin/carousel.astro
+?? website/src/pages/admin/hero-slides-form.astro
+?? website/src/pages/admin/hero-slides.astro
+?? website/src/pages/admin/homepage-sections.astro
+?? website/src/pages/api/admin/

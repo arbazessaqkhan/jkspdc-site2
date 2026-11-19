@@ -130,7 +130,7 @@ const pagedState = { rows: contacts, total: pagedTotal, page, pageSize, lastPage
           ) : (
             contacts.map((c: any, idx: number) => (
               <tr key={c.id} class="transition-colors">
-                <td class="text-center font-bold text-slate-400 text-xs">{c.viewOrder || idx + 1}</td>
+                <td class="text-center font-bold text-slate-400 text-xs">{(page - 1) * pageSize + idx + 1}</td>
                 <td>
                   <p class="font-bold text-slate-900 text-xs leading-snug">{c.name}</p>
                   <p class="text-[11px] text-[color:var(--adm-primary)] font-semibold mt-0.5">{c.position}</p>

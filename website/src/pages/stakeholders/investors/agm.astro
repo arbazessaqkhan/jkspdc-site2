@@ -1,6 +1,7 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 import Icon from '../../../components/Icon.astro';
+import { getDocUrl } from '../../../utils/sanitizer';
 
 // Fetch public AGM documents from backend API and Resources/Downloads with Category 'AGM'
 let agmDocuments: any[] = [];
@@ -47,13 +48,7 @@ const availableYears = Array.from(
   new Set(agmDocuments.map((doc: any) => new Date(doc.meetingDate).getFullYear()))
 ).sort((a: any, b: any) => b - a);
 
-const getDocUrl = (url?: string) => {
-  if (!url) return '#';
-  if (url.startsWith('/uploads/')) {
-    return `${import.meta.env.PUBLIC_API_BASE}${url}`;
-  }
-  return url;
-};
+
 
 const formatDate = (dateStr: string) => {
   try {
@@ -92,10 +87,10 @@ const formatDate = (dateStr: string) => {
       <!-- Section Header -->
       <div class="border-b border-slate-200 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <div class="inline-block text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-[#0B4F9C] px-3 py-1 rounded-full mb-1 border border-blue-200">
+          <div class="inline-block text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-[#0B3B60] px-3 py-1 rounded-full mb-1 border border-blue-200">
             Statutory &amp; Corporate Compliance
           </div>
-          <h2 class="text-xl sm:text-2xl font-extrabold text-[#0B4F9C]">
+          <h2 class="text-xl sm:text-2xl font-extrabold text-[#0B3B60]">
             AGM Notices &amp; Meeting Documents
           </h2>
           <p class="text-xs sm:text-sm text-slate-600 font-normal mt-1 leading-relaxed">
@@ -117,7 +112,7 @@ const formatDate = (dateStr: string) => {
           </label>
           <select 
             id="agm-year-filter" 
-            class="form-select text-xs py-1.5 px-3 border border-slate-300 rounded-lg bg-white font-medium text-slate-700 focus:border-[#0B4F9C] focus:ring-1 focus:ring-[#0B4F9C] w-full sm:w-44"
+            class="form-select text-xs py-1.5 px-3 border border-slate-300 rounded-lg bg-white font-medium text-slate-700 focus:border-[#0B3B60] focus:ring-1 focus:ring-focus w-full sm:w-44"
           >
             <option value="All">All Years</option>
             {availableYears.map((year) => (
@@ -134,7 +129,7 @@ const formatDate = (dateStr: string) => {
             type="text" 
             id="agm-search-input" 
             placeholder="Search by title or file..." 
-            class="text-xs py-1.5 px-3 border border-slate-300 rounded-lg bg-white font-normal text-slate-800 focus:border-[#0B4F9C] focus:ring-1 focus:ring-[#0B4F9C] w-full sm:w-60 outline-none"
+            class="text-xs py-1.5 px-3 border border-slate-300 rounded-lg bg-white font-normal text-slate-800 focus:border-[#0B3B60] focus:ring-1 focus:ring-focus w-full sm:w-60 outline-none"
           />
         </div>
       </div>
@@ -144,10 +139,10 @@ const formatDate = (dateStr: string) => {
         <table class="table-data min-w-full" id="agm-table">
           <thead>
             <tr>
-              <th scope="col" class="text-left w-16">S.No</th>
+              <th scope="col" class="w-16 text-center">S.No</th>
               <th scope="col" class="text-left">Meeting Title &amp; Particulars</th>
-              <th scope="col" class="text-left w-48">Date of Meeting</th>
-              <th scope="col" class="text-center w-36">View Notice</th>
+              <th scope="col" class="text-left w-48 whitespace-nowrap">Date of Meeting</th>
+              <th scope="col" class="text-center w-36 whitespace-nowrap">View Notice</th>
             </tr>
           </thead>
           <tbody id="agm-table-body">
@@ -173,24 +168,24 @@ const formatDate = (dateStr: string) => {
                     data-title={agm.title.toLowerCase()}
                     data-file={agm.fileName?.toLowerCase() || ''}
                   >
-                    <td class="text-left font-bold text-xs text-slate-400 row-idx">{idx + 1}</td>
+                    <td class="text-center font-bold text-xs text-slate-400 row-idx">{idx + 1}</td>
                     <td class="text-left">
-                      <div class="font-bold text-xs text-slate-900 leading-snug">
+                      <div class="font-bold text-xs sm:text-sm text-slate-900 leading-snug">
                         {agm.title}
                       </div>
-                      <div class="text-[11px] text-slate-500 mt-0.5">
+                      <div class="text-[11px] text-slate-500 mt-0.5 font-medium">
                         Statutory Annual General Meeting Disclosures
                       </div>
                     </td>
                     <td class="text-left whitespace-nowrap text-xs font-semibold text-slate-700">
                       {formatDate(agm.meetingDate)}
                     </td>
-                    <td class="text-center">
+                    <td class="text-center whitespace-nowrap">
                       <a 
                         href={getDocUrl(agm.documentUrl)} 
                         target="_blank" 
                         rel="noopener noreferrer" 
-                        class="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 border border-[#0B4F9C] hover:bg-[#0B4F9C] hover:text-white text-[#0B4F9C] rounded text-xs font-bold transition-all"
+                        class="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 border border-[#0B3B60] hover:bg-[#0EA4E5] hover:text-white text-[#0B3B60] rounded text-xs font-bold transition-all"
                         title={`View PDF: ${agm.fileName || agm.title} (opens in new tab)`}
                       >
                         <Icon name="file-text" size={12} />
@@ -211,6 +206,14 @@ const formatDate = (dateStr: string) => {
         No AGM documents found matching your filter criteria.
       </div>      
 
+      <!-- Pagination Controls (10 items per page) -->
+      <nav id="agm-pagination" class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-3" aria-label="AGM Documents Pagination">
+        <p class="text-[11px] font-medium text-slate-500">
+          Showing <strong class="text-slate-700 font-bold" id="agm-page-from">0</strong>–<strong class="text-slate-700 font-bold" id="agm-page-to">0</strong> of <strong class="text-slate-700 font-bold" id="agm-page-total">0</strong> documents
+        </p>
+        <div class="flex flex-wrap items-center gap-1.5" id="agm-page-buttons"></div>
+      </nav>
+
     </div>
   </div>
 </Layout>
@@ -219,45 +222,156 @@ const formatDate = (dateStr: string) => {
   function setupAgmFilter() {
     const yearSelect = document.getElementById('agm-year-filter') as HTMLSelectElement | null;
     const searchInput = document.getElementById('agm-search-input') as HTMLInputElement | null;
-    const rows = document.querySelectorAll<HTMLTableRowElement>('.agm-item-row');
+    const allRows = Array.from(document.querySelectorAll<HTMLTableRowElement>('.agm-item-row'));
     const noMatchMsg = document.getElementById('no-match-message');
     const countBadge = document.getElementById('record-count-badge');
+    const paginationNav = document.getElementById('agm-pagination');
+    const pageFromEl = document.getElementById('agm-page-from');
+    const pageToEl = document.getElementById('agm-page-to');
+    const pageTotalEl = document.getElementById('agm-page-total');
+    const pageButtonsEl = document.getElementById('agm-page-buttons');
 
-    if (!rows.length) return;
+    if (!allRows.length) {
+      if (paginationNav) paginationNav.style.display = 'none';
+      return;
+    }
+
+    const pageSize = 10;
+    let currentPage = 1;
+    let matchedRows: HTMLTableRowElement[] = [];
+
+    function renderPage() {
+      const total = matchedRows.length;
+      const totalPages = Math.ceil(total / pageSize) || 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+
+      const startIdx = (currentPage - 1) * pageSize;
+      const endIdx = Math.min(startIdx + pageSize, total);
+
+      // Hide all rows, then show current page slice
+      allRows.forEach((row) => (row.style.display = 'none'));
+      matchedRows.forEach((row, idx) => {
+        if (idx >= startIdx && idx < endIdx) {
+          row.style.display = '';
+          const idxCell = row.querySelector('.row-idx');
+          if (idxCell) idxCell.textContent = String(idx + 1);
+        }
+      });
+
+      // Update text
+      if (pageFromEl) pageFromEl.textContent = total === 0 ? '0' : String(startIdx + 1);
+      if (pageToEl) pageToEl.textContent = String(endIdx);
+      if (pageTotalEl) pageTotalEl.textContent = String(total);
+      if (countBadge) countBadge.textContent = `Showing: ${total} Record${total === 1 ? '' : 's'}`;
+
+      if (noMatchMsg) noMatchMsg.classList.toggle('hidden', total > 0);
+      if (paginationNav) paginationNav.style.display = total === 0 ? 'none' : 'flex';
+
+      // Render pagination buttons
+      if (!pageButtonsEl) return;
+      pageButtonsEl.innerHTML = '';
+
+      if (totalPages <= 1) return;
+
+      const btnBaseClass = 'inline-flex items-center justify-center min-w-8 h-8 px-2.5 rounded-md border text-xs font-semibold transition-colors cursor-pointer select-none';
+      const activeClass = `${btnBaseClass} border-[#0B3B60] bg-[#0B3B60] text-white font-bold shadow-2xs`;
+      const inactiveClass = `${btnBaseClass} border-slate-200 bg-white text-slate-700 hover:bg-[#EAF4FF] hover:text-[#0B3B60] hover:border-[#BDD7EE]`;
+      const disabledClass = `${btnBaseClass} border-slate-200 bg-white text-slate-400 opacity-40 cursor-not-allowed`;
+
+      // Prev Button
+      const prevBtn = document.createElement('button');
+      prevBtn.type = 'button';
+      prevBtn.innerHTML = '&lsaquo; Prev';
+      prevBtn.className = currentPage > 1 ? inactiveClass : disabledClass;
+      prevBtn.disabled = currentPage <= 1;
+      prevBtn.onclick = () => {
+        if (currentPage > 1) {
+          currentPage--;
+          renderPage();
+        }
+      };
+      pageButtonsEl.appendChild(prevBtn);
+
+      // Page numbers (window of 5)
+      let startP = Math.max(1, currentPage - 2);
+      let endP = Math.min(totalPages, startP + 4);
+      if (endP - startP < 4) startP = Math.max(1, endP - 4);
+
+      if (startP > 1) {
+        const p1 = createPageBtn(1);
+        pageButtonsEl.appendChild(p1);
+        if (startP > 2) {
+          const dots = document.createElement('span');
+          dots.className = 'inline-flex items-center justify-center min-w-6 h-8 text-xs font-semibold text-slate-400 select-none';
+          dots.textContent = '…';
+          pageButtonsEl.appendChild(dots);
+        }
+      }
+
+      for (let p = startP; p <= endP; p++) {
+        pageButtonsEl.appendChild(createPageBtn(p));
+      }
+
+      if (endP < totalPages) {
+        if (endP < totalPages - 1) {
+          const dots = document.createElement('span');
+          dots.className = 'inline-flex items-center justify-center min-w-6 h-8 text-xs font-semibold text-slate-400 select-none';
+          dots.textContent = '…';
+          pageButtonsEl.appendChild(dots);
+        }
+        pageButtonsEl.appendChild(createPageBtn(totalPages));
+      }
+
+      // Next Button
+      const nextBtn = document.createElement('button');
+      nextBtn.type = 'button';
+      nextBtn.innerHTML = 'Next &rsaquo;';
+      nextBtn.className = currentPage < totalPages ? inactiveClass : disabledClass;
+      nextBtn.disabled = currentPage >= totalPages;
+      nextBtn.onclick = () => {
+        if (currentPage < totalPages) {
+          currentPage++;
+          renderPage();
+        }
+      };
+      pageButtonsEl.appendChild(nextBtn);
+
+      function createPageBtn(pageNum: number) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = String(pageNum);
+        btn.className = pageNum === currentPage ? activeClass : inactiveClass;
+        btn.onclick = () => {
+          currentPage = pageNum;
+          renderPage();
+        };
+        return btn;
+      }
+    }
 
     function applyFilter() {
       const selectedYear = yearSelect?.value || 'All';
       const searchTerm = (searchInput?.value || '').trim().toLowerCase();
-      let visibleCount = 0;
 
-      rows.forEach((row) => {
+      matchedRows = allRows.filter((row) => {
         const rowYear = row.dataset.year || '';
         const rowTitle = row.dataset.title || '';
         const rowFile = row.dataset.file || '';
 
         const yearMatch = selectedYear === 'All' || rowYear === selectedYear;
         const searchMatch = !searchTerm || rowTitle.includes(searchTerm) || rowFile.includes(searchTerm);
-
-        if (yearMatch && searchMatch) {
-          row.style.display = '';
-          visibleCount++;
-          const idxCell = row.querySelector('.row-idx');
-          if (idxCell) idxCell.textContent = String(visibleCount);
-        } else {
-          row.style.display = 'none';
-        }
+        return yearMatch && searchMatch;
       });
 
-      if (noMatchMsg) {
-        noMatchMsg.classList.toggle('hidden', visibleCount > 0);
-      }
-      if (countBadge) {
-        countBadge.textContent = `Showing: ${visibleCount} Record${visibleCount === 1 ? '' : 's'}`;
-      }
+      currentPage = 1;
+      renderPage();
     }
 
     yearSelect?.addEventListener('change', applyFilter);
     searchInput?.addEventListener('input', applyFilter);
+
+    applyFilter();
   }
 
   document.addEventListener('DOMContentLoaded', setupAgmFilter);
