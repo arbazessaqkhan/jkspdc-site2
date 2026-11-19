@@ -2,13 +2,10 @@
 /**
  * Homepage updates ticker.
  *
- * The strip is never curated by hand. It is derived from the same records the
- * admin panel publishes and edits: Tenders (with their attached corrigenda) and
- * Notifications. Records are kept only while they are current (Active status and
- * no passed closing / valid-till date), de-duplicated, then ordered strictly by
- * publication date (newest first) and trimmed to five.
- *
- * The closing date is never used for ordering.
+ * Displays the latest 5 records combined across Tenders, Corrigenda, and Notices
+ * in strict chronological (newest first / LIFO) order based on their actual
+ * publication/upload date.
+ * Closing dates are optional and are never used for ordering or filtering.
  */
 
 const API_BASE = process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE;
@@ -67,9 +64,9 @@ const formatBytes = (bytes?: number | null): string => {
 };
 
 const badgeClass: Record<TickerType, string> = {
-  Tender: 'text-[#8FD8FF] border-[#0EA4E5]/35 bg-[#0EA4E5]/10',
-  Corrigendum: 'text-[#FFCB7A] border-[#E58A00]/35 bg-[#E58A00]/10',
-  Notification: 'text-[#8CE6C6] border-[#2BC59A]/35 bg-[#2BC59A]/10',
+  Tender: 'text-[#8FD8FF] border-[#0EA4E5]/40 bg-[#0EA4E5]/15',
+  Corrigendum: 'text-[#FFD182] border-[#E58A00]/40 bg-[#E58A00]/15',
+  Notification: 'text-[#8CE6C6] border-[#2BC59A]/40 bg-[#2BC59A]/15',
 };
 
 // Short display labels; record types stay unchanged.
@@ -79,7 +76,6 @@ const badgeLabel: Record<TickerType, string> = {
   Notification: 'Notice',
 };
 
-const now = new Date();
 const records: TickerRecord[] = [];
 
 try {
@@ -91,45 +87,45 @@ try {
   const tenders: any[] = tendersRes && tendersRes.ok ? await tendersRes.json() : [];
   const notifications: any[] = notificationsRes && notificationsRes.ok ? await notificationsRes.json() : [];
 
-  // Tenders (a tender published as a standalone corrigendum keeps that type).
+  // Tenders (a tender published with documentType 'CORRIGENDUM' keeps Corrigendum type).
   for (const t of Array.isArray(tenders) ? tenders : []) {
-    if (t.status !== 'Active') continue;
-    const closing = toDate(t.closingDate);
-    if (closing && closing.getTime() < now.getTime()) continue;
-
+    if (t.status && t.status !== 'Active') continue;
+    const pubDate = toDate(t.publishDate) ?? toDate(t.createdAt) ?? new Date(0);
     const type: TickerType = t.documentType === 'CORRIGENDUM' ? 'Corrigendum' : 'Tender';
+
     records.push({
       key: `tender-${t.id}`,
       type,
       title: t.title,
       referenceNo: t.referenceNo ?? null,
       url: `/stakeholders/vendors/tender-details?id=${t.id}`,
-      publishDate: toDate(t.publishDate) ?? now,
-      closingDate: closing,
+      publishDate: pubDate,
+      closingDate: toDate(t.closingDate),
       fileFormat: t.fileFormat || detectFormat(t.documentUrl),
       fileSizeBytes: t.fileSizeBytes ?? null,
     });
   }
 
-  // Corrigenda attached to a tender are announced as their own entry.
+  // Corrigenda attached to tenders.
   for (const t of Array.isArray(tenders) ? tenders : []) {
-    if (t.status !== 'Active') continue;
-    const parentClosing = toDate(t.closingDate);
+    if (t.status && t.status !== 'Active') continue;
+    const tenderPubDate = toDate(t.publishDate) ?? toDate(t.createdAt) ?? new Date(0);
 
-    for (const corr of parseCorrigendums(t.corrigendums)) {
+    const corrs = parseCorrigendums(t.corrigendums);
+    for (let i = 0; i < corrs.length; i++) {
+      const corr = corrs[i];
       if (!corr || typeof corr !== 'object') continue;
-      const closing = toDate(corr.extendedClosingDate) ?? parentClosing;
-      if (closing && closing.getTime() < now.getTime()) continue;
+      const corrId = corr.id ?? `${t.id}-${i}`;
+      const corrPubDate = toDate(corr.publishDate) ?? toDate(corr.createdAt) ?? toDate(corr.uploadedAt) ?? tenderPubDate;
 
-      const corrId = corr.id ?? `${t.id}-${records.length}`;
       records.push({
         key: `corrigendum-${t.id}-${corrId}`,
         type: 'Corrigendum',
         title: corr.title || `Corrigendum to ${t.title}`,
         referenceNo: t.referenceNo ?? null,
         url: `/stakeholders/vendors/tender-details?id=${t.id}#corrigendum-${corrId}`,
-        publishDate: toDate(corr.publishDate) ?? toDate(corr.uploadedAt) ?? toDate(t.publishDate) ?? now,
-        closingDate: closing,
+        publishDate: corrPubDate,
+        closingDate: toDate(corr.extendedClosingDate) ?? toDate(t.closingDate),
         fileFormat: corr.fileFormat || detectFormat(corr.documentUrl) || t.fileFormat || detectFormat(t.documentUrl),
         fileSizeBytes: corr.fileSizeBytes ?? null,
       });
@@ -138,9 +134,8 @@ try {
 
   // Notifications / notices.
   for (const n of Array.isArray(notifications) ? notifications : []) {
-    if (n.status !== 'Active') continue;
-    const closing = toDate(n.validTillDate);
-    if (closing && closing.getTime() < now.getTime()) continue;
+    if (n.status && n.status !== 'Active') continue;
+    const pubDate = toDate(n.publishDate) ?? toDate(n.createdAt) ?? new Date(0);
 
     records.push({
       key: `notice-${n.id}`,
@@ -148,8 +143,8 @@ try {
       title: n.title,
       referenceNo: null,
       url: resolveDocUrl(n.documentUrl),
-      publishDate: toDate(n.publishDate) ?? now,
-      closingDate: closing,
+      publishDate: pubDate,
+      closingDate: toDate(n.validTillDate),
       fileFormat: n.fileFormat || detectFormat(n.documentUrl),
       fileSizeBytes: n.fileSizeBytes ?? null,
     });
@@ -158,7 +153,7 @@ try {
   console.error('Error fetching ticker records:', error);
 }
 
-// De-duplicate, order strictly by publication date (newest first), keep five.
+// De-duplicate, order strictly by actual publication date (newest first), take top 5.
 const seen = new Set<string>();
 const tickerItems = records
   .filter((record) => {
@@ -167,8 +162,8 @@ const tickerItems = records
     return true;
   })
   .sort((a, b) => {
-    const aTime = a.publishDate?.getTime() ?? -1;
-    const bTime = b.publishDate?.getTime() ?? -1;
+    const aTime = a.publishDate?.getTime() ?? 0;
+    const bTime = b.publishDate?.getTime() ?? 0;
     return bTime - aTime;
   })
   .slice(0, 5);
@@ -176,30 +171,27 @@ const tickerItems = records
 
 <div
   data-ticker
-  class="relative flex h-10 w-full items-stretch overflow-hidden border-y border-[#0B3B60] bg-[#003366] text-slate-200"
+  class="relative flex h-10 w-full items-stretch overflow-hidden border-y border-[#0B3B60] bg-[#0E4976] text-slate-100"
   aria-label="Latest updates"
 >
-  <!-- UPDATES label -->
-  <div class="relative z-20 flex shrink-0 items-center gap-2 border-r border-white/10 bg-[#0B3B60] px-4">
-    <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-[#0EA4E5]" aria-hidden="true"></span>
+  <!-- UPDATES label (fixed on left) -->
+  <div class="relative z-20 flex shrink-0 items-center gap-2 border-r border-white/15 bg-[#0B3B60] px-4 shadow-[2px_0_6px_rgba(0,0,0,0.15)]">
+    <span class="h-2 w-2 shrink-0 rounded-full bg-[#38BDF8]" aria-hidden="true"></span>
     <span class="text-[11px] font-bold uppercase tracking-[0.16em] text-white">Updates</span>
   </div>
 
   <!-- Marquee viewport -->
   <div id="ticker-viewport" class="relative flex min-w-0 flex-1 items-center overflow-hidden">
-    <div class="pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-gradient-to-r from-[#002B49] to-transparent" aria-hidden="true"></div>
-    <div class="pointer-events-none absolute inset-y-0 right-0 z-10 w-6 bg-gradient-to-l from-[#002B49] to-transparent" aria-hidden="true"></div>
-
     {tickerItems.length > 0 ? (
-      <div id="ticker-track" class="ticker-track flex w-max items-center pl-4">
-        {[false, true].map((isClone) => (
+      <div id="ticker-track" class="ticker-track flex w-max items-center">
+        {[0, 1, 2].map((groupIndex) => (
           <div
             class="ticker-group flex shrink-0 items-center"
             data-ticker-group
-            aria-hidden={isClone ? 'true' : undefined}
+            aria-hidden={groupIndex > 0 ? 'true' : undefined}
           >
             {tickerItems.map((item) => (
-              <span class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap pr-14">
+              <span class="inline-flex shrink-0 items-center gap-2.5 whitespace-nowrap pr-14">
                 <strong class={`rounded-sm border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${badgeClass[item.type]}`}>
                   {badgeLabel[item.type]}
                 </strong>
@@ -207,13 +199,13 @@ const tickerItems = records
                   href={item.url}
                   target={item.url.startsWith('http') ? '_blank' : undefined}
                   rel={item.url.startsWith('http') ? 'noopener noreferrer' : undefined}
-                  tabindex={isClone ? -1 : undefined}
-                  class="text-[12px] text-slate-100 transition-colors hover:text-white hover:underline"
+                  tabindex={groupIndex > 0 ? -1 : undefined}
+                  class="text-[12.5px] font-medium text-white/95 transition-colors hover:text-white hover:underline focus-visible:text-white focus-visible:underline"
                 >
                   {item.title}
                 </a>
                 {item.fileFormat && (
-                  <span class="text-[11px] text-white/40">
+                  <span class="text-[11px] text-white/60">
                     {item.fileFormat}{formatBytes(item.fileSizeBytes) ? ` · ${formatBytes(item.fileSizeBytes)}` : ''}
                   </span>
                 )}
@@ -223,15 +215,16 @@ const tickerItems = records
         ))}
       </div>
     ) : (
-      <p class="px-4 text-[12px] text-white/60">No current updates.</p>
+      <p class="px-4 text-[12px] text-white/70">No current updates.</p>
     )}
   </div>
 
+  <!-- Play/Pause control (fixed on right) -->
   {tickerItems.length > 0 && (
     <button
       id="ticker-toggle"
       type="button"
-      class="relative z-20 flex shrink-0 items-center gap-1.5 border-l border-white/10 px-3 text-[11px] font-semibold uppercase tracking-wider text-white/75 transition-colors hover:bg-white/10 hover:text-white focus-visible:bg-white/10 focus-visible:outline-none"
+      class="relative z-20 flex shrink-0 items-center gap-1.5 border-l border-white/15 bg-[#0B3B60] px-3.5 text-[11px] font-semibold uppercase tracking-wider text-white transition-colors hover:bg-[#002B49] focus-visible:bg-[#002B49] focus-visible:outline-none"
       aria-label="Pause updates"
       aria-pressed="true"
     >
@@ -246,6 +239,37 @@ const tickerItems = records
   )}
 </div>
 
+<style>
+  .ticker-track {
+    animation-name: ticker-scroll-left;
+    animation-duration: var(--ticker-duration, 45s);
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-play-state: paused;
+    will-change: transform;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    transform: translate3d(0, 0, 0);
+  }
+
+  [data-ticker].is-running .ticker-track {
+    animation-play-state: running;
+  }
+
+  [data-ticker].is-running.is-hover-paused .ticker-track {
+    animation-play-state: paused;
+  }
+
+  @keyframes ticker-scroll-left {
+    0% {
+      transform: translate3d(var(--ticker-start, 0px), 0, 0);
+    }
+    100% {
+      transform: translate3d(calc(var(--ticker-start, 0px) - var(--ticker-shift, 0px)), 0, 0);
+    }
+  }
+</style>
+
 <script is:inline>
   (function () {
     var roots = Array.prototype.slice.call(document.querySelectorAll('[data-ticker]'));
@@ -257,23 +281,28 @@ const tickerItems = records
       var toggle = root.querySelector('#ticker-toggle');
       if (!track || !group || !viewport) return;
 
-      // Size the seamless loop: the track carries two identical groups, so it is
-      // shifted left by exactly one group width. A gentle ~55px/s keeps long
-      // reference numbers readable.
+      var speed = 65; // smooth px/sec
+
       function calibrate() {
-        var width = group.getBoundingClientRect().width;
-        if (!width) return;
-        root.style.setProperty('--ticker-shift', width + 'px');
-        root.style.setProperty('--ticker-duration', Math.max(18, width / 55).toFixed(1) + 's');
+        var groupW = group.getBoundingClientRect().width;
+        var viewW = viewport.clientWidth;
+        if (!groupW || !viewW) return;
+
+        // Middle start position: start first item at the middle of the viewport
+        var startX = Math.round(viewW / 2);
+        root.style.setProperty('--ticker-start', startX + 'px');
+        root.style.setProperty('--ticker-shift', Math.round(groupW) + 'px');
+        root.style.setProperty('--ticker-duration', (groupW / speed).toFixed(2) + 's');
       }
 
       calibrate();
       window.addEventListener('resize', calibrate);
       if (typeof ResizeObserver !== 'undefined') {
         new ResizeObserver(calibrate).observe(group);
+        new ResizeObserver(calibrate).observe(viewport);
       }
 
-      // Autoplay is the default state.
+      // Autoplay by default
       root.classList.add('is-running');
 
       var pauseIcon = root.querySelector('#ticker-icon-pause');
@@ -296,8 +325,7 @@ const tickerItems = records
         });
       }
 
-      // Hovering (or focusing into) the strip freezes the motion so an item can be
-      // read or followed. The Play/Pause state is untouched.
+      // Hover / focus freeze
       function freeze() {
         root.classList.add('is-hover-paused');
       }
