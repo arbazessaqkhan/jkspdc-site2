@@ -3,7 +3,8 @@ import { PrismaService } from '../prisma.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { deleteLocalFile } from '../upload/file-cleanup.helper';
 import { CreateNotificationDto, UpdateNotificationDto } from './notifications.dto';
-import { PaginationDto, wantsPagination, paginate } from '../common/pagination';
+import { wantsPagination, paginate } from '../common/pagination';
+import { detectFileFormat } from '../common/file-format.helper';
 
 @Injectable()
 export class NotificationsService {
@@ -22,16 +23,24 @@ export class NotificationsService {
    * Paged variant used by admin list pages (?page/?pageSize). Without
    * pagination params it returns the full array (legacy behaviour).
    */
-  async findAll(q: PaginationDto = {}): Promise<any> {
+  async findAll(q: any = {}): Promise<any> {
+    const where: any = {};
+    if (q.status && typeof q.status === 'string' && q.status.trim() && q.status !== 'All') {
+      if (q.status === 'Archived' || q.status === 'Archive') {
+        where.status = { in: ['Archived', 'Archive'] };
+      } else {
+        where.status = q.status.trim();
+      }
+    }
     if (!wantsPagination(q)) {
-      return this.prisma.notification.findMany({ orderBy: { publishDate: 'desc' } });
+      return this.prisma.notification.findMany({ where, orderBy: { publishDate: 'desc' } });
     }
     return paginate({
       page: q.page,
       pageSize: q.pageSize,
-      count: () => this.prisma.notification.count({ where: undefined }),
+      count: () => this.prisma.notification.count({ where }),
       find: (skip, take) =>
-        this.prisma.notification.findMany({ where: undefined, orderBy: { publishDate: 'desc' }, skip, take }),
+        this.prisma.notification.findMany({ where, orderBy: { publishDate: 'desc' }, skip, take }),
     });
   }
 
@@ -44,13 +53,19 @@ export class NotificationsService {
   }
 
   async create(data: CreateNotificationDto, user: any, ip: string, ua: string) {
-    const { title, fileName, documentUrl, publishDate } = data;
+    const { title, fileName, documentUrl, fileSizeBytes, fileFormat, validTillDate, publishDate, status, showInTicker, priority } = data;
 
     const notification = await this.prisma.notification.create({
       data: {
         title,
         fileName,
         documentUrl,
+        fileSizeBytes: fileSizeBytes ?? null,
+        fileFormat: fileFormat || detectFileFormat(documentUrl),
+        validTillDate: validTillDate ? new Date(validTillDate) : null,
+        status: status || 'Active',
+        showInTicker: showInTicker ?? false,
+        priority: priority || 'Normal',
         publishDate: publishDate ? new Date(publishDate) : new Date(),
       },
     });
@@ -60,7 +75,7 @@ export class NotificationsService {
       'NOTIFICATION_CREATE',
       ip,
       ua,
-      { notificationId: notification.id, title: notification.title }
+      { notificationId: notification.id, title: notification.title, status: notification.status }
     );
 
     return notification;
@@ -79,6 +94,14 @@ export class NotificationsService {
         title: data.title,
         fileName: data.fileName,
         documentUrl: data.documentUrl,
+        fileSizeBytes: data.fileSizeBytes !== undefined ? data.fileSizeBytes : undefined,
+        fileFormat: data.fileFormat !== undefined
+          ? data.fileFormat
+          : (data.documentUrl !== undefined ? detectFileFormat(data.documentUrl) : undefined),
+        validTillDate: data.validTillDate !== undefined ? (data.validTillDate ? new Date(data.validTillDate) : null) : undefined,
+        status: data.status !== undefined ? data.status : undefined,
+        showInTicker: data.showInTicker,
+        priority: data.priority,
         publishDate: data.publishDate ? new Date(data.publishDate) : undefined,
       },
     });

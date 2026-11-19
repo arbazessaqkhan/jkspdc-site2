@@ -82,7 +82,7 @@ const pagedState = { rows: logs, total: pagedTotal, page, pageSize, lastPage: pa
           ) : (
             logs.map((log: any, idx: number) => (
               <tr key={log.id} class="transition-colors">
-                <td class="font-mono text-[11px] text-slate-400 text-center">{idx + 1}</td>
+                <td class="font-mono text-[11px] text-slate-400 text-center">{(page - 1) * pageSize + idx + 1}</td>
                 <td class="whitespace-nowrap font-mono text-[11px] text-slate-500">
                   {new Date(log.timestamp).toLocaleString('en-IN', {
                     day: '2-digit', month: 'short', year: 'numeric',

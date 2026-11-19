@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsDateString, IsInt, IsArray, ValidateNested } from 'class-validator';
+import { IsString, IsOptional, IsDateString, IsInt, IsBoolean, IsIn, IsArray, ValidateNested, ValidateIf } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CorrigendumDto {
@@ -18,10 +18,29 @@ export class CorrigendumDto {
   fileSizeBytes!: number;
 
   @IsOptional()
+  @IsString()
+  fileFormat?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  showInTicker?: boolean;
+
+  @IsOptional()
+  @IsIn(['Normal', 'Urgent'])
+  priority?: string;
+
+  @IsOptional()
+  @ValidateIf((_, v) => v !== null && v !== undefined && v !== '')
+  @IsDateString()
+  closingDate?: string | null;
+
+  @IsOptional()
+  @ValidateIf((_, v) => v !== null && v !== undefined && v !== '')
   @IsDateString()
   extendedClosingDate?: string | null;
 
   @IsOptional()
+  @ValidateIf((_, v) => v !== null && v !== undefined && v !== '')
   @IsDateString()
   extendedBidOpeningDate?: string | null;
 }
@@ -50,10 +69,12 @@ export class CreateTenderDto {
   locationTag?: string;
 
   @IsOptional()
+  @ValidateIf((_, v) => v !== null && v !== undefined && v !== '')
   @IsDateString()
   closingDate?: string | null;
 
   @IsOptional()
+  @ValidateIf((_, v) => v !== null && v !== undefined && v !== '')
   @IsDateString()
   bidOpeningDate?: string | null;
 
@@ -66,7 +87,19 @@ export class CreateTenderDto {
 
   @IsOptional()
   @IsString()
+  fileFormat?: string;
+
+  @IsOptional()
+  @IsString()
   status?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  showInTicker?: boolean;
+
+  @IsOptional()
+  @IsIn(['Normal', 'Urgent'])
+  priority?: string;
 
   @IsOptional()
   @IsArray()
@@ -101,10 +134,12 @@ export class UpdateTenderDto {
   locationTag?: string;
 
   @IsOptional()
+  @ValidateIf((_, v) => v !== null && v !== undefined && v !== '')
   @IsDateString()
   closingDate?: string | null;
 
   @IsOptional()
+  @ValidateIf((_, v) => v !== null && v !== undefined && v !== '')
   @IsDateString()
   bidOpeningDate?: string | null;
 
@@ -118,7 +153,19 @@ export class UpdateTenderDto {
 
   @IsOptional()
   @IsString()
+  fileFormat?: string;
+
+  @IsOptional()
+  @IsString()
   status?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  showInTicker?: boolean;
+
+  @IsOptional()
+  @IsIn(['Normal', 'Urgent'])
+  priority?: string;
 
   @IsOptional()
   @IsArray()

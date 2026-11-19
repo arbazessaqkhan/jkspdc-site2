@@ -220,7 +220,7 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
                 data-year={new Date(agm.meetingDate).getFullYear()}
                 data-agm={JSON.stringify(agm)}
               >
-                <td class="text-center font-bold text-slate-400 text-xs row-index">{idx + 1}</td>
+                <td class="text-center font-bold text-slate-400 text-xs row-index">{(page - 1) * pageSize + idx + 1}</td>
                 <td class="font-bold text-slate-900 text-left">
                   <div class="flex flex-col gap-1">
                     <span class="text-xs font-bold text-slate-900 leading-snug">{agm.title}</span>
@@ -346,8 +346,8 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
               required
               variant="document"
               accept=".pdf"
-              helpText="PDF Document (Max 20MB / 100MB if Important)"
-              important
+              helpText="PDF Document"
+              maxSizeMB={20}
             />
             
             <input type="hidden" name="documentUrl" id="agm-documentUrl" required />
@@ -375,7 +375,7 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
   </div>
   )}
 
-  <script define:vars={{ sessionToken, backendUrl: BACKEND_URL }}>
+  <script>
     (function() {
       function getElements() {
         return {
@@ -437,10 +437,15 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
           if (els.modalHeading) els.modalHeading.textContent = 'Edit AGM Document';
           if (els.agmActionInput) els.agmActionInput.value = 'update';
           if (els.btnSubmit) els.btnSubmit.textContent = 'Update';
+          if (els.btnReset) els.btnReset.style.display = 'none';
         } else {
           if (els.modalHeading) els.modalHeading.textContent = 'Add AGM Document';
           if (els.agmActionInput) els.agmActionInput.value = 'create';
           if (els.btnSubmit) els.btnSubmit.textContent = 'Submit';
+          if (els.btnReset) {
+            els.btnReset.style.display = '';
+            els.btnReset.textContent = 'Clear';
+          }
           resetForm();
         }
       }
@@ -523,6 +528,15 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
         var resetBtn = e.target.closest('#btn-reset-modal');
         if (resetBtn) {
           e.preventDefault();
+          var els = getElements();
+          var hasData = (els.agmTitleInput?.value || '') !== '' ||
+            (els.agmFileNameInput?.value || '') !== '' ||
+            (els.agmDocumentUrlInput?.value || '') !== '';
+          if (hasData) {
+            if (!confirm('Are you sure you want to clear all entered form fields?')) {
+              return;
+            }
+          }
           resetForm();
           return;
         }
@@ -539,25 +553,6 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
           if (!file) return;
 
           var els = getElements();
-          var isImportant = document.getElementById('agm-doc-important')?.checked || false;
-          var MAX_STANDARD = 20 * 1024 * 1024;
-          var MAX_IMPORTANT = 100 * 1024 * 1024;
-
-          if (!isImportant && file.size > MAX_STANDARD) {
-            var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-            alert(`File size (${sizeMB} MB) exceeds the standard 20 MB limit.\n\nPlease check "Mark as Important" to allow uploading files up to 100 MB.`);
-            e.target.value = '';
-            if (els.fileLabel) els.fileLabel.textContent = 'No file chosen';
-            return;
-          }
-
-          if (file.size > MAX_IMPORTANT) {
-            var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-            alert(`File size (${sizeMB} MB) exceeds the maximum allowed limit of 100 MB.`);
-            e.target.value = '';
-            if (els.fileLabel) els.fileLabel.textContent = 'No file chosen';
-            return;
-          }
 
           if (els.fileLabel) {
             els.fileLabel.textContent = `Uploading ${file.name}...`;
@@ -570,11 +565,10 @@ const years = Array.from(yearsSet).sort((a: any, b: any) => b - a);
 
           var formData = new FormData();
           formData.append('file', file);
-          formData.append('isImportant', isImportant ? 'true' : 'false');
+          formData.append('category', 'document');
 
-          fetch(`${backendUrl}/api/upload`, {
+          fetch('/api/admin/upload', {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${sessionToken}` },
             body: formData,
           })
           .then(async function(res) {

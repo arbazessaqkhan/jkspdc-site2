@@ -64,7 +64,11 @@ async function main() {
     });
     console.log(`Admin user created: ${adminEmail}`);
   } else {
-    console.log('Admin user already exists.');
+    await prisma.user.update({
+      where: { email: adminEmail },
+      data: { role: 'ADMIN' },
+    });
+    console.log('Admin user already exists (role ensured as ADMIN).');
   }
 
 
@@ -488,6 +492,107 @@ async function main() {
     });
   }
   console.log('Contact Sub-Offices / Wing Contacts seeded.');
+
+  // 12. Create Hero Carousel Slides (Independent carousel managed from admin)
+  const defaultSlides = [
+    {
+      id: 'slide-seed-1',
+      title: 'BHEP',
+      subtitle: 'Flagship Hydel Project',
+      description: 'Dam Site',
+      imageUrl: '/projects/bhep-i.jpg',
+      ctaText: 'Explore Details',
+      ctaHref: '/our-business/power-stations',
+      sortOrder: 1,
+      isActive: true,
+    },
+    {
+      id: 'slide-seed-2',
+      title: 'BHEP',
+      subtitle: 'Flagship Hydel Project',
+      description: 'Dam Gates',
+      imageUrl: '/projects/bhep-ii.jpg',
+      ctaText: 'Explore Details',
+      ctaHref: '/our-business/power-stations',
+      sortOrder: 2,
+      isActive: true,
+    },
+    {
+      id: 'slide-seed-3',
+      title: 'LJHP',
+      subtitle: 'Jhelum Basin Asset',
+      description: 'Lower Jhelum Hydel Project Gantamulla',
+      imageUrl: '/projects/ljhp.jpg',
+      ctaText: 'Explore Details',
+      ctaHref: '/our-business/power-stations',
+      sortOrder: 3,
+      isActive: true,
+    },
+    {
+      id: 'slide-seed-4',
+      title: 'USHP II',
+      subtitle: 'Jhelum Basin Asset',
+      description: 'Upper Sindh Hydroelectric Project II Kangan',
+      imageUrl: '/projects/ushp-ii.jpg',
+      ctaText: 'Explore Details',
+      ctaHref: '/our-business/power-stations',
+      sortOrder: 4,
+      isActive: true,
+    },
+    {
+      id: 'slide-seed-5',
+      title: 'SEWA III',
+      subtitle: 'Ravi Basin Asset',
+      description: 'Hydel power station operated by JKSPDC under state/central sector',
+      imageUrl: '/projects/sewa-iii.png',
+      ctaText: 'Explore Details',
+      ctaHref: '/our-business/power-stations',
+      sortOrder: 5,
+      isActive: true,
+    },
+    {
+      id: 'slide-seed-6',
+      title: 'MHEP Pahalgam',
+      subtitle: 'Small Hydel Project',
+      description: 'Small Hydel Station & Headworks, Anantnag',
+      imageUrl: '/projects/mhep-pahalgam.jpg',
+      ctaText: 'Explore Details',
+      ctaHref: '/our-business/power-stations',
+      sortOrder: 6,
+      isActive: true,
+    },
+    {
+      id: 'slide-seed-7',
+      title: 'Ganderbal',
+      subtitle: 'Heritage Asset',
+      description: 'Heritage Hydel Station, Ganderbal',
+      imageUrl: '/projects/ganderbal.png',
+      ctaText: 'Explore Details',
+      ctaHref: '/our-business/power-stations',
+      sortOrder: 7,
+      isActive: true,
+    },
+    {
+      id: 'slide-seed-8',
+      title: 'CHEP I',
+      subtitle: 'Chenab Basin Asset',
+      description: 'Chenani Hydel Project Stage-I, Udhampur',
+      imageUrl: '/projects/chep-i.jpg',
+      ctaText: 'Explore Details',
+      ctaHref: '/our-business/power-stations',
+      sortOrder: 8,
+      isActive: true,
+    },
+  ];
+
+  for (const sl of defaultSlides) {
+    await prisma.heroSlide.upsert({
+      where: { id: sl.id },
+      create: sl,
+      update: sl,
+    });
+  }
+  console.log('Hero Carousel slides seeded.');
 
   console.log('Seeding completed successfully!');
 }

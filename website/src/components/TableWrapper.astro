@@ -58,7 +58,8 @@ const {
     border: 1px solid var(--color-brand-border);
     border-radius: var(--radius-card);
     background: #ffffff;
-    overflow: hidden;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .table-scroll :global(table) {
     width: 100%;
@@ -89,10 +90,6 @@ const {
     pointer-events: none;
   }
   @media (max-width: 768px) {
-    .table-scroll {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
     .table-scroll-hint {
       display: block;
     }

@@ -27,14 +27,14 @@ export class HeroSlidesController {
   }
 
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.EDITOR)
   @Post()
   create(@Body() body: CreateHeroSlideDto) {
     return this.service.create(body);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.EDITOR)
   @Put(':id')
   update(@Param('id') id: string, @Body() body: UpdateHeroSlideDto) {
     return this.service.update(id, body);

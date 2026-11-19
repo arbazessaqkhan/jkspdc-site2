@@ -26,7 +26,8 @@ export class ContactController {
   }
 
   @Get()
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   async getSubmissions(@Query() q: any) {
     return this.contactService.findAll(q);
   }

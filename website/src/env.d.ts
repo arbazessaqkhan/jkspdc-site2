@@ -20,5 +20,8 @@ declare namespace App {
       name: string;
       role: string;
     };
+    // Absolute session expiry and the server clock at validation time (ISO 8601).
+    sessionExpiresAt?: string;
+    serverTime?: string;
   }
 }

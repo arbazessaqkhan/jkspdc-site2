@@ -134,7 +134,7 @@ function getDocUrl(url?: string) {
             {canMutate && <th scope="col" class="w-28 text-center sticky-col-right">Action</th>}
           </tr>
         </thead>
-        <tbody id="resources-tbody">
+        <tbody id="resources-tbody" data-page-offset={(page - 1) * pageSize}>
           {resources.length === 0 ? (
             <tr id="empty-row">
               <td colspan={canMutate ? 5 : 4} class="text-center text-slate-500 py-12 text-xs font-semibold italic">
@@ -155,7 +155,7 @@ function getDocUrl(url?: string) {
                 data-file-url={r.documentUrl}
                 data-file-name={r.fileName}
               >
-                <td class="text-center font-bold text-slate-400 text-xs row-idx">{idx + 1}</td>
+                <td class="text-center font-bold text-slate-400 text-xs row-idx">{(page - 1) * pageSize + idx + 1}</td>
                 <td class="text-xs font-bold text-slate-900">
                   <a
                     href={getDocUrl(r.documentUrl)}
@@ -280,7 +280,7 @@ function getDocUrl(url?: string) {
           required
           variant="document"
           accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"
-          helpText="PDF, JPG, PNG, DOCX (Max 20MB)"
+          helpText="PDF, JPG, PNG, DOCX"
           maxSizeMB={20}
         />
         <span id="modal-file-err" class="text-[11px] text-red-600 font-semibold hidden">Please upload a document file before submitting.</span>
@@ -299,11 +299,9 @@ function getDocUrl(url?: string) {
 </div>
 )}
 
-<script is:inline define:vars={{ activeSessionToken: sessionToken, canMutate, backendUrl: BACKEND_URL }}>
+<script is:inline define:vars={{ canMutate }}>
 (function() {
-  var API = (backendUrl || '') + '/api/downloads';
-  var BACKEND = (backendUrl || '');
-  var authToken = activeSessionToken || (document.cookie.match(/admin_session=([^;]+)/) || [])[1] || '';
+  var API = '/api/admin/downloads';
 
   // ── HELPERS ──────────────────────────────────────────────────
   function getDocUrl(url) {
@@ -379,10 +377,11 @@ function getDocUrl(url?: string) {
   }
 
   function renumberRows() {
+    var baseOffset = parseInt(document.getElementById('resources-tbody')?.getAttribute('data-page-offset') || '0', 10);
     var rows = document.querySelectorAll('.resource-row:not([style*="display: none"])');
     rows.forEach(function(row, i) {
       var idx = row.querySelector('.row-idx');
-      if (idx) idx.textContent = i + 1;
+      if (idx) idx.textContent = (baseOffset + i + 1).toString();
     });
   }
 
@@ -409,6 +408,11 @@ function getDocUrl(url?: string) {
     document.getElementById('modal-title').textContent = 'Add Resource';
     document.getElementById('modal-edit-id').value = '';
     document.getElementById('modal-submit-text').textContent = 'Submit';
+    var resetBtn = document.getElementById('modal-reset');
+    if (resetBtn) {
+      resetBtn.classList.remove('hidden');
+      resetBtn.textContent = 'Clear';
+    }
     if (catFilter && catFilter.value !== 'All') {
       document.getElementById('modal-category').value = catFilter.value;
     }
@@ -416,7 +420,16 @@ function getDocUrl(url?: string) {
   });
 
   document.getElementById('modal-close').addEventListener('click', closeModal);
-  document.getElementById('modal-reset').addEventListener('click', resetModalForm);
+  document.getElementById('modal-reset').addEventListener('click', function() {
+    var titleVal = document.getElementById('modal-title-input')?.value || '';
+    var docVal = document.getElementById('modal-doc-url')?.value || '';
+    if (titleVal.trim() !== '' || docVal.trim() !== '') {
+      if (!confirm('Are you sure you want to clear all entered form fields?')) {
+        return;
+      }
+    }
+    resetModalForm();
+  });
 
   modal.addEventListener('click', function(e) {
     if (e.target === modal) closeModal();
@@ -450,6 +463,8 @@ function getDocUrl(url?: string) {
       document.getElementById('modal-desc-input').value = editBtn.dataset.description || '';
       document.getElementById('modal-doc-url').value = editBtn.dataset.fileUrl || '';
       document.getElementById('modal-submit-text').textContent = 'Update';
+      var resetBtn = document.getElementById('modal-reset');
+      if (resetBtn) resetBtn.classList.add('hidden');
 
       if (editBtn.dataset.fileUrl) {
         var dz = document.getElementById('resource-doc-dropzone');
@@ -473,7 +488,6 @@ function getDocUrl(url?: string) {
 
       fetch(API + '/' + id, {
         method: 'DELETE',
-        headers: { 'Authorization': 'Bearer ' + authToken }
       }).then(async function(res) {
         if (res.ok) {
           // If category is Policies, clean up any legacy duplicate in /api/policies
@@ -484,9 +498,8 @@ function getDocUrl(url?: string) {
                 var pList = await pRes.json();
                 var match = pList.find(function(p){ return p.title && p.title.trim().toLowerCase() === title.trim().toLowerCase(); });
                 if (match && match.id) {
-                  fetch(BACKEND + '/api/policies/' + match.id, {
+                  fetch('/api/admin/policies/' + match.id, {
                     method: 'DELETE',
-                    headers: { 'Authorization': 'Bearer ' + authToken }
                   }).catch(function(){});
                 }
               }
@@ -497,6 +510,9 @@ function getDocUrl(url?: string) {
           renumberRows();
           showSuccess('Resource deleted successfully.');
           checkEmptyTable();
+          setTimeout(function() {
+            window.location.reload();
+          }, 400);
         } else {
           if (res.status === 401) {
             window.location.href = '/admin/login';
@@ -531,17 +547,12 @@ function getDocUrl(url?: string) {
 
   // ── FILE UPLOAD HELPER ───────────────────────────────────────
   async function uploadFileObject(file) {
-    var MAX = 20 * 1024 * 1024;
-    if (file.size > MAX) {
-      throw new Error('File size exceeds 20MB limit.');
-    }
-
     var fd = new FormData();
     fd.append('file', file);
+    fd.append('category', 'document');
 
-    var response = await fetch(BACKEND + '/api/upload', {
+    var response = await fetch('/api/admin/upload', {
       method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + authToken },
       body: fd
     });
 
@@ -640,7 +651,7 @@ function getDocUrl(url?: string) {
     submitText.textContent = editId ? 'Updating…' : 'Submitting…';
 
     var fileName = docUrl.split('/').pop() || title;
-    var body = { title: title, category: category, fileName: fileName, documentUrl: docUrl };
+    var body = { title: title, category: category, fileName: fileName, documentUrl: docUrl, description: description || null };
 
     var url = editId ? API + '/' + editId : API;
     var method = editId ? 'PUT' : 'POST';
@@ -648,7 +659,7 @@ function getDocUrl(url?: string) {
     try {
       var res = await fetch(url, {
         method: method,
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       });
 
@@ -671,79 +682,9 @@ function getDocUrl(url?: string) {
       closeModal();
       showSuccess(editId ? 'Resource updated successfully.' : 'Resource added successfully.');
 
-      // Refresh table row
-      if (editId) {
-        var row = document.querySelector('tr[data-id="' + editId + '"]');
-        if (row) {
-          var titleCell = row.querySelector('td:nth-child(2)');
-          var titleLink = titleCell.querySelector('a');
-          titleLink.textContent = saved.title;
-          titleLink.href = getDocUrl(saved.documentUrl);
-
-          var descEl = titleCell.querySelector('p');
-          if (description) {
-            if (!descEl) {
-              descEl = document.createElement('p');
-              descEl.className = 'text-[11px] text-slate-500 font-normal mt-0.5 line-clamp-2';
-              titleCell.appendChild(descEl);
-            }
-            descEl.textContent = description;
-          } else if (descEl) {
-            descEl.remove();
-          }
-
-          row.querySelector('td:nth-child(3) span').textContent = saved.category;
-          row.dataset.category = saved.category;
-          row.dataset.description = description;
-
-          var editBtn = row.querySelector('.btn-edit');
-          editBtn.dataset.title = saved.title;
-          editBtn.dataset.category = saved.category;
-          editBtn.dataset.description = description;
-          editBtn.dataset.fileUrl = saved.documentUrl;
-          editBtn.dataset.fileName = saved.fileName || '';
-          row.querySelector('.btn-delete').dataset.title = saved.title;
-
-          // Update file link
-          var fileLink = row.querySelector('td:nth-child(4) a');
-          if (fileLink) fileLink.href = getDocUrl(saved.documentUrl);
-        }
-      } else {
-        // Add new row
-        var emptyRow = document.getElementById('empty-row');
-        if (emptyRow) emptyRow.remove();
-        var filterEmptyRow = document.getElementById('filter-empty-row');
-        if (filterEmptyRow) filterEmptyRow.remove();
-
-        var tbody = document.getElementById('resources-tbody');
-        var idx = tbody.querySelectorAll('.resource-row').length + 1;
-        var tr = document.createElement('tr');
-        tr.className = 'resource-row transition-colors';
-        tr.dataset.category = saved.category;
-        tr.dataset.id = saved.id;
-        tr.dataset.title = saved.title;
-        tr.dataset.description = description;
-        tr.dataset.fileUrl = saved.documentUrl;
-        tr.dataset.fileName = saved.fileName || '';
-
-        var descHtml = description ? '<p class="text-[11px] text-slate-500 font-normal mt-0.5 line-clamp-2">' + description + '</p>' : '';
-
-        tr.innerHTML =
-          '<td class="p-4 text-center font-bold text-slate-400 text-xs row-idx">' + idx + '</td>' +
-          '<td class="p-4 text-xs font-bold text-slate-800"><a href="' + getDocUrl(saved.documentUrl) + '" target="_blank" rel="noopener noreferrer" class="hover:text-[color:var(--adm-primary)] hover:underline transition-colors block font-bold">' + saved.title + '</a>' + descHtml + '</td>' +
-          '<td class="p-4 text-xs"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">' + saved.category + '</span></td>' +
-          '<td class="p-4 text-center"><a href="' + getDocUrl(saved.documentUrl) + '" target="_blank" rel="noopener noreferrer" title="View PDF" class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-[color:var(--adm-primary)] bg-blue-50/60 hover:bg-blue-100/80 rounded border border-blue-200 transition-colors"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4M10 9H8M16 13H8M16 17H8"></path></svg><span>View PDF</span></a></td>' +
-          '<td class="p-4 text-center flex justify-center items-center gap-2">' +
-          '<button class="btn-edit px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px] font-bold border border-slate-300 transition-colors cursor-pointer" data-id="' + saved.id + '" data-title="' + saved.title + '" data-description="' + description + '" data-category="' + saved.category + '" data-file-url="' + saved.documentUrl + '" data-file-name="' + (saved.fileName || '') + '">Edit</button>' +
-          '<button class="btn-delete px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded text-[11px] font-bold border border-red-200 transition-colors cursor-pointer" data-id="' + saved.id + '" data-title="' + saved.title + '">Delete</button>' +
-          '</td>';
-        tbody.appendChild(tr);
-      }
-
-      // Re-apply filter
-      if (catFilter && catFilter.value !== 'All') {
-        catFilter.dispatchEvent(new Event('change'));
-      }
+      setTimeout(function() {
+        window.location.reload();
+      }, 400);
 
     } catch(err) {
       showModalAlert('Error: ' + err.message);

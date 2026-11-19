@@ -5,7 +5,7 @@ import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '../auth/roles.enum';
 
-import { CreateUserDto, UpdateUserDto } from './users.dto';
+import { CreateUserDto, UpdateUserDto, ResetMfaDto } from './users.dto';
 
 @Controller('users')
 @UseGuards(AuthGuard, RolesGuard)
@@ -45,5 +45,13 @@ export class UsersController {
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
     const ua = req.headers['user-agent'] || 'unknown';
     return this.usersService.remove(id, user, ip, ua);
+  }
+
+  @Post(':id/reset-mfa')
+  async resetMfa(@Param('id') id: string, @Body() body: ResetMfaDto, @Req() req: any) {
+    const user = req.user;
+    const ip = req.ip || req.socket.remoteAddress || 'unknown';
+    const ua = req.headers['user-agent'] || 'unknown';
+    return this.usersService.resetMfa(id, user, body, ip, ua);
   }
 }

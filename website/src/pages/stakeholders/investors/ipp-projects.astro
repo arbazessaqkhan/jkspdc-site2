@@ -137,8 +137,8 @@ const initialPhase = requestedPhaseParam ? phasesWithCalculations.find(p => p.id
 
     <!-- Phase Selector Buttons Grid (All 10 Phases Visible at Top) -->
     <section aria-labelledby="phase-selection-heading" class="animate-fadeInUp delay-200 space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#0B4F9C]/20 pb-2.5 gap-2">
-        <h2 id="phase-selection-heading" class="text-sm font-bold uppercase tracking-wider text-[#0B4F9C] flex items-center gap-2">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#0B3B60]/20 pb-2.5 gap-2">
+        <h2 id="phase-selection-heading" class="text-sm font-bold uppercase tracking-wider text-[#0B3B60] flex items-center gap-2">
           <Icon name="briefcase" size={16} strokeWidth={2} />
           Select Project Allotment Phase
         </h2>
@@ -167,11 +167,11 @@ const initialPhase = requestedPhaseParam ? phasesWithCalculations.find(p => p.id
               data-phase-id={phase.id}
               class={`phase-tab-btn group p-4 sm:p-5 rounded-xl border text-center transition-all duration-200 cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C] focus-visible:ring-offset-2 flex flex-col items-center justify-center min-h-[88px] ${
                 isSelected 
-                  ? 'border-2 border-[#0B4F9C] bg-[#EAF4FF] text-[#0B4F9C] shadow-sm ring-1 ring-[#0B4F9C]/20' 
-                  : 'border-slate-200 bg-white hover:border-[#0B4F9C] hover:bg-slate-50 text-slate-800 shadow-xs'
+                  ? 'border-2 border-[#0B3B60] bg-[#EAF4FF] text-[#0B3B60] shadow-sm ring-1 ring-[#0B4F9C]/20' 
+                  : 'border-slate-200 bg-white hover:border-[#0B3B60] hover:bg-slate-50 text-slate-800 shadow-xs'
               }`}
             >
-              <span class="text-base sm:text-lg font-extrabold text-[#0B4F9C] tracking-wide block transition-colors">
+              <span class="text-base sm:text-lg font-extrabold text-[#0B3B60] tracking-wide block transition-colors">
                 {phase.name}
               </span>
               <span class="phase-count-subtext text-xs font-semibold text-slate-500 mt-1 block">
@@ -196,8 +196,8 @@ const initialPhase = requestedPhaseParam ? phasesWithCalculations.find(p => p.id
       <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
         <!-- Clean Card Header: Title on Left, Count on Right (Matching other tables) -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
-          <h3 id="active-phase-heading" class="text-base sm:text-lg font-bold text-[#0B4F9C] flex items-center gap-2">
-            <Icon name="clipboard" size={20} class="text-[#0B4F9C]" />
+          <h3 id="active-phase-heading" class="text-base sm:text-lg font-bold text-[#0B3B60] flex items-center gap-2">
+            <Icon name="clipboard" size={20} class="text-[#0B3B60]" />
             <span id="active-phase-title-text">{initialPhase ? `${initialPhase.name} Projects` : ''}</span>
           </h3>
           <div class="text-xs font-semibold text-slate-500 flex items-center gap-2" id="active-phase-count">
@@ -269,8 +269,8 @@ const initialPhase = requestedPhaseParam ? phasesWithCalculations.find(p => p.id
     </section>
   </div>
 
-  <!-- Embedded JSON Payload for Instant Client-Side Switch (Synced with live database) -->
-  <script id="ipp-phases-json" type="application/json" set:html={JSON.stringify(phasesWithCalculations)} />
+  <!-- Embedded JSON Payload for Instant Client-Side Switch (OWASP safe: escaped to prevent script breakout) -->
+  <script id="ipp-phases-json" type="application/json" set:html={JSON.stringify(phasesWithCalculations).replace(/</g, '\\u003c').replace(/>/g, '\\u003e')} />
 </Layout>
 
 <script is:inline>
@@ -309,10 +309,10 @@ const initialPhase = requestedPhaseParam ? phasesWithCalculations.find(p => p.id
       tab.setAttribute('tabindex', isSelected ? '0' : '-1');
 
       if (isSelected) {
-        tab.classList.add('border-2', 'border-[#0B4F9C]', 'bg-[#EAF4FF]', 'text-[#0B4F9C]', 'shadow-sm', 'ring-1', 'ring-[#0B4F9C]/20');
+        tab.classList.add('border-2', 'border-[#0B3B60]', 'bg-[#EAF4FF]', 'text-[#0B3B60]', 'shadow-sm', 'ring-1', 'ring-[#0B4F9C]/20');
         tab.classList.remove('border-slate-200', 'bg-white', 'text-slate-800', 'shadow-xs');
       } else {
-        tab.classList.remove('border-2', 'border-[#0B4F9C]', 'bg-[#EAF4FF]', 'text-[#0B4F9C]', 'shadow-sm', 'ring-1', 'ring-[#0B4F9C]/20');
+        tab.classList.remove('border-2', 'border-[#0B3B60]', 'bg-[#EAF4FF]', 'text-[#0B3B60]', 'shadow-sm', 'ring-1', 'ring-[#0B4F9C]/20');
         tab.classList.add('border-slate-200', 'bg-white', 'text-slate-800', 'shadow-xs');
       }
     });
@@ -417,7 +417,7 @@ const initialPhase = requestedPhaseParam ? phasesWithCalculations.find(p => p.id
       tabs.forEach(function(t) {
         t.setAttribute('aria-selected', 'false');
         t.setAttribute('tabindex', '-1');
-        t.classList.remove('border-2', 'border-[#0B4F9C]', 'bg-[#EAF4FF]', 'text-[#0B4F9C]', 'shadow-sm', 'ring-1', 'ring-[#0B4F9C]/20');
+        t.classList.remove('border-2', 'border-[#0B3B60]', 'bg-[#EAF4FF]', 'text-[#0B3B60]', 'shadow-sm', 'ring-1', 'ring-[#0B4F9C]/20');
         t.classList.add('border-slate-200', 'bg-white', 'text-slate-800', 'shadow-xs');
       });
       if (tabs[0]) tabs[0].setAttribute('tabindex', '0');

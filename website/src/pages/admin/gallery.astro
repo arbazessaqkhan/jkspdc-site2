@@ -1,10 +1,10 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
-import { canMutateRoutineContent } from '../../utils/roles';
+import PageNav from '../../components/PageNav.astro';
+import { canMutateRoutineContent, isAdmin } from '../../utils/roles';
 import { parseApiError, BACKEND_URL } from '../../utils/api-error';
 import { readPageParams, fetchPaged, pageUrl } from '../../utils/pagination';
-import PageNav from '../../components/PageNav.astro';
 
 // Check authentication
 const sessionToken = Astro.cookies.get('admin_session')?.value;
@@ -14,11 +14,30 @@ if (!sessionToken) {
 
 const userRole = Astro.locals.user?.role;
 const canMutate = canMutateRoutineContent(userRole);
+const userIsAdmin = isAdmin(userRole);
 
 let errorMessage = '';
 let successMessage = '';
 
-// Handle Delete Action
+// Fetch Corporate Overview carousel settings first (for actions & display)
+let overviewSettings = { autoplay: true, duration: 5, items: [] as any[] };
+try {
+  const welcomeRes = await fetch(`${BACKEND_URL}/api/site-settings/homepage_welcome_settings`, {
+    headers: { 'Authorization': `Bearer ${sessionToken}` }
+  });
+  if (welcomeRes.ok) {
+    const wData = await welcomeRes.json();
+    if (wData?.value) {
+      try {
+        overviewSettings = Object.assign(overviewSettings, JSON.parse(wData.value));
+      } catch {}
+    }
+  }
+} catch (err) {
+  console.error('Error fetching overview carousel settings:', err);
+}
+
+// Handle POST Actions (Delete, Carousel Settings, Carousel Toggle)
 if (Astro.request.method === 'POST') {
   if (!canMutate) {
     return Astro.redirect('/admin/gallery');
@@ -39,6 +58,18 @@ if (Astro.request.method === 'POST') {
 
         if (res.ok) {
           successMessage = 'Gallery item successfully deleted.';
+          // Also remove from overview settings if present
+          if (Array.isArray(overviewSettings.items)) {
+            const updatedItems = overviewSettings.items.filter((it: any) => it.id !== id);
+            if (updatedItems.length !== overviewSettings.items.length) {
+              overviewSettings.items = updatedItems;
+              await fetch(`${BACKEND_URL}/api/site-settings/homepage_welcome_settings`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionToken}` },
+                body: JSON.stringify({ value: JSON.stringify(overviewSettings) }),
+              }).catch(() => null);
+            }
+          }
         } else {
           const apiErr = await parseApiError(res, 'delete gallery item');
           if (apiErr.isUnauthorized) {
@@ -47,21 +78,106 @@ if (Astro.request.method === 'POST') {
           errorMessage = apiErr.message;
         }
       }
+    } else if (action === 'save-overview-settings') {
+      const autoplay = formData.get('autoplay') === 'true' || formData.get('autoplay') === 'on';
+      const durationVal = parseInt(formData.get('duration')?.toString() || '5', 10);
+      const duration = Math.min(10, Math.max(3, isNaN(durationVal) ? 5 : durationVal));
+
+      const payload = { ...overviewSettings, autoplay, duration };
+      const res = await fetch(`${BACKEND_URL}/api/site-settings/homepage_welcome_settings`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionToken}`,
+        },
+        body: JSON.stringify({ value: JSON.stringify(payload) }),
+      });
+      if (res.ok) {
+        overviewSettings.autoplay = autoplay;
+        overviewSettings.duration = duration;
+        successMessage = 'Corporate Overview carousel settings saved successfully.';
+      } else {
+        errorMessage = 'Failed to save Corporate Overview carousel settings.';
+      }
+    } else if (action === 'toggle-overview-item') {
+      const id = formData.get('id')?.toString();
+      const title = formData.get('title')?.toString() || '';
+      const imageUrl = formData.get('imageUrl')?.toString() || '';
+
+      let items = Array.isArray(overviewSettings.items) ? [...overviewSettings.items] : [];
+      const existingIdx = items.findIndex((it: any) => it.id === id || it.imageUrl === imageUrl);
+
+      if (existingIdx >= 0) {
+        items.splice(existingIdx, 1);
+        successMessage = `"${title}" removed from Corporate Overview carousel.`;
+      } else {
+        items.push({
+          id,
+          title,
+          imageUrl,
+          displayOrder: items.length + 1,
+          isActive: true,
+        });
+        successMessage = `"${title}" added to Corporate Overview carousel.`;
+      }
+
+      const payload = { ...overviewSettings, items };
+      const res = await fetch(`${BACKEND_URL}/api/site-settings/homepage_welcome_settings`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionToken}`,
+        },
+        body: JSON.stringify({ value: JSON.stringify(payload) }),
+      });
+      if (res.ok) {
+        overviewSettings.items = items;
+      } else {
+        errorMessage = 'Failed to update Corporate Overview carousel item.';
+      }
     }
   } catch (e) {
-    console.error('Error deleting gallery item:', e);
-    errorMessage = 'An error occurred while deleting the gallery item. Check backend service status.';
+    console.error('Error handling gallery action:', e);
+    errorMessage = 'An error occurred while processing the gallery request.';
   }
 }
 
-// Fetch Gallery List
-const { page, pageSize } = readPageParams(Astro.url);
+// Read query params for search & project filter
+const searchQuery = Astro.url.searchParams.get('q')?.trim() || '';
+const projectFilter = Astro.url.searchParams.get('projectId')?.trim() || '';
+
+// Fetch available projects for filter dropdown
+let projectsList: { id: string; name: string }[] = [];
+try {
+  const pRes = await fetch(`${BACKEND_URL}/api/public/stations`);
+  if (pRes.ok) {
+    const rawStations = await pRes.json();
+    projectsList = rawStations.map((s: any) => ({ id: s.id, name: s.name })).sort((a: any, b: any) => a.name.localeCompare(b.name));
+  }
+} catch (e) {
+  console.error('Error fetching projects for filter:', e);
+}
+
+// Fetch Gallery List with unified pagination (10 per page)
+const { page } = readPageParams(Astro.url);
+const pageSize = 10;
+
 const pagedExtra: Record<string, string | undefined> = {};
+if (searchQuery) pagedExtra.search = searchQuery;
+if (projectFilter) pagedExtra.projectId = projectFilter;
+
 let galleryList: any[] = [];
 let pagedTotal = 0;
 let pagedLastPage = 1;
+
 try {
-  const state = await fetchPaged('/api/gallery', { BACKEND_URL, page, pageSize, extra: pagedExtra });
+  const state = await fetchPaged('/api/gallery', { 
+    BACKEND_URL, 
+    token: sessionToken,
+    page, 
+    pageSize, 
+    extra: pagedExtra 
+  });
   galleryList = state.rows;
   pagedTotal = state.total;
   pagedLastPage = state.lastPage;
@@ -70,7 +186,16 @@ try {
   console.error('Error fetching list:', e);
   errorMessage = 'Network failure: Unable to reach backend server.';
 }
-const pagedState = { rows: galleryList, total: pagedTotal, page, pageSize, lastPage: pagedLastPage, error: null };
+
+const pagedState = { 
+  rows: galleryList, 
+  total: pagedTotal, 
+  page, 
+  pageSize, 
+  lastPage: pagedLastPage, 
+  error: null 
+};
+
 function getImageUrl(url: string) {
   if (!url) return '';
   if (url.startsWith('/uploads/')) {
@@ -79,30 +204,24 @@ function getImageUrl(url: string) {
   return url;
 }
 
-// Group gallery items by partition
-const groupedGallery: Record<string, any[]> = {};
-galleryList.forEach(item => {
-  const pName = item.partition || 'General (Uncategorized)';
-  if (!groupedGallery[pName]) {
-    groupedGallery[pName] = [];
-  }
-  groupedGallery[pName].push(item);
-});
+const activeOverviewItemCount = Array.isArray(overviewSettings.items) 
+  ? overviewSettings.items.filter((it: any) => it.isActive !== false).length 
+  : 0;
 ---
 
-<AdminLayout title="Media Gallery Management" description="Manage JKSPDCL Photo Gallery" activeTab="gallery">
+<AdminLayout title="Media Gallery Management" description="Central unified image library for JKSPDCL" activeTab="gallery">
   <div class="flex flex-col gap-6">
     
     <!-- Page Header -->
     <div class="admin-page-header">
       <div>
-        <h1 class="admin-page-title">Media Gallery Management</h1>
-        <p class="admin-page-subtitle">Upload, categorize, and partition official photographs and event cover banners.</p>
+        <h1 class="admin-page-title text-2xl font-bold text-slate-800">Central Media Gallery</h1>
+        <p class="admin-page-subtitle text-xs text-slate-500 mt-1">Unified repository for website photographs, projects, and Corporate Overview carousel slides.</p>
       </div>
       {canMutate && (
         <a 
           href="/admin/gallery-form" 
-          class="admin-btn admin-btn-primary flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
+          class="admin-btn admin-btn-primary flex items-center gap-1.5 self-start sm:self-auto cursor-pointer bg-[#0B5C9E] hover:bg-[#094b82] text-white font-bold px-4 py-2 rounded-md shadow-xs transition-colors"
         >
           <Icon name="plus" size={14} /> Add Image
         </a>
@@ -121,89 +240,248 @@ galleryList.forEach(item => {
       </div>
     )}
 
-    <!-- Grouped Gallery Container -->
-    {galleryList.length === 0 ? (
-      <div class="bg-white rounded-lg border border-slate-200 p-12 text-center text-slate-500 font-semibold italic text-xs shadow-xs">
-        <Icon name="folder" size={32} class="mx-auto text-slate-300 mb-2" />
-        No images published. Click 'Add Image' to upload one.
+    <!-- Corporate Overview Carousel Settings Card (Unified here from Homepage Sections) -->
+    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-xs">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-100">
+        <div>
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+            <Icon name="image" size={15} class="text-blue-600" />
+            <span>Corporate Overview Carousel Settings</span>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 ml-1">
+              {activeOverviewItemCount} slide{activeOverviewItemCount === 1 ? '' : 's'} active
+            </span>
+          </h2>
+          <p class="text-[11px] text-slate-500 mt-0.5">Controls autoplay and slide timing for the "Welcome to JKSPDCL" Corporate Overview gallery carousel on the homepage.</p>
+        </div>
       </div>
-    ) : (
-      Object.entries(groupedGallery).map(([partitionName, items]) => (
-        <div class="bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden">
-          <!-- Group Header -->
-          <div class="bg-slate-50/80 border-b border-slate-200 px-5 py-3 flex items-center justify-between">
-            <h2 class="text-xs font-bold text-slate-800 tracking-wide flex items-center gap-2">
-              <span class="text-[color:var(--adm-primary)] font-black">&rarr;</span>
-              <span>{partitionName}</span>
-              <span class="admin-badge admin-badge-info ml-1.5">
-                {items.length} {items.length === 1 ? 'record' : 'records'}
-              </span>
-            </h2>
+
+      <form method="POST" class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4">
+        <input type="hidden" name="_action" value="save-overview-settings" />
+        <div class="flex items-center gap-6 flex-wrap">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-bold text-slate-700">Autoplay:</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" name="autoplay" value="true" class="sr-only peer" checked={overviewSettings.autoplay !== false} />
+              <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[color:var(--adm-primary)]"></div>
+            </label>
           </div>
-          
-          <!-- Table for this partition's images -->
-          <div class="admin-table-card">
-          <div class="admin-table-container border-0 rounded-none">
-            <table class="admin-table">
-              <thead>
-                <tr>
-                  <th scope="col" class="w-12 text-center">#</th>
-                  <th scope="col" class="w-24 text-center">Preview</th>
-                  <th scope="col" class="min-w-[280px]">Title / Caption</th>
-                  {canMutate && <th scope="col" class="w-28 text-center sticky-col-right">Action</th>}
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item, idx) => (
-                  <tr key={item.id} class="transition-colors">
-                    <td class="text-center font-bold text-slate-400 text-xs">{idx + 1}</td>
-                    <td class="text-center">
-                      <img 
-                        src={getImageUrl(item.imageUrl)} 
-                        alt={item.title} 
-                        class="w-16 h-11 object-cover rounded border border-slate-200 shadow-xs mx-auto" 
-                        loading="lazy"
-                      />
+          <div class="flex items-center gap-2">
+            <label for="overview-duration" class="text-xs font-bold text-slate-700">Slide Timing:</label>
+            <select 
+              id="overview-duration" 
+              name="duration" 
+              class="admin-input text-xs font-bold py-1.5 px-3 bg-white border border-slate-300 rounded cursor-pointer focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            >
+              {[3, 4, 5, 6, 7, 8, 9, 10].map((sec) => (
+                <option value={sec} selected={Number(overviewSettings.duration || 5) === sec}>
+                  {sec}
+                </option>
+              ))}
+            </select>
+            <span class="text-xs text-slate-500 font-medium">seconds (3–10s)</span>
+          </div>
+        </div>
+        {canMutate && (
+          <button type="submit" class="admin-btn admin-btn-primary text-xs px-4 py-2 cursor-pointer self-start sm:self-auto bg-[#0B5C9E] hover:bg-[#094b82] text-white font-bold rounded-lg shadow-xs transition-colors">
+            Save Carousel Settings
+          </button>
+        )}
+      </form>
+    </div>
+
+    <!-- Search & Filter Bar -->
+    <div class="bg-white rounded-lg border border-slate-200 p-4 shadow-xs">
+      <form method="GET" class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+        <!-- Title Search -->
+        <div class="relative flex-1">
+          <input 
+            type="text" 
+            name="q" 
+            value={searchQuery} 
+            placeholder="Search images by title..." 
+            class="admin-input pl-9 text-xs w-full"
+            aria-label="Search images by title"
+          />
+          <span class="absolute left-3 top-2.5 text-slate-400">
+            <Icon name="search" size={14} />
+          </span>
+        </div>
+
+        <!-- Project Filter -->
+        <div class="sm:w-64">
+          <select 
+            name="projectId" 
+            class="admin-input text-xs w-full cursor-pointer"
+            aria-label="Filter by project"
+          >
+            <option value="">All Projects / Unassigned</option>
+            {projectsList.map((p) => (
+              <option value={p.id} selected={p.id === projectFilter}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <button type="submit" class="admin-btn admin-btn-primary text-xs px-4 py-2 cursor-pointer bg-[#0B5C9E] hover:bg-[#094b82] text-white font-bold rounded-lg transition-colors">
+          Filter
+        </button>
+
+        {(searchQuery || projectFilter) && (
+          <a href="/admin/gallery" class="admin-btn admin-btn-secondary text-xs px-3 py-2 text-center cursor-pointer">
+            Reset
+          </a>
+        )}
+      </form>
+    </div>
+
+    <!-- Unified Gallery Card & Table -->
+    <div class="admin-table-card bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+      <div class="admin-table-container overflow-x-auto">
+        <table class="admin-table w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
+              <th scope="col" class="py-3.5 px-4 w-12 text-center">#</th>
+              <th scope="col" class="py-3.5 px-4 w-28 text-center">Thumbnail</th>
+              <th scope="col" class="py-3.5 px-4 min-w-[200px]">Image Title</th>
+              <th scope="col" class="py-3.5 px-4 min-w-[160px]">Associated Project</th>
+              <th scope="col" class="py-3.5 px-4 w-36 text-center whitespace-nowrap">Overview Carousel</th>
+              <th scope="col" class="py-3.5 px-4 w-28 text-center">Added</th>
+              {canMutate && <th scope="col" class="py-3.5 px-4 w-24 text-center sticky-col-right">Action</th>}
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-xs">
+            {galleryList.length === 0 ? (
+              <tr>
+                <td colspan={canMutate ? 7 : 6} class="text-center text-slate-500 py-12 text-xs font-semibold italic">
+                  <Icon name="folder" size={32} class="mx-auto text-slate-300 mb-2" />
+                  {searchQuery || projectFilter 
+                    ? 'No images match the selected filter criteria.' 
+                    : 'No images in Media Gallery yet. Click "+ Add Image" to upload.'}
+                </td>
+              </tr>
+            ) : (
+              galleryList.map((item, idx) => {
+                const isInOverview = Array.isArray(overviewSettings.items) && overviewSettings.items.some(
+                  (it: any) => it.id === item.id || it.imageUrl === item.imageUrl
+                );
+
+                return (
+                  <tr key={item.id} class="hover:bg-slate-50/60 transition-colors">
+                    <td class="py-3.5 px-4 text-center font-bold text-slate-400">
+                      {(page - 1) * pageSize + idx + 1}
                     </td>
-                    <td class="font-bold text-slate-900 text-xs leading-snug">{item.title}</td>
-                    {canMutate && (
-                      <td class="td-actions sticky-col-right text-center">
-                        <div class="admin-action-group justify-center">
-                          <a 
-                            href={`/admin/gallery-form?id=${item.id}`}
-                            class="admin-btn-action"
-                            aria-label={`Edit Gallery Item ${item.title}`}
-                            title="Edit Image"
-                          >
-                            <Icon name="pencil" size={13} />
-                          </a>
-                          <form method="POST" class="inline m-0 p-0" onsubmit="return confirm('Are you sure you want to delete this gallery image?');">
-                            <input type="hidden" name="id" value={item.id} />
-                            <input type="hidden" name="_action" value="delete" />
+                    <td class="py-3.5 px-4 text-center">
+                      <div class="w-20 h-14 rounded border border-slate-200 bg-slate-100 overflow-hidden shadow-2xs mx-auto group relative">
+                        <img 
+                          src={getImageUrl(item.imageUrl)} 
+                          alt={item.title} 
+                          class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105" 
+                          loading="lazy"
+                          onerror="this.onerror=null; this.src='/slider1.jpg';"
+                        />
+                      </div>
+                    </td>
+                    <td class="py-3.5 px-4 font-bold text-slate-800">
+                      <span>{item.title}</span>
+                    </td>
+                    <td class="py-3.5 px-4 text-slate-600 font-medium">
+                      {item.projectName ? (
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-sky-50 text-sky-700 border border-sky-200/60">
+                          <Icon name="zap" size={11} class="text-sky-500 shrink-0" />
+                          {item.projectName}
+                        </span>
+                      ) : (
+                        <span class="text-slate-400 italic">— General</span>
+                      )}
+                    </td>
+
+                    <!-- Corporate Overview Carousel Inclusion Column -->
+                    <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                      {canMutate ? (
+                        <form method="POST" class="inline m-0 p-0">
+                          <input type="hidden" name="_action" value="toggle-overview-item" />
+                          <input type="hidden" name="id" value={item.id} />
+                          <input type="hidden" name="title" value={item.title} />
+                          <input type="hidden" name="imageUrl" value={item.imageUrl} />
+                          {isInOverview ? (
                             <button 
                               type="submit" 
-                              class="admin-btn-action action-delete"
-                              aria-label={`Delete Gallery Item ${item.title}`}
-                              title="Delete Image"
+                              class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border border-emerald-300 transition-colors cursor-pointer"
+                              title="Click to remove from Corporate Overview carousel"
                             >
-                              <Icon name="trash-2" size={13} />
+                              <Icon name="check" size={11} /> In Carousel
                             </button>
-                          </form>
+                          ) : (
+                            <button 
+                              type="submit" 
+                              class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-300 transition-colors cursor-pointer"
+                              title="Click to feature in Corporate Overview carousel"
+                            >
+                              <Icon name="plus" size={11} /> Add to Carousel
+                            </button>
+                          )}
+                        </form>
+                      ) : (
+                        isInOverview ? (
+                          <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                            <Icon name="check" size={10} /> In Carousel
+                          </span>
+                        ) : (
+                          <span class="text-slate-400 text-[11px]">—</span>
+                        )
+                      )}
+                    </td>
+
+                    <td class="py-3.5 px-4 text-center text-slate-500 text-[11px]">
+                      {item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-GB') : '—'}
+                    </td>
+                    {canMutate && (
+                      <td class="py-3.5 px-4 text-center whitespace-nowrap sticky-col-right">
+                        <div class="flex items-center justify-center gap-2">
+                          <!-- Edit Button -->
+                          <a 
+                            href={`/admin/gallery-form?id=${item.id}`}
+                            class="p-1.5 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors cursor-pointer"
+                            aria-label={`Edit ${item.title}`}
+                            title="Edit Image"
+                          >
+                            <Icon name="pencil" size={14} strokeWidth={2.2} />
+                          </a>
+
+                          <!-- Delete Button -->
+                          {userIsAdmin && (
+                            <form 
+                              method="POST" 
+                              class="inline m-0 p-0"
+                              onsubmit="return confirm('Are you sure you want to permanently delete this gallery image?');"
+                            >
+                              <input type="hidden" name="_action" value="delete" />
+                              <input type="hidden" name="id" value={item.id} />
+                              <button 
+                                type="submit" 
+                                class="p-1.5 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors cursor-pointer"
+                                title="Delete Image"
+                                aria-label={`Delete ${item.title}`}
+                              >
+                                <Icon name="trash" size={14} strokeWidth={2.2} />
+                              </button>
+                            </form>
+                          )}
                         </div>
                       </td>
                     )}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
 
-
-    <PageNav state={pagedState} url={(p: number) => pageUrl(Astro.url, p, pageSize, pagedExtra)} />          </div>
-          </div>
-
-        </div>
-      ))
-    )}
+      <!-- Pagination (10 per page) -->
+      <PageNav state={pagedState} makeUrl={(p) => pageUrl(Astro.url, p)} />
+    </div>
 
   </div>
 </AdminLayout>

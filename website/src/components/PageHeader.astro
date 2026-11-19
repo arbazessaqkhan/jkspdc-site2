@@ -30,8 +30,11 @@ const { title, intro, variant = 'dark', class: className = '' } = Astro.props;
   }
   .page-header-light {
     background-color: var(--color-brand-bg-light);
-    color: var(--color-brand-primary-deeper);
+    color: var(--color-brand-primary);
     border-bottom: 3px solid var(--color-brand-accent);
+  }
+  .page-header-light .page-header-title {
+    color: #0B3B60;
   }
   .page-header :global(.breadcrumb-nav) {
     margin-bottom: var(--space-3);

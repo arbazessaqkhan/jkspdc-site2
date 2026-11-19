@@ -1,14 +1,7 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 import Icon from '../../../components/Icon.astro';
-
-function getDocUrl(url?: string) {
-  if (!url) return '#';
-  if (url.startsWith('/uploads/')) {
-    return `${import.meta.env.PUBLIC_API_BASE}${url}`;
-  }
-  return url;
-}
+import { getDocUrl } from '../../../utils/sanitizer';
 
 let csrDocuments: any[] = [];
 
@@ -94,7 +87,7 @@ try {
                           href={docUrl} 
                           target="_blank" 
                           rel="noopener noreferrer" 
-                          class="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 border border-[#0B4F9C] hover:bg-[#0B4F9C] hover:text-white text-[#0B4F9C] rounded text-xs font-bold transition-all"
+                          class="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 border border-[#0B3B60] hover:bg-[#0EA4E5] hover:text-white text-[#0B3B60] rounded text-xs font-bold transition-all"
                         >
                           <Icon name="file-text" size={12} />
                           <span>View PDF</span>

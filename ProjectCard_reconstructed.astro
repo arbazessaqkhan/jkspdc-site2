@@ -1,0 +1,83 @@
+---
+import Icon from './Icon.astro';
+import { formatProjectName } from '../utils/projectFormatter';
+
+interface Props {
+  project: any;
+  size?: 'compact' | 'standard';
+  class?: string;
+}
+
+const { project: p, size = 'compact', class: className = '' } = Astro.props;
+const formattedTitle = formatProjectName(p.name);
+const isOperational = p.status === 'Operational';
+const isUnderConstruction = p.status === 'Under Construction';
+
+const statusColor = isOperational 
+  ? { stripe: 'bg-emerald-500', badge: 'bg-emerald-50 text-emerald-800 border-emerald-200/80', dot: 'bg-emerald-500' }
+  : isUnderConstruction
+  ? { stripe: 'bg-amber-500', badge: 'bg-amber-50 text-amber-900 border-amber-200/80', dot: 'bg-amber-500' }
+  : { stripe: 'bg-sky-500', badge: 'bg-sky-50 text-[#0B3B60] border-sky-200/80', dot: 'bg-[#0B3B60]' };
+---
+
+<a 
+  href={`/our-business/power-station-details?id=${p.id}`} 
+  class={`project-card group relative flex flex-col justify-between bg-white rounded-xl border border-slate-200/90 hover:border-[#0B3B60]/70 shadow-2xs hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3B60] ${size === 'compact' ? 'p-3.5 sm:p-4' : 'p-5 sm:p-6'} ${className}`}
+  data-status={p.status} 
+  data-type={p.type} 
+  data-name={p.name.toLowerCase()} 
+  data-search={`${p.name} ${formattedTitle} ${p.location || ''} ${p.type || ''} ${p.status}`.toLowerCase()}
+>
+  <!-- Top Status Accent Stripe -->
+  <div class={`absolute top-0 left-0 right-0 h-1 ${statusColor.stripe}`}></div>
+
+  <div class="flex flex-col flex-1 justify-between pt-1">
+    <div>
+      <!-- Header row: Status pill + Type -->
+      <div class="flex items-center justify-between gap-1.5 mb-2">
+        <span class={`inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md border ${statusColor.badge}`}>
+          <span class={`w-1.5 h-1.5 rounded-full ${statusColor.dot}`}></span>
+          {p.status}
+        </span>
+        <span class="text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200/60 truncate max-w-[110px]">
+          {p.type || 'Hydro'}
+        </span>
+      </div>
+
+      <!-- Title: crisp font, fixed 2-line clamp -->
+      <h3 class={`font-bold text-slate-900 leading-snug group-hover:text-[#0B3B60] transition-colors tracking-tight line-clamp-2 ${size === 'compact' ? 'text-xs sm:text-[13px] min-h-[36px]' : 'text-sm sm:text-base min-h-[44px]'}`} title={formattedTitle}>
+        {formattedTitle}
+      </h3>
+
+      <!-- Location / Basin Subtitle -->
+      <div class="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium mt-1 truncate">
+        <Icon name="map-pin" size={11} class="text-[#0B3B60] shrink-0" />
+        <span class="truncate">{p.location || 'J&K'}{p.basin ? ` • ${p.basin} Basin` : ''}</span>
+      </div>
+
+      <!-- Streamlined Metric Pill Banner -->
+      <div class="mt-2.5 py-1.5 px-2.5 bg-gradient-to-r from-slate-50 to-blue-50/30 rounded-lg border border-slate-100 flex items-center justify-between">
+        <div>
+          <span class="text-[9px] uppercase font-bold text-slate-400 tracking-wider block">Installed Capacity</span>
+          <span class="text-xs sm:text-sm font-extrabold text-[#0B3B60] tracking-tight">
+            {p.capacityMw || 0} <span class="text-[10px] font-semibold text-slate-500">MW</span>
+          </span>
+        </div>
+        <div class="text-right">
+          <span class="text-[9px] uppercase font-bold text-slate-400 tracking-wider block">
+            {isOperational ? 'Commissioned' : 'Project Scope'}
+          </span>
+          <span class="text-[11px] font-bold text-slate-700">
+            {p.yearOfCommissioning ? p.yearOfCommissioning : (p.sector ? `${p.sector}` : 'State Sector')}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Clean, Sleek Action Footer -->
+    <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-[#0B3B60]">
+      <span class="group-hover:text-[#002B49] transition-colors">Project Details</span>
+      <span class="transform group-hover:translate-x-1 transition-transform duration-150">&rarr;</span>
+    </div>
+  </div>
+</a>

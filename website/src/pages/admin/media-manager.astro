@@ -69,8 +69,8 @@ try {
             id="media-doc"
             variant="document"
             accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"
-            helpText="PDF, JPG, PNG, DOCX, XLSX (Max 20MB / 100MB if Important)"
-            important
+            helpText="PDF, JPG, PNG, DOCX, XLSX"
+            maxSizeMB={20}
           />
 
           <div class="text-[11px] text-slate-600 leading-relaxed bg-slate-50 border border-slate-200 rounded p-3">
@@ -90,17 +90,16 @@ try {
             <span class="text-[10px] text-slate-500 font-medium">Authoritative file storage across all portal modules</span>
           </div>
 
-          <!-- Filter / Search input -->
-          <div class="relative w-full sm:w-60">
+          <div class="admin-search-wrapper relative w-full sm:w-60">
+            <div class="admin-search-icon">
+              <Icon name="search" size={15} strokeWidth={2.2} />
+            </div>
             <input 
               type="text" 
               id="search-files-input" 
               placeholder="Filter files..." 
-              class="w-full bg-white border border-slate-300 rounded text-xs text-slate-800 pl-8 pr-3 py-1.5 focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none"
+              class="admin-search-input w-full bg-white border border-slate-300 rounded text-xs text-slate-800 pr-3 py-1.5 focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none"
             />
-            <div class="absolute left-2.5 top-2 text-slate-400">
-              <Icon name="search" size={13} />
-            </div>
           </div>
         </div>
 
@@ -215,11 +214,10 @@ try {
   </div>
 
   <!-- Client-side Scripts -->
-  <script is:inline define:vars={{ sessionToken, canUpload, canDelete, backendUrl: BACKEND_URL }}>
+  <script is:inline define:vars={{ canUpload, canDelete }}>
     // Setup references
     const fileUploader = document.getElementById('media-doc-input');
-        const uploadContainer = document.getElementById('media-doc-dropzone');
-    const isImportantCheckbox = document.getElementById('media-doc-important');
+    const uploadContainer = document.getElementById('media-doc-dropzone');
 
     // Handle Upload
     if (canUpload && fileUploader) {
@@ -227,19 +225,15 @@ try {
       const file = event.target?.files?.[0];
       if (!file) return;
 
-      const isImportant = isImportantCheckbox?.checked || false;
       uploadContainer.classList.add('opacity-60', 'pointer-events-none');
 
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('isImportant', isImportant ? 'true' : 'false');
+      formData.append('category', 'document');
 
       try {
-        const response = await fetch(`${backendUrl}/api/upload`, {
+        const response = await fetch('/api/admin/upload', {
           method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${sessionToken}`
-          },
           body: formData
         });
 
@@ -304,11 +298,8 @@ try {
           btn.classList.add('opacity-50');
 
           try {
-            const response = await fetch(`${backendUrl}/api/upload/${encodeURIComponent(filename)}`, {
+            const response = await fetch(`/api/admin/upload/${encodeURIComponent(filename)}`, {
               method: 'DELETE',
-              headers: {
-                'Authorization': `Bearer ${sessionToken}`
-              }
             });
 
             if (!response.ok) {

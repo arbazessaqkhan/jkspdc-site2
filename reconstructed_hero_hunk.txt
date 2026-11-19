@@ -1,0 +1,63 @@
+        <div id={`slide-${slide.id}`} class={`absolute inset-0 transition-opacity duration-500 ${i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}>
+          <img src={slide.img} alt={slide.title} class="absolute inset-0 w-full h-full object-cover" fetchpriority={i === 0 ? 'high' : 'auto'} loading={i === 0 || i === 1 || i === heroSlides.length - 1 ? 'eager' : 'lazy'} onerror="this.onerror=null; this.src='/slider1.jpg';" />
+
+          <!-- Slide Content -->
+          <div class="absolute inset-0 z-20 flex items-center">
+            <div class="w-full max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
+              <div class="grid grid-cols-1 md:grid-cols-5 gap-6 sm:gap-8 items-center">
+                <!-- Left: Title, Desc, Buttons -->
+                <div class="md:col-span-3 text-white">
+                  <div class="inline-flex items-center border border-white/40 bg-black/30 text-white/90 text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1 mb-3 sm:mb-4">
+                    {slide.badge}
+                  </div>
+                  <h2 class="text-2xl sm:text-4xl lg:text-5xl font-bold leading-tight" style="text-shadow: 0 2px 8px rgba(0,0,0,0.45);">
+                    {slide.title}
+                  </h2>
+                  <p class="mt-3 sm:mt-4 text-xs sm:text-sm md:text-base text-white/95 max-w-xl leading-relaxed font-medium line-clamp-3 sm:line-clamp-4" style="text-shadow: 0 1px 4px rgba(0,0,0,0.65);">
+                    {slide.desc}
+                  </p>
+                  <div class="mt-4 sm:mt-6 flex flex-wrap items-center gap-3">
+      ))}
+    </div>
+
+    <!-- Dots -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2.5 z-20">
+      {heroSlides.map((_, i) => (
+        <button data-dot={String(i)} class={`h-1.5 transition-all duration-300 ${i === 0 ? 'w-10 bg-white' : 'w-4 bg-white/40'}`} aria-label={`Slide ${i + 1}`}></button>
+      ))}
+    </div>
+    <button id="hero-prev" class="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-white/20 transition border border-white/20 text-xl" aria-label="Previous">&#8249;</button>
+    <button id="hero-next" class="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-white/20 transition border border-white/20 text-xl" aria-label="Next">&#8250;</button>
+  </section>
+
+  <!-- PAGE BODY — unified container + consistent vertical rhythm -->
+  var dots = Array.from(document.querySelectorAll('[data-dot]'));
+  var timer = null;
+
+  function goTo(n) {
+    if (total <= 1) return;
+
+      slideEls[cur].classList.add('opacity-0', 'z-0', 'pointer-events-none');
+    }
+    if (dots[cur]) {
+      dots[cur].className = 'h-1.5 transition-all duration-300 w-4 bg-white/40';
+    }
+
+    cur = ((n % total) + total) % total;
+      slideEls[cur].classList.add('opacity-100', 'z-10');
+    }
+    if (dots[cur]) {
+      dots[cur].className = 'h-1.5 transition-all duration-300 w-10 bg-white';
+    }
+  }
+
+  function startTimer() {
+    if (timer) clearInterval(timer);
+    timer = setInterval(function () {
+      goTo(cur + 1);
+    }, 6000);
+  }
+
+  var prev = document.getElementById('hero-prev');
+  if (prev) {
+    prev.onclick = function (e) {

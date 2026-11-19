@@ -45,3 +45,17 @@ export class UpdateUserDto {
   @IsBoolean()
   isActive?: boolean;
 }
+
+export class ResetMfaDto {
+  @IsString({ message: 'Current administrator password is required for verification' })
+  @MinLength(1, { message: 'Current password cannot be empty' })
+  currentPassword!: string;
+
+  @IsString({ message: 'Current administrator 6-digit TOTP code is required for verification' })
+  @MinLength(6, { message: 'TOTP code must be 6 digits' })
+  totpCode!: string;
+
+  @IsString({ message: 'Administrative justification/reason is required' })
+  @MinLength(3, { message: 'Reason must be at least 3 characters long' })
+  reason!: string;
+}

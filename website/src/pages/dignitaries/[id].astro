@@ -79,7 +79,6 @@ const initials = name
         {errorMessage}
       </div>
     ) : (
-      <!-- Main Container -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fadeInUp delay-200">
         
         <!-- Left Column: Portrait Card & Stats -->
@@ -95,14 +94,14 @@ const initials = name
                   class="w-full h-full object-cover object-top"
                 />
               ) : (
-                <div class="w-full h-full bg-[#1B3A6B] flex items-center justify-center text-white text-3xl font-extrabold">
+                <div class="w-full h-full bg-[#0B3B60] flex items-center justify-center text-white text-3xl font-extrabold">
                   {initials}
                 </div>
               )}
             </div>
-            <h2 class="text-xl font-extrabold text-[#0B4F9C] mt-4 text-balance">{name}</h2>
+            <h2 class="text-xl font-extrabold text-[#0B3B60] mt-4 text-balance">{name}</h2>
             <div class="mt-2">
-              <span class="inline-block text-[10px] text-[#0B4F9C] font-bold uppercase tracking-wider bg-slate-100 px-2.5 py-1 rounded border border-slate-200">
+              <span class="inline-block text-[10px] text-[#0B3B60] font-bold uppercase tracking-wider bg-slate-100 px-2.5 py-1 rounded border border-slate-200">
                 {position}
               </span>
             </div>
@@ -133,21 +132,21 @@ const initials = name
             
             <!-- Heading Section -->
             <div>
-              <h1 class="text-2xl font-extrabold text-[#0B4F9C] text-balance">Official Profile</h1>
+              <h2 class="text-xl font-bold text-[#0B3B60] text-balance">Official Profile</h2>
               <p class="text-xs text-gray-500 mt-1">Administrative credentials and biographical details of the {position}.</p>
             </div>
 
             <!-- Section 1: Biography -->
             <section class="space-y-3">
-              <h3 class="text-sm font-bold text-[#0B4F9C] uppercase tracking-wider border-b border-slate-100 pb-1.5">Biography</h3>
-              <div class="prose-gov text-sm text-slate-600 leading-relaxed space-y-3" set:html={cleanDescription} />
+              <h3 class="text-sm font-bold text-[#0B3B60] uppercase tracking-wider border-b border-slate-100 pb-1.5">Biography</h3>
+              <div class="prose-gov text-sm text-slate-700 leading-relaxed space-y-3" set:html={cleanDescription} />
             </section>
 
             <!-- Section 2: Key Responsibilities -->
             {keyResponsibilities && (
               <section class="space-y-3">
-                <h3 class="text-sm font-bold text-[#0B4F9C] uppercase tracking-wider border-b border-slate-100 pb-1.5">Key Responsibilities</h3>
-                <div class="prose-gov text-sm text-slate-600 leading-relaxed space-y-2" set:html={cleanResponsibilities} />
+                <h3 class="text-sm font-bold text-[#0B3B60] uppercase tracking-wider border-b border-slate-100 pb-1.5">Key Responsibilities</h3>
+                <div class="prose-gov text-sm text-slate-700 leading-relaxed space-y-2" set:html={cleanResponsibilities} />
               </section>
             )}
 

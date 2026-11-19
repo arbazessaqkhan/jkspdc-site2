@@ -19,6 +19,7 @@ if (!isAdmin(userRole)) {
 
 let errorMessage = '';
 let successMessage = '';
+let draftRevisionNotice = '';
 
 // Check if we are in Edit Mode
 const editId = Astro.url.searchParams.get('id')?.toString();
@@ -60,6 +61,37 @@ if (editId) {
         status: data.status || 'Under Construction',
         documentUrl: data.documentUrl || '',
       };
+
+      // Check for unpublished draft revision
+      try {
+        const revRes = await fetch(`${BACKEND_URL}/api/draft-revisions/project/${editId}`, {
+          headers: { 'Authorization': `Bearer ${sessionToken}` },
+        });
+        if (revRes.ok) {
+          const revData = await revRes.json();
+          if (revData && revData.draftData) {
+            draftRevisionNotice = 'You are editing an unpublished draft revision. Click "Update" to publish changes live to the website.';
+            const d = revData.draftData;
+            projectData = {
+              ...projectData,
+              name: d.name || projectData.name,
+              type: d.type || projectData.type,
+              configuration: d.configuration || projectData.configuration,
+              designEnergy: d.designEnergy !== null && d.designEnergy !== undefined ? d.designEnergy.toString() : projectData.designEnergy,
+              commissionedDate: d.commissionedDate ? new Date(d.commissionedDate).toISOString().split('T')[0] : projectData.commissionedDate,
+              capacityMw: d.capacityMw !== null && d.capacityMw !== undefined ? d.capacityMw.toString() : projectData.capacityMw,
+              description: d.description || projectData.description,
+              salientFeatures: d.salientFeatures || projectData.salientFeatures,
+              sector: d.sector || projectData.sector,
+              basin: d.basin || projectData.basin,
+              location: d.location || projectData.location,
+              documentUrl: d.documentUrl || projectData.documentUrl,
+            };
+          }
+        }
+      } catch (revErr) {
+        console.error('Error fetching draft revision for project:', revErr);
+      }
     } else {
       const apiErr = await parseApiError(res, 'load project details for editing');
       if (apiErr.isUnauthorized) {
@@ -73,19 +105,10 @@ if (editId) {
   }
 }
 
-function getProjectPhotoPreviewUrl(name: string, docUrl?: string | null): string {
+function getProjectPhotoPreviewUrl(_name: string, docUrl?: string | null): string {
   if (docUrl && docUrl.trim() !== '') {
-    if (BACKEND_URL && docUrl.startsWith(`${BACKEND_URL}/uploads/`)) return docUrl;
-    if (docUrl.startsWith('/uploads/')) return `${BACKEND_URL}${docUrl}`;
-    return docUrl;
-  }
-  if (!name) return '';
-  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-  if (slug === 'ganderbal' || slug === 'ushp-i' || slug === 'sewa-iii') {
-    return `/projects/${slug}.png`;
-  }
-  if (['bhaderwah', 'bhep-i', 'bhep-ii', 'chep-i', 'chep-ii', 'chep-iii', 'karnah', 'ljhp', 'mhep-pahalgam', 'ushp-ii', 'ushp-ll'].includes(slug)) {
-    return `/projects/${slug}.jpg`;
+    if (docUrl.startsWith('http://') || docUrl.startsWith('https://')) return docUrl;
+    return docUrl.startsWith('/') ? docUrl : `/${docUrl}`;
   }
   return '';
 }
@@ -128,14 +151,16 @@ if (Astro.request.method === 'POST') {
       documentUrl: documentUrl || '',
     };
 
+    const isDraft = formData.get('_draft') === 'true';
+
     if (!name || !capacityMw) {
       errorMessage = 'Project Name and Capacity are required fields.';
     } else {
-      const body = {
+      const body: any = {
         name,
         type,
         capacityMw: parseFloat(capacityMw),
-        status: 'Under Construction',
+        status: isDraft ? 'Draft' : 'Under Construction',
         location,
         configuration: configuration || null,
         designEnergy: designEnergy ? parseFloat(designEnergy) : null,
@@ -148,6 +173,32 @@ if (Astro.request.method === 'POST') {
           ? documentUrl.replace(BACKEND_URL, '')
           : (documentUrl || null),
       };
+
+      if (isDraft && id) {
+        // Section 7.C: If editing an already published project, NEVER downgrade live status!
+        try {
+          const checkRes = await fetch(`${BACKEND_URL}/api/projects/${id}`);
+          const currentProject = checkRes.ok ? await checkRes.json() : null;
+          if (currentProject && currentProject.status === 'Under Construction') {
+            await fetch(`${BACKEND_URL}/api/draft-revisions`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${sessionToken}`,
+              },
+              body: JSON.stringify({
+                entityType: 'project',
+                entityId: id,
+                draftData: body,
+                summary: `Draft revisions for ${name}`,
+              }),
+            });
+            return Astro.redirect('/admin/under-construction?success=' + encodeURIComponent(`Draft revision for "${name}" saved.`));
+          }
+        } catch (e) {
+          console.error('Error handling draft revision:', e);
+        }
+      }
 
       let apiRes;
       if (id) {
@@ -171,6 +222,14 @@ if (Astro.request.method === 'POST') {
       }
 
       if (apiRes.ok) {
+        if (id && !isDraft) {
+          try {
+            await fetch(`${BACKEND_URL}/api/draft-revisions/project/${id}`, {
+              method: 'DELETE',
+              headers: { 'Authorization': `Bearer ${sessionToken}` },
+            });
+          } catch (e) {}
+        }
         return Astro.redirect('/admin/under-construction?success=' + encodeURIComponent(`Project "${name}" saved successfully.`));
       } else {
         const apiErr = await parseApiError(apiRes, id ? 'update construction project' : 'create construction project');
@@ -210,6 +269,11 @@ if (Astro.request.method === 'POST') {
         <span class="font-bold">Error:</span> {errorMessage}
       </div>
     )}
+    {draftRevisionNotice && (
+      <div class="p-3 bg-blue-50 border border-blue-200 text-xs font-semibold text-blue-800 rounded flex items-center gap-2" role="alert">
+        <Icon name="info" size={14} class="text-blue-600 shrink-0" /> {draftRevisionNotice}
+      </div>
+    )}
 
     <!-- Form container -->
     <form method="POST" class="bg-white rounded-lg border border-slate-200 shadow-sm p-6 lg:p-8 flex flex-col gap-6">
@@ -217,9 +281,6 @@ if (Astro.request.method === 'POST') {
 
       <!-- Section: General Details -->
       <div>
-        <h3 class="text-xs font-bold text-[color:var(--adm-primary)] uppercase tracking-wider border-b border-slate-100 pb-2 mb-4">
-          General Specifications
-        </h3>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="form-group">
@@ -252,25 +313,7 @@ if (Astro.request.method === 'POST') {
             <input type="date" name="commissionedDate" id="commissionedDate" value={projectData.commissionedDate} class="form-input text-xs" />
           </div>
 
-          <div class="form-group">
-            <label for="sector" class="form-label">Ownership Sector</label>
-            <select name="sector" id="sector" class="form-select text-xs">
-              <option value="State" selected={projectData.sector === 'State'}>State Sector</option>
-              <option value="JV" selected={projectData.sector === 'JV'}>Joint Venture (JV)</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="basin" class="form-label">River Basin</label>
-            <select name="basin" id="basin" class="form-select text-xs">
-              <option value="Chenab" selected={projectData.basin === 'Chenab'}>Chenab Basin</option>
-              <option value="Jhelum" selected={projectData.basin === 'Jhelum'}>Jhelum Basin</option>
-              <option value="Ravi" selected={projectData.basin === 'Ravi'}>Ravi Basin</option>
-              <option value="Indus" selected={projectData.basin === 'Indus'}>Indus Basin</option>
-            </select>
-          </div>
-
-          <div class="form-group">
+          <div class="form-group col-span-1 md:col-span-2">
             <label for="location" class="form-label">District / Location</label>
             <input type="text" name="location" id="location" value={projectData.location} class="form-input text-xs" placeholder="e.g. Poonch District, UT of J&K" />
           </div>
@@ -286,8 +329,8 @@ if (Astro.request.method === 'POST') {
                 label="Project Photograph"
                 variant="image"
                 accept="image/jpeg,image/png,image/webp,image/gif"
-                helpText="Supported formats: JPG, PNG, WEBP. Max size: 10 MB."
-                maxSizeMB={10}
+                helpText="Supported formats: JPG, PNG, WEBP."
+                maxSizeMB={2}
                 existingUrl={existingPhotoUrl}
               />
               <input type="hidden" name="documentUrl" id="documentUrl" value={projectData.documentUrl || (existingPhotoUrl && !(BACKEND_URL && existingPhotoUrl.startsWith(BACKEND_URL)) ? existingPhotoUrl : '')} />
@@ -324,72 +367,166 @@ if (Astro.request.method === 'POST') {
       <!-- Save controls -->
       <div class="flex justify-end gap-3 border-t border-slate-100 pt-6 mt-2">
         <a href="/admin/under-construction" class="admin-btn admin-btn-secondary">Cancel</a>
+        {!editId && (
+          <button type="button" id="btn-clear-project" class="admin-btn admin-btn-secondary cursor-pointer">
+            Clear
+          </button>
+        )}
         <button type="submit" class="admin-btn admin-btn-primary cursor-pointer">
-          {editId ? 'Update Project' : 'Create Project'}
+          {editId ? 'Update' : 'Create Project'}
         </button>
       </div>
     </form>
   </div>
 
-  <script define:vars={{ sessionToken, backendUrl: BACKEND_URL }}>
-    // Unified uploader: 'project-image-input' fires 'change' after validated selection.
-    const documentUrlInput = document.getElementById('documentUrl');
-    const imageFileInput = document.getElementById('project-image-input');
+  <script>
+    function initConstructionUploader() {
+      const documentUrlInput = document.getElementById('documentUrl');
+      const imageFileInput = document.getElementById('project-image-input');
+      const dropzone = document.getElementById('project-image-dropzone');
+      const previewImg = document.getElementById('project-image-preview-img');
+      const submitBtn = document.querySelector('button[type="submit"]');
+      const form = document.querySelector('form');
+      let isUploading = false;
+      const initialBtnText = submitBtn ? submitBtn.textContent : 'Save';
 
-    function removePhoto() {
-      if (documentUrlInput) documentUrlInput.value = '';
-      if (imageFileInput) imageFileInput.value = '';
+      if (!imageFileInput || imageFileInput.dataset.bound) return;
+      imageFileInput.dataset.bound = 'true';
+
+      function removePhoto() {
+        if (documentUrlInput) documentUrlInput.value = '';
+        if (imageFileInput) imageFileInput.value = '';
+        if (previewImg) {
+          previewImg.src = '';
+          previewImg.classList.add('invisible');
+        }
+        if (dropzone) {
+          dropzone.classList.remove('has-file');
+          const nameEl = dropzone.querySelector('.admin-uploader-file-name');
+          if (nameEl) nameEl.textContent = '';
+        }
+      }
+
+      imageFileInput.addEventListener('change', async (event) => {
+        const file = event.target?.files?.[0];
+        if (!file) return;
+
+        isUploading = true;
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Uploading photograph…';
+        }
+        if (dropzone) dropzone.classList.add('opacity-50', 'pointer-events-none');
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('category', 'image');
+
+        try {
+          const response = await fetch('/api/admin/upload', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!response.ok) {
+            if (response.status === 401) {
+              window.location.href = '/admin/login';
+              return;
+            }
+            if (response.status === 403) {
+              alert('Access Denied: You do not have permission to upload files.');
+              removePhoto();
+              return;
+            }
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.message || 'Upload failed');
+          }
+
+          const result = await response.json();
+          const rawUrl = result.url || '';
+          const serverUrl = rawUrl.includes('/uploads/') ? '/uploads/' + rawUrl.split('/uploads/')[1] : rawUrl;
+
+          if (documentUrlInput) documentUrlInput.value = serverUrl;
+          if (previewImg) {
+            previewImg.src = serverUrl;
+            previewImg.classList.remove('invisible');
+          }
+          if (dropzone) {
+            dropzone.classList.add('has-file');
+            const nameEl = dropzone.querySelector('.admin-uploader-file-name');
+            if (nameEl) nameEl.textContent = file.name;
+          }
+        } catch (err) {
+          alert(`Upload error: ${err.message}`);
+          removePhoto();
+        } finally {
+          isUploading = false;
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = initialBtnText;
+          }
+          if (dropzone) dropzone.classList.remove('opacity-50', 'pointer-events-none');
+        }
+      });
+
+      imageFileInput.addEventListener('uploader:cleared', removePhoto);
+
+      const btnClearProject = document.getElementById('btn-clear-project');
+      if (btnClearProject) {
+        btnClearProject.addEventListener('click', () => {
+          const nameInput = document.getElementById('name');
+          const capInput = document.getElementById('capacityMw');
+          const isDirty = (nameInput && nameInput.value.trim() !== '') ||
+            (capInput && capInput.value.trim() !== '') ||
+            (documentUrlInput && documentUrlInput.value.trim() !== '');
+
+          if (isDirty) {
+            if (!confirm('Are you sure you want to clear all entered form fields and selected photograph?')) {
+              return;
+            }
+          }
+
+          if (form) {
+            form.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"])').forEach(i => i.value = '');
+            form.querySelectorAll('textarea').forEach(t => t.value = '');
+            form.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+          }
+          removePhoto();
+          var descContainer = document.querySelector('[data-rich-editor="field-description"]');
+          if (descContainer && descContainer.__quill) descContainer.__quill.setText('');
+          var descInput = document.getElementById('field-description');
+          if (descInput) descInput.value = '';
+          var salientContainer = document.querySelector('[data-rich-editor="field-salientFeatures"]');
+          if (salientContainer && salientContainer.__quill) salientContainer.__quill.setText('');
+          var salientInput = document.getElementById('field-salientFeatures');
+          if (salientInput) salientInput.value = '';
+          if (nameInput) nameInput.focus();
+        });
+      }
+
+      if (form && !form.dataset.submitGuarded) {
+        form.dataset.submitGuarded = 'true';
+        form.addEventListener('submit', function(e) {
+          if (isUploading) {
+            e.preventDefault();
+            alert('Please wait for the photograph upload to finish before saving.');
+            return false;
+          }
+          var descContainer = document.querySelector('[data-rich-editor="field-description"]');
+          var descInput = document.getElementById('field-description');
+          if (descContainer && descContainer.__quill && descInput) {
+            descInput.value = descContainer.__quill.root.innerHTML === '<p><br></p>' ? '' : descContainer.__quill.root.innerHTML;
+          }
+          var salientContainer = document.querySelector('[data-rich-editor="field-salientFeatures"]');
+          var salientInput = document.getElementById('field-salientFeatures');
+          if (salientContainer && salientContainer.__quill && salientInput) {
+            salientInput.value = salientContainer.__quill.root.innerHTML === '<p><br></p>' ? '' : salientContainer.__quill.root.innerHTML;
+          }
+        });
+      }
     }
 
-    imageFileInput?.addEventListener('change', async (event) => {
-      const file = event.target?.files?.[0];
-      if (!file) return;
-
-      const formData = new FormData();
-      formData.append('file', file);
-
-      try {
-        const response = await fetch(`${backendUrl}/api/upload`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${sessionToken}`,
-          },
-          body: formData,
-        });
-
-        if (!response.ok) {
-          if (response.status === 401) {
-            window.location.href = '/admin/login';
-            return;
-          }
-          if (response.status === 403) {
-            alert('Access Denied: You do not have permission to upload files.');
-            removePhoto();
-            return;
-          }
-          const err = await response.json().catch(() => ({}));
-          throw new Error(err.message || 'Upload failed');
-        }
-
-        const result = await response.json();
-        const serverUrl = (backendUrl && result.url.startsWith(`${backendUrl}/uploads/`))
-          ? result.url.replace(backendUrl, '')
-          : result.url;
-
-        if (documentUrlInput) documentUrlInput.value = serverUrl;
-        const previewImg = document.getElementById('project-image-preview-img');
-        if (previewImg) {
-          previewImg.src = serverUrl.startsWith('/uploads/') ? `${backendUrl}${serverUrl}` : serverUrl;
-          previewImg.classList.remove('invisible');
-        }
-      } catch (err) {
-        alert(`Upload error: ${err.message}`);
-        removePhoto();
-      }
-    });
-
-    imageFileInput?.addEventListener('uploader:cleared', () => {
-      if (documentUrlInput) documentUrlInput.value = '';
-    });
+    initConstructionUploader();
+    document.addEventListener('astro:page-load', initConstructionUploader);
   </script>
 </AdminLayout>

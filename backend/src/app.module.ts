@@ -21,7 +21,6 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { GalleryModule } from './gallery/gallery.module';
 import { PoliciesModule } from './policies/policies.module';
 import { AgmModule } from './agm/agm.module';
-import { HydroModule } from './hydro/hydro.module';
 import { PageContentModule } from './page-content/page-content.module';
 import { DownloadsModule } from './downloads/downloads.module';
 import { FinancialsModule } from './financials/financials.module';
@@ -33,6 +32,7 @@ import { OfficialContactsModule } from './official-contacts/official-contacts.mo
 import { ContactSubOfficesModule } from './contact-sub-offices/contact-sub-offices.module';
 import { IppProjectsModule } from './ipp-projects/ipp-projects.module';
 import { DashboardSummaryModule } from './dashboard-summary/dashboard-summary.module';
+import { DraftRevisionsModule } from './draft-revisions/draft-revisions.module';
 
 @Module({
   imports: [
@@ -58,7 +58,6 @@ import { DashboardSummaryModule } from './dashboard-summary/dashboard-summary.mo
     GalleryModule,
     PoliciesModule,
     AgmModule,
-    HydroModule,
     PageContentModule,
     DownloadsModule,
     FinancialsModule,
@@ -69,6 +68,7 @@ import { DashboardSummaryModule } from './dashboard-summary/dashboard-summary.mo
     ContactSubOfficesModule,
     IppProjectsModule,
     DashboardSummaryModule,
+    DraftRevisionsModule,
   ],
   controllers: [
     ContactController,

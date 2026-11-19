@@ -1,0 +1,268 @@
+diff --git a/website/src/pages/index.astro b/website/src/pages/index.astro
+index f7bfddf..80d5ffe 100644
+--- a/website/src/pages/index.astro
++++ b/website/src/pages/index.astro
+@@ -2,12 +2,14 @@
+ import Layout from '../layouts/Layout.astro';
+ import Icon from '../components/Icon.astro';
+ import { formatProjectName } from '../utils/projectFormatter';
++import { BACKEND_URL } from '../utils/api-error';
+ 
+ let dignitaries: any[] = [];
+ let directors: any[] = [];
+ let tenders: any[] = [];
+ let projects: any[] = [];
+ let notifications: any[] = [];
++let heroSlidesData: any[] = [];
+ let gallery = [
+   {
+     id: 'gallery-seed-1',
+@@ -31,130 +33,193 @@ let gallery = [
+ 
+ try {
+   // Fetch dignitaries
+-  const digRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/api/dignitaries`);
++  const digRes = await fetch(`${BACKEND_URL}/api/dignitaries`);
+   if (digRes.ok) {
+     dignitaries = await digRes.json();
+     dignitaries.sort((a: any, b: any) => a.sNo - b.sNo);
+   }
+ 
+   // Fetch directors
+-  const dirRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/api/directors`);
++  const dirRes = await fetch(`${BACKEND_URL}/api/directors`);
+   if (dirRes.ok) {
+     directors = await dirRes.json();
+     directors.sort((a: any, b: any) => a.sNo - b.sNo);
+   }
+ 
+   // Fetch tenders
+-  const tenderRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/api/tenders`);
++  const tenderRes = await fetch(`${BACKEND_URL}/api/tenders`);
+   if (tenderRes.ok) {
+     tenders = await tenderRes.json();
+   }
+ 
+   // Fetch projects
+-  const projRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/api/projects`);
++  const projRes = await fetch(`${BACKEND_URL}/api/projects`);
+   if (projRes.ok) {
+     projects = await projRes.json();
+     projects.sort((a, b) => (b.capacityMw || 0) - (a.capacityMw || 0));
+   }
+ 
+   // Fetch notifications
+-  const notifRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/api/public/notifications`);
++  const notifRes = await fetch(`${BACKEND_URL}/api/public/notifications`);
+   if (notifRes.ok) {
+     notifications = await notifRes.json();
+   }
+ 
+   // Fetch gallery items
+-  const galleryRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/api/gallery`);
++  const galleryRes = await fetch(`${BACKEND_URL}/api/gallery`);
+   if (galleryRes.ok) {
+     gallery = await galleryRes.json();
+   }
++
++  // Fetch active hero slides (managed directly from Admin Console)
++  const heroRes = await fetch(`${BACKEND_URL}/api/hero-slides/active`);
++  if (heroRes.ok) {
++    heroSlidesData = await heroRes.json();
++  }
+ } catch (e) {
+   console.error('Failed to sync index.astro from backend:', e);
+ }
+ 
++// Fetch Homepage Carousels Settings
++let heroSettings = { autoplay: true, duration: 6 };
++let welcomeSettings = { autoplay: true, duration: 5, items: [] as any[] };
++let aboutSettings = { autoplay: true, duration: 5, items: [] as any[] };
++
++try {
++  const [heroSetRes, welcomeSetRes, aboutSetRes] = await Promise.all([
++    fetch(`${BACKEND_URL}/api/public/site-settings/homepage_hero_settings`).catch(() => null),
++    fetch(`${BACKEND_URL}/api/public/site-settings/homepage_welcome_settings`).catch(() => null),
++    fetch(`${BACKEND_URL}/api/public/site-settings/homepage_about_settings`).catch(() => null),
++  ]);
++
++  if (heroSetRes && heroSetRes.ok) {
++    const d = await heroSetRes.json();
++    if (d?.value) {
++      try { heroSettings = Object.assign(heroSettings, JSON.parse(d.value)); } catch {}
++    }
++  }
++
++  if (welcomeSetRes && welcomeSetRes.ok) {
++    const d = await welcomeSetRes.json();
++    if (d?.value) {
++      try { welcomeSettings = Object.assign(welcomeSettings, JSON.parse(d.value)); } catch {}
++    }
++  }
++
++  if (aboutSetRes && aboutSetRes.ok) {
++    const d = await aboutSetRes.json();
++    if (d?.value) {
++      try { aboutSettings = Object.assign(aboutSettings, JSON.parse(d.value)); } catch {}
++    }
++  }
++} catch (err) {
++  console.error('Error fetching homepage carousel settings:', err);
++}
++
+ function getImageUrl(url: string) {
+   if (!url) return '';
+   if (url.startsWith('/uploads/')) {
+-    return `${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}${url}`;
++    return `${BACKEND_URL}${url}`;
+   }
+   return url;
+ }
+ 
+-// 1. Office & Corporate Events (Only gallery pictures uploaded by admin in galary section)
+-const officePhotos = gallery.filter((item: any) => 
+-  !item.partition || (item.partition.toLowerCase() !== 'projects' && item.partition.toLowerCase() !== 'project')
+-);
+-
+-const fallbackOfficePhotos = [
++// 1. Media Gallery Direct Carousel (Used inside "Welcome to JKSPDCL")
++const fallbackGalleryPhotos = [
+   {
+-    id: 'office-seed-1',
++    id: 'gallery-seed-
+<truncated 106967 of 116859 bytes from the middle of the output>
+c) { c.style.display = 'none'; });
+       return;
+     }
+@@ -1543,6 +1855,8 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
+     if (q && matchedCards.length === 0) {
+       if (projectsGrid) projectsGrid.style.display = 'none';
+       if (emptySearchEl) emptySearchEl.style.display = 'block';
++      if (loadMoreBtn) loadMoreBtn.style.display = 'none';
++      if (countEl) countEl.textContent = '0';
+       cards.forEach(function(c) { c.style.display = 'none'; });
+       return;
+     }
+@@ -1552,12 +1866,13 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
+ 
+     // Show preview count when not searching and not expanded
+     var shownCount = 0;
+-    var shouldLimit = !q && (!isExpandedAll || activeTab !== 'All');
++    var currentLimit = getPreviewLimit();
++    var shouldLimit = !q && !isExpandedAll;
+ 
+     cards.forEach(function(c) {
+       var isMatch = matchedCards.indexOf(c) !== -1;
+       if (isMatch) {
+-        if (shouldLimit && shownCount >= PREVIEW_LIMIT) {
++        if (shouldLimit && shownCount >= currentLimit) {
+           c.style.display = 'none';
+         } else {
+           c.style.display = '';
+@@ -1567,18 +1882,32 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
+         c.style.display = 'none';
+       }
+     });
++
++    if (countEl) {
++      countEl.textContent = String(shownCount);
++    }
+   }
+ 
+-  if (viewAllBtn) {
+-    viewAllBtn.onclick = function(e) {
+-      if (activeTab === 'All') {
+-        e.preventDefault();
+-        isExpandedAll = !isExpandedAll;
++  // Responsive resize handler to adjust preview limits between mobile and desktop/tablet
++  var resizeTimer;
++  window.addEventListener('resize', function() {
++    clearTimeout(resizeTimer);
++    resizeTimer = setTimeout(function() {
++      if (!isExpandedAll) {
+         updateTabUI();
+         filterProjects();
+-        if (!isExpandedAll) {
+-          document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+-        }
++      }
++    }, 150);
++  });
++
++  if (loadMoreBtn) {
++    loadMoreBtn.onclick = function(e) {
++      e.preventDefault();
++      isExpandedAll = !isExpandedAll;
++      updateTabUI();
++      filterProjects();
++      if (!isExpandedAll) {
++        document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+       }
+     };
+   }
+@@ -1645,17 +1974,17 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
+   /* ── HOME TENDERS & NOTIFICATIONS VERTICAL FEED WITH ZEBRA ROWS ── */
+   @keyframes feed-vertical {
+     0% {
+-      transform: translate3d(0, 280px, 0);
++      transform: translate3d(0, 0, 0);
+     }
+     100% {
+-      transform: translate3d(0, calc(280px - 50%), 0);
++      transform: translate3d(0, -50%, 0);
+     }
+   }
+ 
+   .feed-scroll-track {
+     display: flex;
+     flex-direction: column;
+-    animation: feed-vertical 10s linear infinite !important;
++    animation: feed-vertical var(--feed-duration, 10s) linear infinite !important;
+     will-change: transform;
+   }
+ 
+@@ -1681,9 +2010,16 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
+ 
+ <script is:inline>
+   (function() {
+-    function ensureFeedRunning() {
++    function syncFeedSpeeds() {
++      var speedPxPerSec = 70; // Fast and interactive scroll speed matching previous pace
+       var tracks = document.querySelectorAll('.feed-scroll-track');
+       tracks.forEach(function(t) {
++        var distance = t.scrollHeight / 2;
++        if (distance > 0) {
++          var duration = (distance / speedPxPerSec).toFixed(2);
++          t.style.setProperty('--feed-duration', duration + 's');
++          t.style.animationDuration = duration + 's';
++        }
+         if (document.activeElement && t.contains(document.activeElement)) {
+           document.activeElement.blur();
+         }
+@@ -1691,12 +2027,22 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
+       });
+     }
+ 
+-    document.addEventListener('astro:page-load', ensureFeedRunning);
+-    window.addEventListener('pageshow', ensureFeedRunning);
+-    window.addEventListener('focus', ensureFeedRunning);
++    if (document.readyState === 'loading') {
++      document.addEventListener('DOMContentLoaded', syncFeedSpeeds);
++    } else {
++      syncFeedSpeeds();
++    }
++    setTimeout(syncFeedSpeeds, 100);
++    setTimeout(syncFeedSpeeds, 500);
++
++    document.addEventListener('astro:page-load', syncFeedSpeeds);
++    window.addEventListener('load', syncFeedSpeeds);
++    window.addEventListener('pageshow', syncFeedSpeeds);
++    window.addEventListener('resize', syncFeedSpeeds);
++    window.addEventListener('focus', syncFeedSpeeds);
+     document.addEventListener('visibilitychange', function() {
+       if (!document.hidden) {
+-        ensureFeedRunning();
++        syncFeedSpeeds();
+       }
+     });
+ 

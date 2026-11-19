@@ -8,15 +8,23 @@ generator client {
 }
 
 model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
-  password  String    // Hashed password
-  name      String
-  role      String    @default("VIEWER")
-  isActive  Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  sessions  Session[]
+  id                     String            @id @default(uuid())
+  email                  String            @unique
+  password               String            // Hashed password
+  name                   String
+  role                   String            @default("VIEWER")
+  isActive               Boolean           @default(true)
+  mfaEnabled             Boolean           @default(false)
+  mfaSecret              String?           // AES-256-GCM encrypted TOTP secret (v1:iv:tag:ct)
+  mfaEnrolledAt          DateTime?
+  lastUsedTotpStep       BigInt?           // Monotonic step counter to prevent TOTP replay
+  mfaEnrollmentCodeHash  String?           // Single-use enrollment authorization code hash
+  mfaEnrollmentExpiresAt DateTime?         // Expiration timestamp for enrollment authorization
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+  sessions               Session[]
+  mfaRecoveryCodes       MfaRecoveryCode[]
+  mfaChallenges          MfaChallenge[]
 }
 
 model Session {
@@ -31,6 +39,34 @@ model Session {
 
   @@index([userId])
   @@index([tokenHash])
+  @@index([expiresAt])
+}
+
+model MfaRecoveryCode {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash  String
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([codeHash])
+}
+
+model MfaChallenge {
+  id                String   @id @default(uuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ticketHash        String   @unique
+  tempSecret        String?  // AES-256-GCM encrypted temporary secret during setup (v1:iv:tag:ct)
+  isEnrollmentReady Boolean  @default(false)
+  expiresAt         DateTime
+  attempts          Int      @default(0)
+  createdAt         DateTime @default(now())
+
+  @@index([userId])
+  @@index([ticketHash])
   @@index([expiresAt])
 }
 
@@ -67,7 +103,10 @@ model Tender {
   bidOpeningDate DateTime?
   documentUrl    String    // S3 URL
   fileSizeBytes  Int
+  fileFormat     String?   // PDF, DOCX, XLSX, ... captured from the uploaded file
   status         String    @default("Active") // Active, Archived, Cancelled
+  showInTicker   Boolean   @default(false)
+  priority       String    @default("Normal") // Normal, Urgent
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   parentTenderId String?
@@ -146,22 +185,32 @@ model Dignitary {
 }
 
 model Notification {
-  id          String   @id @default(uuid())
-  title       String
-  fileName    String
-  documentUrl String
-  publishDate DateTime @default(now())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String   @id @default(uuid())
+  title         String
+  fileName      String
+  documentUrl   String
+  fileSizeBytes Int?
+  fileFormat    String?
+  validTillDate DateTime?
+  status        String   @default("Active") // "Active", "Archived", "Draft"
+  showInTicker  Boolean  @default(false)
+  priority      String   @default("Normal") // Normal, Urgent
+  publishDate   DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model GalleryItem {
-  id        String   @id @default(uuid())
-  title       String
-  imageUrl    String
-  partition String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(uuid())
+  title        String
+  imageUrl     String
+  status       String   @default("Active") // "Active", "Archived", "Draft"
+  partition    String?  @default("General")
+  projectId    String?
+  projectName  String?
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model PolicyDocument {
@@ -236,98 +285,23 @@ model Executive {
 }
 
 model HeroSlide {
-  id        String   @id @default(uuid())
-  title     String
-  subtitle  String?
-  imageUrl  String
-  ctaText   String?
-  ctaHref   String?
-  sortOrder Int      @default(0)
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(uuid())
+  title       String
+  subtitle    String?
+  description String?
+  imageUrl    String
+  ctaText     String?
+  ctaHref     String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model SiteSetting {
   id    String @id @default(uuid())
   key   String @unique
   value String
-}
-
-// ── HYDRO AI Knowledge Assistant ──────────────────────────────
-
-model HydroDocument {
-  id              String   @id @default(uuid())
-  sourceUrl       String?
-  sourceType      String   // "page", "pdf", "docx", "manual", "database"
-  title           String
-  documentType    String?  // "notice", "tender", "policy", "page", etc.
-  department      String?
-  category        String?
-  publicationDate DateTime?
-  lastUpdated     DateTime?
-  documentNumber  String?
-  language        String   @default("en")
-  contentHash     String   // SHA-256 of raw content for change detection
-  status          String   @default("active") // active, archived, superseded
-  authority       String?
-  version         Int      @default(1)
-  fileSizeBytes   Int?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  chunks          HydroChunk[]
-}
-
-model HydroChunk {
-  id            String   @id @default(uuid())
-  documentId    String
-  document      HydroDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  chunkIndex    Int
-  content       String
-  heading       String?
-  pageNumber    Int?
-  sectionRef    String?
-  metadata      String?  // JSON string — keywords, entities, etc.
-  embeddingId   String?  // Reference key in vector index
-  createdAt     DateTime @default(now())
-}
-
-model HydroAdminOverride {
-  id            String   @id @default(uuid())
-  question      String
-  answer        String
-  category      String?
-  priority      Int      @default(0)
-  isActive      Boolean  @default(true)
-  createdBy     String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-}
-
-model HydroConversation {
-  id             String   @id @default(uuid())
-  sessionId      String
-  userMessage    String
-  botResponse    String
-  confidence     String?
-  category       String?
-  sourcesUsed    String?  // JSON array
-  latencyMs      Int?
-  feedbackRating Int?     // 1 = thumbs up, -1 = thumbs down
-  feedbackText   String?
-  currentPage    String?
-  createdAt      DateTime @default(now())
-}
-
-model HydroIngestionLog {
-  id             String   @id @default(uuid())
-  sourceUrl      String?
-  sourceType     String
-  status         String   // "success", "failed", "skipped"
-  chunksCreated  Int      @default(0)
-  errorMessage   String?
-  durationMs     Int?
-  createdAt      DateTime @default(now())
 }
 
 model IppProject {
@@ -369,4 +343,16 @@ model ContactSubOffice {
   isActive      Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+model DraftRevision {
+  id         String   @id @default(uuid())
+  entityType String
+  entityId   String
+  draftData  String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([entityType, entityId])
+  @@index([entityType, entityId])
 }

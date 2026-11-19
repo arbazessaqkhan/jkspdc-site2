@@ -38,9 +38,14 @@ if (Astro.request.method === 'POST') {
       const title = formData.get('title')?.toString();
       const fileName = formData.get('fileName')?.toString();
       const documentUrl = formData.get('documentUrl')?.toString();
+      const fileSizeBytes = formData.get('fileSizeBytes')?.toString();
+      const fileFormat = formData.get('fileFormat')?.toString();
+      const validTillDate = formData.get('validTillDate')?.toString();
+      const status = formData.get('status')?.toString() || 'Active';
+      const priority = formData.get('priority')?.toString() || 'Normal';
 
       if (!title || !fileName || !documentUrl) {
-        return Astro.redirect('/admin/notifications?error=' + encodeURIComponent('All fields including file attachment are required.'));
+        return Astro.redirect('/admin/notifications?error=' + encodeURIComponent('Title, file name, and attachment are required.'));
       } else {
         const res = await fetch(`${BACKEND_URL}/api/notifications`, {
           method: 'POST',
@@ -48,7 +53,16 @@ if (Astro.request.method === 'POST') {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${sessionToken}`,
           },
-          body: JSON.stringify({ title, fileName, documentUrl }),
+          body: JSON.stringify({
+            title,
+            fileName,
+            documentUrl,
+            fileSizeBytes: fileSizeBytes ? parseInt(fileSizeBytes, 10) : undefined,
+            fileFormat: fileFormat || undefined,
+            validTillDate: validTillDate ? new Date(validTillDate).toISOString() : null,
+            status,
+            priority,
+          }),
         });
 
         if (res.ok) {
@@ -66,9 +80,14 @@ if (Astro.request.method === 'POST') {
       const title = formData.get('title')?.toString();
       const fileName = formData.get('fileName')?.toString();
       const documentUrl = formData.get('documentUrl')?.toString();
+      const fileSizeBytes = formData.get('fileSizeBytes')?.toString();
+      const fileFormat = formData.get('fileFormat')?.toString();
+      const validTillDate = formData.get('validTillDate')?.toString();
+      const status = formData.get('status')?.toString() || 'Active';
+      const priority = formData.get('priority')?.toString() || 'Normal';
 
       if (!id || !title || !fileName || !documentUrl) {
-        return Astro.redirect('/admin/notifications?error=' + encodeURIComponent('All fields are required to update.'));
+        return Astro.redirect('/admin/notifications?error=' + encodeURIComponent('Title, file name, and attachment are required to update.'));
       } else {
         const res = await fetch(`${BACKEND_URL}/api/notifications/${id}`, {
           method: 'PUT',
@@ -76,7 +95,16 @@ if (Astro.request.method === 'POST') {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${sessionToken}`,
           },
-          body: JSON.stringify({ title, fileName, documentUrl }),
+          body: JSON.stringify({
+            title,
+            fileName,
+            documentUrl,
+            fileSizeBytes: fileSizeBytes ? parseInt(fileSizeBytes, 10) : undefined,
+            fileFormat: fileFormat || undefined,
+            validTillDate: validTillDate ? new Date(validTillDate).toISOString() : null,
+            status,
+            priority,
+          }),
         });
 
         if (res.ok) {
@@ -165,19 +193,27 @@ const pagedState = { rows: notifications, total: pagedTotal, page, pageSize, las
       </div>
     )}
 
+    <!-- Quick Status Filter Tabs -->
+    <div class="flex items-center gap-1.5 border-b border-slate-200 pb-2">
+      <button type="button" class="notif-status-tab px-3 py-1 rounded text-xs font-bold transition-colors bg-[color:var(--adm-primary)] text-white cursor-pointer" data-status="All">All</button>
+      <button type="button" class="notif-status-tab px-3 py-1 rounded text-xs font-bold transition-colors bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 cursor-pointer" data-status="Active">Active</button>
+      <button type="button" class="notif-status-tab px-3 py-1 rounded text-xs font-bold transition-colors bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 cursor-pointer" data-status="Archived">Archive</button>
+      <button type="button" class="notif-status-tab px-3 py-1 rounded text-xs font-bold transition-colors bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 cursor-pointer" data-status="Draft">Draft</button>
+    </div>
+
     <!-- Filter & Search Toolbar -->
     <div class="admin-toolbar">
       <div class="flex items-center gap-3 flex-wrap flex-1 min-w-0">
-        <div class="relative w-full sm:w-72">
+        <div class="admin-search-wrapper relative w-full sm:w-72">
+          <div class="admin-search-icon">
+            <Icon name="search" size={15} strokeWidth={2.2} />
+          </div>
           <input 
             type="text" 
             id="search-notif-input" 
             placeholder="Search notifications..." 
-            class="w-full bg-slate-50 border border-slate-300 rounded text-xs text-slate-800 pl-8 pr-3 py-1.5 focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none"
+            class="admin-search-input w-full bg-slate-50 border border-slate-300 rounded text-xs text-slate-800 pr-3 py-1.5 focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none"
           />
-          <div class="absolute left-2.5 top-2 text-slate-400">
-            <Icon name="search" size={13} />
-          </div>
         </div>
 
         <div class="flex items-center gap-2">
@@ -205,6 +241,7 @@ const pagedState = { rows: notifications, total: pagedTotal, page, pageSize, las
             <th scope="col" class="w-12 text-center">#</th>
             <th scope="col" class="min-w-[280px]">Notification Title &amp; Attachment</th>
             <th scope="col" class="w-36 whitespace-nowrap">Publish Date</th>
+            <th scope="col" class="w-24 text-center whitespace-nowrap">Status</th>
             <th scope="col" class="w-24 text-center whitespace-nowrap">Document</th>
             <th scope="col" class="w-24 text-center whitespace-nowrap sticky-col-right">Action</th>
           </tr>
@@ -212,7 +249,7 @@ const pagedState = { rows: notifications, total: pagedTotal, page, pageSize, las
         <tbody id="notifications-table-body">
           {notifications.length === 0 ? (
             <tr id="empty-notif-row">
-              <td colspan="5" class="text-center text-slate-500 py-12 text-xs font-semibold italic">
+              <td colspan="6" class="text-center text-slate-500 py-12 text-xs font-semibold italic">
                 No notifications published. Click 'Add Notification' to create one.
               </td>
             </tr>
@@ -221,10 +258,11 @@ const pagedState = { rows: notifications, total: pagedTotal, page, pageSize, las
               <tr 
                 class="notification-row transition-colors"
                 data-year={new Date(notif.publishDate).getFullYear()}
+                data-status={notif.status || 'Active'}
                 data-search={notif.title?.toLowerCase() || ''}
                 data-notif={JSON.stringify(notif)}
               >
-                <td class="text-center font-bold text-slate-400 text-xs row-index">{idx + 1}</td>
+                <td class="text-center font-bold text-slate-400 text-xs row-index">{(page - 1) * pageSize + idx + 1}</td>
                 <td class="font-medium text-slate-900 text-left">
                   <div class="flex flex-col gap-1">
                     <span class="text-xs font-bold text-slate-900 leading-snug">{notif.title}</span>
@@ -238,6 +276,11 @@ const pagedState = { rows: notifications, total: pagedTotal, page, pageSize, las
                 </td>
                 <td class="text-slate-600 font-medium whitespace-nowrap text-xs">
                   {new Date(notif.publishDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                </td>
+                <td class="text-center whitespace-nowrap">
+                  <span class={(notif.status === 'Draft') ? 'admin-badge-warning' : (notif.status === 'Archived' || notif.status === 'Archive') ? 'admin-badge-neutral' : 'admin-badge-success'}>
+                    {notif.status || 'Active'}
+                  </span>
                 </td>
                 <td class="text-center whitespace-nowrap">
                   {notif.documentUrl ? (
@@ -284,7 +327,7 @@ const pagedState = { rows: notifications, total: pagedTotal, page, pageSize, las
             ))
           )}
           <tr id="no-matching-notif-row" style="display: none;">
-            <td colspan="5" class="text-center text-slate-500 py-12 text-xs font-semibold italic">
+            <td colspan="6" class="text-center text-slate-500 py-12 text-xs font-semibold italic">
               No notifications found matching your filter criteria.
             </td>
           </tr>
@@ -298,26 +341,29 @@ const pagedState = { rows: notifications, total: pagedTotal, page, pageSize, las
   </div>
 
   <!-- Add/Edit Modal (Matching popup in screenshot) -->
-  <div id="modal-container" class="fixed inset-0 z-55 flex items-center justify-center hidden">
+  <div id="modal-container" class="fixed inset-0 z-55 flex items-center justify-center p-4 sm:p-6 hidden" role="dialog" aria-modal="true" aria-labelledby="modal-heading">
     <!-- Dim backdrop -->
     <div id="modal-backdrop" class="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px]"></div>
     
     <!-- Modal Card -->
-    <div class="bg-white rounded-lg border border-slate-200 shadow-2xl w-full max-w-lg p-6 relative z-10 animate-fade-in text-left">
-      <button 
-        type="button" 
-        id="btn-close-modal" 
-        class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer focus:outline-none"
-        aria-label="Close modal"
-      >
-        <Icon name="x" size={18} strokeWidth={2.5} />
-      </button>
+    <div class="bg-white rounded-xl border border-slate-200 shadow-2xl w-full max-w-xl max-h-[90vh] flex flex-col relative z-10 animate-fade-in text-left overflow-hidden">
+      <!-- Modal Header (Fixed at top) -->
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/90 shrink-0">
+        <h3 id="modal-heading" class="text-sm font-bold text-slate-800 uppercase tracking-wider">
+          Add Notification
+        </h3>
+        <button 
+          type="button" 
+          id="btn-close-modal" 
+          class="text-slate-400 hover:text-slate-600 cursor-pointer focus:outline-none p-1 rounded-md transition-colors"
+          aria-label="Close modal"
+        >
+          <Icon name="x" size={18} strokeWidth={2.5} />
+        </button>
+      </div>
 
-      <h3 id="modal-heading" class="text-sm font-bold text-slate-800 border-b border-slate-100 pb-3 mb-4 uppercase tracking-wider">
-        Add Notification
-      </h3>
-
-      <form id="notif-form" method="POST" class="space-y-4">
+      <!-- Modal Body (Scrollable with max-height) -->
+      <form id="notif-form" method="POST" class="overflow-y-auto p-6 space-y-4 flex-1">
         <input type="hidden" name="id" id="notif-id" />
         <input type="hidden" name="_action" id="notif-action" value="create" />
 
@@ -345,23 +391,59 @@ const pagedState = { rows: notifications, total: pagedTotal, page, pageSize, las
           />
         </div>
 
-        <!-- File Upload Section (Matching screenshot design) -->
+        <!-- File Upload Section (Single label via FileUploader) -->
         <div class="form-group flex flex-col gap-1.5">
-          <label class="text-xs font-bold text-slate-700">Upload File:</label>
           <FileUploader
               id="notif-doc"
               label="Upload File"
               required
               variant="document"
               accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"
-              helpText="PDF, JPG, PNG, DOCX, XLSX (Max 20MB / 100MB if Important)"
-              important
+              helpText="PDF, JPG, PNG, DOCX, XLSX"
+              maxSizeMB={5}
             />
             
             <input type="hidden" name="documentUrl" id="notif-documentUrl" required />
+            <input type="hidden" name="fileSizeBytes" id="notif-fileSizeBytes" />
+            <input type="hidden" name="fileFormat" id="notif-fileFormat" />
         </div>
 
-        <!-- Actions -->
+        <div class="form-group flex flex-col gap-1.5">
+          <label for="notif-validTillDate" class="text-xs font-bold text-slate-700">Valid Till Date: <span class="text-slate-400 font-normal">(Optional)</span></label>
+          <input
+            type="date"
+            name="validTillDate"
+            id="notif-validTillDate"
+            class="form-input text-xs"
+          />
+          <span class="text-[10px] text-slate-500">Optional. The notice is removed from the homepage Updates bar after this date if provided.</span>
+        </div>
+
+        <div class="form-group flex flex-col gap-1.5">
+          <label for="notif-status" class="text-xs font-bold text-slate-700">Status:</label>
+          <select name="status" id="notif-status" class="form-input text-xs">
+            <option value="Active">Active</option>
+            <option value="Draft">Draft</option>
+            <option value="Archived">Archive</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 border border-slate-200 rounded-lg p-4">
+          <p class="text-[11px] text-slate-600 leading-relaxed">
+            This notice is announced in the homepage <span class="font-bold">Updates</span> bar automatically while it is active
+            and its valid-till date has not passed. It is never listed twice - the bar always shows what is currently live.
+          </p>
+          <div class="flex flex-col gap-1">
+            <label for="notif-priority" class="text-[11px] font-bold text-slate-700">Priority</label>
+            <select name="priority" id="notif-priority" class="form-input text-xs">
+              <option value="Normal" selected>Normal</option>
+              <option value="Urgent">Urgent (pin to front)</option>
+            </select>
+            <span class="text-[10px] text-slate-500">Urgent pins this notice to the front of the Updates bar.</span>
+          </div>
+        </div>
+
+        <!-- Actions (Fixed footer within form) -->
         <div class="flex items-center justify-end gap-3 border-t border-slate-100 pt-4 mt-6">
           <button 
             type="button" 
@@ -369,6 +451,13 @@ const pagedState = { rows: notifications, total: pagedTotal, page, pageSize, las
             class="px-4 py-2 bg-slate-550 text-white rounded text-xs font-bold hover:bg-slate-600 transition-colors cursor-pointer"
           >
             Reset
+          </button>
+          <button 
+            type="button" 
+            id="btn-draft-modal"
+            class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded text-xs font-bold transition-colors shadow-xs cursor-pointer"
+          >
+            Save as Draft
           </button>
           <button 
             type="submit" 
@@ -382,8 +471,30 @@ const pagedState = { rows: notifications, total: pagedTotal, page, pageSize, las
     </div>
   </div>
 
-  <script define:vars={{ sessionToken, backendUrl: BACKEND_URL }}>
+  <script>
     (function() {
+      var currentStatusFilter = 'All';
+
+      // Derive a user-facing file format from an uploaded file name or URL extension
+      function detectFileFormat(nameOrUrl) {
+        if (!nameOrUrl) return '';
+        var clean = String(nameOrUrl).split('?')[0].split('#')[0];
+        var base = clean.substring(clean.lastIndexOf('/') + 1);
+        var dot = base.lastIndexOf('.');
+        if (dot === -1 || dot === base.length - 1) return '';
+        return base.substring(dot + 1).toUpperCase();
+      }
+
+      // Convert a stored ISO date to the YYYY-MM-DD value required by <input type="date">
+      function toDateInputValue(value) {
+        if (!value) return '';
+        var parsed = new Date(value);
+        if (isNaN(parsed.getTime())) return '';
+        var month = String(parsed.getMonth() + 1).padStart(2, '0');
+        var day = String(parsed.getDate()).padStart(2, '0');
+        return parsed.getFullYear() + '-' + month + '-' + day;
+      }
+
       function getElements() {
         return {
           modalContainer: document.getElementById('modal-container'),
@@ -394,33 +505,52 @@ const pagedState = { rows: notifications, total: pagedTotal, page, pageSize, las
           notifForm: document.getElementById('notif-form'),
           fileUploader: document.getElementById('notif-doc-input'),
           fileLabel: document.createElement('span'),
-                    uploadStatus: document.createElement('span'),
+          uploadStatus: document.createElement('span'),
           notifIdInput: document.getElementById('notif-id'),
           notifActionInput: document.getElementById('notif-action'),
           notifTitleInput: document.getElementById('notif-title'),
           notifFileNameInput: document.getElementById('notif-fileName'),
           notifDocumentUrlInput: document.getElementById('notif-documentUrl'),
+          notifFileSizeInput: document.getElementById('notif-fileSizeBytes'),
+          notifFileFormatInput: document.getElementById('notif-fileFormat'),
+          notifValidTillInput: document.getElementById('notif-validTillDate'),
+          notifPriorityInput: document.getElementById('notif-priority'),
+          notifStatusInput: document.getElementById('notif-status'),
           modalHeading: document.getElementById('modal-heading'),
           btnSubmit: document.getElementById('btn-submit-modal'),
+          btnDraft: document.getElementById('btn-draft-modal'),
           yearSelect: document.getElementById('year-select'),
-          limitSelect: document.getElementById('limit-select'),
+          searchInput: document.getElementById('search-notif-input'),
+          visibleCountEl: document.getElementById('visible-notif-count'),
         };
       }
 
       function applyFilters() {
         var els = getElements();
-        if (!els.yearSelect || !els.limitSelect) return;
-        var selectedYear = els.yearSelect.value;
-        var selectedLimit = parseInt(els.limitSelect.value, 10);
+        var selectedYear = els.yearSelect ? els.yearSelect.value : 'All';
+        var searchQuery = els.searchInput ? els.searchInput.value.toLowerCase().trim() : '';
         var rows = document.querySelectorAll('.notification-row');
         var emptyRow = document.getElementById('no-matching-notif-row');
 
         var visibleCount = 0;
         rows.forEach(function(row) {
-          var year = row.getAttribute('data-year');
-          var matchesYear = selectedYear === 'All' || year === selectedYear;
+          var year = row.getAttribute('data-year') || '';
+          var status = row.getAttribute('data-status') || 'Active';
+          var searchStr = (row.getAttribute('data-search') || '').toLowerCase();
 
-          if (matchesYear && visibleCount < selectedLimit) {
+          var matchesYear = selectedYear === 'All' || year === selectedYear;
+          var matchesSearch = !searchQuery || searchStr.includes(searchQuery);
+          
+          var matchesStatus = true;
+          if (currentStatusFilter !== 'All') {
+            if (currentStatusFilter === 'Archived' || currentStatusFilter === 'Archive') {
+              matchesStatus = (status.toLowerCase() === 'archived' || status.toLowerCase() === 'archive');
+            } else {
+              matchesStatus = (status.toLowerCase() === currentStatusFilter.toLowerCase());
+            }
+          }
+
+          if (matchesYear && matchesSearch && matchesStatus) {
             row.style.display = '';
             visibleCount++;
             var idxEl = row.querySelector('.row-index');
@@ -429,6 +559,10 @@ const pagedState = { rows: notifications, total: pagedTotal, page, pageSize, las
             row.style.display = 'none';
           }
         });
+
+        if (els.visibleCountEl) {
+          els.visibleCountEl.textContent = visibleCount;
+        }
 
         if (emptyRow) {
           emptyRow.style.display = (visibleCount === 0 && rows.length > 0) ? 'table-row' : 'none';
@@ -443,10 +577,16 @@ const pagedState = { rows: notifications, total: pagedTotal, page, pageSize, las
           if (els.modalHeading) els.modalHeading.textContent = 'Edit Notification';
           if (els.notifActionInput) els.notifActionInput.value = 'update';
           if (els.btnSubmit) els.btnSubmit.textContent = 'Update';
+          if (els.btnReset) els.btnReset.style.display = 'none';
         } else {
           if (els.modalHeading) els.modalHeading.textContent = 'Add Notification';
           if (els.notifActionInput) els.notifActionInput.value = 'create';
           if (els.btnSubmit) els.btnSubmit.textContent = 'Submit';
+          if (els.notifStatusInput) els.notifStatusInput.value = 'Active';
+          if (els.btnReset) {
+            els.btnReset.style.display = '';
+            els.btnReset.textContent = 'Clear';
+          }
           resetForm();
         }
       }
@@ -462,6 +602,19 @@ const pagedState = { rows: notifications, total: pagedTotal, page, pageSize, las
         if (els.notifTitleInput) els.notifTitleInput.value = '';
         if (els.notifFileNameInput) els.notifFileNameInput.value = '';
         if (els.notifDocumentUrlInput) els.notifDocumentUrlInput.value = '';
+        if (els.notifFileSizeInput) els.notifFileSizeInput.value = '';
+        if (els.notifFileFormatInput) els.notifFileFormatInput.value = '';
+        if (els.notifValidTillInput) els.notifValidTillInput.value = '';
+        if (els.notifPriorityInput) els.notifPriorityInput.value = 'Normal';
+        if (els.notifStatusInput) els.notifStatusInput.value = 'Active';
+        var uploaderZone = document.getElementById('notif-doc-dropzone');
+        var uploaderRemove = uploaderZone ? uploaderZone.querySelector('.admin-uploader-file-remove') : null;
+        if (uploaderRemove && uploaderZone.classList.contains('has-file')) {
+          uploaderRemove.click();
+        } else if (els.fileUploader) {
+          els.fileUploader.value = '';
+          els.fileUploader.dispatchEvent(new CustomEvent('uploader:cleared', { bubbles: true }));
+        }
         if (els.fileLabel) {
           els.fileLabel.textContent = 'No file chosen';
           els.fileLabel.classList.remove('text-emerald-700', 'font-bold');
@@ -474,6 +627,22 @@ const pagedState = { rows: notifications, total: pagedTotal, page, pageSize, las
 
       // Delegated clicks
       document.addEventListener('click', function(e) {
+        // Status filter tabs
+        var statusTab = e.target.closest('.notif-status-tab');
+        if (statusTab) {
+          e.preventDefault();
+          var filterVal = statusTab.getAttribute('data-status') || 'All';
+          currentStatusFilter = filterVal;
+
+          document.querySelectorAll('.notif-status-tab').forEach(function(btn) {
+            btn.className = 'notif-status-tab px-3 py-1 rounded text-xs font-bold transition-colors bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 cursor-pointer';
+          });
+          statusTab.className = 'notif-status-tab px-3 py-1 rounded text-xs font-bold transition-colors bg-[color:var(--adm-primary)] text-white cursor-pointer';
+
+          applyFilters();
+          return;
+        }
+
         var addBtn = e.target.closest('#btn-add-item');
         if (addBtn) {
           e.preventDefault();
@@ -493,6 +662,13 @@ const pagedState = { rows: notifications, total: pagedTotal, page, pageSize, las
               if (els.notifTitleInput) els.notifTitleInput.value = notifData.title || '';
               if (els.notifFileNameInput) els.notifFileNameInput.value = notifData.fileName || '';
               if (els.notifDocumentUrlInput) els.notifDocumentUrlInput.value = notifData.documentUrl || '';
+              if (els.notifFileSizeInput) els.notifFileSizeInput.value = notifData.fileSizeBytes || '';
+              if (els.notifFileFormatInput) {
+                els.notifFileFormatInput.value = (notifData.fileFormat || '').toUpperCase() || detectFileFormat(notifData.documentUrl || notifData.fileName);
+              }
+              if (els.notifValidTillInput) els.notifValidTillInput.value = toDateInputValue(notifData.validTillDate);
+              if (els.notifPriorityInput) els.notifPriorityInput.value = notifData.priority === 'Urgent' ? 'Urgent' : 'Normal';
+              if (els.notifStatusInput) els.notifStatusInput.value = notifData.status || 'Active';
               if (els.fileLabel) {
                 els.fileLabel.textContent = notifData.fileName || 'Attached existing file';
                 els.fileLabel.classList.add('text-emerald-700', 'font-bold');
@@ -509,6 +685,37 @@ const pagedState = { rows: notifications, total: pagedTotal, page, pageSize, las
           return;
         }
 
+        // Save as Draft button
+        var draftBtn = e.target.closest('#btn-draft-modal');
+        if (draftBtn) {
+          e.preventDefault();
+          var els = getElements();
+          if (els.notifStatusInput) els.notifStatusInput.value = 'Draft';
+          if (els.notifForm) {
+            if (!els.notifTitleInput?.value?.trim()) {
+              alert('Please enter a notification title.');
+              els.notifTitleInput?.focus();
+              return;
+            }
+            if (!els.notifFileNameInput?.value?.trim()) {
+              alert('Please enter a file name.');
+              els.notifFileNameInput?.focus();
+              return;
+            }
+            if (!els.notifDocumentUrlInput?.value?.trim()) {
+              alert('Please upload a file attachment.');
+              return;
+            }
+            if (!els.notifValidTillInput?.value?.trim()) {
+              alert('Please select a Valid Till Date.');
+              els.notifValidTillInput?.focus();
+              return;
+            }
+            els.notifForm.submit();
+          }
+          return;
+        }
+
         var closeBtn = e.target.closest('#btn-close-modal, #modal-backdrop');
         if (closeBtn) {
           e.preventDefault();
@@ -519,14 +726,30 @@ const pagedState = { rows: notifications, total: pagedTotal, page, pageSize, las
         var resetBtn = e.target.closest('#btn-reset-modal');
         if (resetBtn) {
           e.preventDefault();
+          var els = getElements();
+          var hasData = (els.notifTitleInput?.value || '') !== '' ||
+            (els.notifFileNameInput?.value || '') !== '' ||
+            (els.notifDocumentUrlInput?.value || '') !== '' ||
+            (els.notifValidTillInput?.value || '') !== '';
+          if (hasData) {
+            if (!confirm('Are you sure you want to clear all entered form fields?')) {
+              return;
+            }
+          }
           resetForm();
           return;
         }
       });
 
       // Filter change listeners
+      document.addEventListener('input', function(e) {
+        if (e.target && e.target.id === 'search-notif-input') {
+          applyFilters();
+        }
+      });
+
       document.addEventListener('change', function(e) {
-        if (e.target && (e.target.id === 'year-select' || e.target.id === 'limit-select')) {
+        if (e.target && e.target.id === 'year-select') {
           applyFilters();
         }
 
@@ -536,25 +759,6 @@ const pagedState = { rows: notifications, total: pagedTotal, page, pageSize, las
           if (!file) return;
 
           var els = getElements();
-          var isImportant = document.getElementById('notif-doc-important')?.checked || false;
-          var MAX_STANDARD = 20 * 1024 * 1024;
-          var MAX_IMPORTANT = 100 * 1024 * 1024;
-
-          if (!isImportant && file.size > MAX_STANDARD) {
-            var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-            alert(`File size (${sizeMB} MB) exceeds the standard 20 MB limit.\n\nPlease check "Mark as Important" to allow uploading files up to 100 MB.`);
-            e.target.value = '';
-            if (els.fileLabel) els.fileLabel.textContent = 'No file chosen';
-            return;
-          }
-
-          if (file.size > MAX_IMPORTANT) {
-            var sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-            alert(`File size (${sizeMB} MB) exceeds the maximum allowed limit of 100 MB.`);
-            e.target.value = '';
-            if (els.fileLabel) els.fileLabel.textContent = 'No file chosen';
-            return;
-          }
 
           if (els.fileLabel) {
             els.fileLabel.textContent = `Uploading ${file.name}...`;
@@ -567,11 +771,10 @@ const pagedState = { rows: notifications, total: pagedTotal, page, pageSize, las
 
           var formData = new FormData();
           formData.append('file', file);
-          formData.append('isImportant', isImportant ? 'true' : 'false');
+          formData.append('category', 'notice');
 
-          fetch(`${backendUrl}/api/upload`, {
+          fetch('/api/admin/upload', {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${sessionToken}` },
             body: formData,
           })
           .then(async function(res) {
@@ -590,6 +793,8 @@ const pagedState = { rows: notifications, total: pagedTotal, page, pageSize, las
           })
           .then(function(result) {
             if (els.notifDocumentUrlInput) els.notifDocumentUrlInput.value = result.url;
+            if (els.notifFileSizeInput) els.notifFileSizeInput.value = result.sizeBytes || '';
+            if (els.notifFileFormatInput) els.notifFileFormatInput.value = detectFileFormat(result.originalName || result.url);
             if (els.fileLabel) {
               els.fileLabel.textContent = file.name;
               els.fileLabel.classList.add('text-emerald-700', 'font-bold');
@@ -609,8 +814,19 @@ const pagedState = { rows: notifications, total: pagedTotal, page, pageSize, las
               els.uploadStatus.className = 'text-[10px] text-red-650 font-bold mt-1 block';
             }
             if (els.notifDocumentUrlInput) els.notifDocumentUrlInput.value = '';
+            if (els.notifFileSizeInput) els.notifFileSizeInput.value = '';
+            if (els.notifFileFormatInput) els.notifFileFormatInput.value = '';
             e.target.value = '';
           });
+        }
+      });
+
+      document.addEventListener('uploader:cleared', function(e) {
+        if (e.target && e.target.id === 'notif-doc-input') {
+          var els = getElements();
+          if (els.notifDocumentUrlInput) els.notifDocumentUrlInput.value = '';
+          if (els.notifFileSizeInput) els.notifFileSizeInput.value = '';
+          if (els.notifFileFormatInput) els.notifFileFormatInput.value = '';
         }
       });
 

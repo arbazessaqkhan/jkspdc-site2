@@ -111,6 +111,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
       role: userData.role,
     };
 
+    // Expose the absolute session expiry so the admin shell can warn before it lapses.
+    // serverTime lets the browser correct for client clock skew.
+    locals.sessionExpiresAt = userData.expiresAt;
+    locals.serverTime = userData.serverTime;
+
     // Enforce role-based route guard: non-ADMIN users redirected to /admin/dashboard on protected routes
     if (!canAccessAdminRoute(url.pathname, userData.role, context.request.method)) {
       return applyHeaders(redirect('/admin/dashboard'), true);

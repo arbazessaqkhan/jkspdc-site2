@@ -5,7 +5,7 @@
 export const BACKEND_URL = (
   (typeof import.meta !== 'undefined' && import.meta.env?.BACKEND_URL) ||
   (typeof process !== 'undefined' ? process.env?.BACKEND_URL : undefined) ||
-  ''
+  'http://localhost:3000'
 ).replace(/\/+$/, '');
 
 export interface ParsedApiError {

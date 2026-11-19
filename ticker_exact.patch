@@ -1,0 +1,509 @@
+diff --git a/website/src/components/Ticker.astro b/website/src/components/Ticker.astro
+index 32529b9..c1d47d9 100644
+--- a/website/src/components/Ticker.astro
++++ b/website/src/components/Ticker.astro
+@@ -1,159 +1,371 @@
+ ---
++import Icon from './Icon.astro';
++
+ export interface TickerItem {
+-  type: string;
+-  text: string;
+-  colorClass: string;
++  id?: string;
++  sourceType?: 'tender' | 'corrigendum' | 'notification' | string;
++  sourceId?: string;
++  title?: string;
++  referenceNo?: string | null;
+   url?: string;
++  fileUrl?: string;
++  fileFormat?: string | null;
++  fileSizeBytes?: number | null;
++  priority?: string;
++  publishDate?: string;
++  closingDate?: string | null;
++  closingSoon?: boolean;
++  isNew?: boolean;
+ }
+ 
+ export interface Props {
+   items?: TickerItem[];
+ }
+ 
+-const { items = [] } = Astro.props;
++const { items: providedItems } = Astro.props;
++const apiBase = import.meta.env.PUBLIC_API_BASE || '';
+ 
+-let tickerItems: TickerItem[] = items;
++let rawItems: TickerItem[] = Array.isArray(providedItems) ? providedItems : [];
+ 
+-if (tickerItems.length === 0) {
++if (rawItems.length === 0 && apiBase) {
+   try {
+-    const [tendersRes, notifsRes] = await Promise.all([
+-      fetch(`${import.meta.env.PUBLIC_API_BASE}/api/public/tenders`).catch(() => null),
+-      fetch(`${import.meta.env.PUBLIC_API_BASE}/api/public/notifications`).catch(() => null),
+-    ]);
+-
+-    let tenders: any[] = [];
+-    if (tendersRes && tendersRes.ok) tenders = await tendersRes.json();
+-
+-    let notifs: any[] = [];
+-    if (notifsRes && notifsRes.ok) notifs = await notifsRes.json();
+-
+-    const fetched: TickerItem[] = [];
+-
+-    // Recent Active Tenders (Sorted by publication date descending, limit to recent 3)
+-    const recentTenders = tenders
+-      .filter((t: any) => t.status === 'Active')
+-      .sort((a: any, b: any) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime())
+-      .slice(0, 3);
+-
+-    recentTenders.forEach((t: any) => {
+-      fetched.push({
+-        type: 'TENDER',
+-        text: `${t.title} (NIT Ref: ${t.referenceNo})`,
+-        colorClass: 'text-cyan-300 bg-cyan-500/10 border-cyan-400/20',
+-        url: `/stakeholders/vendors/tender-details?id=${t.id}`,
+-      });
+-
+-      // Recent corrigendums if any
+-      const corrs = t.corrigendums && Array.isArray(t.corrigendums) ? t.corrigendums : [];
+-      corrs.slice(0, 1).forEach((c: any) => {
+-        fetched.push({
+-          type: 'CORRIGENDUM',
+-          text: `Corrigendum: ${c.title} — ${t.title} (Ref: ${t.referenceNo})`,
+-          colorClass: 'text-orange-400 bg-orange-500/10 border-orange-400/20',
+-          url: `/stakeholders/vendors/tender-details?id=${t.id}#corrigendum-${c.id}`,
+-        });
+-      });
+-    });
++    const response = await fetch(`${apiBase}/api/public/ticker`).catch(() => null);
++    if (response && response.ok) {
++      const data = await response.json();
++      if (Array.isArray(data.items)) {
++        rawItems = data.items;
++      }
++    }
++  } catch (error) {
++    console.warn('Homepage ticker is unavailable during render:', error);
++  }
++}
+ 
+-    // Recent Notifications & Notices (Sorted by publication date descending, limit to recent 3)
+-    const recentNotifs = notifs
+-      .sort((a: any, b: any) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime())
+-      .slice(0, 3);
+-
+-    recentNotifs.forEach((n: any) => {
+-      const docUrl = n.documentUrl ? (n.documentUrl.startsWith('/uploads/') ? `${import.meta.env.PUBLIC_API_BASE}${n.documentUrl}` : n.documentUrl) : '/notifications';
+-      fetched.push({
+-        type: 'NOTICE',
+-        text: `${n.title}${n.fileName ? ` (${n.fileName})` : ''}`,
+-        colorClass: 'text-yellow-400 bg-yellow-500/10 border-yellow-400/20',
+-        url: docUrl,
+-      });
+-    });
++function resolveUrl(value?: string | null): string | undefined {
++  if (!value || typeof value !== 'string') return undefined;
++  const clean = value.trim();
++  if (!clean || /^(javascript|data|vbscript|file):/i.test(clean)) return undefined;
++  if (clean.startsWith('/uploads/')) return `${apiBase}${clean}`;
++  if (clean.startsWith('/') || /^https?:\/\//i.test(clean) || clean.startsWith('#')) {
++    return clean;
++  }
++  return undefined;
++}
+ 
+-    if (fetched.length > 0) {
+-      tickerItems = fetched;
+-    }
+-  } catch (e) {
+-    console.error('Error fetching ticker items:', e);
++function detectFormat(value?: string | null): string {
++  if (!value) return '';
++  const match = /\.([a-z0-9]{2,5})(?:[?#]|$)/i.exec(value);
++  const extension = match ? match[1].toUpperCase() : '';
++  return ['PDF', 'DOC', 'DOCX', 'XLS', 'XLSX', 'PPT', 'PPTX', 'ZIP', 'RAR', 'CSV'].includes(
++    extension,
++  )
++    ? extension
++    : '';
++}
++
++function formatBytes(bytes?: number | null): string {
++  if (typeof bytes !== 'number' || !Number.isFinite(bytes) || bytes <= 0) return '';
++  if (bytes >= 1024 * 1024) {
++    const megabytes = bytes / (1024 * 1024);
++    return `${megabytes.toFixed(1).replace(/\.0$/, '')} MB`;
+   }
++  return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+ }
+ 
+-if (tickerItems.length === 0) {
+-  tickerItems = [
+-    { 
+-      type: 'TENDER', 
+-      text: 'Active Notice Inviting Tenders (NITs) & Procurement Opportunities', 
+-      colorClass: 'text-cyan-300 bg-cyan-500/10 border-cyan-400/20',
+-      url: '/stakeholders/vendors/tender-bids'
+-    },
+-    { 
+-      type: 'NOTICE', 
+-      text: 'Official Notifications & Circulars Repository — JKSPDCL', 
+-      colorClass: 'text-yellow-400 bg-yellow-500/10 border-yellow-400/20',
+-      url: '/notifications'
+-    }
+-  ];
++function documentMeta(item: TickerItem): string {
++  const format = (item.fileFormat || detectFormat(item.fileUrl || item.url)).toUpperCase();
++  const size = formatBytes(item.fileSizeBytes);
++  if (format && size) return `${format}, ${size}`;
++  return format || size;
++}
++
++function prefixFor(sourceType?: string): string {
++  if (sourceType === 'corrigendum') return 'Corrigendum';
++  if (sourceType === 'notification') return 'Notification';
++  return 'Tender';
+ }
++
++function prefixClasses(sourceType?: string): string {
++  if (sourceType === 'corrigendum') return 'text-amber-300';
++  if (sourceType === 'notification') return 'text-yellow-300';
++  return 'text-cyan-300';
++}
++
++function isDocumentLink(href?: string, fileUrl?: string): boolean {
++  if (!href) return false;
++  if (fileUrl && href === fileUrl) return true;
++  return /\.(pdf|docx?|xlsx?|pptx?|zip|rar|csv)(?:[?#]|$)/i.test(href);
++}
++
++function formatDeadline(value?: string | null): string {
++  if (!value) return '';
++  const parsed = new Date(value);
++  if (Number.isNaN(parsed.getTime())) return '';
++  return new Intl.DateTimeFormat('en-GB', {
++    day: '2-digit',
++    month: 'short',
++    year: 'numeric',
++    timeZone: 'UTC',
++  }).format(parsed);
++}
++
++const tickerItems = rawItems
++  .filter((item) => item && typeof item.title === 'string' && item.title.trim())
++  .slice(0, 5)
++  .map((item) => {
++    const href = resolveUrl(item.url) || resolveUrl(item.fileUrl);
++    const fileUrl = resolveUrl(item.fileUrl);
++    const isTenderLike = item.sourceType === 'tender' || item.sourceType === 'corrigendum';
++    const deadline = formatDeadline(item.closingDate);
++    return {
++      ...item,
++      title: item.title!.trim(),
++      href,
++      meta: documentMeta(item),
++      prefix: prefixFor(item.sourceType),
++      prefixClass: prefixClasses(item.sourceType),
++      newTab: isDocumentLink(href, fileUrl),
++      isUrgent: (item.priority || 'Normal') === 'Urgent',
++      isNew: item.isNew === true,
++      isClosingSoon: item.closingSoon === true,
++      referenceLabel: isTenderLike && item.referenceNo ? item.referenceNo : '',
++      deadlineLabel: deadline
++        ? isTenderLike
++          ? `Closes ${deadline}`
++          : `Valid till ${deadline}`
++        : '',
++    };
++  });
+ ---
+ 
+-<div class="bg-[#E58A00] text-[#002B49] relative overflow-hidden border-t border-b border-[#0B3B60]/30 h-9 flex items-center" aria-live="polite" aria-label="Live announcements">
+-  <div class="flex items-center h-full overflow-hidden" style="max-width:100%;">
+-    <div class="shrink-0 bg-[#002B49] text-white text-xs font-bold px-4 h-full flex items-center gap-2 uppercase tracking-wide z-20 whitespace-nowrap">
+-      <span class="w-2 h-2 rounded-full bg-slate-300 animate-slow-pulse shrink-0"></span>
+-      Updates
+-    </div>
+-    <div class="flex-1 overflow-hidden relative h-full flex items-center" id="component-ticker-container">
+-      <!-- Fade-out overlays -->
+-      <div class="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-[#0B3B60] to-transparent z-10 pointer-events-none"></div>
+-      <div class="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[#0B3B60] to-transparent z-10 pointer-events-none"></div>
+-
+-      <div id="component-ticker-track" class="flex items-center whitespace-nowrap w-max shrink-0 cursor-pointer" style="gap: 3.5rem; font-size: 0.8rem; font-weight: 500; will-change: transform;">
+-        {[...tickerItems, ...tickerItems].map((item) => (
+-          <span class="inline-flex items-center whitespace-nowrap shrink-0" style="padding-right:4rem;">
+-            › <strong class={`font-extrabold uppercase tracking-wider text-[10px] mr-1.5 px-1.5 py-0.5 rounded border whitespace-nowrap shrink-0 ${item.colorClass}`}>{item.type}:</strong> 
+-            {item.url ? (
+-              <a 
+-                href={item.url} 
+-                target={item.url.startsWith('http') ? "_blank" : undefined} 
+-                rel={item.url.startsWith('http') ? "noopener noreferrer" : undefined} 
+-                class="text-slate-100 hover:underline hover:text-white transition-colors whitespace-nowrap"
+-              >
+-                {item.text}
+-              </a>
+-            ) : (
+-              <span class="text-slate-100 whitespace-nowrap">{item.text}</span>
+-            )}
+-          </span>
+-        ))}
++{tickerItems.length > 0 && (
++  <div
++    class="relative bg-[#0B3B60] text-white border-t border-b border-[#0B3B60]/30 select-none"
++    data-ticker
++  >
++    <div class="flex h-11 w-full items-stretch">
++      <!-- UPDATES label -->
++      <div class="z-20 flex shrink-0 items-center gap-2 whitespace-nowrap bg-[#1B3A6B] px-3 text-xs font-bold uppercase tracking-wide leading-5">
++        <span class="h-2 w-2 shrink-0 rounded-full bg-slate-300 animate-slow-pulse" aria-hidden="true"></span>
++        <span class="sr-only sm:not-sr-only">Updates</span>
++      </div>
++
++      <!-- Continuously scrolling viewport -->
++      <div
++        class="relative min-w-0 flex-1 overflow-hidden"
++        role="region"
++        aria-label="Homepage announcements"
++        data-ticker-viewport
++      >
++        <div class="ticker-track flex h-full w-max items-center" data-ticker-track>
++          <div class="flex h-full shrink-0 items-center" data-ticker-group>
++            {tickerItems.map((item, index) => (
++              <>
++                {index > 0 && (
++                  <span class="mx-3 h-3 w-px shrink-0 bg-white/25" aria-hidden="true"></span>
++                )}
++                <span class="flex items-center gap-2 whitespace-nowrap px-3 text-[13px] leading-5">
++                  <span
++                    class={`shrink-0 text-[11px] font-extrabold uppercase tracking-wide leading-5 ${item.prefixClass}`}
++                  >
++                    [{item.prefix}]
++                  </span>
++
++                  {item.isUrgent && (
++                    <span class="shrink-0 text-[11px] font-extrabold uppercase tracking-wide leading-5 text-rose-300">
++                      [Urgent]
++                    </span>
++                  )}
++
++                  {item.isNew && (
++                    <span class="shrink-0 text-[11px] font-extrabold uppercase tracking-wide leading-5 text-emerald-300">
++                      [New]
++                    </span>
++                  )}
++
++                  {item.isClosingSoon && (
++                    <span class="shrink-0 text-[11px] font-bold leading-5 text-amber-300">
++                      [Closing Soon]
++                    </span>
++                  )}
++
++                  {item.referenceLabel && (
++                    <span class="hidden shrink-0 text-[11px] font-medium leading-5 text-slate-400 sm:inline">
++                      {item.referenceLabel}
++                    </span>
++                  )}
++
++                  {item.href ? (
++                    <a
++                      href={item.href}
++                      target={item.newTab ? '_blank' : undefined}
++                      rel={item.newTab ? 'noopener noreferrer' : undefined}
++                      class="group flex min-w-0 items-center gap-1.5 text-slate-100 transition-colors hover:text-white"
++                    >
++                      <span class="truncate group-hover:underline">{item.title}</span>
++                      {item.meta && (
++                        <span class="shrink-0 whitespace-nowrap text-[11px] font-medium leading-5 text-slate-300">
++                          ({item.meta})
++                        </span>
++                      )}
++                    </a>
++                  ) : (
++                    <>
++                      <span class="truncate text-slate-100">{item.title}</span>
++                      {item.meta && (
++                        <span class="shrink-0 whitespace-nowrap text-[11px] font-medium leading-5 text-slate-300">
++                          ({item.meta})
++                        </span>
++                      )}
++                    </>
++                  )}
++
++                  {item.deadlineLabel && (
++                    <span
++                      class:list={[
++                        'hidden shrink-0 whitespace-nowrap text-[11px] font-semibold leading-5 sm:inline',
++                        item.isClosingSoon ? 'text-amber-200' : 'text-slate-300',
++                      ]}
++                    >
++                      {item.deadlineLabel}
++                    </span>
++                  )}
++                </span>
++              </>
++            ))}
++          </div>
++        </div>
++      </div>
++
++      <!-- Play / Pause (the only ticker control) -->
++      <div class="flex shrink-0 items-center border-l border-white/10 pl-1 pr-1.5">
++        <button
++          type="button"
++          class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded text-slate-200 transition-colors duration-200 ease-out hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
++          aria-label="Pause announcements"
++          title="Pause announcements"
++          data-ticker-play
++        >
++          <svg data-ticker-play-icon xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="hidden">
++            <polygon points="5 3 19 12 5 21 5 3"></polygon>
++          </svg>
++          <svg data-ticker-pause-icon xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="block">
++            <rect x="6" y="4" width="4" height="16" rx="1"></rect>
++            <rect x="14" y="4" width="4" height="16" rx="1"></rect>
++          </svg>
++        </button>
+       </div>
+     </div>
+   </div>
+-</div>
+-
+-<script is:inline>
+-  (function() {
+-    var track = document.getElementById('component-ticker-track');
+-    var container = document.getElementById('component-ticker-container');
+-    if (!track || !container) return;
+-    
+-    var pos = 0;
+-    var speed = 0.75;
+-    var isPaused = false;
+-
+-    container.addEventListener('mouseenter', function() { isPaused = true; });
+-    container.addEventListener('mouseleave', function() { isPaused = false; });
+-
+-    function step() {
+-      if (!isPaused) {
+-        pos += speed;
+-        var halfWidth = track.scrollWidth / 2;
+-        if (halfWidth > 0 && pos >= halfWidth) {
+-          pos = pos - halfWidth;
+-        }
+-        track.style.transform = 'translate3d(-' + pos.toFixed(2) + 'px, 0, 0)';
++)}
++
++<script>
++  function initTicker(root: HTMLElement) {
++    if (root.dataset.tickerReady === 'true') return;
++    root.dataset.tickerReady = 'true';
++
++    const viewport = root.querySelector<HTMLElement>('[data-ticker-viewport]');
++    const track = root.querySelector<HTMLElement>('[data-ticker-track]');
++    const group = root.querySelector<HTMLElement>('[data-ticker-group]');
++    const playButton = root.querySelector<HTMLButtonElement>('[data-ticker-play]');
++    const playIcon = root.querySelector<HTMLElement>('[data-ticker-play-icon]');
++    const pauseIcon = root.querySelector<HTMLElement>('[data-ticker-pause-icon]');
++
++    if (!viewport || !track || !group) return;
++
++    // Constant scroll speed, independent of how much content is in the feed.
++    const SPEED_PX_PER_SECOND = 42;
++
++    let running = false;
++
++    /**
++     * Duplicates the item group until the track covers the viewport, then sets
++     * the animation distance to exactly one group width. Moving by a whole
++     * group is what makes the loop seamless - there is never a visible gap or
++     * a jump when the animation restarts.
++     */
++    function layoutTrack() {
++      track.querySelectorAll<HTMLElement>('[data-ticker-clone]').forEach((clone) => clone.remove());
++
++      const groupWidth = group.getBoundingClientRect().width;
++      if (!groupWidth) return;
++
++      const viewportWidth = viewport.getBoundingClientRect().width;
++      const copies = Math.max(2, Math.ceil((viewportWidth + groupWidth) / groupWidth) + 1);
++
++      for (let i = 1; i < copies; i += 1) {
++        const clone = group.cloneNode(true) as HTMLElement;
++        clone.setAttribute('data-ticker-clone', '');
++        // Duplicated content is decorative for assistive tech and must not be
++        // reachable by keyboard.
++        clone.setAttribute('aria-hidden', 'true');
++        clone.setAttribute('inert', '');
++        clone
++          .querySelectorAll('a, button, input, select, textarea, [tabindex]')
++          .forEach((el) => el.setAttribute('tabindex', '-1'));
++        track.appendChild(clone);
+       }
+-      requestAnimationFrame(step);
++
++      track.style.setProperty('--ticker-shift', `${groupWidth}px`);
++      // The duration is a custom property so the scroll speed stays constant
++      // no matter how long the feed is, and so the reduced-motion exemption in
++      // global.css can reuse it.
++      track.style.setProperty('--ticker-duration', `${groupWidth / SPEED_PX_PER_SECOND}s`);
+     }
+-    requestAnimationFrame(step);
+-  })();
++
++    function setRunning(next: boolean) {
++      running = next;
++      root.classList.toggle('is-running', running);
++      if (playIcon) {
++        playIcon.classList.toggle('hidden', running);
++        playIcon.classList.toggle('block', !running);
++      }
++      if (pauseIcon) {
++        pauseIcon.classList.toggle('hidden', !running);
++        pauseIcon.classList.toggle('block', running);
++      }
++      if (playButton) {
++        const label = running ? 'Pause announcements' : 'Play announcements';
++        playButton.setAttribute('aria-label', label);
++        playButton.setAttribute('title', label);
++      }
++    }
++
++    playButton?.addEventListener('click', () => {
++      setRunning(!running);
++    });
++
++    // Hovering over the announcements (headlines / tender / notice items)
++    // freezes the scroll so the hovered item can be read or clicked.
++    // The Play/Pause button state is untouched - see the .is-hover-paused
++    // rule in global.css.
++    viewport.addEventListener('mouseenter', () => root.classList.add('is-hover-paused'));
++    viewport.addEventListener('mouseleave', () => root.classList.remove('is-hover-paused'));
++
++    // The ticker starts scrolling as soon as it is laid out; Pause is optional.
++    setRunning(true);
++    layoutTrack();
++
++    let resizeTimer: number | undefined;
++    window.addEventListener('resize', () => {
++      if (resizeTimer !== undefined) window.clearTimeout(resizeTimer);
++      resizeTimer = window.setTimeout(layoutTrack, 150);
++    });
++
++    if (document.fonts && 'ready' in document.fonts) {
++      (document.fonts as FontFaceSet).ready.then(layoutTrack).catch(() => {});
++    }
++  }
++
++  function initAllTickers() {
++    document.querySelectorAll<HTMLElement>('[data-ticker]').forEach(initTicker);
++  }
++
++  if (document.readyState === 'loading') {
++    document.addEventListener('DOMContentLoaded', initAllTickers, { once: true });
++  } else {
++    initAllTickers();
++  }
++
++  document.addEventListener('astro:page-load', initAllTickers);
+ </script>

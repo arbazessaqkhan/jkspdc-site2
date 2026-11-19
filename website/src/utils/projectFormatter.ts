@@ -47,10 +47,11 @@ export function formatProjectName(name?: string): string {
     return projectFullNameMap[upper];
   }
   
-  // Key substring match
-  for (const [key, formatted] of Object.entries(projectFullNameMap)) {
+  // Key substring match (sorted by longest key first to prevent prefix shadowing)
+  const sortedKeys = Object.keys(projectFullNameMap).sort((a, b) => b.length - a.length);
+  for (const key of sortedKeys) {
     if (upper === key || upper.includes(key)) {
-      return formatted;
+      return projectFullNameMap[key];
     }
   }
   

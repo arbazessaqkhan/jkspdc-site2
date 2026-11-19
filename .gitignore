@@ -2,6 +2,7 @@
 .env
 .env.local
 .env.*.local
+.env.example
 
 # Scratch and verification artifacts
 scratch/
@@ -36,3 +37,14 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
+
+# Security & Data artifacts (Gov PSU compliance)
+*.exe
+cloudflared*
+*.db
+*.sqlite
+*.sqlite3
+backend/prisma/*.db
+uploads/
+backend/uploads/
+website/public/uploads/

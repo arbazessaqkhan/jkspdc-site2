@@ -236,17 +236,16 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
 
         <span class="text-xs font-medium text-slate-300 hidden sm:inline">|</span>
 
-        <!-- Search Input -->
-        <div class="relative flex-grow sm:flex-grow-0 sm:w-64">
+        <div class="admin-search-wrapper relative flex-grow sm:flex-grow-0 sm:w-64">
+          <div class="admin-search-icon">
+            <Icon name="search" size={15} strokeWidth={2.2} />
+          </div>
           <input 
             type="text" 
             id="search-ipp-input"
             placeholder="Search name, location, company..." 
-            class="w-full bg-slate-50 border border-slate-300 rounded text-xs text-slate-800 pl-8 pr-3 py-1.5 focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none"
+            class="admin-search-input w-full bg-slate-50 border border-slate-300 rounded text-xs text-slate-800 pr-3 py-1.5 focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none"
           />
-          <div class="absolute left-2.5 top-2 text-slate-400">
-            <Icon name="search" size={13} />
-          </div>
         </div>
       </div>
 
@@ -290,7 +289,7 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
                   data-awarded={item.awardedTo.toLowerCase()}
                   data-status={item.status.toLowerCase()}
                 >
-                  <td class="text-center font-bold text-slate-400 text-xs row-index">{index + 1}</td>
+                  <td class="text-center font-bold text-slate-400 text-xs row-index">{(page - 1) * pageSize + index + 1}</td>
                   <td class="font-bold text-slate-900 text-xs cell-name">{item.name}</td>
                   <td class="font-semibold text-slate-800 text-left text-xs cell-capacity">
                     {item.capacityMw}

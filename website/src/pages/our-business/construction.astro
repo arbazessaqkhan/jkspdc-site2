@@ -1,12 +1,18 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import TablePagination from '../../components/TablePagination.astro';
 import { formatProjectName } from '../../utils/projectFormatter';
+import { BACKEND_URL } from '../../utils/api-error';
+
+const PAGE_SIZE = 10;
 
 let projects = [];
 let errorMessage = '';
 
+const apiBase = import.meta.env.PUBLIC_API_BASE || BACKEND_URL;
+
 try {
-  const res = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/projects?status=Under%20Construction`);
+  const res = await fetch(`${apiBase}/api/projects?status=Under%20Construction`);
   if (res.ok) {
     projects = await res.json();
   } else {
@@ -15,6 +21,12 @@ try {
 } catch (e) {
   errorMessage = 'Failed to connect to the backend server.';
 }
+
+const totalProjects = projects.length;
+const lastPage = Math.max(1, Math.ceil(totalProjects / PAGE_SIZE));
+const rawPage = parseInt(Astro.url.searchParams.get('page') || '1', 10);
+const currentPage = Math.min(Math.max(Number.isFinite(rawPage) ? rawPage : 1, 1), lastPage);
+const pagedProjects = projects.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 ---
 
 <Layout 
@@ -46,50 +58,68 @@ try {
           </div>
         )}
 
-        <div class="table-wrapper">
-          <table class="table-data" role="table" aria-label="Projects Under Construction List">
-            <thead>
-              <tr>
-                <th scope="col" class="text-center w-12">#</th>
-                <th scope="col">Project Name</th>
-                <th scope="col">Type</th>
-                <th scope="col">Capacity</th>
-                <th scope="col">Location / River Basin</th>
-              </tr>
-            </thead>
-            <tbody>
-              {projects.length === 0 && !errorMessage ? (
+        <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs p-4 space-y-3">
+          <div class="table-wrapper">
+            <table class="table-data" role="table" aria-label="Projects Under Construction List">
+              <thead>
                 <tr>
-                  <td colspan="5" class="text-center text-slate-500 py-12 text-sm font-medium">
-                    No projects under construction found.
-                  </td>
+                  <th scope="col" class="text-center w-12">#</th>
+                  <th scope="col">Project Name</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Capacity</th>
+                  <th scope="col">Location</th>
+                  <th scope="col">Status</th>
                 </tr>
-              ) : (
-                projects.map((p, idx) => (
-                  <tr class="cursor-pointer" onclick={`window.location.href='/our-business/power-station-details?id=${p.id}'`}>
-                    <td class="text-center font-bold text-slate-500">{idx + 1}</td>
-                    <td class="font-bold text-[#0B4F9C]">
-                      <a href={`/our-business/power-station-details?id=${p.id}`} class="text-[#0B4F9C] hover:underline" onclick="event.stopPropagation();">
-                        {formatProjectName(p.name)}
-                      </a>
+              </thead>
+              <tbody>
+                {pagedProjects.length === 0 && !errorMessage ? (
+                  <tr>
+                    <td colspan="6" class="text-center text-slate-500 py-12 text-sm font-medium">
+                      No projects under construction found.
                     </td>
-                    <td>
-                      <span class="inline-block px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#0B4F9C] bg-[#EAF4FF] border border-[#BDD7EE] rounded-full">
-                        {p.type || 'Hydro'}
-                      </span>
-                    </td>
-                    <td class="font-bold text-slate-700">{p.capacityMw} MW</td>
-                    <td class="text-slate-600">{p.location} {p.basin ? `/ ${p.basin}` : ''}</td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ) : (
+                  pagedProjects.map((p, idx) => (
+                    <tr class="cursor-pointer" onclick={`window.location.href='/our-business/power-station-details?id=${p.id}'`}>
+                      <td class="text-center font-bold text-slate-500">{(currentPage - 1) * PAGE_SIZE + idx + 1}</td>
+                      <td class="font-bold text-[#0B3B60]">
+                        <a href={`/our-business/power-station-details?id=${p.id}`} class="text-[#0B3B60] hover:text-[#0B3B60] hover:underline" onclick="event.stopPropagation();">
+                          {formatProjectName(p.name)}
+                        </a>
+                      </td>
+                      <td>
+                        <span class="inline-block px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-700 bg-slate-100 border border-slate-200 rounded-full">
+                          {p.type || 'Hydro'}
+                        </span>
+                      </td>
+                      <td>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold bg-[#EAF4FF] text-[#0B3B60] border border-[#BDD7EE]">
+                          {p.capacityMw} MW
+                        </span>
+                      </td>
+                      <td>
+                        <div class="text-sm font-medium text-slate-800">{p.location || 'UT of J&K'}</div>
+                      </td>
+                      <td>
+                        <span class="inline-flex items-center px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-blue-50 text-[#0B3B60] border border-blue-200">
+                          Under Construction
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
 
-        <p class="mt-3 text-[11px] text-slate-400 font-medium text-right">
-          Total Projects: <strong class="text-slate-600">{projects.length}</strong>
-        </p>
+          <TablePagination
+            page={currentPage}
+            lastPage={lastPage}
+            total={totalProjects}
+            pageSize={PAGE_SIZE}
+            baseUrl={Astro.url}
+          />
+        </div>
       </article>
 
     </div>

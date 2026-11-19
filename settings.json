@@ -1,0 +1,7 @@
+{
+    "env": {
+        "ANTHROPIC_BASE_URL": "https://gateway.respan.ai",
+        "ANTHROPIC_MODEL": "gpt-6.2-sol:free",
+        "ANTHROPIC_AUTH_TOKEN": "zcB4v0k3.xD8XTQfpEgwTSNI5lkwmXrQgov889Zwl"
+    }
+}

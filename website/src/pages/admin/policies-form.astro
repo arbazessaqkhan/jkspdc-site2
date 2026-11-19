@@ -205,24 +205,10 @@ if (Astro.request.method === 'POST') {
               required
               variant="document"
               accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"
-              helpText="PDF, JPG, PNG, DOCX (Max 20MB / 100MB if Important)"
-              important
+              helpText="PDF, JPG, PNG, DOCX"
+              maxSizeMB={20}
               existingUrl={docData.documentUrl}
             />
-
-            {docData.documentUrl && (
-              <div class="p-3 bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 rounded flex items-center justify-between gap-2 mt-2">
-                <div class="flex items-center gap-2 min-w-0">
-                  <Icon name="info" size={16} class="text-emerald-600 shrink-0" />
-                  <span class="font-semibold truncate">
-                    {docData.documentUrl.substring(docData.documentUrl.lastIndexOf('/') + 1)}
-                  </span>
-                </div>
-                <a href={docData.documentUrl} target="_blank" class="text-emerald-700 hover:text-emerald-900 underline font-bold shrink-0">
-                  View File
-                </a>
-              </div>
-            )}
 
             <input type="hidden" name="documentUrl" id="documentUrl" value={docData.documentUrl} />
           </div>
@@ -238,12 +224,21 @@ if (Astro.request.method === 'POST') {
         >
           Cancel
         </a>
+        {!editId && (
+          <button 
+            type="button" 
+            id="btn-clear-policy" 
+            class="admin-btn admin-btn-secondary cursor-pointer"
+          >
+            Clear
+          </button>
+        )}
         <button 
           type="submit" 
           id="submit-btn" 
           class="admin-btn admin-btn-primary cursor-pointer"
         >
-          {editId ? "Update Document" : "Save Document"}
+          {editId ? "Update" : "Save Document"}
         </button>
       </div>
 
@@ -251,10 +246,47 @@ if (Astro.request.method === 'POST') {
   </div>
 </AdminLayout>
 
-<script is:inline define:vars={{ backendUrl: BACKEND_URL }}>
+<script is:inline>
   (function() {
     var FILE_INPUT = 'csr-doc-input';
-    var IMPORTANT_CB = 'csr-doc-important';
+
+    // Clear Button (Create Form Only)
+    var btnClear = document.getElementById('btn-clear-policy');
+    if (btnClear) {
+      btnClear.addEventListener('click', function() {
+        var form = document.querySelector('form');
+        var title = document.getElementById('title')?.value || '';
+        var docUrl = document.getElementById('documentUrl')?.value || '';
+        var isDirty = title.trim() !== '' || docUrl.trim() !== '';
+
+        if (isDirty) {
+          if (!confirm('Are you sure you want to clear all entered form fields and selections?')) {
+            return;
+          }
+        }
+
+        if (form) {
+          form.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"])').forEach(function(i) { i.value = ''; });
+          form.querySelectorAll('textarea').forEach(function(t) { t.value = ''; });
+          form.querySelectorAll('select').forEach(function(s) { s.selectedIndex = 0; });
+        }
+        var documentUrlInput = document.getElementById('documentUrl');
+        if (documentUrlInput) documentUrlInput.value = '';
+        var fileUploader = document.getElementById(FILE_INPUT);
+        var dropzone = document.getElementById('csr-doc-dropzone');
+        if (dropzone) {
+          dropzone.classList.remove('has-file');
+          var nameEl = dropzone.querySelector('.admin-uploader-file-name');
+          var sizeEl = dropzone.querySelector('.admin-uploader-file-size');
+          if (nameEl) nameEl.textContent = '';
+          if (sizeEl) sizeEl.textContent = '';
+        }
+        if (fileUploader) {
+          fileUploader.value = '';
+          fileUploader.dispatchEvent(new CustomEvent('uploader:cleared', { bubbles: true }));
+        }
+      });
+    }
 
     // Delegated change handler: unified uploader fires change after a
     // validated selection; here we upload and store the returned URL.
@@ -266,22 +298,15 @@ if (Astro.request.method === 'POST') {
         var documentUrlInput = document.getElementById('documentUrl');
         var submitBtn = document.getElementById('submit-btn');
 
-        var isImportant = (document.getElementById(IMPORTANT_CB) && document.getElementById(IMPORTANT_CB).checked) || false;
-
         if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Uploading…'; }
 
         var formData = new FormData();
         formData.append('file', file);
-        formData.append('isImportant', isImportant ? 'true' : 'false');
-
-        var authToken = (document.cookie.match(/admin_session=([^;]+)/) || [])[1] || '';
+        formData.append('category', 'document');
 
         try {
-          var response = await fetch((backendUrl || '') + '/api/upload', {
+          var response = await fetch('/api/admin/upload', {
             method: 'POST',
-            headers: {
-              'Authorization': 'Bearer ' + authToken,
-            },
             body: formData,
           });
 
@@ -308,7 +333,7 @@ if (Astro.request.method === 'POST') {
           if (submitBtn) {
             submitBtn.disabled = false;
             var editId = document.getElementById('id') ? document.getElementById('id').value : '';
-            submitBtn.textContent = editId ? 'Update Document' : 'Save Document';
+            submitBtn.textContent = editId ? 'Update' : 'Save Document';
           }
         }
       }

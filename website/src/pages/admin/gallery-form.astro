@@ -11,7 +11,6 @@ if (!sessionToken) {
   return Astro.redirect('/admin/login');
 }
 
-// Routine mutation: authorized for ADMIN and EDITOR only
 const userRole = Astro.locals.user?.role;
 if (!canMutateRoutineContent(userRole)) {
   return Astro.redirect('/admin/gallery');
@@ -24,7 +23,6 @@ let itemData = {
   id: '',
   title: '',
   imageUrl: '',
-  partition: '',
 };
 
 // Fetch data if editing
@@ -37,7 +35,6 @@ if (editId) {
         id: data.id || '',
         title: data.title || '',
         imageUrl: data.imageUrl || '',
-        partition: data.partition || '',
       };
     } else {
       const apiErr = await parseApiError(res, 'load gallery item details');
@@ -52,16 +49,25 @@ if (editId) {
   }
 }
 
-// Fetch existing unique partition names to suggest as helper autocomplete
-let existingPartitions = [];
+// Fetch overview settings to check if this image is in Corporate Overview carousel
+let isInOverview = false;
+let overviewSettings = { autoplay: true, duration: 5, items: [] as any[] };
 try {
-  const res = await fetch(`${BACKEND_URL}/api/gallery`);
-  if (res.ok) {
-    const items = await res.json();
-    existingPartitions = [...new Set(items.map(item => item.partition).filter(Boolean))];
+  const wRes = await fetch(`${BACKEND_URL}/api/site-settings/homepage_welcome_settings`, {
+    headers: { 'Authorization': `Bearer ${sessionToken}` }
+  });
+  if (wRes.ok) {
+    const wData = await wRes.json();
+    if (wData?.value) {
+      try { overviewSettings = Object.assign(overviewSettings, JSON.parse(wData.value)); } catch {}
+    }
   }
-} catch (e) {
-  console.error('Error fetching existing partitions:', e);
+} catch {}
+
+if (itemData.id || itemData.imageUrl) {
+  isInOverview = Array.isArray(overviewSettings.items) && overviewSettings.items.some(
+    (it: any) => (itemData.id && it.id === itemData.id) || (itemData.imageUrl && it.imageUrl === itemData.imageUrl)
+  );
 }
 
 function getImageUrl(url: string) {
@@ -72,445 +78,314 @@ function getImageUrl(url: string) {
   return url;
 }
 
-// Handle Single Item Form Submit (used in Edit Mode only)
-if (Astro.request.method === 'POST' && editId) {
+// Handle Form Submission
+if (Astro.request.method === 'POST') {
   try {
     const formData = await Astro.request.formData();
     const id = formData.get('id')?.toString();
-    const title = formData.get('title')?.toString();
-    const partition = formData.get('partition')?.toString();
-    const imageUrl = formData.get('imageUrl')?.toString();
+    const title = formData.get('title')?.toString()?.trim() || '';
+    const imageUrl = formData.get('imageUrl')?.toString()?.trim() || '';
 
-    // Preserve values
     itemData = {
       id: id || '',
-      title: title || '',
-      partition: partition || '',
-      imageUrl: imageUrl || '',
+      title,
+      imageUrl,
     };
 
-    if (!title || !imageUrl) {
-      errorMessage = 'Caption Title and Image are required.';
+    if (!title) {
+      errorMessage = 'Image Title is mandatory.';
+    } else if (!imageUrl) {
+      errorMessage = 'Image File is mandatory. Please select and upload an image.';
     } else {
-      const body = {
+      const payload: Record<string, any> = {
         title,
-        partition: partition || '',
         imageUrl,
+        partition: 'General',
+        status: 'Active',
       };
 
-      const res = await fetch(`${BACKEND_URL}/api/gallery/${id}`, {
-        method: 'PUT',
+      const targetUrl = editId ? `${BACKEND_URL}/api/gallery/${editId}` : `${BACKEND_URL}/api/gallery`;
+      const method = editId ? 'PUT' : 'POST';
+
+      const res = await fetch(targetUrl, {
+        method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${sessionToken}`,
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
+        const savedItem = await res.json().catch(() => ({}));
+        const itemId = savedItem.id || editId || id;
+        const wantOverview = formData.get('featuredInOverview') === 'true';
+
+        let items = Array.isArray(overviewSettings.items) ? [...overviewSettings.items] : [];
+        const idx = items.findIndex((it: any) => (itemId && it.id === itemId) || it.imageUrl === imageUrl);
+
+        if (wantOverview && idx < 0) {
+          items.push({
+            id: itemId,
+            title,
+            imageUrl,
+            displayOrder: items.length + 1,
+            isActive: true,
+          });
+          await fetch(`${BACKEND_URL}/api/site-settings/homepage_welcome_settings`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionToken}` },
+            body: JSON.stringify({ value: JSON.stringify({ ...overviewSettings, items }) }),
+          }).catch(() => null);
+        } else if (!wantOverview && idx >= 0) {
+          items.splice(idx, 1);
+          await fetch(`${BACKEND_URL}/api/site-settings/homepage_welcome_settings`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionToken}` },
+            body: JSON.stringify({ value: JSON.stringify({ ...overviewSettings, items }) }),
+          }).catch(() => null);
+        }
+
         return Astro.redirect('/admin/gallery');
       } else {
-        const apiErr = await parseApiError(res, 'update gallery item');
+        const apiErr = await parseApiError(res, `${editId ? 'update' : 'create'} gallery image`);
         if (apiErr.isUnauthorized) {
           return Astro.redirect('/admin/login');
         }
         errorMessage = apiErr.message;
       }
     }
-  } catch (error) {
-    console.error('Error saving gallery item:', error);
-    errorMessage = 'An unexpected error occurred while saving the gallery item. Check backend service status.';
+  } catch (err) {
+    console.error('Error saving gallery item:', err);
+    errorMessage = 'An unexpected error occurred while saving the gallery image.';
   }
 }
 ---
 
-<AdminLayout title={editId ? "Edit Gallery Image" : "Upload Gallery Images"} description="Manage JKSPDCL Photo Gallery" activeTab="gallery">
-  <div class="flex flex-col gap-6">
+<AdminLayout 
+  title={editId ? "Edit Gallery Image" : "Add Image — Central Media Gallery"} 
+  description="Upload and catalog images in the unified media library"
+  activeTab="gallery"
+>
+  <div class="max-w-3xl mx-auto flex flex-col gap-6">
     
-    <!-- Top breadcrumbs and back link -->
-    <div class="admin-page-header">
-      <div>
-        <h1 class="admin-page-title">
-          {editId ? 'Modify Gallery Image' : 'Upload Gallery Images'}
-        </h1>
-        <p class="admin-page-subtitle">Upload official event imagery, photo captions, and partition categorizations.</p>
-      </div>
-      <a href="/admin/gallery" class="admin-btn admin-btn-secondary">
-        &larr; Back to Gallery
+    <!-- Top Breadcrumb / Navigation -->
+    <div class="flex items-center gap-2 text-xs text-slate-500">
+      <a href="/admin/gallery" class="hover:text-[color:var(--adm-primary)] flex items-center gap-1 font-semibold">
+        &larr; Back to Central Media Gallery
       </a>
+      <span>/</span>
+      <span class="text-slate-800 font-bold">{editId ? 'Edit Image' : 'Add Image'}</span>
     </div>
 
-    <!-- Error notice -->
-    {errorMessage && (
-      <div class="p-3 bg-red-50 border border-red-200 text-xs font-semibold text-red-700 rounded flex items-center gap-2" role="alert">
-        <Icon name="info" size={14} class="text-red-600 shrink-0" /> {errorMessage}
-      </div>
-    )}
+    <!-- Header Card -->
+    <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-xs">
+      <h1 class="text-lg font-bold text-slate-900 mb-1">
+        {editId ? 'Edit Gallery Image' : 'Add Image to Media Gallery'}
+      </h1>
+      <p class="text-xs text-slate-500">
+        All images are organized in the central gallery and can be featured in the Corporate Overview carousel.
+      </p>
 
-    <!-- Form -->
-    <form id="gallery-form" method="POST" class="bg-white rounded-lg border border-slate-200 shadow-sm p-6 lg:p-8 flex flex-col gap-6">
-      <input type="hidden" name="id" value={itemData.id} />
-
-      {editId ? (
-        <!-- EDIT MODE (Single Image Form) -->
-        <div class="flex flex-col gap-4">
-          <h3 class="text-xs font-bold text-[color:var(--adm-primary)] uppercase tracking-wider border-b border-slate-100 pb-2 mb-2">Image Specifications</h3>
-          
-          <div class="form-group flex flex-col gap-1.5">
-            <FileUploader
-              id="gallery-single"
-              label="Gallery Image File"
-              required
-              variant="image"
-              accept=".jpg,.jpeg,.png"
-              helpText="JPG, JPEG, PNG (Max 20MB / 100MB if Important)"
-              important
-              existingUrl={itemData.imageUrl ? getImageUrl(itemData.imageUrl) : ''}
-            />
-
-            <!-- Image Preview -->
-            <div id="attached-file-info" class={`p-3 bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 rounded flex flex-col gap-3 mt-2 ${itemData.imageUrl ? '' : 'hidden'}`}>
-              <div class="flex items-center justify-between gap-2">
-                <div class="flex items-center gap-2 min-w-0">
-                  <Icon name="info" size={16} class="text-emerald-600 shrink-0" />
-                  <span class="font-semibold truncate" id="attached-filename">
-                    {itemData.imageUrl ? itemData.imageUrl.substring(itemData.imageUrl.lastIndexOf('/') + 1) : 'No image attached'}
-                  </span>
-                </div>
-                {itemData.imageUrl && (
-                  <a href={getImageUrl(itemData.imageUrl)} target="_blank" class="text-emerald-700 hover:text-emerald-900 underline font-bold shrink-0">
-                    View Image
-                  </a>
-                )}
-              </div>
-              {itemData.imageUrl && (
-                <div class="max-w-[200px] h-auto border border-slate-200 rounded overflow-hidden shadow-sm bg-white self-start">
-                  <img id="image-preview" src={getImageUrl(itemData.imageUrl)} alt="Gallery Preview" class="w-full h-auto object-cover" />
-                </div>
-              )}
-            </div>
-
-            <input type="hidden" name="imageUrl" id="imageUrl" value={itemData.imageUrl} />
-          </div>
-
-          <div class="form-group flex flex-col gap-1.5">
-            <label for="title" class="text-xs font-bold text-slate-700">Image Title / Caption <span class="text-red-500">*</span></label>
-            <input type="text" name="title" id="title" value={itemData.title} class="form-input text-xs" required placeholder="e.g. Board of Directors Meeting 2026" />
-          </div>
-
-          <div class="form-group flex flex-col gap-1.5">
-            <label for="partition" class="text-xs font-bold text-slate-700">Partition Name (Album/Category) <span class="text-slate-400 font-normal">(Optional)</span></label>
-            <input 
-              type="text" 
-              name="partition" 
-              id="partition" 
-              value={itemData.partition} 
-              class="form-input text-xs" 
-              list="partitions-list" 
-              placeholder="e.g. Official Events, Corporate, Projects" 
-            />
-            <datalist id="partitions-list">
-              {existingPartitions.map(part => (
-                <option value={part}></option>
-              ))}
-            </datalist>
-          </div>
-        </div>
-      ) : (
-        <!-- BATCH UPLOAD MODE -->
-        <div class="flex flex-col gap-4">
-          <h3 class="text-xs font-bold text-[color:var(--adm-primary)] uppercase tracking-wider border-b border-slate-100 pb-2 mb-2">Batch Upload Specifications</h3>
-          
-          <div class="form-group flex flex-col gap-1.5">
-            <FileUploader
-              id="gallery-batch"
-              label="Select Gallery Image Files"
-              required
-              variant="document"
-              accept=".jpg,.jpeg,.png"
-              helpText="Select multiple JPG, JPEG, or PNG files (Max 20MB each / 100MB if Important)"
-              multiple
-            />
-          </div>
-
-          <!-- Partition Assignment for the batch -->
-          <div class="form-group flex flex-col gap-1.5">
-            <label for="partition" class="text-xs font-bold text-slate-700">Partition Name (Album/Category) <span class="text-slate-400 font-normal">(Optional, applies to all uploaded files)</span></label>
-            <input 
-              type="text" 
-              name="partition" 
-              id="partition" 
-              class="form-input text-xs" 
-              list="partitions-list" 
-              placeholder="e.g. Official Events, Corporate, Projects" 
-            />
-            <datalist id="partitions-list">
-              {existingPartitions.map(part => (
-                <option value={part}></option>
-              ))}
-            </datalist>
-          </div>
-
-          <!-- Batch Uploaded Items List -->
-          <div id="batch-uploads-container" class="hidden flex flex-col gap-3 mt-2 border border-slate-200 rounded-xl p-4 bg-slate-50">
-            <h4 class="text-xs font-bold text-slate-700 border-b border-slate-250 pb-2 mb-2">Uploaded Images Checklist</h4>
-            <div id="batch-items-list" class="flex flex-col gap-3.5">
-              <!-- Dynamically populated via JS -->
-            </div>
-          </div>
+      {errorMessage && (
+        <div class="mt-4 p-3 bg-red-50 border border-red-200 text-xs font-semibold text-red-700 rounded flex items-center gap-2" role="alert">
+          <Icon name="info" size={14} class="text-red-600 shrink-0" /> {errorMessage}
         </div>
       )}
 
-      <!-- Actions -->
-      <div class="flex justify-end gap-3 border-t border-slate-100 pt-6 mt-2">
-        <a href="/admin/gallery" class="admin-btn admin-btn-secondary">Cancel</a>
-        <button type="submit" id="submit-btn" class="admin-btn admin-btn-primary cursor-pointer">
-          {editId ? 'Update Image' : 'Add to Gallery'}
-        </button>
-      </div>
-    </form>
+      <!-- Form -->
+      <form method="POST" id="gallery-image-form" class="mt-6 flex flex-col gap-5">
+        {editId && <input type="hidden" name="id" value={itemData.id} />}
+        
+        <!-- 1. Mandatory Field: Image Title -->
+        <div class="flex flex-col gap-1.5">
+          <label for="title" class="text-xs font-bold text-slate-700">
+            Image Title <span class="text-red-500">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="title" 
+            name="title" 
+            value={itemData.title}
+            placeholder="e.g. Baglihar Hydroelectric Power Dam & Spillway" 
+            class="admin-input text-xs" 
+            required 
+          />
+          <p class="text-[11px] text-slate-400">Clear descriptive title displayed in cards, alt-text, and lightboxes.</p>
+        </div>
+
+        <!-- 2. Mandatory Field: Image File (Standard 2 MB limit for images) -->
+        <div class="flex flex-col gap-1.5">
+          <FileUploader 
+            id="gallery-image-file" 
+            label="Image File" 
+            required={!editId && !itemData.imageUrl}
+            variant="image" 
+            accept="image/jpeg,image/png,image/webp" 
+            helpText="JPG, PNG, or WebP"
+            maxSizeMB={2}
+            existingUrl={getImageUrl(itemData.imageUrl)}
+            existingName={itemData.title || 'Current Photo'}
+          />
+          <input type="hidden" name="imageUrl" id="gallery-image-url-input" value={itemData.imageUrl} />
+        </div>
+
+        <!-- 3. Corporate Overview Carousel Feature -->
+        <div class="p-3.5 bg-sky-50/70 border border-sky-200/80 rounded-lg">
+          <label class="flex items-start gap-2.5 cursor-pointer select-none">
+            <input 
+              type="checkbox" 
+              name="featuredInOverview" 
+              value="true" 
+              checked={isInOverview}
+              class="w-4 h-4 text-blue-600 rounded mt-0.5" 
+            />
+            <div>
+              <span class="text-xs font-bold text-slate-800">Feature in Corporate Overview Carousel</span>
+              <p class="text-[11px] text-slate-500 mt-0.5">Include this photograph in the "Welcome to JKSPDCL" rotating gallery carousel on the homepage.</p>
+            </div>
+          </label>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+          <a href="/admin/gallery" class="admin-btn admin-btn-secondary text-xs px-4 py-2 cursor-pointer">
+            Cancel
+          </a>
+          {!editId && (
+            <button type="button" id="btn-clear-form" class="admin-btn admin-btn-secondary text-xs px-4 py-2 cursor-pointer">
+              Clear
+            </button>
+          )}
+          <button type="submit" class="admin-btn admin-btn-primary text-xs px-5 py-2 cursor-pointer">
+            {editId ? 'Update Image' : 'Save Image'}
+          </button>
+        </div>
+      </form>
+    </div>
+
   </div>
 
-  <script define:vars={{ sessionToken, editId, backendUrl: BACKEND_URL }}>
-    const fileUploader = document.getElementById(editId ? 'gallery-single-input' : 'gallery-batch-input');
-        const uploadContainer = document.getElementById(editId ? 'gallery-single-dropzone' : 'gallery-batch-dropzone');
-    const partitionInput = document.getElementById('partition');
-    const submitBtn = document.getElementById('submit-btn');
-    const galleryForm = document.getElementById('gallery-form');
+  <script is:inline>
+    var fileInput = document.getElementById('gallery-image-file-input');
+    var dropzone = document.getElementById('gallery-image-file-dropzone');
+    var urlInput = document.getElementById('gallery-image-url-input');
+    var submitBtn = document.querySelector('button[type="submit"]');
+    var isUploading = false;
+    var initialBtnText = submitBtn ? submitBtn.textContent.trim() : 'Save Image';
 
-    function formatImageUrl(url) {
-      if (!url) return '';
-      if (url.startsWith('/uploads/')) {
-        return `${backendUrl}${url}`;
+    function removeGalleryPhoto() {
+      if (urlInput) urlInput.value = '';
+      if (fileInput) fileInput.value = '';
+      if (dropzone) {
+        dropzone.classList.remove('has-file');
+        var nameEl = dropzone.querySelector('.admin-uploader-file-name');
+        var sizeEl = dropzone.querySelector('.admin-uploader-file-size');
+        var preview = dropzone.querySelector('.admin-uploader-preview img');
+        if (nameEl) nameEl.textContent = '';
+        if (sizeEl) sizeEl.textContent = '';
+        if (preview) {
+          preview.src = '';
+          preview.classList.add('invisible');
+        }
       }
-      return url;
     }
 
-    if (editId) {
-      // --- EDIT MODE CLIENT SCRIPT ---
-      const attachedFileInfo = document.getElementById('attached-file-info');
-      const attachedFilename = document.getElementById('attached-filename');
-      const imageUrlInput = document.getElementById('imageUrl');
-
-      fileUploader?.addEventListener('change', async (event) => {
-        const file = event.target?.files?.[0];
+    if (fileInput) {
+      fileInput.addEventListener('change', async function(e) {
+        var file = e.target.files && e.target.files[0];
         if (!file) return;
 
-        const isImportant = document.getElementById('gallery-single-important')?.checked || false;
-        uploadContainer.classList.add('opacity-60', 'pointer-events-none');
+        isUploading = true;
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Uploading image…';
+        }
+        if (dropzone) dropzone.classList.add('opacity-50', 'pointer-events-none');
 
-        const formData = new FormData();
+        var formData = new FormData();
         formData.append('file', file);
-        formData.append('isImportant', isImportant ? 'true' : 'false');
+        formData.append('category', 'image');
 
         try {
-          const response = await fetch(`${backendUrl}/api/upload`, {
+          var res = await fetch('/api/admin/upload', {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${sessionToken}` },
             body: formData,
           });
 
-          if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || 'Upload failed');
+          if (!res.ok) {
+            if (res.status === 401) {
+              window.location.href = '/admin/login';
+              return;
+            }
+            var err = await res.json().catch(function() { return {}; });
+            throw new Error(err.message || 'Upload failed');
           }
 
-          const result = await response.json();
-          imageUrlInput.value = result.url;
-          const previewImg = document.getElementById('gallery-single-preview-img');
-          if (previewImg) previewImg.src = formatImageUrl(result.url);
-        } catch (error) {
-          alert(`Upload error: ${error.message}`);
-          fileUploader.value = '';
+          var result = await res.json();
+          var rawUrl = result.url || '';
+          var serverUrl = rawUrl.includes('/uploads/') ? '/uploads/' + rawUrl.split('/uploads/')[1] : rawUrl;
+
+          if (urlInput) urlInput.value = serverUrl;
+          if (dropzone) {
+            dropzone.classList.add('has-file');
+            var nameEl = dropzone.querySelector('.admin-uploader-file-name');
+            var preview = dropzone.querySelector('.admin-uploader-preview img');
+            if (nameEl) nameEl.textContent = file.name;
+            if (preview) {
+              preview.src = serverUrl;
+              preview.classList.remove('invisible');
+            }
+          }
+        } catch (err) {
+          alert('Upload failed: ' + err.message);
+          removeGalleryPhoto();
         } finally {
-          uploadContainer.classList.remove('opacity-60', 'pointer-events-none');
+          isUploading = false;
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = initialBtnText;
+          }
+          if (dropzone) dropzone.classList.remove('opacity-50', 'pointer-events-none');
         }
       });
 
-    } else {
-      // --- BATCH UPLOAD MODE CLIENT SCRIPT ---
-      let uploadedItems = [];
-      const batchContainer = document.getElementById('batch-uploads-container');
-      const batchList = document.getElementById('batch-items-list');
+      fileInput.addEventListener('uploader:cleared', removeGalleryPhoto);
+    }
 
-      fileUploader?.addEventListener('change', async (event) => {
-        const files = event.target?.files;
-        if (!files || files.length === 0) return;
+    // Clear form handler
+    var clearBtn = document.getElementById('btn-clear-form');
+    if (clearBtn) {
+      clearBtn.addEventListener('click', function() {
+        var form = document.getElementById('gallery-image-form');
+        var titleInput = document.getElementById('title');
 
-        const isImportant = document.getElementById('gallery-batch-important')?.checked || false;
+        var hasData = (titleInput && titleInput.value.trim() !== '') ||
+          (urlInput && urlInput.value.trim() !== '');
 
-        uploadContainer.classList.add('opacity-60', 'pointer-events-none');
-
-        // Loop and upload each file
-        for (let i = 0; i < files.length; i++) {
-          const file = files[i];
-
-          const formData = new FormData();
-          formData.append('file', file);
-          formData.append('isImportant', isImportant ? 'true' : 'false');
-
-          try {
-            const response = await fetch(`${backendUrl}/api/upload`, {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${sessionToken}`,
-              },
-              body: formData,
-            });
-
-            if (response.ok) {
-              const result = await response.json();
-              
-              // Suggest title from file name without extension
-              const rawName = file.name;
-              const nameWithoutExt = rawName.substring(0, rawName.lastIndexOf('.')) || rawName;
-              const title = nameWithoutExt.replace(/[-_]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-
-              uploadedItems.push({
-                imageUrl: result.url,
-                filename: file.name,
-                title: title,
-              });
-            } else {
-              if (response.status === 401) {
-                window.location.href = '/admin/login';
-                return;
-              }
-              if (response.status === 403) {
-                alert('Access Denied: You do not have permission to upload files.');
-                break;
-              }
-              const errData = await response.json().catch(() => ({}));
-              alert(`Upload error for "${file.name}": ${errData.message || 'Server error occurred during upload.'}`);
-            }
-          } catch (err) {
-            console.error(`Upload error for ${file.name}:`, err);
-            alert(`Network error occurred while uploading "${file.name}".`);
+        if (hasData) {
+          if (!confirm('Are you sure you want to clear all entered form fields and selected image?')) {
+            return;
           }
         }
 
-        uploadContainer.classList.remove('opacity-60', 'pointer-events-none');
-
-        // Update list display
-        renderBatchList();
+        if (form) {
+          form.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="checkbox"])').forEach(function(i) { i.value = ''; });
+          var overviewCb = form.querySelector('input[name="featuredInOverview"]');
+          if (overviewCb) overviewCb.checked = false;
+        }
+        removeGalleryPhoto();
+        if (titleInput) titleInput.focus();
       });
+    }
 
-      function renderBatchList() {
-        if (uploadedItems.length === 0) {
-          batchContainer.classList.add('hidden');
-          return;
-        }
-
-        batchContainer.classList.remove('hidden');
-        batchList.innerHTML = '';
-
-        uploadedItems.forEach((item, idx) => {
-          const row = document.createElement('div');
-          row.className = 'flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-white border border-slate-200 rounded-lg p-3.5 shadow-xs relative';
-          
-          row.innerHTML = `
-            <img src="${formatImageUrl(item.imageUrl)}" class="w-16 h-12 object-cover rounded border border-slate-200 shadow-xs shrink-0" />
-            <div class="flex-grow w-full">
-              <label class="text-[10px] font-bold text-slate-500 uppercase">Image Title / Caption <span class="text-red-500">*</span></label>
-              <input 
-                type="text" 
-                value="${item.title}" 
-                class="form-input text-xs w-full py-1 mt-0.5 px-2 bg-slate-50 focus:bg-white border-slate-250 rounded font-semibold text-slate-700" 
-                required 
-                placeholder="Caption for this photograph" 
-              />
-            </div>
-            <button 
-              type="button" 
-              class="self-end sm:self-auto px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-150 rounded text-xs font-bold transition-all shrink-0 cursor-pointer"
-            >
-              Remove
-            </button>
-          `;
-
-          // Track title edits
-          const input = row.querySelector('input');
-          input.addEventListener('input', (e) => {
-            uploadedItems[idx].title = e.target.value;
-          });
-
-          // Delete button
-          const delBtn = row.querySelector('button');
-          delBtn.onclick = () => {
-            uploadedItems.splice(idx, 1);
-            renderBatchList();
-          };
-
-          batchList.appendChild(row);
-        });
-      }
-
-      // Handle batch submit via AJAX fetch loops
-      galleryForm?.addEventListener('submit', async (event) => {
-        event.preventDefault();
-
-        if (uploadedItems.length === 0) {
-          alert('Please select and upload at least one image first.');
-          return;
-        }
-
-        // Validate that all items have titles
-        const invalid = uploadedItems.some(item => !item.title.trim());
-        if (invalid) {
-          alert('All uploaded images must have a caption/title.');
-          return;
-        }
-
-        submitBtn.textContent = 'Saving images...';
-        submitBtn.disabled = true;
-        submitBtn.classList.add('opacity-60', 'pointer-events-none');
-
-        const partition = partitionInput.value.trim();
-
-        try {
-          // Post each image to backend gallery endpoint
-          for (let i = 0; i < uploadedItems.length; i++) {
-            const item = uploadedItems[i];
-            const body = {
-              title: item.title,
-              imageUrl: item.imageUrl,
-              partition: partition, // empty string if not typed
-            };
-
-            const response = await fetch(`${backendUrl}/api/gallery`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${sessionToken}`,
-              },
-              body: JSON.stringify(body),
-            });
-
-            if (!response.ok) {
-              if (response.status === 401) {
-                window.location.href = '/admin/login';
-                return;
-              }
-              if (response.status === 403) {
-                alert('Access Denied: You do not have permission to save gallery items.');
-                submitBtn.textContent = 'Add to Gallery';
-                submitBtn.disabled = false;
-                submitBtn.classList.remove('opacity-60', 'pointer-events-none');
-                return;
-              }
-              const errData = await response.json().catch(() => ({}));
-              throw new Error(errData.message || `Failed to register item: ${item.filename}`);
-            }
-          }
-
-          // Redirect to list
-          window.location.href = '/admin/gallery';
-
-        } catch (error) {
-          alert(`Save error: ${error.message}`);
-          submitBtn.textContent = 'Add to Gallery';
-          submitBtn.disabled = false;
-          submitBtn.classList.remove('opacity-60', 'pointer-events-none');
+    var formEl = document.getElementById('gallery-image-form');
+    if (formEl) {
+      formEl.addEventListener('submit', function(e) {
+        if (isUploading) {
+          e.preventDefault();
+          alert('Please wait for the image upload to finish before saving.');
+          return false;
         }
       });
     }

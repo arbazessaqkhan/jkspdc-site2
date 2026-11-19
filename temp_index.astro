@@ -1,0 +1,1716 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+import { formatProjectName } from '../utils/projectFormatter';
+
+let dignitaries: any[] = [];
+let directors: any[] = [];
+let tenders: any[] = [];
+let projects: any[] = [];
+let notifications: any[] = [];
+let gallery = [
+  {
+    id: 'gallery-seed-1',
+    title: 'Signing of Implementation Agreement NHPC & JKSPDC',
+    imageUrl: '/gallery/signing_agreement.png',
+    partition: 'Official Events',
+  },
+  {
+    id: 'gallery-seed-2',
+    title: 'Retirement Ceremony of Executive Director Civil, JKSPDC',
+    imageUrl: '/gallery/retirement_ed_civil.png',
+    partition: 'Corporate',
+  },
+  {
+    id: 'gallery-seed-5',
+    title: 'Corporate HQ and Administrative Building',
+    imageUrl: '/slider2.jpg',
+    partition: 'Corporate',
+  },
+];
+
+try {
+  // Fetch dignitaries
+  const digRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/api/dignitaries`);
+  if (digRes.ok) {
+    dignitaries = await digRes.json();
+    dignitaries.sort((a: any, b: any) => a.sNo - b.sNo);
+  }
+
+  // Fetch directors
+  const dirRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/api/directors`);
+  if (dirRes.ok) {
+    directors = await dirRes.json();
+    directors.sort((a: any, b: any) => a.sNo - b.sNo);
+  }
+
+  // Fetch tenders
+  const tenderRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/api/tenders`);
+  if (tenderRes.ok) {
+    tenders = await tenderRes.json();
+  }
+
+  // Fetch projects
+  const projRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/api/projects`);
+  if (projRes.ok) {
+    projects = await projRes.json();
+    projects.sort((a, b) => (b.capacityMw || 0) - (a.capacityMw || 0));
+  }
+
+  // Fetch notifications
+  const notifRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/api/public/notifications`);
+  if (notifRes.ok) {
+    notifications = await notifRes.json();
+  }
+
+  // Fetch gallery items
+  const galleryRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/api/gallery`);
+  if (galleryRes.ok) {
+    gallery = await galleryRes.json();
+  }
+} catch (e) {
+  console.error('Failed to sync index.astro from backend:', e);
+}
+
+function getImageUrl(url: string) {
+  if (!url) return '';
+  if (url.startsWith('/uploads/')) {
+    return `${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}${url}`;
+  }
+  return url;
+}
+
+// 1. Office & Corporate Events (Only gallery pictures uploaded by admin in galary section)
+const officePhotos = gallery.filter((item: any) => 
+  !item.partition || (item.partition.toLowerCase() !== 'projects' && item.partition.toLowerCase() !== 'project')
+);
+
+const fallbackOfficePhotos = [
+  {
+    id: 'office-seed-1',
+    title: 'Signing of Implementation Agreement between NHPC & JKSPDC',
+    imageUrl: '/gallery/signing_agreement.png',
+    partition: 'MoU & Official Events',
+  },
+  {
+    id: 'office-seed-2',
+    title: 'Retirement Ceremony & Service Felicitation of Executive Director (Civil)',
+    imageUrl: '/gallery/retirement_ed_civil.png',
+    partition: 'Retirements & Honors',
+  },
+  {
+    id: 'office-seed-5',
+    title: 'Corporate Headquarters Review Meeting',
+    imageUrl: '/slider2.jpg',
+    partition: 'Corporate',
+  },
+  {
+    id: 'office-seed-6',
+    title: 'Official Executive Board Meeting',
+    imageUrl: '/slider3.jpg',
+    partition: 'Official Events',
+  },
+];
+
+const displayOfficePhotos = officePhotos.length > 0 ? officePhotos : fallbackOfficePhotos;
+
+// 2. Project Photographs ONLY (Hydroelectric Plants, Dams, Solar Assets)
+const projectGalleryPhotos = gallery.filter((item: any) => 
+  item.partition && item.partition.toLowerCase() === 'projects'
+);
+
+const fallbackProjectPhotos = [
+  {
+    id: 'proj-seed-1',
+    title: 'Baglihar Hydroelectric Project (900 MW) — Dam & Power House Complex',
+    imageUrl: '/projects/bhep-i.jpg',
+    partition: 'Hydroelectric Project',
+    location: 'Ramban, Chenab Basin',
+    capacity: '900 MW'
+  },
+  {
+    id: 'proj-seed-2',
+    title: 'Lower Jhelum Hydroelectric Station (105 MW) Gantamulla',
+    imageUrl: '/projects/ljhp.jpg',
+    partition: 'Operational Project',
+    location: 'Baramulla, Jhelum Basin',
+    capacity: '105 MW'
+  },
+  {
+    id: 'proj-seed-3',
+    title: 'Upper Sindh Hydroelectric Project II (105 MW) Kangan',
+    imageUrl: '/projects/ushp-ii.jpg',
+    partition: 'Operational Project',
+    location: 'Ganderbal, Jhelum Basin',
+    capacity: '105 MW'
+  },
+  {
+    id: 'proj-seed-4',
+    title: 'Pahalgam Hydroelectric Station & Headworks',
+    imageUrl: '/projects/mhep-pahalgam.jpg',
+    partition: 'Small Hydel Project',
+    location: 'Anantnag, Jhelum Basin',
+    capacity: '4.5 MW'
+  }
+];
+
+const displayProjectPhotos = projectGalleryPhotos.length > 0 ? projectGalleryPhotos : fallbackProjectPhotos;
+
+const photoMap = {
+  "Shri Manoj Sinha": "/dignitaries/manoj_sinha.png",
+  "Shri Omar Abdullah": "/dignitaries/omar_abdullah.png",
+  "Shri Ashwani Kumar (IAS)": "/dignitaries/ashwani_kumar.png",
+  "Shri Ashwani Kumar": "/dignitaries/ashwani_kumar.png",
+  "Shri Rahul Yadav (IAS)": "/dignitaries/rahul_yadav.jpg",
+  "Shri Rahul Yadav": "/dignitaries/rahul_yadav.jpg",
+  "Rahul Yadav": "/dignitaries/rahul_yadav.jpg",
+  "Sh. Satish Chandra, IAS": "/dignitaries/manoj_sinha.png", // fallback or default
+  "Sh. Vikrant Gupta": "/dignitaries/ashwani_kumar.png",
+  "Smt. Anjali Dev": null
+};
+
+const routeMap = {
+  "Shri Manoj Sinha": "/dignitaries/manoj-sinha",
+  "Shri Omar Abdullah": "/dignitaries/omar-abdullah",
+  "Shri Ashwani Kumar (IAS)": "/dignitaries/ashwani-kumar",
+  "Shri Ashwani Kumar": "/dignitaries/ashwani-kumar",
+  "Shri Rahul Yadav (IAS)": "/dignitaries/rahul-yadav",
+  "Shri Rahul Yadav": "/dignitaries/rahul-yadav"
+};
+
+const fallbackOperationalProjects = [
+  { id: 'op-pahalgam', name: 'MHEP PAHALGAM', capacityMw: 4.5, designEnergy: 14.92, yearOfCommissioning: 2005, basin: 'Jhelum Basin', location: 'Anantnag', status: 'Operational', type: 'Hydro', configuration: '2x2.25MW' },
+  { id: 'op-karnah', name: 'KARNAH', capacityMw: 2, designEnergy: 11.36, yearOfCommissioning: 1991, basin: 'Jhelum Basin', location: 'Kupwara', status: 'Operational', type: 'Hydro', configuration: '2x1MW' },
+  { id: 'op-ganderbal', name: 'GANDERBAL', capacityMw: 15, designEnergy: 90.15, yearOfCommissioning: 1955, basin: 'Jhelum Basin', location: 'Ganderbal', status: 'Operational', type: 'Hydro', configuration: '2x3MW + 2x4.5MW' },
+  { id: 'op-ushp-i', name: 'USHP I', capacityMw: 22.6, designEnergy: 106.62, yearOfCommissioning: 1973, basin: 'Jhelum Basin', location: 'Sumbal', status: 'Operational', type: 'Hydro', configuration: '2x11.3MW' },
+  { id: 'op-ushp-ii', name: 'USHP II', capacityMw: 105, designEnergy: 447.37, yearOfCommissioning: 2000, basin: 'Jhelum Basin', location: 'Kangan', status: 'Operational', type: 'Hydro', configuration: '3x35MW' },
+  { id: 'op-ljhp', name: 'LJHP', capacityMw: 105, designEnergy: 68.04, yearOfCommissioning: 1977, basin: 'Jhelum Basin', location: 'Baramulla', status: 'Operational', type: 'Hydro', configuration: '3x35MW' },
+  { id: 'op-bhaderwah', name: 'BHADERWAH', capacityMw: 1.5, designEnergy: 8.32, yearOfCommissioning: 2005, basin: 'Chenab Basin', location: 'Doda', status: 'Operational', type: 'Hydro', configuration: '3x0.5MW' },
+  { id: 'op-chep-iii', name: 'CHEP III', capacityMw: 7.5, designEnergy: 36.71, yearOfCommissioning: 2001, basin: 'Chenab Basin', location: 'Udhampur', status: 'Operational', type: 'Hydro', configuration: '3x2.5MW' },
+  { id: 'op-chep-ii', name: 'CHEP II', capacityMw: 2, designEnergy: 12, yearOfCommissioning: 1996, basin: 'Chenab Basin', location: 'Udhampur', status: 'Operational', type: 'Hydro', configuration: '2x1MW' },
+  { id: 'op-chep-i', name: 'CHEP I', capacityMw: 23.3, designEnergy: 110.02, yearOfCommissioning: 1971, basin: 'Chenab Basin', location: 'Udhampur', status: 'Operational', type: 'Hydro', configuration: '5x4.66MW' },
+  { id: 'op-bhep-i', name: 'BHEP I', capacityMw: 450, designEnergy: 2536.07, yearOfCommissioning: 2008, basin: 'Chenab Basin', location: 'Ramban', status: 'Operational', type: 'Hydro', configuration: '3x150MW' },
+  { id: 'op-bhep-ii', name: 'BHEP II', capacityMw: 450, designEnergy: 1302, yearOfCommissioning: 2015, basin: 'Chenab Basin', location: 'Ramban', status: 'Operational', type: 'Hydro', configuration: '3x150MW' },
+  { id: 'op-sewa-iii', name: 'SEWA III', capacityMw: 9, designEnergy: 33.06, yearOfCommissioning: 2002, basin: 'Ravi Basin', location: 'Kathua', status: 'Operational', type: 'Hydro', configuration: '3x3MW' }
+];
+
+function getCleanDesc(htmlStr) {
+  if (!htmlStr) return "Hydel power station operated by JKSPDC under state/central sector.";
+  const clean = htmlStr.replace(/<\/?[^>]+(>|$)/g, "").replace(/\s+/g, " ").trim();
+  if (clean.length > 180) {
+    return clean.substring(0, 180) + "...";
+  }
+  return clean;
+}
+
+const operationalProjects = projects.filter((p) => p.status === 'Operational');
+const displaySlides = operationalProjects.length > 0 ? operationalProjects : fallbackOperationalProjects;
+displaySlides.sort((a, b) => (b.capacityMw || 0) - (a.capacityMw || 0));
+
+const heroSlides = displaySlides.map((p, index) => {
+  const slug = p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  let img = '/slider1.jpg';
+  
+  if (p.documentUrl && p.documentUrl.trim() !== '') {
+    if (p.documentUrl.startsWith('/uploads/')) {
+      img = `${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}${p.documentUrl}`;
+    } else {
+      img = p.documentUrl;
+    }
+  } else if (slug === 'ganderbal' || slug === 'ushp-i' || slug === 'sewa-iii') {
+    img = `/projects/${slug}.png`;
+  } else if (['bhaderwah', 'bhep-i', 'bhep-ii', 'chep-i', 'chep-ii', 'chep-iii', 'karnah', 'ljhp', 'mhep-pahalgam', 'ushp-ii'].includes(slug)) {
+    img = `/projects/${slug}.jpg`;
+  } else {
+    img = '/slider1.jpg';
+  }
+
+  return {
+    id: index,
+    badge: p.basin ? (p.basin.toLowerCase().includes('basin') ? p.basin : `${p.basin} Basin`) : 'River Basin',
+    title: p.name,
+    desc: getCleanDesc(p.description),
+    capacityMw: p.capacityMw,
+    configuration: p.configuration || '—',
+    designEnergy: p.designEnergy,
+    yearOfCommissioning: p.yearOfCommissioning,
+    basin: p.basin || '—',
+    location: p.location || '—',
+    img: img,
+    ctaText: 'Explore Details',
+    ctaHref: `/our-business/power-station-details?id=${p.id}`
+  };
+});
+
+const quickLinks = [
+  { icon: "building", label: "About JKSPDC", desc: "Corporate profile & leadership", href: "/about-us/explore/overview" },
+  { icon: "factory", label: "Projects", desc: "Explore power stations", href: "/our-business/power-stations" },
+  { icon: "file-text", label: "Tender Portal", desc: "Live tenders & bids", href: "/stakeholders/vendors/tender-bids" },
+  { icon: "scroll-text", label: "RTI", desc: "Right to Information", href: "/about-us/explore/rti" },
+  { icon: "landmark", label: "Investors", desc: "AGM & IPP Projects", href: "/stakeholders/investors/agm" },
+  { icon: "leaf", label: "CSR Policy", desc: "Community initiatives", href: "/sustainability/csr/policy" },
+  { icon: "image", label: "Media Gallery", desc: "Photos & event coverage", href: "/media/gallery" },
+  { icon: "download", label: "Downloads", desc: "Documents & forms", href: "/media/downloads" },
+  { icon: "bell", label: "Notifications", desc: "Circulars & updates", href: "/notifications" },
+  { icon: "eye", label: "Policies", desc: "Corporate guidelines", href: "/about-us/explore/policies" },
+];
+
+
+const corpStats = [
+  { label: "Authorised Capital", value: "Rs. 5,000 Cr" },
+  { label: "Paid-Up Capital", value: "Rs. 2,593 Cr" },
+  { label: "Revenue 2023-24", value: "Rs. 1,136 Cr" },
+  { label: "JV Investment", value: "Rs. 2,357 Cr" },
+];
+
+const fallbackNotifications = [
+  {
+    id: "notif-seed-1",
+    title: "Extension Notice-I: Corrigendum & Bid Submission Extension for eNIT 03 of 2026-27",
+    publishDate: "2026-07-26",
+    documentUrl: "/notifications",
+    isNew: true
+  },
+  {
+    id: "notif-seed-2",
+    title: "Circular: Adoption and Deployment of EETMS Portal across Generating Stations",
+    publishDate: "2026-07-24",
+    documentUrl: "/notifications",
+    isNew: true
+  },
+  {
+    id: "notif-seed-3",
+    title: "Advisory: Compliance with MeitY Cyber Security & Information Security Guidelines",
+    publishDate: "2026-07-22",
+    documentUrl: "/notifications",
+    isNew: true
+  },
+  {
+    id: "notif-seed-4",
+    title: "Cancellation notice of NIT no. 03 of 2026 dated 20.05.2026 and 05 of 2026 dated 16.06.2026",
+    publishDate: "2026-07-01",
+    documentUrl: "/notifications"
+  },
+  {
+    id: "notif-seed-5",
+    title: "NOTICE FOR PUBLIC HEARING - Proposed 20MW Solar Power Installation in Samba district",
+    publishDate: "2026-06-29",
+    documentUrl: "/notifications"
+  },
+  {
+    id: "notif-seed-6",
+    title: "Corrigendum-II: Extension of Bid Submission Date for Design, Engineering & Commissioning of Pahalgam HEP",
+    publishDate: "2026-06-25",
+    documentUrl: "/notifications"
+  },
+  {
+    id: "notif-seed-7",
+    title: "Appointment of Senior Consultants for Environmental Impact Assessment of upcoming Hydro Projects",
+    publishDate: "2026-06-20",
+    documentUrl: "/notifications"
+  },
+  {
+    id: "notif-seed-8",
+    title: "Public Notice: Schedule of Board of Directors Meeting on Corporate Capital Restructuring",
+    publishDate: "2026-06-15",
+    documentUrl: "/notifications"
+  },
+  {
+    id: "notif-seed-9",
+    title: "Office Memorandum: Revised Guidelines for Procurement of Spares & Generation Consumables",
+    publishDate: "2026-06-08",
+    documentUrl: "/notifications"
+  },
+  {
+    id: "notif-seed-10",
+    title: "Statutory Annual Compliance Filing under Right to Information Act Section 4(1)(b)",
+    publishDate: "2026-06-01",
+    documentUrl: "/notifications"
+  }
+];
+
+const fallbackTenders = [
+  {
+    id: "tender-seed-3",
+    referenceNo: "JKSPDCL/eNIT/2026/IT/09",
+    title: "Development of SCADA Integration & Real-time Telemetry Data Portal",
+    description: "IT and telemetry integration across operational hydroelectric power houses in J&K.",
+    publishDate: "2026-07-25",
+    closingDate: "2026-09-01",
+    documentUrl: "/stakeholders/vendors/tender-bids",
+    status: "Active",
+    isNew: true
+  },
+  {
+    id: "tender-seed-2",
+    referenceNo: "JKSPDCL/eNIT/2026/EM/04",
+    title: "Supply and Installation of 132kV Switchyard Equipment at USHP II Kangan",
+    description: "Electro-mechanical retrofitting and circuit breaker replacement for Upper Sindh Hydel Project Stage II.",
+    publishDate: "2026-07-20",
+    closingDate: "2026-09-15",
+    documentUrl: "/stakeholders/vendors/tender-bids",
+    status: "Active",
+    isNew: true
+  },
+  {
+    id: "tender-seed-1",
+    referenceNo: "JKSPDCL/eNIT/2026/CIVIL/02",
+    title: "Construction & Slope Stabilization Works for Kirthai HEP Stage-1 Access Road",
+    description: "Civil infrastructure and hill slope stabilization along river Chenab gorge.",
+    publishDate: "2026-07-15",
+    closingDate: "2026-08-30",
+    documentUrl: "/stakeholders/vendors/tender-bids",
+    status: "Active",
+    isNew: true
+  },
+  {
+    id: "tender-seed-4",
+    referenceNo: "TEST-NIT-100",
+    title: "eNIT No 03 GD BHEP I 2026 27",
+    description: "Power House Chanderkote Ramban JandK",
+    publishDate: "2026-07-13",
+    closingDate: "2026-08-13",
+    documentUrl: "/stakeholders/vendors/tender-bids",
+    status: "Active"
+  },
+  {
+    id: "tender-seed-5",
+    referenceNo: "NIT/JKSPDCL/LJHP-202",
+    title: "Annual Maintenance Contract of Electro-Mechanical Assets of Lower Jhelum Hydel Project",
+    description: "LJHP Power House Gantamulla Baramulla",
+    publishDate: "2026-07-12",
+    closingDate: "2026-08-10",
+    documentUrl: "/stakeholders/vendors/tender-bids",
+    status: "Active"
+  },
+  {
+    id: "tender-seed-6",
+    referenceNo: "JKSPDCL/SLD-05",
+    title: "Supply, Installation and Commissioning of Grid-Connected Rooftop Solar Power Plants",
+    description: "Various corporate locations in Jammu and Srinagar",
+    publishDate: "2026-07-08",
+    closingDate: "2026-08-05",
+    documentUrl: "/stakeholders/vendors/tender-bids",
+    status: "Active"
+  },
+  {
+    id: "tender-seed-7",
+    referenceNo: "NIT/CIVIL/BHEP-45",
+    title: "Restoration of River Banks and Slope Stabilization near Baglihar Intake Structure",
+    description: "Baglihar Dam Site Ramban",
+    publishDate: "2026-07-05",
+    closingDate: "2026-07-28",
+    documentUrl: "/stakeholders/vendors/tender-bids",
+    status: "Active"
+  },
+  {
+    id: "tender-seed-8",
+    referenceNo: "JKSPDCL/PROC/GAND-12",
+    title: "Procurement of Turbine Runner Blades & Spare Components for Ganderbal Hydel Station",
+    description: "Essential mechanical replacement components for 15 MW Ganderbal plant.",
+    publishDate: "2026-06-28",
+    closingDate: "2026-07-25",
+    documentUrl: "/stakeholders/vendors/tender-bids",
+    status: "Active"
+  },
+  {
+    id: "tender-seed-9",
+    referenceNo: "JKSPDCL/TL/PAH-07",
+    title: "Design, Supply and Erection of 33kV Evacuation Transmission Line for Pahalgam HEP",
+    description: "Power evacuation line construction in Anantnag district.",
+    publishDate: "2026-06-22",
+    closingDate: "2026-07-20",
+    documentUrl: "/stakeholders/vendors/tender-bids",
+    status: "Active"
+  },
+  {
+    id: "tender-seed-10",
+    referenceNo: "JKSPDCL/SURVEY/CHEN-14",
+    title: "Comprehensive Hydrological Survey & Sedimentation Profiling for Chenab River Basin",
+    description: "River discharge measurement and silt profiling across Chenab cascade.",
+    publishDate: "2026-06-15",
+    closingDate: "2026-07-15",
+    documentUrl: "/stakeholders/vendors/tender-bids",
+    status: "Active"
+  }
+];
+
+const formatLongDate = (dateStr: string) => {
+  if (!dateStr) return '—';
+  try {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  } catch (e) {
+    return dateStr;
+  }
+};
+
+const formatRefDate = (dateStr: string) => {
+  if (!dateStr) return '—';
+  try {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  } catch (e) {
+    return dateStr;
+  }
+};
+
+const getDocUrl = (url?: string) => {
+  if (!url) return undefined;
+  if (url.startsWith('/uploads/')) {
+    return `${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}${url}`;
+  }
+  return url;
+};
+
+const mergedTenderItems: any[] = [];
+if (tenders.length > 0) {
+  tenders.forEach((t: any) => {
+    // 1. Add the tender itself (strictly original publishDate/createdAt, NEVER updatedAt so updating an existing tender does not bump it)
+    mergedTenderItems.push({
+      id: t.id,
+      title: t.title,
+      referenceNo: t.referenceNo,
+      publishDate: t.publishDate || t.createdAt,
+      closingDate: t.closingDate,
+      documentUrl: t.documentUrl,
+      isCorrigendum: false,
+    });
+
+    // 2. Unpack any attached corrigendums (handles JSON string or Array from database)
+    let corrs: any[] = [];
+    if (t.corrigendums) {
+      if (Array.isArray(t.corrigendums)) {
+        corrs = t.corrigendums;
+      } else if (typeof t.corrigendums === 'string') {
+        try {
+          corrs = JSON.parse(t.corrigendums);
+        } catch (e) {
+          corrs = [];
+        }
+      }
+    }
+
+    corrs.forEach((c: any, cIdx: number) => {
+      // Newly uploaded corrigendums have their own recent publishDate/createdAt
+      // Updated corrigendums preserve their initial publishDate/createdAt
+      mergedTenderItems.push({
+        id: c.id || `${t.id}-corr-${cIdx}`,
+        parentTenderId: t.id,
+        title: c.title,
+        parentTitle: t.title,
+        referenceNo: t.referenceNo,
+        publishDate: c.publishDate || c.createdAt || t.publishDate,
+        closingDate: c.extendedClosingDate || t.closingDate,
+        documentUrl: c.documentUrl || t.documentUrl,
+        isCorrigendum: true,
+      });
+    });
+  });
+}
+
+// Use actual active database tenders/corrigendums, or clean fallback if empty
+const displayTenders = mergedTenderItems.length > 0 ? mergedTenderItems : fallbackTenders;
+displayTenders.sort((a, b) => new Date(b.publishDate || 0).getTime() - new Date(a.publishDate || 0).getTime());
+// Recent 10 tenders and attached corrigendums
+const feedTenders = displayTenders.slice(0, 10).map((item: any, rankIdx: number) => ({
+  ...item,
+  isNew: rankIdx === 0,
+}));
+
+// Use actual active database notifications, or clean fallback if empty
+const displayNotifs = notifications.length > 0 ? notifications : fallbackNotifications;
+displayNotifs.sort((a, b) => new Date(b.publishDate || 0).getTime() - new Date(a.publishDate || 0).getTime());
+// Recent 10 notifications
+const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: number) => ({
+  ...item,
+  isNew: rankIdx === 0,
+}));
+---
+
+<Layout title="Home | JKSPDC Official Portal" description="Official enterprise portal of Jammu and Kashmir State Power Development Corporation Ltd. Powering the future of J&K through clean, sustainable, and reliable energy generation." isHome={true}>
+
+  <!-- HERO SLIDER -->
+  <section id="home" class="hero-section relative w-full overflow-hidden bg-[#F4F8FB]" aria-roledescription="carousel" aria-label="Featured highlights from JKSPDC">
+    <div id="hero-slides" class="absolute inset-0">
+      {heroSlides.map((slide, i) => (
+        <div id={`slide-${slide.id}`} class={`absolute inset-0 transition-opacity duration-500 ${i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}>
+          <img src={slide.img} alt={slide.title} class="absolute inset-0 w-full h-full object-cover" fetchpriority={i === 0 ? 'high' : 'auto'} loading={i === 0 || i === 1 || i === heroSlides.length - 1 ? 'eager' : 'lazy'} onerror="this.onerror=null; this.src='/slider1.jpg';" />
+
+          <!-- Slide Content -->
+          <div class="absolute inset-0 z-20 flex items-center">
+            <div class="w-full max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
+              <div class="grid grid-cols-1 md:grid-cols-5 gap-6 sm:gap-8 items-center">
+                <!-- Left: Title, Desc, Buttons -->
+                <div class="md:col-span-3 text-white">
+                  <div class="inline-flex items-center border border-white/40 bg-black/30 text-white/90 text-xs font-semibold uppercase tracking-[0.14em] px-3 py-1 mb-3 sm:mb-4">
+                    {slide.badge}
+                  </div>
+                  <h2 class="text-2xl sm:text-4xl lg:text-5xl font-bold leading-tight" style="text-shadow: 0 2px 8px rgba(0,0,0,0.45);">
+                    {slide.title}
+                  </h2>
+                  <p class="mt-3 sm:mt-4 text-xs sm:text-sm md:text-base text-white/95 max-w-xl leading-relaxed font-medium line-clamp-3 sm:line-clamp-4" style="text-shadow: 0 1px 4px rgba(0,0,0,0.65);">
+                    {slide.desc}
+                  </p>
+                  <div class="mt-4 sm:mt-6 flex flex-wrap items-center gap-3">
+                    <a href={slide.ctaHref} class="inline-flex items-center gap-2 bg-[#0B3B60] hover:bg-[#0EA4E5] text-white font-semibold px-6 h-11 rounded-sm transition-colors text-sm">
+                      Explore Details &rarr;
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Right: Technical Specifications -->
+                <div class="md:col-span-2 hidden md:block">
+                  <div class="bg-black/40 border border-white/20 rounded-sm p-5 text-white max-w-sm ml-auto">
+                    <h3 class="font-bold text-xs uppercase tracking-wider text-brand-accent border-b border-white/10 pb-2 mb-3 flex items-center gap-1.5">
+                      <Icon name="gear" size={13} strokeWidth={2.5} class="text-brand-accent" />
+                      <span>Technical Specifications</span>
+                    </h3>
+                    <dl class="grid grid-cols-2 gap-x-4 gap-y-2.5">
+                      <div>
+                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-xs">Installed Capacity</dt>
+                        <dd class="text-base font-bold text-white mt-0.5">{slide.capacityMw} MW</dd>
+                      </div>
+                      <div>
+                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-xs">Configuration</dt>
+                        <dd class="text-base font-bold text-white mt-0.5">{slide.configuration}</dd>
+                      </div>
+                      <div>
+                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-xs">Design Energy</dt>
+                        <dd class="text-base font-bold text-white mt-0.5">{slide.designEnergy ? `${slide.designEnergy} MU` : '—'}</dd>
+                      </div>
+                      <div>
+                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-xs">Commissioning</dt>
+                        <dd class="text-base font-bold text-white mt-0.5">{slide.yearOfCommissioning || '—'}</dd>
+                      </div>
+                      <div>
+                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-xs">River Basin</dt>
+                        <dd class="text-base font-bold text-white mt-0.5">{slide.basin}</dd>
+                      </div>
+                      <div>
+                        <dt class="text-white/60 font-semibold uppercase tracking-wider text-xs">District Location</dt>
+                        <dd class="text-base font-bold text-white mt-0.5">{slide.location}</dd>
+                      </div>
+                    </dl>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Dots -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2.5 z-20">
+      {heroSlides.map((_, i) => (
+        <button data-dot={String(i)} class={`h-1.5 transition-all duration-300 ${i === 0 ? 'w-10 bg-white' : 'w-4 bg-white/40'}`} aria-label={`Slide ${i + 1}`}></button>
+      ))}
+    </div>
+    <button id="hero-prev" class="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-white/20 transition border border-white/20 text-xl" aria-label="Previous">&#8249;</button>
+    <button id="hero-next" class="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-white/20 transition border border-white/20 text-xl" aria-label="Next">&#8250;</button>
+  </section>
+
+  <!-- PAGE BODY — unified container + consistent vertical rhythm -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 space-y-14">
+
+    <!-- ============================================================ -->
+    <!-- DIGNITARIES SECTION (FULL WIDTH)                              -->
+    <!-- ==========================================================    <!-- ============================================================ -->
+    <!-- DIGNITARIES & UPDATES SIDE-BY-SIDE SECTION                     -->
+    <!-- ========================================================    <!-- ============================================================ -->
+    <!-- WELCOME, TENDERS & NOTIFICATIONS (3-COLUMN LAYOUT)            -->
+    <!-- ============================================================ -->
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-10 gap-6 items-stretch">
+      
+      <!-- LEFT COLUMN: WELCOME & OFFICE GALLERY CAROUSEL (40% width = 4 cols) -->
+      <div class="md:col-span-2 lg:col-span-4 flex flex-col">
+        <!-- Section Header -->
+        <div class="text-left mb-4 flex-shrink-0">
+          <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 border border-brand-primary-dark mb-2.5">Corporate Overview</span>
+          <h2 class="text-lg xl:text-xl font-bold text-brand-text">
+            Welcome to <span class="text-brand-primary">JKSPDCL</span>
+          </h2>
+          <div class="w-10 h-0.5 bg-sky-600/70 mt-2.5"></div>
+        </div>
+
+        <!-- Welcome Card Container with Office Gallery Carousel -->
+        <div class="bg-white border border-slate-200 rounded-md p-4 flex flex-col justify-between flex-grow h-[320px] shadow-xs overflow-hidden relative">
+          <!-- Office Events, Retirements & Awards Carousel -->
+          <div class="relative w-full flex-grow rounded-md overflow-hidden shadow-xs border border-slate-200 bg-[#F4F8FB] group" id="office-carousel-container">
+            <div class="absolute inset-0" id="office-slides">
+              {displayOfficePhotos.map((photo: any, index: number) => (
+                <div class={`office-slide absolute inset-0 transition-opacity duration-700 ease-in-out ${index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
+                  <img 
+                    src={getImageUrl(photo.imageUrl)} 
+                    alt={photo.title} 
+                    class="w-full h-full object-cover" 
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                  />
+                  <!-- Overlay Caption -->
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent flex flex-col justify-end p-3 z-10 text-left">
+                    <span class="inline-block self-start text-xs font-bold uppercase bg-black/55 text-white/90 px-2 py-0.5 mb-1 tracking-[0.12em] border-l-2 border-brand-accent shadow-xs">
+                      {photo.partition || 'Office Happenings & Awards'}
+                    </span>
+                    <h4 class="text-white text-xs font-bold leading-snug line-clamp-1" style="text-shadow: 0 1px 3px rgba(0,0,0,0.6);">
+                      {photo.title}
+                    </h4>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <!-- Controls -->
+            <button id="office-prev" class="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-6 h-6 rounded-full bg-black/45 text-white flex items-center justify-center hover:bg-black/65 transition text-xs font-bold shadow-xs focus-visible:outline-none" aria-label="Previous image">&#8249;</button>
+            <button id="office-next" class="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-6 h-6 rounded-full bg-black/45 text-white flex items-center justify-center hover:bg-black/65 transition text-xs font-bold shadow-xs focus-visible:outline-none" aria-label="Next image">&#8250;</button>
+
+            <!-- Indicators (Dots) -->
+            <div class="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 z-20">
+              {displayOfficePhotos.map((_, i) => (
+                <button data-office-dot={String(i)} class={`w-1.5 h-1.5 transition-all duration-300 ${i === 0 ? 'bg-white w-3' : 'bg-white/50'}`} aria-label={`Go to slide ${i + 1}`}></button>
+              ))}
+            </div>
+          </div>
+
+          <!-- Read More & Admin Gallery Link -->
+          <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-100">
+            <a href="/about-us/explore/overview" class="text-brand-primary hover:underline font-bold text-xs">
+              Read More &raquo;
+            </a>
+            <a href="/media/gallery" class="text-xs text-slate-500 hover:text-brand-primary font-semibold flex items-center gap-1.5">
+              <Icon name="camera" size={13} class="shrink-0" />
+              <span>Office Gallery &rarr;</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- MIDDLE COLUMN: TENDERS & BIDS (30% width = 3 cols) -->
+      <div class="md:col-span-1 lg:col-span-3 flex flex-col">
+        <!-- Section Header -->
+        <div class="text-left mb-4 flex-shrink-0">
+          <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 border border-brand-primary-dark mb-2.5">Procurement</span>
+          <h2 id="tenders-heading" class="text-lg xl:text-xl font-bold text-brand-text">Tenders</h2>
+          <div class="w-10 h-0.5 bg-sky-600/70 mt-2.5"></div>
+        </div>
+
+        <!-- Tenders Card Container -->
+        <div class="bg-white border border-slate-200 rounded-md overflow-hidden flex flex-col justify-between flex-grow h-[320px] shadow-xs">
+          <div class="relative flex-grow overflow-hidden">
+            <div class="absolute left-0 right-0 top-0 h-4 bg-gradient-to-b from-[#ffffff] to-transparent z-10 pointer-events-none"></div>
+            <div class="absolute left-0 right-0 bottom-0 h-4 bg-gradient-to-t from-[#ffffff] to-transparent z-10 pointer-events-none"></div>
+
+            <div id="home-tenders-track" class="feed-scroll-track flex flex-col">
+              {[1, 2].map(() => (
+                <>
+                  {feedTenders.map((tender: any, index: number) => {
+                    const isCorr = tender.isCorrigendum;
+                    const isNew = tender.isNew;
+                    const tenderDetailsUrl = `/stakeholders/vendors/tender-details?id=${tender.parentTenderId || tender.id}${isCorr && tender.id ? `#corrigendum-${tender.id}` : ''}`;
+                    return (
+                      <a 
+                        href={tenderDetailsUrl} 
+                        onclick="this.blur()"
+                        class="feed-row block px-4 py-2.5 border-b border-slate-200 transition-colors duration-150 text-left select-none group"
+                        style={index % 2 === 0 ? 'background-color: #FFFFFF;' : 'background-color: #F8FAFC;'}
+                      >
+                        <div class="flex items-center gap-2 mb-1 flex-wrap">
+                          <span class="text-xs text-brand-primary font-bold flex items-center gap-1">
+                            <Icon name="calendar" size={11} class="shrink-0" />
+                            <span>{formatRefDate(tender.publishDate)}</span>
+                          </span>
+                          {isNew && (
+                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold uppercase tracking-wide bg-[#D9381E] text-white shadow-xs">
+                              NEW
+                            </span>
+                          )}
+                          {isCorr && (
+                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold uppercase tracking-wide bg-amber-100 text-amber-900 border border-amber-300">
+                              Corrigendum
+                            </span>
+                          )}
+                          {tender.referenceNo && (
+                            <span class="text-xs text-slate-400 font-mono hidden sm:inline">
+                              {tender.referenceNo}
+                            </span>
+                          )}
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-xs leading-snug line-clamp-2 group-hover:text-brand-primary transition-colors">
+                          {isCorr ? (tender.title && tender.title.toLowerCase().startsWith('corrigendum') ? `${tender.title}${tender.parentTitle ? ` — ${tender.parentTitle}` : ''}` : `Corrigendum: ${tender.title}${tender.parentTitle ? ` — ${tender.parentTitle}` : ''}`) : tender.title}
+                        </h4>
+                      </a>
+                    );
+                  })}
+                  <div class="h-[280px] flex-shrink-0" aria-hidden="true"></div>
+                </>
+              ))}
+            </div>
+          </div>
+          <div class="bg-slate-100/70 border-t border-slate-200/50 py-2.5 text-center text-xs font-bold flex-shrink-0">
+            <a href="/stakeholders/vendors/tender-bids" class="text-brand-primary hover:underline">View All Tenders &rarr;</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: NOTIFICATIONS (30% width = 3 cols) -->
+      <div class="md:col-span-1 lg:col-span-3 flex flex-col">
+        <!-- Section Header -->
+        <div class="text-left mb-4 flex-shrink-0">
+          <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 border border-brand-primary-dark mb-2.5">Updates &amp; Notices</span>
+          <h2 id="notices-heading" class="text-lg xl:text-xl font-bold text-brand-text">Notifications</h2>
+          <div class="w-10 h-0.5 bg-sky-600/70 mt-2.5"></div>
+        </div>
+
+        <!-- Notices Card Container -->
+        <div class="bg-white border border-slate-200 rounded-md overflow-hidden flex flex-col justify-between flex-grow h-[320px] shadow-xs">
+          <div class="relative flex-grow overflow-hidden">
+            <div class="absolute left-0 right-0 top-0 h-4 bg-gradient-to-b from-[#ffffff] to-transparent z-10 pointer-events-none"></div>
+            <div class="absolute left-0 right-0 bottom-0 h-4 bg-gradient-to-t from-[#ffffff] to-transparent z-10 pointer-events-none"></div>
+
+            <div id="home-notifications-track" class="feed-scroll-track flex flex-col">
+              {[1, 2].map(() => (
+                <>
+                  {feedNotifications.map((notif: any, index: number) => {
+                    const isNew = notif.isNew;
+                    const docUrl = getDocUrl(notif.documentUrl) || `/notifications`;
+                    return (
+                      <a 
+                        href={docUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        onclick="this.blur()"
+                        class="feed-row block px-4 py-2.5 border-b border-slate-200 transition-colors duration-150 text-left select-none group"
+                        style={index % 2 === 0 ? 'background-color: #FFFFFF;' : 'background-color: #F8FAFC;'}
+                      >
+                        <div class="flex items-center gap-2 mb-1 flex-wrap">
+                          <span class="text-xs text-brand-primary font-bold flex items-center gap-1">
+                            <Icon name="calendar" size={11} class="shrink-0" />
+                            <span>{formatRefDate(notif.publishDate)}</span>
+                          </span>
+                          {isNew && (
+                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold uppercase tracking-wide bg-[#D9381E] text-white shadow-xs">
+                              NEW
+                            </span>
+                          )}
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-xs leading-snug line-clamp-2 group-hover:text-brand-primary transition-colors">
+                          {notif.title}
+                        </h4>
+                      </a>
+                    );
+                  })}
+                  <div class="h-[280px] flex-shrink-0" aria-hidden="true"></div>
+                </>
+              ))}
+            </div>
+          </div>
+          <div class="bg-slate-100/70 border-t border-slate-200/50 py-2.5 text-center text-xs font-bold flex-shrink-0">
+            <a href="/notifications" class="text-brand-primary hover:underline">View All Notifications &rarr;</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- HONORABLE DIGNITARIES (BOD) (FULL WIDTH BELOW UPDATES)        -->
+    <!-- ============================================================ -->
+    <section class="flex flex-col mt-8 bg-brand-bg-light/40 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-8 rounded-sm">
+      <!-- Section Header -->
+      <div class="text-left mb-6 flex-shrink-0">
+        <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 border border-brand-primary-dark mb-2.5">Leadership &amp; Governance</span>
+        <h2 id="dignitaries-heading" class="text-lg xl:text-xl font-bold text-brand-text">Honorable Dignitaries</h2>
+        <div class="w-10 h-0.5 bg-sky-600/70 mt-2.5"></div>
+      </div>
+
+      <!-- Dignitaries Card Grid (Full Width, 4 cols) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+        {dignitaries.length === 0 ? (
+          <div class="col-span-full text-center py-10 bg-slate-50 border border-slate-200 rounded-md text-slate-400 text-xs font-semibold">
+            No dignitaries listed at the moment.
+          </div>
+        ) : (
+          dignitaries.map((d: any) => {
+            const profileHref = `/dignitaries/${d.id}`;
+            const photoSrc = d.imageUrl || photoMap[d.name] || null;
+            return (
+              <a href={profileHref} class="group bg-white rounded-md border border-slate-200 shadow-xs hover:shadow-md hover:border-brand-primary transition-shadow transition-colors duration-200 p-6 flex flex-col items-center text-center h-full w-full relative overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary">
+                <!-- Photo container (w-28 h-28 = 112px) - Static, no transition -->
+                <div class="w-28 h-28 rounded-full overflow-hidden bg-white border-2 border-slate-200 shadow-sm flex items-center justify-center flex-shrink-0 relative z-10">
+                  {photoSrc ? (
+                    <img src={photoSrc} alt={d.name} width="112" height="112" class="w-full h-full object-cover object-top" />
+                  ) : (
+                    <div class="w-full h-full bg-brand-primary-dark flex items-center justify-center text-white">
+                      <Icon name="user" size={48} class="text-white/80" />
+                    </div>
+                  )}
+                </div>
+                <!-- Card Content -->
+                <div class="mt-4 flex-grow flex flex-col items-center justify-center gap-2 relative z-10">
+                  <h3 class="font-bold text-slate-800 text-[15px] md:text-[17px] leading-snug group-hover:text-brand-primary transition-colors">{d.name}</h3>
+                  <div class="mt-1">
+                    <span class="inline-block text-xs text-brand-primary font-bold uppercase tracking-wider bg-slate-100 px-3 py-1 border border-slate-200">
+                      {d.position}
+                    </span>
+                  </div>
+                </div>
+              </a>
+            );
+          })
+        )}
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- ABOUT & PHOTO GALLERY MERGED SECTION                         -->
+    <!-- ============================================================ -->
+    <section id="about" aria-labelledby="about-heading" class="text-left mt-8 bg-brand-bg-subtle -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-8 rounded-sm">
+      <!-- Section Header (Outside Card) -->
+      <div class="text-left mb-4 flex-shrink-0">
+        <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 border border-brand-primary-dark mb-2.5">Corporate Profile & Media</span>
+        <h2 id="about-heading" class="text-xl md:text-2xl font-bold text-brand-text">About Us & Photo Gallery</h2>
+        <div class="w-10 h-0.5 bg-sky-600/70 mt-2.5"></div>
+      </div>
+
+      <!-- White Card Container -->
+      <div class="bg-white rounded-md shadow-xs border border-slate-200 overflow-hidden">
+        <div class="px-8 md:px-12 py-12 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+
+          <!-- Left: Text Column (7 cols) -->
+          <div class="lg:col-span-7 flex flex-col justify-between h-full">
+            <div>
+              <h3 class="text-2xl md:text-3xl font-bold leading-tight text-brand-primary-dark mb-6">Powering J&amp;K Since 1995</h3>
+              <div class="space-y-4 mb-8">
+                <p class="text-slate-600 text-[15px] leading-[1.65]">
+                  Jammu and Kashmir State Power Development Corporation Limited (JKSPDCL) is a wholly owned Public Sector Undertaking (PSU) of the Government of Jammu &amp; Kashmir, incorporated in 1995 under the Companies Act.
+                </p>
+                <p class="text-slate-600 text-[15px] leading-[1.65]">
+                  With an authorised share capital of Rs.&nbsp;5,000 crores, JKSPDC has investments of Rs.&nbsp;2,357.61 crores in joint ventures with NHPC — including CVPPPL and RHPCL — harnessing the vast hydroelectric potential of the region.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3">
+              <a href="/about-us/explore/overview" class="inline-flex items-center gap-2 bg-brand-primary-dark hover:bg-brand-primary text-white font-semibold px-6 py-2.5 rounded-md text-xs transition-all shadow-sm hover:shadow-md">
+                Learn More About Us &rarr;
+              </a>
+              <a href="/media/gallery" class="inline-flex items-center gap-2 border border-slate-200 hover:border-brand-primary text-slate-600 hover:text-brand-primary hover:bg-slate-50 font-semibold px-6 py-2.5 rounded-md text-xs transition-all bg-white shadow-sm">
+                Explore Full Gallery &raquo;
+              </a>
+            </div>
+          </div>
+
+          <!-- Right: Project Photographs Carousel Column (5 cols) -->
+          <div class="lg:col-span-5 flex flex-col justify-center w-full">
+            <div class="text-left mb-2 flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-brand-primary">Project Photographs Carousel</span>
+              <span class="text-xs text-slate-400 font-semibold">Hydroelectric & Renewable Assets</span>
+            </div>
+            <div class="relative w-full aspect-[4/3] rounded-md overflow-hidden shadow-md border border-slate-200 bg-[#F4F8FB] group" id="project-carousel-container">
+              
+              <!-- Carousel Track -->
+              <div class="absolute inset-0" id="project-slides">
+                {displayProjectPhotos.map((photo: any, index: number) => (
+                  <div class={`project-slide absolute inset-0 transition-opacity duration-700 ease-in-out ${index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
+                    <img 
+                      src={getImageUrl(photo.imageUrl)} 
+                      alt={photo.title} 
+                      class="w-full h-full object-cover" 
+                      loading={index === 0 ? 'eager' : 'lazy'}
+                    />
+                    <!-- Overlay Caption -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent flex flex-col justify-end p-5 z-10">
+                      <div class="flex items-center gap-2 mb-2 flex-wrap">
+                        <span class="inline-block text-xs font-bold uppercase bg-brand-primary text-white px-2.5 py-0.5 tracking-wider shadow-sm">
+                          {photo.partition || 'Hydroelectric Project'}
+                        </span>
+                        {photo.capacity && (
+                          <span class="inline-block text-xs font-bold uppercase bg-black/55 text-white/90 px-2 py-0.5 tracking-[0.12em] border-l-2 border-brand-accent shadow-sm">
+                            {photo.capacity}
+                          </span>
+                        )}
+                      </div>
+                      <h4 class="text-white text-xs md:text-sm font-bold leading-snug tracking-wide line-clamp-2" style="text-shadow: 0 1px 4px rgba(0,0,0,0.5);">
+                        {photo.title}
+                      </h4>
+                      {photo.location && (
+                        <p class="text-white/80 text-xs mt-1 font-semibold flex items-center gap-1">
+                          <Icon name="map-pin" size={11} class="shrink-0 text-white/90" />
+                          <span>{photo.location}</span>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <!-- Controls -->
+              <button id="project-prev" class="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/45 text-white flex items-center justify-center hover:bg-black/60 transition text-sm font-bold shadow-sm focus-visible:outline-none" aria-label="Previous image">&#8249;</button>
+              <button id="project-next" class="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/45 text-white flex items-center justify-center hover:bg-black/60 transition text-sm font-bold shadow-sm focus-visible:outline-none" aria-label="Next image">&#8250;</button>
+
+              <!-- Indicators (Dots) -->
+              <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20">
+                {displayProjectPhotos.map((_, i) => (
+                  <button data-project-dot={String(i)} class={`w-2 h-2 transition-all duration-300 ${i === 0 ? 'bg-white w-4' : 'bg-white/50'}`} aria-label={`Go to slide ${i + 1}`}></button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <section id="projects" aria-labelledby="projects-heading" class="text-left mt-8">
+      <!-- Section Header (Outside Card) -->
+      <div class="text-left mb-4 flex-shrink-0">
+        <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 border border-brand-primary-dark mb-2.5">Project Portfolio</span>
+        <h2 id="projects-heading" class="text-xl md:text-2xl font-bold text-brand-text">Project Portfolio</h2>
+        <div class="w-10 h-0.5 bg-brand-primary mt-2.5"></div>
+      </div>
+
+      <!-- White Card Container -->
+      <div class="bg-white rounded-md border border-slate-200 shadow-xs overflow-hidden">
+        <!-- Info Banner -->
+        <div class="px-8 md:px-12 pt-8 pb-0">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-5">
+            <p class="text-sm text-slate-500 max-w-xl leading-relaxed">Discover operational hydroelectric plants, ongoing constructions and upcoming renewable projects across J&K.</p>
+            <div class="flex items-center gap-2 flex-wrap flex-shrink-0">
+              <div class="flex items-center gap-2 px-3 py-1.5 text-xs text-slate-700 font-semibold border border-slate-200 rounded-sm">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> {projects.filter((p: any) => p.status === 'Operational').length} Operational
+              </div>
+              <div class="flex items-center gap-2 px-3 py-1.5 text-xs text-slate-700 font-semibold border border-slate-200 rounded-sm">
+                <span class="w-2 h-2 rounded-full bg-amber-500"></span> {projects.filter((p: any) => p.status === 'Under Construction').length} Under Construction
+              </div>
+              <div class="flex items-center gap-2 px-3 py-1.5 text-xs text-slate-700 font-semibold border border-slate-200 rounded-sm">
+                <span class="w-2 h-2 rounded-full bg-brand-primary"></span> {projects.filter((p: any) => p.status === 'Upcoming').length} Upcoming
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters + Search -->
+        <div class="px-8 md:px-12 pt-6">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div class="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-md p-1 flex-wrap" role="tablist" aria-label="Project Categories">
+              {['All', 'Operational', 'Under Construction', 'Upcoming'].map((tab) => (
+                <button 
+                  type="button" 
+                  role="tab" 
+                  aria-selected={tab === 'All' ? 'true' : 'false'} 
+                  data-tab={tab} 
+                  class={`project-tab px-4 py-1.5 rounded-sm text-xs font-semibold transition-all ${tab === 'All' ? 'bg-brand-primary text-white shadow-sm' : 'text-slate-600 hover:bg-sky-50'}`}
+                >
+                  {tab === 'All' ? 'All Projects' : tab}
+                </button>
+              ))}
+            </div>
+            <div class="relative sm:ml-auto">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 flex items-center pointer-events-none">
+                <Icon name="search" size={13} strokeWidth={2} />
+              </span>
+              <input 
+                id="project-search" 
+                type="text" 
+                placeholder="Search projects…" 
+                class="w-full sm:w-56 pl-9 pr-4 py-2 border border-slate-200 rounded-md text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 bg-white" 
+                aria-label="Search projects by name, river basin, or location"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Project Cards Grid -->
+        <div class="px-8 md:px-12 pt-6 pb-3">
+          <div id="projects-grid" class="grid md:grid-cols-2 xl:grid-cols-3 gap-3">
+            {(projects.length > 0 ? projects : fallbackOperationalProjects).map((p) => (
+              <a 
+                href={`/our-business/power-station-details?id=${p.id}`} 
+                class="project-card block bg-white rounded-sm border border-slate-200 border-l-4 p-4 hover:border-sky-300 hover:border-l-sky-700 hover:bg-sky-50/50 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary group" 
+                data-status={p.status} 
+                data-type={p.type} 
+                data-name={p.name.toLowerCase()} 
+                data-search={`${p.name} ${formatProjectName(p.name)} ${p.location || ''} ${p.basin || ''} ${p.type || ''} ${p.status}`.toLowerCase()}
+              >
+                <div class="flex items-start justify-between gap-2 mb-3">
+                  <div class="flex-1 min-w-0 pr-1">
+                    <div class="font-bold text-slate-900 text-sm leading-snug group-hover:text-brand-primary transition-colors">{formatProjectName(p.name)}</div>
+                    {(p.location || p.basin) && (
+                      <div class="text-xs text-slate-400 mt-1">{p.location}{p.location && p.basin ? ' • ' : ''}{p.basin ? (p.basin.toLowerCase().includes('basin') ? p.basin : `${p.basin} Basin`) : ''}</div>
+                    )}
+                  </div>
+                  <span class={`status flex-shrink-0 !rounded-sm ${p.status === 'Operational' ? 'status-operational' : p.status === 'Under Construction' ? 'status-under-construction' : 'status-upcoming'}`}>{p.status}</span>
+                </div>
+
+                <dl class="mt-3 pt-2.5 border-t border-slate-200 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
+                  <div class="flex justify-between"><dt class="text-slate-500">Capacity</dt><dd class="font-semibold text-slate-800 tabular-nums">{p.capacityMw || 0} MW</dd></div>
+                  {p.configuration && <div class="flex justify-between"><dt class="text-slate-500">Units</dt><dd class="font-medium text-slate-700 tabular-nums">{p.configuration}</dd></div>}
+                  <div class="flex justify-between"><dt class="text-slate-500">Type</dt><dd class="font-medium text-slate-700">{p.type || 'Hydro'}</dd></div>
+                  <div class="flex justify-between"><dt class="text-slate-500">{p.status === 'Operational' ? 'COD' : 'Target'}</dt><dd class="font-medium text-slate-700 tabular-nums">{p.yearOfCommissioning || '—'}</dd></div>
+                </dl>
+                <div class="mt-3 pt-2 border-t border-slate-100 text-xs font-semibold text-brand-primary">View Details &rarr;</div>
+              </a>
+            ))}
+          </div>
+
+          <!-- Compact Empty State for Category with Zero Records -->
+          <div id="project-empty-category" class="hidden py-12 px-6 text-center max-w-lg mx-auto">
+            <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-500 border border-slate-200 flex items-center justify-center mx-auto mb-2.5">
+              <Icon name="building" size={18} />
+            </div>
+            <p class="text-sm font-bold text-slate-700">No projects currently under construction</p>
+            <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+              Hydroelectric projects in survey, detailed project report (DPR) formulation, and statutory clearances are catalogued under Upcoming Projects.
+            </p>
+          </div>
+
+          <!-- Empty State for Search Filter with Zero Matches -->
+          <div id="project-empty-search" class="hidden py-12 px-6 text-center max-w-md mx-auto">
+            <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-400 border border-slate-200 flex items-center justify-center mx-auto mb-2.5">
+              <Icon name="search" size={18} />
+            </div>
+            <p class="text-sm font-bold text-slate-700">No projects found</p>
+            <p class="text-xs text-slate-500 mt-1">Try adjusting your search keywords or switching category tabs.</p>
+          </div>
+        </div>
+
+        <!-- View All Action Footer -->
+        <div class="mt-0">
+          <div class="flex items-center justify-between border-t border-slate-200 bg-slate-50/60 px-6 md:px-10 py-3.5">
+            <p class="text-xs text-slate-500">Showing {Math.min(6, projects.length)} of {projects.length} projects</p>
+            <a id="project-view-all-btn" href="#projects" class="inline-flex items-center gap-2 text-sm font-semibold text-brand-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary cursor-pointer">
+              View full project register ({projects.length}) &darr;
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+
+    <!-- ============================================================ -->
+    <!-- QUICK ACCESS GRID                                             -->
+    <!-- ============================================================ -->
+    <section aria-labelledby="quick-access-heading" class="text-left mt-8 bg-brand-bg-subtle -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-8 rounded-sm">
+      <!-- Section Header (Outside Card) -->
+      <div class="text-left mb-4 flex-shrink-0">
+        <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 border border-brand-primary-dark mb-2.5">Quick Access</span>
+        <h2 id="quick-access-heading" class="text-xl md:text-2xl font-bold text-brand-text">Navigate the Corporation</h2>
+        <div class="w-10 h-0.5 bg-sky-600/70 mt-2.5"></div>
+      </div>
+
+      <!-- White Card Container -->
+      <div class="bg-white rounded-md border border-slate-200 shadow-xs overflow-hidden">
+        <div class="px-8 md:px-12 pt-8 pb-3">
+          <p class="text-sm text-slate-500 max-w-2xl leading-relaxed">One-click access to the most-used services and information across the corporation.</p>
+        </div>
+        <div class="px-8 md:px-12 pb-10 pt-4">
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {quickLinks.map((link) => (
+              <a href={link.href} class="group relative bg-white border border-slate-200 rounded-md p-5 hover:border-sky-300 hover:bg-sky-50/40 transition-colors duration-200 overflow-hidden flex flex-col gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary">
+                <div class="w-11 h-11 rounded-sm bg-[#F4F8FB] border border-slate-200 text-[#0B3B60] group-hover:bg-[#0B3B60] group-hover:text-white flex items-center justify-center flex-shrink-0 transition-colors duration-200 shadow-xs group-hover:shadow-sm relative z-10">
+                  <Icon name={link.icon} size={22} strokeWidth={1.75} />
+                </div>
+                <div class="relative z-10">
+                  <div class="font-semibold text-[#333333] text-sm leading-snug group-hover:text-[#0B3B60] transition-colors">{link.label}</div>
+                  <div class="text-xs text-slate-500 mt-1 leading-relaxed">{link.desc}</div>
+                </div>
+                <span class="absolute bottom-4 right-4 text-brand-primary opacity-100 translate-x-0 transition-colors duration-200 text-base font-bold z-10">&rarr;</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- QUICK LINKS LOGO MARQUEE SECTION                             -->
+    <!-- ============================================================ -->
+    <section id="quick-links-section" aria-labelledby="marquee-heading" class="text-left mt-10 mb-4">
+      <!-- Section Header -->
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-4">
+        <div>
+          <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary font-bold bg-brand-primary/5 px-3 py-1 border border-brand-primary/20 mb-2">Government &amp; Regulatory Portals</span>
+          <h2 id="marquee-heading" class="text-xl md:text-2xl font-bold text-brand-text">Important Quick Links</h2>
+          <div class="w-10 h-0.5 bg-brand-primary mt-2"></div>
+        </div>
+      </div>
+
+      <!-- Visible Responsive Cards Grid (No Horizontal Overflow or Clipping) -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 md:gap-5 lg:gap-5 xl:gap-6">
+        
+        <!-- 1. Central Electricity Authority -->
+        <a 
+          href="https://cea.nic.in/" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          title="Central Electricity Authority (opens in new tab)"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-md py-2.5 px-2 hover:border-brand-primary hover:shadow-md transition-colors duration-200 h-full shadow-2xs"
+        >
+          <div class="h-9 w-full flex items-center justify-center mb-1">
+            <img src="/logos/cea.webp" alt="Central Electricity Authority Emblem" class="max-h-7 max-w-[80%] object-contain transition-opacity duration-200" />
+          </div>
+          <div class="w-full flex-1 flex flex-col justify-between">
+            <p class="font-bold text-slate-800 group-hover:text-brand-primary text-xs leading-tight transition-colors break-words">
+              Central Electricity Authority
+            </p>
+            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-xs text-slate-500 group-hover:text-brand-primary transition-colors">
+              <span class="font-medium truncate">cea.nic.in</span>
+              <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
+            </div>
+          </div>
+          <span class="sr-only">(opens in new tab)</span>
+        </a>
+
+        <!-- 2. Ministry of Environment, Forest and Climate Change -->
+        <a 
+          href="https://moef.gov.in/" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          title="Ministry of Environment, Forest and Climate Change (opens in new tab)"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-md py-2.5 px-2 hover:border-brand-primary hover:shadow-md transition-colors duration-200 h-full shadow-2xs"
+        >
+          <div class="h-9 w-full flex items-center justify-center mb-1">
+            <img src="/logos/moef.png" alt="Ministry of Environment, Forest and Climate Change Emblem" class="max-h-7 max-w-[80%] object-contain transition-opacity duration-200" />
+          </div>
+          <div class="w-full flex-1 flex flex-col justify-between">
+            <p class="font-bold text-slate-800 group-hover:text-brand-primary text-xs leading-tight transition-colors break-words">
+              Ministry of Environment &amp; Forests
+            </p>
+            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-xs text-slate-500 group-hover:text-brand-primary transition-colors">
+              <span class="font-medium truncate">moef.gov.in</span>
+              <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
+            </div>
+          </div>
+          <span class="sr-only">(opens in new tab)</span>
+        </a>
+
+        <!-- 3. National Portal of India -->
+        <a 
+          href="https://www.india.gov.in/" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          title="National Portal of India (opens in new tab)"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-md py-2.5 px-2 hover:border-brand-primary hover:shadow-md transition-colors duration-200 h-full shadow-2xs"
+        >
+          <div class="h-9 w-full flex items-center justify-center mb-1">
+            <img src="/logos/india.svg" alt="National Portal of India Emblem" class="max-h-6.5 max-w-[80%] object-contain transition-opacity duration-200" />
+          </div>
+          <div class="w-full flex-1 flex flex-col justify-between">
+            <p class="font-bold text-slate-800 group-hover:text-brand-primary text-xs leading-tight transition-colors break-words">
+              National Portal of India
+            </p>
+            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-xs text-slate-500 group-hover:text-brand-primary transition-colors">
+              <span class="font-medium truncate">india.gov.in</span>
+              <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
+            </div>
+          </div>
+          <span class="sr-only">(opens in new tab)</span>
+        </a>
+
+        <!-- 4. Ministry of New and Renewable Energy -->
+        <a 
+          href="https://mnre.gov.in/" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          title="Ministry of New and Renewable Energy (opens in new tab)"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-md py-2.5 px-2 hover:border-brand-primary hover:shadow-md transition-colors duration-200 h-full shadow-2xs"
+        >
+          <div class="h-9 w-full flex items-center justify-center mb-1">
+            <img src="/logos/mnre.svg" alt="Ministry of New and Renewable Energy Emblem" class="max-h-7 max-w-[80%] object-contain transition-opacity duration-200" />
+          </div>
+          <div class="w-full flex-1 flex flex-col justify-between">
+            <p class="font-bold text-slate-800 group-hover:text-brand-primary text-xs leading-tight transition-colors break-words">
+              Ministry of New &amp; Renewable Energy
+            </p>
+            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-xs text-slate-500 group-hover:text-brand-primary transition-colors">
+              <span class="font-medium truncate">mnre.gov.in</span>
+              <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
+            </div>
+          </div>
+          <span class="sr-only">(opens in new tab)</span>
+        </a>
+
+        <!-- 5. Power Development Department J&K -->
+        <a 
+          href="https://pdd.jk.gov.in/" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          title="Power Development Department, Government of J&K (opens in new tab)"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-md py-2.5 px-2 hover:border-brand-primary hover:shadow-md transition-colors duration-200 h-full shadow-2xs"
+        >
+          <div class="h-9 w-full flex items-center justify-center mb-1">
+            <img src="/logos/pdd.svg" alt="Power Development Department Emblem" class="max-h-7 max-w-[80%] object-contain p-0.5 transition-opacity duration-200" />
+          </div>
+          <div class="w-full flex-1 flex flex-col justify-between">
+            <p class="font-bold text-slate-800 group-hover:text-brand-primary text-xs leading-tight transition-colors break-words">
+              Power Development Dept (J&amp;K)
+            </p>
+            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-xs text-slate-500 group-hover:text-brand-primary transition-colors">
+              <span class="font-medium truncate">pdd.jk.gov.in</span>
+              <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
+            </div>
+          </div>
+          <span class="sr-only">(opens in new tab)</span>
+        </a>
+
+        <!-- 6. Central Water Commission -->
+        <a 
+          href="https://cwc.gov.in/" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          title="Central Water Commission (opens in new tab)"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-md py-2.5 px-2 hover:border-brand-primary hover:shadow-md transition-colors duration-200 h-full shadow-2xs"
+        >
+          <div class="h-9 w-full flex items-center justify-center mb-1">
+            <img src="/logos/cwc.png" alt="Central Water Commission Emblem" class="max-h-7 max-w-[80%] object-contain transition-opacity duration-200" />
+          </div>
+          <div class="w-full flex-1 flex flex-col justify-between">
+            <p class="font-bold text-slate-800 group-hover:text-brand-primary text-xs leading-tight transition-colors break-words">
+              Central Water Commission
+            </p>
+            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-xs text-slate-500 group-hover:text-brand-primary transition-colors">
+              <span class="font-medium truncate">cwc.gov.in</span>
+              <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
+            </div>
+          </div>
+          <span class="sr-only">(opens in new tab)</span>
+        </a>
+
+        <!-- 7. J&K Joint Electricity Regulatory Commission -->
+        <a 
+          href="https://jercjkl.jk.gov.in/AboutUs.html" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          title="J&K Joint Electricity Regulatory Commission (opens in new tab)"
+          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-md py-2.5 px-2 hover:border-brand-primary hover:shadow-md transition-colors duration-200 h-full shadow-2xs"
+        >
+          <div class="h-9 w-full flex items-center justify-center mb-1">
+            <img src="/logos/jerc.png" alt="J&K Joint Electricity Regulatory Commission Emblem" class="max-h-7 max-w-[80%] object-contain transition-opacity duration-200" />
+          </div>
+          <div class="w-full flex-1 flex flex-col justify-between">
+            <p class="font-bold text-slate-800 group-hover:text-brand-primary text-xs leading-tight transition-colors break-words">
+              J&amp;K Electricity Regulatory Commission
+            </p>
+            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-xs text-slate-500 group-hover:text-brand-primary transition-colors">
+              <span class="font-medium truncate">jercjkl.jk.gov.in</span>
+              <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
+            </div>
+          </div>
+          <span class="sr-only">(opens in new tab)</span>
+        </a>
+      </div>
+    </section>
+
+  </div>
+  <!-- end page body -->
+
+</Layout>
+
+<script is:inline>
+(function () {
+  /* ── HERO SLIDER ─────────────────────────────────────────── */
+  var heroContainer = document.getElementById('hero-slides');
+  var slideEls = heroContainer ? Array.from(heroContainer.children) : [];
+  var total = slideEls.length;
+  var cur = 0;
+  var dots = Array.from(document.querySelectorAll('[data-dot]'));
+  var timer = null;
+
+  function goTo(n) {
+    if (total <= 1) return;
+
+    if (slideEls[cur]) {
+      slideEls[cur].classList.remove('opacity-100', 'z-10');
+      slideEls[cur].classList.add('opacity-0', 'z-0', 'pointer-events-none');
+    }
+    if (dots[cur]) {
+      dots[cur].className = 'h-1.5 transition-all duration-300 w-4 bg-white/40';
+    }
+
+    cur = ((n % total) + total) % total;
+
+    if (slideEls[cur]) {
+      var img = slideEls[cur].querySelector('img');
+      if (img && img.loading === 'lazy') {
+        img.loading = 'eager';
+      }
+      slideEls[cur].classList.remove('opacity-0', 'z-0', 'pointer-events-none');
+      slideEls[cur].classList.add('opacity-100', 'z-10');
+    }
+    if (dots[cur]) {
+      dots[cur].className = 'h-1.5 transition-all duration-300 w-10 bg-white';
+    }
+  }
+
+  function startTimer() {
+    if (timer) clearInterval(timer);
+    timer = setInterval(function () {
+      goTo(cur + 1);
+    }, 6000);
+  }
+
+  var prev = document.getElementById('hero-prev');
+  if (prev) {
+    prev.onclick = function (e) {
+      if (e) e.preventDefault();
+      goTo(cur - 1);
+      startTimer();
+    };
+  }
+
+  var next = document.getElementById('hero-next');
+  if (next) {
+    next.onclick = function (e) {
+      if (e) e.preventDefault();
+      goTo(cur + 1);
+      startTimer();
+    };
+  }
+
+  dots.forEach(function (d) {
+    d.onclick = function (e) {
+      if (e) e.preventDefault();
+      var idx = parseInt(d.dataset.dot, 10);
+      if (!isNaN(idx)) {
+        goTo(idx);
+        startTimer();
+      }
+    };
+  });
+
+  startTimer();
+
+  /* ── OFFICE GALLERY CAROUSEL (Top Section) ───────────────── */
+  var oSlides = document.querySelectorAll('.office-slide');
+  var oTotal = oSlides.length;
+  var oCur = 0, oDots = document.querySelectorAll('[data-office-dot]');
+
+  function goToOffice(n) {
+    if (oTotal === 0) return;
+    if (oSlides[oCur]) {
+      oSlides[oCur].classList.replace('opacity-100', 'opacity-0');
+      oSlides[oCur].classList.replace('z-10', 'z-0');
+    }
+    if (oDots[oCur]) {
+      oDots[oCur].className = 'w-1.5 h-1.5 transition-all duration-300 bg-white/50';
+    }
+    oCur = ((n % oTotal) + oTotal) % oTotal;
+    if (oSlides[oCur]) {
+      oSlides[oCur].classList.replace('opacity-0', 'opacity-100');
+      oSlides[oCur].classList.replace('z-0', 'z-10');
+    }
+    if (oDots[oCur]) {
+      oDots[oCur].className = 'w-1.5 h-1.5 transition-all duration-300 bg-white w-3';
+    }
+  }
+
+  var oPrev = document.getElementById('office-prev');
+  if (oPrev) oPrev.onclick = function() { goToOffice(oCur - 1); };
+  var oNext = document.getElementById('office-next');
+  if (oNext) oNext.onclick = function() { goToOffice(oCur + 1); };
+  oDots.forEach(function(d) {
+    d.onclick = function() { goToOffice(parseInt(d.dataset.officeDot, 10)); };
+  });
+  setInterval(function() { goToOffice(oCur + 1); }, 5000);
+
+  /* ── PROJECT GALLERY CAROUSEL (About Us Section) ─────────── */
+  var pSlides = document.querySelectorAll('.project-slide');
+  var pTotal = pSlides.length;
+  var pCur = 0, pDots = document.querySelectorAll('[data-project-dot]');
+
+  function goToProject(n) {
+    if (pTotal === 0) return;
+    if (pSlides[pCur]) {
+      pSlides[pCur].classList.replace('opacity-100', 'opacity-0');
+      pSlides[pCur].classList.replace('z-10', 'z-0');
+    }
+    if (pDots[pCur]) {
+      pDots[pCur].className = 'w-2 h-2 transition-all duration-300 bg-white/50';
+    }
+    pCur = ((n % pTotal) + pTotal) % pTotal;
+    if (pSlides[pCur]) {
+      pSlides[pCur].classList.replace('opacity-0', 'opacity-100');
+      pSlides[pCur].classList.replace('z-0', 'z-10');
+    }
+    if (pDots[pCur]) {
+      pDots[pCur].className = 'w-2 h-2 transition-all duration-300 bg-white w-4';
+    }
+  }
+
+  var pPrev = document.getElementById('project-prev');
+  if (pPrev) pPrev.onclick = function() { goToProject(pCur - 1); };
+  var pNext = document.getElementById('project-next');
+  if (pNext) pNext.onclick = function() { goToProject(pCur + 1); };
+  pDots.forEach(function(d) {
+    d.onclick = function() { goToProject(parseInt(d.dataset.projectDot, 10)); };
+  });
+  setInterval(function() { goToProject(pCur + 1); }, 5500);
+
+  /* ── PROJECT FILTER & CATEGORY PREVIEW ───────────────────── */
+  var cards = Array.from(document.querySelectorAll('.project-card'));
+  var tabBtns = Array.from(document.querySelectorAll('.project-tab'));
+  var searchEl = document.getElementById('project-search');
+  var projectsGrid = document.getElementById('projects-grid');
+  var emptyCategoryEl = document.getElementById('project-empty-category');
+  var emptySearchEl = document.getElementById('project-empty-search');
+  var viewAllBtn = document.getElementById('project-view-all-btn');
+
+  var PREVIEW_LIMIT = 6;
+  var isExpandedAll = false;
+
+  var categoryNav = {
+    'All': {
+      text: function() {
+        return isExpandedAll 
+          ? 'Show fewer projects ↑' 
+          : 'View full project register (' + cards.length + ') ↓';
+      },
+      href: '#projects'
+    },
+    'Operational': {
+      text: function() { return 'View all operational projects →'; },
+      href: '/our-business/power-stations'
+    },
+    'Under Construction': {
+      text: function() { return 'View all under-construction projects →'; },
+      href: '/our-business/construction'
+    },
+    'Upcoming': {
+      text: function() { return 'View all upcoming projects →'; },
+      href: '/our-business/under-development'
+    }
+  };
+
+  var activeTab = 'All';
+
+  // Read URL query param if present (e.g. ?status=operational or ?status=upcoming)
+  var urlParams = new URLSearchParams(window.location.search);
+  var statusParam = urlParams.get('status');
+  if (statusParam) {
+    var cleanStatus = statusParam.trim().toLowerCase().replace(/[-_]/g, ' ');
+    if (cleanStatus === 'operational') activeTab = 'Operational';
+    else if (cleanStatus === 'under construction') activeTab = 'Under Construction';
+    else if (cleanStatus === 'upcoming') activeTab = 'Upcoming';
+    else if (cleanStatus === 'all') activeTab = 'All';
+  }
+
+  function updateTabUI() {
+    tabBtns.forEach(function(btn) {
+      var isCurrent = btn.dataset.tab === activeTab;
+      if (isCurrent) {
+        btn.className = 'project-tab px-4 py-1.5 rounded-md text-xs font-semibold transition-all bg-brand-primary text-white shadow-sm';
+        btn.setAttribute('aria-selected', 'true');
+      } else {
+        btn.className = 'project-tab px-4 py-1.5 rounded-md text-xs font-semibold transition-all text-slate-600 hover:bg-sky-50';
+        btn.setAttribute('aria-selected', 'false');
+      }
+    });
+
+    if (viewAllBtn && categoryNav[activeTab]) {
+      viewAllBtn.textContent = categoryNav[activeTab].text();
+      viewAllBtn.setAttribute('href', categoryNav[activeTab].href);
+    }
+  }
+
+  function filterProjects() {
+    var q = searchEl ? searchEl.value.trim().toLowerCase() : '';
+
+    // Filter projects belonging strictly to active category
+    var categoryCards = cards.filter(function(c) {
+      return activeTab === 'All' || c.dataset.status === activeTab;
+    });
+
+    // Zero records in category (e.g. Under Construction)
+    if (categoryCards.length === 0) {
+      if (projectsGrid) projectsGrid.style.display = 'none';
+      if (emptyCategoryEl) emptyCategoryEl.style.display = 'block';
+      if (emptySearchEl) emptySearchEl.style.display = 'none';
+      cards.forEach(function(c) { c.style.display = 'none'; });
+      return;
+    }
+
+    if (emptyCategoryEl) emptyCategoryEl.style.display = 'none';
+
+    // Match with search query if typed
+    var matchedCards = categoryCards.filter(function(c) {
+      if (!q) return true;
+      var searchContent = c.dataset.search || (c.dataset.name + ' ' + (c.dataset.status || ''));
+      return searchContent.toLowerCase().includes(q);
+    });
+
+    // Zero matches from search
+    if (q && matchedCards.length === 0) {
+      if (projectsGrid) projectsGrid.style.display = 'none';
+      if (emptySearchEl) emptySearchEl.style.display = 'block';
+      cards.forEach(function(c) { c.style.display = 'none'; });
+      return;
+    }
+
+    if (emptySearchEl) emptySearchEl.style.display = 'none';
+    if (projectsGrid) projectsGrid.style.display = '';
+
+    // Show preview count when not searching and not expanded
+    var shownCount = 0;
+    var shouldLimit = !q && (!isExpandedAll || activeTab !== 'All');
+
+    cards.forEach(function(c) {
+      var isMatch = matchedCards.indexOf(c) !== -1;
+      if (isMatch) {
+        if (shouldLimit && shownCount >= PREVIEW_LIMIT) {
+          c.style.display = 'none';
+        } else {
+          c.style.display = '';
+          shownCount++;
+        }
+      } else {
+        c.style.display = 'none';
+      }
+    });
+  }
+
+  if (viewAllBtn) {
+    viewAllBtn.onclick = function(e) {
+      if (activeTab === 'All') {
+        e.preventDefault();
+        isExpandedAll = !isExpandedAll;
+        updateTabUI();
+        filterProjects();
+        if (!isExpandedAll) {
+          document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    };
+  }
+
+  tabBtns.forEach(function(btn) {
+    btn.onclick = function() {
+      activeTab = btn.dataset.tab;
+      isExpandedAll = false;
+      updateTabUI();
+      filterProjects();
+    };
+  });
+
+  if (searchEl) {
+    searchEl.oninput = filterProjects;
+  }
+
+  updateTabUI();
+  filterProjects();
+})();
+</script>
+
+<style is:global>
+  /* Hero: responsive height via aspect-ratio, no fixed pixels, no CLS */
+  .hero-section {
+    aspect-ratio: 16 / 9;
+    max-height: 540px;
+    width: 100%;
+  }
+  @media (min-width: 768px) {
+    .hero-section {
+      aspect-ratio: 21 / 9;
+    }
+  }
+  @media (min-width: 1280px) {
+    .hero-section {
+      aspect-ratio: 2 / 1;
+      min-height: 480px;
+    }
+  }
+
+  @keyframes marquee-vertical {
+    0% {
+      transform: translate3d(0, 0, 0);
+    }
+    100% {
+      transform: translate3d(0, -50%, 0);
+    }
+  }
+
+  .scroll-track {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    animation: marquee-vertical var(--marquee-duration, 25s) linear infinite !important;
+    will-change: transform;
+  }
+
+  .scroll-track:hover {
+    animation-play-state: paused !important;
+  }
+
+
+  /* ── HOME TENDERS & NOTIFICATIONS VERTICAL FEED WITH ZEBRA ROWS ── */
+  @keyframes feed-vertical {
+    0% {
+      transform: translate3d(0, 280px, 0);
+    }
+    100% {
+      transform: translate3d(0, calc(280px - 50%), 0);
+    }
+  }
+
+  .feed-scroll-track {
+    display: flex;
+    flex-direction: column;
+    animation: feed-vertical 10s linear infinite !important;
+    will-change: transform;
+  }
+
+  .feed-scroll-track:hover {
+    animation-play-state: paused !important;
+  }
+
+  .feed-row {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #CBD5E1;
+    text-align: left;
+    text-decoration: none;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  .feed-row:hover {
+    background-color: #EAF4FF !important;
+  }
+
+</style>
+
+<script is:inline>
+  (function() {
+    function ensureFeedRunning() {
+      var tracks = document.querySelectorAll('.feed-scroll-track');
+      tracks.forEach(function(t) {
+        if (document.activeElement && t.contains(document.activeElement)) {
+          document.activeElement.blur();
+        }
+        t.style.animationPlayState = 'running';
+      });
+    }
+
+    document.addEventListener('astro:page-load', ensureFeedRunning);
+    window.addEventListener('pageshow', ensureFeedRunning);
+    window.addEventListener('focus', ensureFeedRunning);
+    document.addEventListener('visibilitychange', function() {
+      if (!document.hidden) {
+        ensureFeedRunning();
+      }
+    });
+
+    // Keyboard users: pause the feed while any link inside it has focus (GIGW)
+    document.addEventListener('focusin', function(e) {
+      var track = e.target.closest && e.target.closest('.feed-scroll-track, .scroll-track');
+      if (track) { track.style.animationPlayState = 'paused'; }
+    });
+    document.addEventListener('focusout', function(e) {
+      var track = e.target.closest && e.target.closest('.feed-scroll-track, .scroll-track');
+      if (track && !(track.contains(document.activeElement))) {
+        track.style.animationPlayState = 'running';
+      }
+    });
+  })();
+</script>
+

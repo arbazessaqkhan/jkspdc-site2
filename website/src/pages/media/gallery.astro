@@ -1,17 +1,49 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import Icon from '../../components/Icon.astro';
+import { BACKEND_URL } from '../../utils/api-error';
 
-let galleryItems = [];
+let galleryItems: any[] = [];
 let errorMessage = '';
 
 try {
-  // Fetch from 127.0.0.1 to avoid local DNS/IPv6 connection failures
-  const res = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/gallery`);
+  // Fetch from public API (filters out Draft items automatically)
+  const res = await fetch(`${BACKEND_URL}/api/public/gallery`);
   if (res.ok) {
     galleryItems = await res.json();
   } else {
     errorMessage = 'Failed to load media records from the backend database.';
+  }
+
+  // Also include photographs uploaded for projects (only if an image is uploaded or available)
+  try {
+    const projRes = await fetch(`${BACKEND_URL}/api/projects`);
+    if (projRes.ok) {
+      function resolveProjectImage(p: any) {
+        if (p.documentUrl && p.documentUrl.trim() !== '') {
+          return p.documentUrl;
+        }
+        return null;
+      }
+
+      const projData = await projRes.json();
+      const projectPhotos = projData
+        .map((p: any) => {
+          const img = resolveProjectImage(p);
+          if (!img) return null;
+          return {
+            id: `project-${p.id}`,
+            title: `${p.name}${p.capacityMw ? ` (${p.capacityMw} MW)` : ''}`,
+            imageUrl: img,
+            projectId: p.id,
+            projectName: p.name,
+          };
+        })
+        .filter(Boolean);
+      galleryItems = [...galleryItems, ...projectPhotos];
+    }
+  } catch (pe) {
+    console.error('Error fetching project photos for gallery:', pe);
   }
 } catch (e) {
   console.error('Error fetching gallery items:', e);
@@ -61,7 +93,7 @@ const uniquePartitions = [...new Set(galleryItems.map(item => item.partition).fi
 function getImageUrl(url: string) {
   if (!url) return '';
   if (url.startsWith('/uploads/')) {
-    return `${import.meta.env.PUBLIC_API_BASE}${url}`;
+    return `${BACKEND_URL}${url}`;
   }
   return url;
 }
@@ -71,7 +103,7 @@ function getImageUrl(url: string) {
   title="Photo & Media Gallery - Media" 
   description="Official photo and media gallery of JKSPDC power stations, corporate ceremonies, and infrastructure projects."
 >
-  <div class="space-y-8 max-w-7xl mx-auto px-4 sm:px-6">
+  <div class="space-y-8">
     <!-- Premium Page Header Band -->
     <div class="page-header-band animate-fadeInUp">
       <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
@@ -96,45 +128,19 @@ function getImageUrl(url: string) {
       )}
 
       {galleryItems.length === 0 ? (
-        <div class="bg-gray-50 border border-gray-200 text-gray-700 rounded-2xl p-12 text-center text-sm shadow-xs">
-          <p class="font-bold text-gray-800 text-base mb-1">No media records found</p>
-          <p class="text-xs text-gray-500">Official gallery records are currently being updated by the corporation.</p>
+        <div class="bg-slate-50 border border-slate-200 text-slate-700 rounded-2xl p-12 text-center text-sm shadow-xs">
+          <p class="font-bold text-slate-800 text-base mb-1">No media records found</p>
+          <p class="text-xs text-slate-500">Official gallery records are currently being updated by the corporation.</p>
         </div>
       ) : (
-        <!-- Main Gallery Container -->
         <div class="space-y-8">
           
           <!-- Filter Tabs & Real-Time Search Bar -->
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200">
             
-            <!-- Category Filter Pills -->
-            <div class="flex flex-wrap items-center gap-2" role="tablist" aria-label="Gallery category filters">
-              <button 
-                type="button"
-                role="tab"
-                aria-selected="true"
-                class="gallery-filter-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-[#0B4F9C] text-white shadow-xs border border-[#0B4F9C] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C]/50 flex items-center gap-2"
-                data-partition="All"
-              >
-                <span>All Media</span>
-                <span class="px-1.5 py-0.5 text-[10px] rounded-full bg-white/20 text-white font-extrabold" id="count-all">{galleryItems.length}</span>
-              </button>
-
-              {uniquePartitions.map(partition => {
-                const count = galleryItems.filter(item => item.partition === partition).length;
-                return (
-                  <button 
-                    type="button"
-                    role="tab"
-                    aria-selected="false"
-                    class="gallery-filter-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 hover:border-slate-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4F9C]/50 flex items-center gap-2"
-                    data-partition={partition}
-                  >
-                    <span>{partition}</span>
-                    <span class="px-1.5 py-0.5 text-[10px] rounded-full bg-slate-100 text-slate-600 font-extrabold">{count}</span>
-                  </button>
-                );
-              })}
+            <div class="flex items-center gap-3">
+              <span class="text-xs font-bold text-[#0B3B60] uppercase tracking-wider">Unified Media Collection</span>
+              <span class="px-2.5 py-0.5 text-xs rounded-full bg-[#EAF4FF] text-[#0B3B60] font-extrabold border border-[#BDD7EE]" id="count-all">{galleryItems.length} Photographs</span>
             </div>
 
             <!-- Quick Search Input -->
@@ -144,9 +150,25 @@ function getImageUrl(url: string) {
                 id="gallery-search" 
                 placeholder="Search photos by title or keyword..." 
                 autocomplete="off"
-                class="w-full text-xs pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#0B4F9C] focus:ring-1 focus:ring-[#0B4F9C] transition-all"
+                class="w-full text-xs pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#0B3B60] focus:ring-1 focus:ring-focus transition-all"
               />
               <Icon name="search" size={16} class="text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
+          </div>
+
+          <!-- Active vs Archives vs All Status Tabs -->
+          <div class="flex items-center justify-between border-b border-slate-200 pb-3 select-none">
+            <span class="text-xs font-bold text-slate-600">Status Segregation:</span>
+            <div class="flex items-center gap-2">
+              <button id="toggle-gallery-active" type="button" class="px-4 py-1.5 border rounded-md font-bold text-xs bg-[#0B3B60] text-white border-[#0B3B60] cursor-pointer shadow-sm transition-all duration-200">
+                Active Photos
+              </button>
+              <button id="toggle-gallery-archive" type="button" class="px-4 py-1.5 border rounded-md font-bold text-xs bg-white text-[#0B3B60] border-slate-300 hover:bg-slate-50 cursor-pointer shadow-sm transition-all duration-200">
+                Archives
+              </button>
+              <button id="toggle-gallery-all" type="button" class="px-4 py-1.5 border rounded-md font-bold text-xs bg-white text-[#0B3B60] border-slate-300 hover:bg-slate-50 cursor-pointer shadow-sm transition-all duration-200">
+                All Statuses
+              </button>
             </div>
           </div>
 
@@ -156,6 +178,7 @@ function getImageUrl(url: string) {
               <article 
                 class="gallery-item-card group bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col cursor-pointer"
                 data-partition={item.partition || 'General'}
+                data-status={item.status || 'Active'}
                 data-src={getImageUrl(item.imageUrl)}
                 data-title={item.title}
                 data-index={idx}
@@ -164,7 +187,7 @@ function getImageUrl(url: string) {
                 aria-label={`View photo: ${item.title}`}
               >
                 <!-- Large Prominent Photo Preview -->
-                <div class="relative w-full h-64 sm:h-72 overflow-hidden bg-slate-100">
+                <div class="relative w-full aspect-[4/3] overflow-hidden bg-slate-100">
                   <img 
                     src={getImageUrl(item.imageUrl)} 
                     alt={item.title} 
@@ -174,14 +197,14 @@ function getImageUrl(url: string) {
                   
                   <!-- Floating Category Pill -->
                   <div class="absolute top-3.5 left-3.5 z-10 pointer-events-none">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold rounded-full bg-white/95 backdrop-blur-md text-[#0B4F9C] shadow-sm border border-slate-100">
-                      <span class="w-1.5 h-1.5 rounded-full bg-[#0B4F9C]"></span>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold rounded-full bg-white/95 backdrop-blur-md text-[#0B3B60] shadow-sm border border-slate-100">
+                      <span class="w-1.5 h-1.5 rounded-full bg-[#0B3B60]"></span>
                       {item.partition || 'General'}
                     </span>
                   </div>
 
                   <!-- Floating Zoom / View Icon -->
-                  <div class="absolute top-3.5 right-3.5 w-9 h-9 rounded-full bg-black/40 hover:bg-[#0B4F9C] backdrop-blur-md text-white flex items-center justify-center transition-all duration-200 opacity-90 group-hover:opacity-100 group-hover:scale-105 shadow-sm z-10" aria-hidden="true">
+                  <div class="absolute top-3.5 right-3.5 w-9 h-9 rounded-full bg-black/40 hover:bg-[#0EA4E5] backdrop-blur-md text-white flex items-center justify-center transition-all duration-200 opacity-90 group-hover:opacity-100 group-hover:scale-105 shadow-sm z-10" aria-hidden="true">
                     <Icon name="zoom-in" size={16} class="text-white" />
                   </div>
 
@@ -192,7 +215,7 @@ function getImageUrl(url: string) {
                 <!-- Structured Card Body -->
                 <div class="p-5 sm:p-6 flex flex-col justify-between flex-1 bg-white border-t border-slate-100">
                   <div>
-                    <h3 class="text-base sm:text-lg font-bold text-slate-800 group-hover:text-[#0B4F9C] transition-colors leading-snug line-clamp-2">
+                    <h3 class="text-base sm:text-lg font-bold text-slate-800 group-hover:text-[#0B3B60] transition-colors leading-snug line-clamp-2">
                       {item.title}
                     </h3>
                   </div>
@@ -283,6 +306,9 @@ function getImageUrl(url: string) {
     const filterBtns = document.querySelectorAll('.gallery-filter-btn');
     const galleryCards = document.querySelectorAll('.gallery-item-card');
     const searchInput = document.getElementById('gallery-search') as HTMLInputElement | null;
+    const btnActive = document.getElementById('toggle-gallery-active');
+    const btnArchive = document.getElementById('toggle-gallery-archive');
+    const btnAll = document.getElementById('toggle-gallery-all');
     const noResults = document.getElementById('no-gallery-results');
     const lightbox = document.getElementById('gallery-lightbox');
     const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement | null;
@@ -294,9 +320,38 @@ function getImageUrl(url: string) {
     if (!galleryCards.length) return;
 
     let activePartition = 'All';
+    let activeStatus = 'Active';
     let searchQuery = '';
     let visibleCards: HTMLElement[] = Array.from(galleryCards) as HTMLElement[];
     let currentGalleryIndex = 0;
+    let lastFocusedElement: HTMLElement | null = null;
+
+    function updateStatusButtons() {
+      const activeClasses = 'px-4 py-1.5 border rounded-md font-bold text-xs bg-[#0B3B60] text-white border-[#0B3B60] cursor-pointer shadow-sm transition-all duration-200';
+      const inactiveClasses = 'px-4 py-1.5 border rounded-md font-bold text-xs bg-white text-[#0B3B60] border-slate-300 hover:bg-slate-50 cursor-pointer shadow-sm transition-all duration-200';
+
+      if (btnActive) btnActive.className = activeStatus === 'Active' ? activeClasses : inactiveClasses;
+      if (btnArchive) btnArchive.className = activeStatus === 'Archived' ? activeClasses : inactiveClasses;
+      if (btnAll) btnAll.className = activeStatus === 'All' ? activeClasses : inactiveClasses;
+    }
+
+    btnActive?.addEventListener('click', () => {
+      activeStatus = 'Active';
+      updateStatusButtons();
+      applyFilters();
+    });
+
+    btnArchive?.addEventListener('click', () => {
+      activeStatus = 'Archived';
+      updateStatusButtons();
+      applyFilters();
+    });
+
+    btnAll?.addEventListener('click', () => {
+      activeStatus = 'All';
+      updateStatusButtons();
+      applyFilters();
+    });
 
     function applyFilters() {
       visibleCards = [];
@@ -305,12 +360,22 @@ function getImageUrl(url: string) {
       galleryCards.forEach(card => {
         const el = card as HTMLElement;
         const partition = el.getAttribute('data-partition') || '';
+        const status = (el.getAttribute('data-status') || 'Active').toLowerCase();
         const title = (el.getAttribute('data-title') || '').toLowerCase();
 
         const matchesPartition = (activePartition === 'All' || partition === activePartition);
         const matchesSearch = !term || title.includes(term) || partition.toLowerCase().includes(term);
 
-        if (matchesPartition && matchesSearch) {
+        let matchesStatus = true;
+        if (activeStatus !== 'All') {
+          if (activeStatus === 'Archived') {
+            matchesStatus = (status === 'archived' || status === 'archive');
+          } else {
+            matchesStatus = (status === activeStatus.toLowerCase());
+          }
+        }
+
+        if (matchesPartition && matchesSearch && matchesStatus) {
           el.style.display = 'flex';
           visibleCards.push(el);
         } else {
@@ -329,6 +394,10 @@ function getImageUrl(url: string) {
       const targetCard = visibleCards[currentGalleryIndex];
       if (!targetCard) return;
 
+      if (lightbox.classList.contains('hidden')) {
+        lastFocusedElement = document.activeElement as HTMLElement | null;
+      }
+
       const src = targetCard.getAttribute('data-src') || '';
       const title = targetCard.getAttribute('data-title') || '';
       const partition = targetCard.getAttribute('data-partition') || 'General';
@@ -341,9 +410,6 @@ function getImageUrl(url: string) {
       if (lightboxCaption) {
         lightboxCaption.innerHTML = `
           <div class="flex items-center justify-center gap-2 mb-2">
-            <span class="inline-flex items-center gap-1.5 px-3 py-0.5 text-[11px] uppercase tracking-wider font-extrabold bg-[#0B4F9C] text-white rounded-full shadow-xs">
-              ${partition}
-            </span>
             <span class="text-xs font-semibold text-slate-300">
               Photo ${currentGalleryIndex + 1} of ${visibleCards.length}
             </span>
@@ -357,6 +423,11 @@ function getImageUrl(url: string) {
       lightbox.classList.remove('hidden');
       lightbox.classList.add('flex');
       document.body.style.overflow = 'hidden';
+
+      // Initial focus shift to #lightbox-close button
+      requestAnimationFrame(() => {
+        lightboxClose?.focus();
+      });
     }
 
     function closeLightbox() {
@@ -364,6 +435,12 @@ function getImageUrl(url: string) {
       lightbox.classList.remove('flex');
       lightbox.classList.add('hidden');
       document.body.style.overflow = '';
+
+      // Restore focus to last focused element
+      if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
+        lastFocusedElement.focus();
+      }
+      lastFocusedElement = null;
     }
 
     // Card click & keyboard interaction (Enter / Space)
@@ -410,9 +487,39 @@ function getImageUrl(url: string) {
 
     document.addEventListener('keydown', (e) => {
       if (lightbox && !lightbox.classList.contains('hidden')) {
-        if (e.key === 'Escape') closeLightbox();
-        if (e.key === 'ArrowLeft' && lightboxPrev) (lightboxPrev as HTMLElement).click();
-        if (e.key === 'ArrowRight' && lightboxNext) (lightboxNext as HTMLElement).click();
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          closeLightbox();
+          return;
+        }
+        if (e.key === 'ArrowLeft' && lightboxPrev) {
+          e.preventDefault();
+          (lightboxPrev as HTMLElement).click();
+          return;
+        }
+        if (e.key === 'ArrowRight' && lightboxNext) {
+          e.preventDefault();
+          (lightboxNext as HTMLElement).click();
+          return;
+        }
+        if (e.key === 'Tab') {
+          const trapElements = [lightboxClose, lightboxPrev, lightboxNext].filter(Boolean) as HTMLElement[];
+          if (trapElements.length > 0) {
+            const firstElement = trapElements[0];
+            const lastElement = trapElements[trapElements.length - 1];
+            if (e.shiftKey) {
+              if (document.activeElement === firstElement || !lightbox.contains(document.activeElement)) {
+                e.preventDefault();
+                lastElement.focus();
+              }
+            } else {
+              if (document.activeElement === lastElement || !lightbox.contains(document.activeElement)) {
+                e.preventDefault();
+                firstElement.focus();
+              }
+            }
+          }
+        }
       }
     });
 
@@ -423,7 +530,7 @@ function getImageUrl(url: string) {
 
         filterBtns.forEach(b => {
           b.setAttribute('aria-selected', 'false');
-          b.classList.remove('bg-[#0B4F9C]', 'text-white', 'shadow-xs', 'border-[#0B4F9C]');
+          b.classList.remove('bg-[#0B3B60]', 'text-white', 'shadow-xs', 'border-[#0B3B60]');
           b.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
           const badge = b.querySelector('span:last-child');
           if (badge) {
@@ -433,7 +540,7 @@ function getImageUrl(url: string) {
         });
 
         btn.setAttribute('aria-selected', 'true');
-        btn.classList.add('bg-[#0B4F9C]', 'text-white', 'shadow-xs', 'border-[#0B4F9C]');
+        btn.classList.add('bg-[#0B3B60]', 'text-white', 'shadow-xs', 'border-[#0B3B60]');
         btn.classList.remove('bg-white', 'text-slate-700', 'border-slate-200');
         const activeBadge = btn.querySelector('span:last-child');
         if (activeBadge) {

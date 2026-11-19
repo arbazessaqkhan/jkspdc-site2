@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Icon from '../components/Icon.astro';
+import { getDocUrl } from '../utils/sanitizer';
 
 let notifications: any[] = [];
 let errorMessage = '';
@@ -21,13 +22,7 @@ try {
 const yearsSet = new Set(notifications.map(n => new Date(n.publishDate).getFullYear()));
 const years = Array.from(yearsSet).sort((a, b) => b - a);
 
-const getDocUrl = (url?: string) => {
-  if (!url) return '#';
-  if (url.startsWith('/uploads/')) {
-    return `${import.meta.env.PUBLIC_API_BASE}${url}`;
-  }
-  return url;
-};
+
 
 const formatDate = (dateStr: string) => {
   return new Date(dateStr).toLocaleDateString('en-IN', {
@@ -70,7 +65,7 @@ const formatDate = (dateStr: string) => {
         <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-4">
           <div class="flex items-center justify-between border-b border-slate-200 pb-3">
             <h3 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-              <Icon name="megaphone" size={15} class="text-[#0B4F9C] shrink-0" /> Segregate &amp; Filter Notifications
+              <Icon name="megaphone" size={15} class="text-[#0B3B60] shrink-0" /> Segregate &amp; Filter Notifications
             </h3>
             <div class="text-xs font-semibold text-slate-500" id="count-display">
               Showing {notifications.length} item(s)
@@ -81,7 +76,7 @@ const formatDate = (dateStr: string) => {
             <!-- Segregate By Project / Topic -->
             <div class="flex flex-col gap-1">
               <label for="project-filter" class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">By Project / Topic</label>
-              <select id="project-filter" class="w-full form-select text-xs bg-white border border-slate-200 rounded-lg py-1.5 focus:ring-2 focus:ring-[#0B4F9C]">
+              <select id="project-filter" class="w-full form-select text-xs bg-white border border-slate-200 rounded-lg py-1.5 focus:ring-2 focus:ring-focus">
                 <option value="All">All Projects &amp; Topics</option>
                 <option value="kirthai">Kirthai HEP Stage-1</option>
                 <option value="baglihar">Baglihar HEP</option>
@@ -95,7 +90,7 @@ const formatDate = (dateStr: string) => {
             <!-- Segregate By Published Year -->
             <div class="flex flex-col gap-1">
               <label for="year-filter" class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">By Published Year</label>
-              <select id="year-filter" class="w-full form-select text-xs bg-white border border-slate-200 rounded-lg py-1.5 focus:ring-2 focus:ring-[#0B4F9C]">
+              <select id="year-filter" class="w-full form-select text-xs bg-white border border-slate-200 rounded-lg py-1.5 focus:ring-2 focus:ring-focus">
                 <option value="All">All Years</option>
                 {years.map((y: any) => (
                   <option value={String(y)}>{y}</option>
@@ -106,7 +101,7 @@ const formatDate = (dateStr: string) => {
             <!-- Sort By Date -->
             <div class="flex flex-col gap-1">
               <label for="sort-order" class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Sort Date</label>
-              <select id="sort-order" class="w-full form-select text-xs bg-white border border-slate-200 rounded-lg py-1.5 focus:ring-2 focus:ring-[#0B4F9C]">
+              <select id="sort-order" class="w-full form-select text-xs bg-white border border-slate-200 rounded-lg py-1.5 focus:ring-2 focus:ring-focus">
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
               </select>
@@ -119,56 +114,111 @@ const formatDate = (dateStr: string) => {
                 id="notif-search-input" 
                 type="text" 
                 placeholder="Notification ID, Title, File..." 
-                class="w-full text-xs bg-white border border-slate-200 rounded-lg py-1.5 px-3 focus:outline-none focus:ring-2 focus:ring-[#0B4F9C]" 
+                class="w-full text-xs bg-white border border-slate-200 rounded-lg py-1.5 px-3 focus:outline-none focus:ring-2 focus:ring-focus" 
               />
             </div>
           </div>
         </div>
 
-        <!-- Notifications List -->
-        <div class="space-y-3" id="notifications-list">
-          {notifications.length === 0 ? (
-            <div class="bg-slate-50 border border-slate-200 text-slate-500 rounded-xl p-6 text-center text-xs font-semibold italic">
-              No official notifications or circulars published yet.
-            </div>
-          ) : (
-            notifications.map((notif: any) => (
-              <div 
-                id={`notif-${notif.id}`}
-                class="notif-card p-5 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 scroll-mt-24"
-                data-year={new Date(notif.publishDate).getFullYear()}
-                data-timestamp={new Date(notif.publishDate).getTime()}
-                data-search-keys={`${(notif.id || '').toLowerCase()} ${(notif.title || '').toLowerCase()} ${(notif.fileName || '').toLowerCase()}`}
-              >
-                <div class="space-y-1.5 flex-1 min-w-0 text-left">
-                  <h4 class="font-extrabold text-slate-800 text-sm leading-snug">{notif.title}</h4>
-                  <div class="flex items-center gap-3 text-[11px] text-slate-450 font-semibold">
-                    <span class="bg-slate-100 px-2 py-0.5 rounded text-slate-600 font-bold uppercase tracking-wider font-mono">
-                      {notif.fileName.split('.').pop() || 'PDF'}
-                    </span>
-                    <span>Uploaded: {formatDate(notif.publishDate)}</span>
-                  </div>
-                </div>
-                
-                <div class="shrink-0 flex items-center justify-end sm:justify-center">
-                  <a 
-                    href={getDocUrl(notif.documentUrl)} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 border border-[#0B4F9C] hover:bg-[#0B4F9C] hover:text-white text-[#0B4F9C] rounded text-xs font-bold transition-all"
-                  >
-                    <Icon name="file-text" size={12} />
-                    <span>View PDF</span>
-                  </a>
-                </div>
-              </div>
-            ))
-          )}
+        <!-- Active vs Archives vs All Status Tabs -->
+        <div class="flex items-center justify-between border-b border-slate-200 pb-3 select-none">
+          <span class="text-xs font-bold text-slate-600">Status Segregation:</span>
+          <div class="flex items-center gap-2">
+            <button id="toggle-active" type="button" class="px-4 py-1.5 border rounded-md font-bold text-xs bg-[#0B3B60] text-white border-[#0B3B60] cursor-pointer shadow-sm transition-all duration-200">
+              Active Notifications
+            </button>
+            <button id="toggle-archive" type="button" class="px-4 py-1.5 border rounded-md font-bold text-xs bg-white text-[#0B3B60] border-slate-300 hover:bg-slate-50 cursor-pointer shadow-sm transition-all duration-200">
+              Archives
+            </button>
+            <button id="toggle-all" type="button" class="px-4 py-1.5 border rounded-md font-bold text-xs bg-white text-[#0B3B60] border-slate-300 hover:bg-slate-50 cursor-pointer shadow-sm transition-all duration-200">
+              All Statuses
+            </button>
+          </div>
+        </div>
+
+        <!-- Notifications Table Card (Standardized .table-data) -->
+        <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
+          <div class="table-wrapper overflow-x-auto" tabindex="0" role="region" aria-label="Notifications & Circulars Data Table">
+            <table class="table-data min-w-full text-left" id="notifications-table" style="table-layout: auto;">
+              <thead>
+                <tr>
+                  <th scope="col" class="w-16 text-center">S.No</th>
+                  <th scope="col" class="text-left">Notification Title</th>
+                  <th scope="col" class="text-left w-48 whitespace-nowrap">Publish Date</th>
+                  <th scope="col" class="text-center w-36 whitespace-nowrap">Document</th>
+                </tr>
+              </thead>
+              <tbody id="notifications-table-body">
+                {notifications.length === 0 ? (
+                  <tr id="empty-state-row">
+                    <td colspan="4" class="text-center py-12 text-slate-500 font-semibold italic text-xs">
+                      No official notifications or circulars published yet.
+                    </td>
+                  </tr>
+                ) : (
+                  notifications.map((notif: any, idx: number) => {
+                    const year = new Date(notif.publishDate).getFullYear();
+                    const timestamp = new Date(notif.publishDate).getTime();
+                    const docUrl = getDocUrl(notif.documentUrl) || '/notifications';
+                    return (
+                      <tr
+                        class="notif-table-row hover:bg-slate-50/80 transition-colors"
+                        id={`notif-${notif.id}`}
+                        data-year={year}
+                        data-timestamp={timestamp}
+                        data-status={notif.status || 'Active'}
+                        data-search-keys={`${(notif.id || '').toLowerCase()} ${(notif.title || '').toLowerCase()} ${(notif.fileName || '').toLowerCase()}`}
+                      >
+                        <td class="text-center font-bold text-xs text-slate-400 row-idx">{idx + 1}</td>
+                        <td class="text-left">
+                          <div class="font-bold text-xs sm:text-sm text-slate-900 leading-snug">
+                            {notif.title}
+                          </div>
+                          {notif.fileName && (
+                            <div class="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1.5 font-medium">
+                              <span class="bg-slate-100 text-slate-600 px-1.5 py-0.2 rounded font-mono uppercase text-[10px] font-bold border border-slate-200">
+                                {notif.fileName.split('.').pop() || 'PDF'}
+                              </span>
+                              <span class="truncate max-w-sm">{notif.fileName}</span>
+                            </div>
+                          )}
+                        </td>
+                        <td class="text-left whitespace-nowrap text-xs font-semibold text-slate-700">
+                          {formatDate(notif.publishDate)}
+                        </td>
+                        <td class="text-center whitespace-nowrap">
+                          <a
+                            href={docUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 border border-[#0B3B60] hover:bg-[#0EA4E5] hover:text-white text-[#0B3B60] rounded text-xs font-bold transition-all shadow-2xs"
+                            title={`View Document: ${notif.title} (opens in new tab)`}
+                          >
+                            <Icon name="file-text" size={12} />
+                            <span>View PDF</span>
+                            <span class="sr-only"> (opens in new tab)</span>
+                          </a>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
 
           <!-- Empty State Container when 0 results match filters -->
           <div id="notif-empty-state" class="hidden text-center py-12 bg-slate-50 border border-slate-200 border-dashed rounded-xl text-slate-500 font-semibold italic text-xs">
             No notifications or circulars found matching your search or filter criteria.
           </div>
+
+          <!-- Pagination Controls (10 items per page) -->
+          <nav id="notifications-pagination" class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-3" aria-label="Notifications Pagination">
+            <p class="text-[11px] font-medium text-slate-500">
+              Showing <strong class="text-slate-700 font-bold" id="notif-page-from">0</strong>–<strong class="text-slate-700 font-bold" id="notif-page-to">0</strong> of <strong class="text-slate-700 font-bold" id="notif-page-total">0</strong> notices
+            </p>
+            <div class="flex flex-wrap items-center gap-1.5" id="notif-page-buttons"></div>
+          </nav>
         </div>
       </article>
 
@@ -178,12 +228,164 @@ const formatDate = (dateStr: string) => {
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const projectFilter = document.getElementById('project-filter') as HTMLSelectElement;
-    const yearFilter = document.getElementById('year-filter') as HTMLSelectElement;
-    const sortOrder = document.getElementById('sort-order') as HTMLSelectElement;
-    const searchInput = document.getElementById('notif-search-input') as HTMLInputElement;
+    const projectFilter = document.getElementById('project-filter') as HTMLSelectElement | null;
+    const yearFilter = document.getElementById('year-filter') as HTMLSelectElement | null;
+    const sortOrder = document.getElementById('sort-order') as HTMLSelectElement | null;
+    const searchInput = document.getElementById('notif-search-input') as HTMLInputElement | null;
+    const btnActive = document.getElementById('toggle-active');
+    const btnArchive = document.getElementById('toggle-archive');
+    const btnAll = document.getElementById('toggle-all');
     const countDisplay = document.getElementById('count-display');
-    const container = document.getElementById('notifications-list');
+    const tableBody = document.getElementById('notifications-table-body');
+    const allRows = Array.from(document.querySelectorAll<HTMLTableRowElement>('.notif-table-row'));
+    const emptyState = document.getElementById('notif-empty-state');
+    const paginationNav = document.getElementById('notifications-pagination');
+    const pageFromEl = document.getElementById('notif-page-from');
+    const pageToEl = document.getElementById('notif-page-to');
+    const pageTotalEl = document.getElementById('notif-page-total');
+    const pageButtonsEl = document.getElementById('notif-page-buttons');
+
+    if (!allRows.length) {
+      if (paginationNav) paginationNav.style.display = 'none';
+      return;
+    }
+
+    const pageSize = 10;
+    let currentPage = 1;
+    let currentStatus = 'Active';
+    let matchedRows: HTMLTableRowElement[] = [];
+
+    function updateStatusButtons() {
+      const activeClasses = 'px-4 py-1.5 border rounded-md font-bold text-xs bg-[#0B3B60] text-white border-[#0B3B60] cursor-pointer shadow-sm transition-all duration-200';
+      const inactiveClasses = 'px-4 py-1.5 border rounded-md font-bold text-xs bg-white text-[#0B3B60] border-slate-300 hover:bg-slate-50 cursor-pointer shadow-sm transition-all duration-200';
+      
+      if (btnActive) btnActive.className = currentStatus === 'Active' ? activeClasses : inactiveClasses;
+      if (btnArchive) btnArchive.className = currentStatus === 'Archived' ? activeClasses : inactiveClasses;
+      if (btnAll) btnAll.className = currentStatus === 'All' ? activeClasses : inactiveClasses;
+    }
+
+    btnActive?.addEventListener('click', () => {
+      currentStatus = 'Active';
+      updateStatusButtons();
+      filterAnnouncements();
+    });
+
+    btnArchive?.addEventListener('click', () => {
+      currentStatus = 'Archived';
+      updateStatusButtons();
+      filterAnnouncements();
+    });
+
+    btnAll?.addEventListener('click', () => {
+      currentStatus = 'All';
+      updateStatusButtons();
+      filterAnnouncements();
+    });
+
+    function renderPage() {
+      const total = matchedRows.length;
+      const totalPages = Math.ceil(total / pageSize) || 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+
+      const startIdx = (currentPage - 1) * pageSize;
+      const endIdx = Math.min(startIdx + pageSize, total);
+
+      allRows.forEach((row) => (row.style.display = 'none'));
+      matchedRows.forEach((row, idx) => {
+        if (idx >= startIdx && idx < endIdx) {
+          row.style.display = '';
+          const idxCell = row.querySelector('.row-idx');
+          if (idxCell) idxCell.textContent = String(idx + 1);
+        }
+      });
+
+      if (pageFromEl) pageFromEl.textContent = total === 0 ? '0' : String(startIdx + 1);
+      if (pageToEl) pageToEl.textContent = String(endIdx);
+      if (pageTotalEl) pageTotalEl.textContent = String(total);
+      if (countDisplay) countDisplay.textContent = `Showing ${total} item(s)`;
+
+      if (emptyState) emptyState.classList.toggle('hidden', total > 0);
+      if (paginationNav) paginationNav.style.display = total === 0 ? 'none' : 'flex';
+
+      if (!pageButtonsEl) return;
+      pageButtonsEl.innerHTML = '';
+      if (totalPages <= 1) return;
+
+      const btnBaseClass = 'inline-flex items-center justify-center min-w-8 h-8 px-2.5 rounded-md border text-xs font-semibold transition-colors cursor-pointer select-none';
+      const activeClass = `${btnBaseClass} border-[#0B3B60] bg-[#0B3B60] text-white font-bold shadow-2xs`;
+      const inactiveClass = `${btnBaseClass} border-slate-200 bg-white text-slate-700 hover:bg-[#EAF4FF] hover:text-[#0B3B60] hover:border-[#BDD7EE]`;
+      const disabledClass = `${btnBaseClass} border-slate-200 bg-white text-slate-400 opacity-40 cursor-not-allowed`;
+
+      // Prev
+      const prevBtn = document.createElement('button');
+      prevBtn.type = 'button';
+      prevBtn.innerHTML = '&lsaquo; Prev';
+      prevBtn.className = currentPage > 1 ? inactiveClass : disabledClass;
+      prevBtn.disabled = currentPage <= 1;
+      prevBtn.onclick = () => {
+        if (currentPage > 1) {
+          currentPage--;
+          renderPage();
+        }
+      };
+      pageButtonsEl.appendChild(prevBtn);
+
+      // Windowed pages
+      let startP = Math.max(1, currentPage - 2);
+      let endP = Math.min(totalPages, startP + 4);
+      if (endP - startP < 4) startP = Math.max(1, endP - 4);
+
+      if (startP > 1) {
+        pageButtonsEl.appendChild(createPageBtn(1));
+        if (startP > 2) {
+          const dots = document.createElement('span');
+          dots.className = 'inline-flex items-center justify-center min-w-6 h-8 text-xs font-semibold text-slate-400 select-none';
+          dots.textContent = '…';
+          pageButtonsEl.appendChild(dots);
+        }
+      }
+
+      for (let p = startP; p <= endP; p++) {
+        pageButtonsEl.appendChild(createPageBtn(p));
+      }
+
+      if (endP < totalPages) {
+        if (endP < totalPages - 1) {
+          const dots = document.createElement('span');
+          dots.className = 'inline-flex items-center justify-center min-w-6 h-8 text-xs font-semibold text-slate-400 select-none';
+          dots.textContent = '…';
+          pageButtonsEl.appendChild(dots);
+        }
+        pageButtonsEl.appendChild(createPageBtn(totalPages));
+      }
+
+      // Next
+      const nextBtn = document.createElement('button');
+      nextBtn.type = 'button';
+      nextBtn.innerHTML = 'Next &rsaquo;';
+      nextBtn.className = currentPage < totalPages ? inactiveClass : disabledClass;
+      nextBtn.disabled = currentPage >= totalPages;
+      nextBtn.onclick = () => {
+        if (currentPage < totalPages) {
+          currentPage++;
+          renderPage();
+        }
+      };
+      pageButtonsEl.appendChild(nextBtn);
+
+      function createPageBtn(pageNum: number) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = String(pageNum);
+        btn.className = pageNum === currentPage ? activeClass : inactiveClass;
+        btn.onclick = () => {
+          currentPage = pageNum;
+          renderPage();
+        };
+        return btn;
+      }
+    }
 
     function filterAnnouncements() {
       const selectedProj = projectFilter ? projectFilter.value.toLowerCase() : 'all';
@@ -191,54 +393,48 @@ const formatDate = (dateStr: string) => {
       const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
       const order = sortOrder ? sortOrder.value : 'newest';
 
-      const cards = Array.from(document.querySelectorAll('.notif-card'));
-      let visibleCount = 0;
-
-      cards.forEach((card: any) => {
-        const year = card.getAttribute('data-year');
-        const searchKeys = card.getAttribute('data-search-keys') || '';
+      matchedRows = allRows.filter((row) => {
+        const year = row.getAttribute('data-year');
+        const status = (row.getAttribute('data-status') || 'Active').toLowerCase();
+        const searchKeys = row.getAttribute('data-search-keys') || '';
 
         const matchesProj = selectedProj === 'all' || searchKeys.includes(selectedProj);
         const matchesYear = selectedYr === 'All' || year === selectedYr;
         const matchesSearch = query === '' || searchKeys.includes(query);
-
-        if (matchesProj && matchesYear && matchesSearch) {
-          card.classList.remove('hidden');
-          visibleCount++;
-        } else {
-          card.classList.add('hidden');
+        
+        let matchesStatus = true;
+        if (currentStatus !== 'All') {
+          if (currentStatus === 'Archived') {
+            matchesStatus = (status === 'archived' || status === 'archive');
+          } else {
+            matchesStatus = (status === currentStatus.toLowerCase());
+          }
         }
+
+        return matchesProj && matchesYear && matchesSearch && matchesStatus;
       });
 
-      // Sort cards DOM order based on date timestamp
-      cards.sort((a: any, b: any) => {
+      // Sort matchedRows
+      matchedRows.sort((a, b) => {
         const timeA = parseInt(a.getAttribute('data-timestamp') || '0', 10);
         const timeB = parseInt(b.getAttribute('data-timestamp') || '0', 10);
         return order === 'newest' ? timeB - timeA : timeA - timeB;
       });
 
-      cards.forEach((card: any) => {
-        if (container) container.appendChild(card);
-      });
-
-      const emptyState = document.getElementById('notif-empty-state');
-      if (emptyState) {
-        if (visibleCount === 0) {
-          emptyState.classList.remove('hidden');
-        } else {
-          emptyState.classList.add('hidden');
-        }
+      // Re-order in DOM
+      if (tableBody) {
+        matchedRows.forEach((row) => tableBody.appendChild(row));
       }
 
-      if (countDisplay) {
-        countDisplay.textContent = `Showing ${visibleCount} item(s)`;
-      }
+      currentPage = 1;
+      renderPage();
     }
 
     projectFilter?.addEventListener('change', filterAnnouncements);
     yearFilter?.addEventListener('change', filterAnnouncements);
     sortOrder?.addEventListener('change', filterAnnouncements);
     searchInput?.addEventListener('input', filterAnnouncements);
+
     filterAnnouncements();
   });
 </script>
