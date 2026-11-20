@@ -72,10 +72,10 @@ const pagedProjects = projects.slice((currentPage - 1) * PAGE_SIZE, currentPage 
                 </tr>
               </thead>
               <tbody>
-                {pagedProjects.length === 0 && !errorMessage ? (
+                {pagedProjects.length === 0 ? (
                   <tr>
-                    <td colspan="6" class="text-center text-slate-500 py-12 text-sm font-medium">
-                      No projects under construction found.
+                    <td colspan="6" class="text-center text-slate-500 py-8 text-xs font-semibold italic">
+                      No projects under construction recorded.
                     </td>
                   </tr>
                 ) : (

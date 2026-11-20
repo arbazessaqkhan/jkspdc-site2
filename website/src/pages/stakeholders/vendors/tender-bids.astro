@@ -213,7 +213,14 @@ const allFilterLocations = Array.from(new Set([
                 </tr>
               </thead>
               <tbody id="tenders-table-body">
-                {processedTenders.map((tender: any, idx: number) => {
+                {processedTenders.length === 0 ? (
+                  <tr>
+                    <td colspan="5" class="text-center text-slate-500 py-8 text-xs font-semibold italic">
+                      No active or archived tenders recorded.
+                    </td>
+                  </tr>
+                ) : (
+                  processedTenders.map((tender: any, idx: number) => {
                   const locationClean = tender.locationTag?.replace(/^HQ_/i, 'HQ ')?.replace(/^HEP_/i, 'HEP ')?.replace(/_/g, ' ') || 'Corporate';
                   return (
                     <tr 
@@ -274,12 +281,14 @@ const allFilterLocations = Array.from(new Set([
           </div>
 
           <!-- Pagination Controls (10 items per page) -->
-          <nav id="tenders-pagination" class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-3" aria-label="Tenders Pagination">
-            <p class="text-[11px] font-medium text-slate-500">
-              Showing <strong class="text-slate-700 font-bold" id="tenders-page-from">0</strong>–<strong class="text-slate-700 font-bold" id="tenders-page-to">0</strong> of <strong class="text-slate-700 font-bold" id="tenders-page-total">0</strong> tenders
-            </p>
-            <div class="flex flex-wrap items-center gap-1.5" id="tenders-page-buttons"></div>
-          </nav>
+          {processedTenders.length > 0 && (
+            <nav id="tenders-pagination" class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-3" aria-label="Tenders Pagination">
+              <p class="text-[11px] font-medium text-slate-500">
+                Showing <strong class="text-slate-700 font-bold" id="tenders-page-from">0</strong>–<strong class="text-slate-700 font-bold" id="tenders-page-to">0</strong> of <strong class="text-slate-700 font-bold" id="tenders-page-total">0</strong> tenders
+              </p>
+              <div class="flex flex-wrap items-center gap-1.5" id="tenders-page-buttons"></div>
+            </nav>
+          )}
         </div>
       </article>
     </div>
@@ -308,6 +317,7 @@ const allFilterLocations = Array.from(new Set([
 
     if (!allRows.length) {
       if (paginationNav) paginationNav.style.display = 'none';
+      if (countDisplay) countDisplay.textContent = 'Showing 0 tender(s)';
       return;
     }
 
