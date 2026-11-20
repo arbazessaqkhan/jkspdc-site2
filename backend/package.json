@@ -15,6 +15,7 @@
     "postinstall": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
     "prisma:status": "prisma migrate status",
+    "clean:staging": "node prisma/clean-staging.js",
     "test": "node --test test/**/*.test.js",
     "test:mfa": "node --test test/mfa-security.test.js",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
