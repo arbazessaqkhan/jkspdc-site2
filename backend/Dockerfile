@@ -5,6 +5,8 @@ FROM node:22-alpine AS builder
 
 WORKDIR /usr/src/app
 
+ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
+
 COPY package*.json ./
 COPY prisma ./prisma/
 
