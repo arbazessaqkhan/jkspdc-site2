@@ -669,14 +669,26 @@ const pagedState = { rows: notifications, total: pagedTotal, page, pageSize, las
               if (els.notifValidTillInput) els.notifValidTillInput.value = toDateInputValue(notifData.validTillDate);
               if (els.notifPriorityInput) els.notifPriorityInput.value = notifData.priority === 'Urgent' ? 'Urgent' : 'Normal';
               if (els.notifStatusInput) els.notifStatusInput.value = notifData.status || 'Active';
-              if (els.fileLabel) {
-                els.fileLabel.textContent = notifData.fileName || 'Attached existing file';
-                els.fileLabel.classList.add('text-emerald-700', 'font-bold');
+
+              // Show already uploaded file in the FileUploader dropzone
+              var uploaderZone = document.getElementById('notif-doc-dropzone');
+              if (uploaderZone && notifData.documentUrl) {
+                uploaderZone.classList.add('has-file');
+                uploaderZone.classList.remove('is-invalid');
+                var displayedName = notifData.fileName || notifData.documentUrl.split('/').pop() || 'Attached File';
+                var nameEl = uploaderZone.querySelector('.admin-uploader-file-name');
+                if (nameEl) nameEl.textContent = displayedName;
+                var sizeEl = uploaderZone.querySelector('.admin-uploader-file-size');
+                if (sizeEl) {
+                  if (notifData.fileSizeBytes) {
+                    var bytes = Number(notifData.fileSizeBytes);
+                    sizeEl.textContent = bytes < 1024 * 1024 ? Math.round(bytes / 1024) + ' KB' : (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+                  } else {
+                    sizeEl.textContent = '';
+                  }
+                }
               }
-              if (els.uploadStatus) {
-                els.uploadStatus.textContent = 'Attached existing file';
-                els.uploadStatus.className = 'text-[10px] text-emerald-600 font-semibold mt-1 block';
-              }
+
               showModal(true);
             } catch (err) {
               console.error(err);

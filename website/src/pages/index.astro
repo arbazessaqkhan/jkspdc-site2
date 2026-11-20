@@ -9,32 +9,13 @@ let tenders: any[] = [];
 let projects: any[] = [];
 let notifications: any[] = [];
 let heroSlides: any[] = [];
-let heroSettings = { autoplay: true, duration: 6 };
+let heroSettings = { autoplay: true, duration: 3 };
 let welcomeSettings: { autoplay: boolean; duration: number; items: any[] } = {
   autoplay: true,
   duration: 5,
   items: [],
 };
-let gallery = [
-  {
-    id: 'gallery-seed-1',
-    title: 'Signing of Implementation Agreement NHPC & JKSPDC',
-    imageUrl: '/gallery/signing_agreement.png',
-    partition: 'Official Events',
-  },
-  {
-    id: 'gallery-seed-2',
-    title: 'Retirement Ceremony of Executive Director Civil, JKSPDC',
-    imageUrl: '/gallery/retirement_ed_civil.png',
-    partition: 'Corporate',
-  },
-  {
-    id: 'gallery-seed-5',
-    title: 'Corporate HQ and Administrative Building',
-    imageUrl: '/slider2.jpg',
-    partition: 'Corporate',
-  },
-];
+let gallery = [];
 
 try {
   // Fetch dignitaries
@@ -92,7 +73,7 @@ try {
         const parsed = JSON.parse(stored.value);
         heroSettings = {
           autoplay: parsed.autoplay !== false,
-          duration: Number(parsed.duration) >= 4 && Number(parsed.duration) <= 10 ? Number(parsed.duration) : 6,
+          duration: Number(parsed.duration) >= 3 && Number(parsed.duration) <= 10 ? Number(parsed.duration) : 3,
         };
       } catch {}
     }
@@ -216,7 +197,7 @@ const fallbackOperationalProjects = [
 
 // Hero carousel timing is fully admin-controlled. Defaults only guard against a
 // missing setting; they never introduce carousel content.
-const heroSlideMs = Math.max(4, Math.min(10, Number(heroSettings.duration) || 6)) * 1000;
+const heroSlideMs = Math.max(3, Math.min(10, Number(heroSettings.duration) || 3)) * 1000;
 
 const quickLinks = [
   { icon: "building", label: "About JKSPDC", desc: "Corporate profile & leadership", href: "/about-us/explore/overview" },
@@ -1301,7 +1282,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
   var cur = 0;
   var heroTimer = null;
   var heroMs = parseInt(heroSection && heroSection.dataset.heroDuration, 10);
-  if (!heroMs || isNaN(heroMs)) heroMs = 6000;
+  if (!heroMs || isNaN(heroMs)) heroMs = 3000;
   var heroAutoplay = !heroSection || heroSection.dataset.heroAutoplay !== 'false';
 
   function goTo(n) {
@@ -1357,16 +1338,6 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
       goTo(cur + 1);
       startHeroTimer();
     };
-  }
-
-  /* Pause the rotation while the pointer or keyboard focus is inside the hero */
-  if (heroSection) {
-    heroSection.addEventListener('mouseenter', stopHeroTimer);
-    heroSection.addEventListener('mouseleave', startHeroTimer);
-    heroSection.addEventListener('focusin', stopHeroTimer);
-    heroSection.addEventListener('focusout', function (e) {
-      if (!e.relatedTarget || !heroSection.contains(e.relatedTarget)) startHeroTimer();
-    });
   }
 
   startHeroTimer();

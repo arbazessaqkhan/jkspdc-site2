@@ -107,8 +107,8 @@ if (Astro.request.method === 'POST') {
         errorMessage = 'Access denied: You do not have permission to modify carousel settings.';
       } else {
         const autoplay = formData.get('autoplay') === 'true' || formData.get('autoplay') === 'on';
-        const durationVal = parseInt(formData.get('duration')?.toString() || '6', 10);
-        const duration = Math.min(10, Math.max(4, isNaN(durationVal) ? 6 : durationVal));
+        const durationVal = parseInt(formData.get('duration')?.toString() || '3', 10);
+        const duration = Math.min(10, Math.max(3, isNaN(durationVal) ? 3 : durationVal));
 
         const res = await fetch(`${BACKEND_URL}/api/site-settings/homepage_hero_settings`, {
           method: 'PUT',
@@ -167,7 +167,7 @@ let slidesList: any[] = [];
 let pagedTotal = 0;
 let pagedLastPage = 1;
 
-let heroSettings = { autoplay: true, duration: 6 };
+let heroSettings = { autoplay: true, duration: 3 };
 let galleryList: any[] = [];
 
 try {
@@ -262,13 +262,13 @@ function getImageUrl(url: string) {
               name="duration" 
               class="admin-input text-xs font-bold py-1.5 px-3 bg-white border border-slate-300 rounded cursor-pointer focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
             >
-              {[4, 5, 6, 7, 8, 9, 10].map((sec) => (
-                <option value={sec} selected={Number(heroSettings.duration || 6) === sec}>
+              {[3, 4, 5, 6, 7, 8, 9, 10].map((sec) => (
+                <option value={sec} selected={Number(heroSettings.duration || 3) === sec}>
                   {sec}
                 </option>
               ))}
             </select>
-            <span class="text-xs text-slate-500 font-medium">seconds (4–10s)</span>
+            <span class="text-xs text-slate-500 font-medium">seconds (3–10s)</span>
           </div>
         </div>
         {canMutate && (
