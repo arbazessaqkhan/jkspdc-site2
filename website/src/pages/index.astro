@@ -143,6 +143,25 @@ const routeMap = {
   "Shri Rahul Yadav": "/dignitaries/rahul-yadav"
 };
 
+const fallbackOperationalProjects = [
+  { id: 'op-pahalgam', name: 'MHEP PAHALGAM', capacityMw: 4.5, designEnergy: 14.92, yearOfCommissioning: 2005, basin: 'Jhelum Basin', location: 'Anantnag', status: 'Operational', type: 'Hydro', configuration: '2x2.25MW' },
+  { id: 'op-karnah', name: 'KARNAH', capacityMw: 2, designEnergy: 11.36, yearOfCommissioning: 1991, basin: 'Jhelum Basin', location: 'Kupwara', status: 'Operational', type: 'Hydro', configuration: '2x1MW' },
+  { id: 'op-ganderbal', name: 'GANDERBAL', capacityMw: 15, designEnergy: 90.15, yearOfCommissioning: 1955, basin: 'Jhelum Basin', location: 'Ganderbal', status: 'Operational', type: 'Hydro', configuration: '2x3MW + 2x4.5MW' },
+  { id: 'op-ushp-i', name: 'USHP I', capacityMw: 22.6, designEnergy: 106.62, yearOfCommissioning: 1973, basin: 'Jhelum Basin', location: 'Sumbal', status: 'Operational', type: 'Hydro', configuration: '2x11.3MW' },
+  { id: 'op-ushp-ii', name: 'USHP II', capacityMw: 105, designEnergy: 447.37, yearOfCommissioning: 2000, basin: 'Jhelum Basin', location: 'Kangan', status: 'Operational', type: 'Hydro', configuration: '3x35MW' },
+  { id: 'op-ljhp', name: 'LJHP', capacityMw: 105, designEnergy: 68.04, yearOfCommissioning: 1977, basin: 'Jhelum Basin', location: 'Baramulla', status: 'Operational', type: 'Hydro', configuration: '3x35MW' },
+  { id: 'op-bhaderwah', name: 'BHADERWAH', capacityMw: 1.5, designEnergy: 8.32, yearOfCommissioning: 2005, basin: 'Chenab Basin', location: 'Doda', status: 'Operational', type: 'Hydro', configuration: '3x0.5MW' },
+  { id: 'op-chep-iii', name: 'CHEP III', capacityMw: 7.5, designEnergy: 36.71, yearOfCommissioning: 2001, basin: 'Chenab Basin', location: 'Udhampur', status: 'Operational', type: 'Hydro', configuration: '3x2.5MW' },
+  { id: 'op-chep-ii', name: 'CHEP II', capacityMw: 2, designEnergy: 12, yearOfCommissioning: 1996, basin: 'Chenab Basin', location: 'Udhampur', status: 'Operational', type: 'Hydro', configuration: '2x1MW' },
+  { id: 'op-chep-i', name: 'CHEP I', capacityMw: 23.3, designEnergy: 110.02, yearOfCommissioning: 1971, basin: 'Chenab Basin', location: 'Udhampur', status: 'Operational', type: 'Hydro', configuration: '5x4.66MW' },
+  { id: 'op-bhep-i', name: 'BHEP I', capacityMw: 450, designEnergy: 2536.07, yearOfCommissioning: 2008, basin: 'Chenab Basin', location: 'Ramban', status: 'Operational', type: 'Hydro', configuration: '3x150MW' },
+  { id: 'op-bhep-ii', name: 'BHEP II', capacityMw: 450, designEnergy: 1302, yearOfCommissioning: 2015, basin: 'Chenab Basin', location: 'Ramban', status: 'Operational', type: 'Hydro', configuration: '3x150MW' },
+  { id: 'op-sewa-iii', name: 'SEWA III', capacityMw: 9, designEnergy: 33.06, yearOfCommissioning: 2002, basin: 'Ravi Basin', location: 'Kathua', status: 'Operational', type: 'Hydro', configuration: '3x3MW' }
+];
+
+// Fallback purpose: When projects are populated from admin side, fallback is automatically removed
+const displayProjects = projects.length > 0 ? projects : fallbackOperationalProjects;
+
 
 
 // Hero carousel timing is fully admin-controlled. Defaults only guard against a
@@ -781,13 +800,13 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
             <p class="text-sm text-slate-500 max-w-xl leading-relaxed">Discover operational hydroelectric plants, ongoing constructions and upcoming renewable projects across J&K.</p>
             <div class="flex items-center gap-2 flex-wrap flex-shrink-0">
               <div class="flex items-center gap-2 px-3 py-1.5 text-xs text-slate-700 font-semibold border border-slate-200 rounded-sm">
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> {projects.filter((p: any) => p.status === 'Operational').length} Operational
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> {displayProjects.filter((p: any) => p.status === 'Operational').length} Operational
               </div>
               <div class="flex items-center gap-2 px-3 py-1.5 text-xs text-slate-700 font-semibold border border-slate-200 rounded-sm">
-                <span class="w-2 h-2 rounded-full bg-amber-500"></span> {projects.filter((p: any) => p.status === 'Under Construction').length} Under Construction
+                <span class="w-2 h-2 rounded-full bg-amber-500"></span> {displayProjects.filter((p: any) => p.status === 'Under Construction').length} Under Construction
               </div>
               <div class="flex items-center gap-2 px-3 py-1.5 text-xs text-slate-700 font-semibold border border-slate-200 rounded-sm">
-                <span class="w-2 h-2 rounded-full bg-brand-primary"></span> {projects.filter((p: any) => p.status === 'Upcoming').length} Upcoming
+                <span class="w-2 h-2 rounded-full bg-brand-primary"></span> {displayProjects.filter((p: any) => p.status === 'Upcoming').length} Upcoming
               </div>
             </div>
           </div>
@@ -826,8 +845,8 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
 
         <!-- Project Cards Grid -->
         <div class="px-8 md:px-12 pt-6 pb-3">
-          <div id="projects-grid" class={projects.length > 0 ? "grid md:grid-cols-2 xl:grid-cols-3 gap-3" : "hidden"}>
-            {projects.map((p) => (
+          <div id="projects-grid" class={displayProjects.length > 0 ? "grid md:grid-cols-2 xl:grid-cols-3 gap-3" : "hidden"}>
+            {displayProjects.map((p) => (
               <a 
                 href={`/our-business/power-station-details?id=${p.id}`} 
                 class="project-card block bg-white rounded-sm border border-slate-200 border-l-4 p-4 hover:border-sky-300 hover:border-l-sky-700 hover:bg-sky-50/50 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary group" 
@@ -857,7 +876,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
             ))}
           </div>
 
-          {projects.length === 0 && (
+          {displayProjects.length === 0 && (
             <div class="py-12 px-6 text-center max-w-lg mx-auto">
               <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-500 border border-slate-200 flex items-center justify-center mx-auto mb-2.5">
                 <Icon name="building" size={18} />
@@ -891,12 +910,12 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
         </div>
 
         <!-- View All Action Footer -->
-        {projects.length > 0 && (
+        {displayProjects.length > 0 && (
           <div class="mt-0">
             <div class="flex items-center justify-between border-t border-slate-200 bg-slate-50/60 px-6 md:px-10 py-3.5">
-              <p class="text-xs text-slate-500">Showing {Math.min(6, projects.length)} of {projects.length} projects</p>
+              <p class="text-xs text-slate-500">Showing {Math.min(6, displayProjects.length)} of {displayProjects.length} projects</p>
               <a id="project-view-all-btn" href="#projects" class="inline-flex items-center gap-2 text-sm font-semibold text-brand-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary cursor-pointer">
-                View full project register ({projects.length}) &darr;
+                View full project register ({displayProjects.length}) &darr;
               </a>
             </div>
           </div>

@@ -867,15 +867,15 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
         <div class="flex items-center gap-2 sm:gap-2.5 flex-wrap">
           <div class="flex items-center gap-2 px-3 py-1 text-xs text-slate-800 font-bold bg-emerald-50/80 border border-emerald-200/90 rounded-full shadow-2xs">
             <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
-            <span>{projects.filter((p: any) => p.status === 'Operational').length} Operational</span>
+            <span>{(projects.length > 0 ? projects : fallbackOperationalProjects).filter((p: any) => p.status === 'Operational').length} Operational</span>
           </div>
           <div class="flex items-center gap-2 px-3 py-1 text-xs text-slate-800 font-bold bg-amber-50/80 border border-amber-200/90 rounded-full shadow-2xs">
             <span class="w-2 h-2 rounded-full bg-amber-600"></span>
-            <span>{projects.filter((p: any) => p.status === 'Under Construction').length} Under Construction</span>
+            <span>{(projects.length > 0 ? projects : fallbackOperationalProjects).filter((p: any) => p.status === 'Under Construction').length} Under Construction</span>
           </div>
           <div class="flex items-center gap-2 px-3 py-1 text-xs text-slate-800 font-bold bg-sky-50/80 border border-sky-200/90 rounded-full shadow-2xs">
             <span class="w-2 h-2 rounded-full bg-[#0B3B60]"></span>
-            <span>{projects.filter((p: any) => p.status === 'Upcoming').length} Upcoming</span>
+            <span>{(projects.length > 0 ? projects : fallbackOperationalProjects).filter((p: any) => p.status === 'Upcoming').length} Upcoming</span>
           </div>
         </div>
       </div>
@@ -1050,7 +1050,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
         <div class="flex items-center gap-2 text-xs text-slate-600 font-medium order-2 sm:order-1">
           <span class="w-2 h-2 rounded-full bg-[#0B3B60]"></span>
           <span id="project-count-text">
-            Showing <strong class="text-slate-900 font-bold" id="project-showing-count">{Math.min(6, projects.length)}</strong> of <strong class="text-slate-900 font-bold">{projects.length}</strong> total projects
+            Showing <strong class="text-slate-900 font-bold" id="project-showing-count">{Math.min(6, (projects.length > 0 ? projects : fallbackOperationalProjects).length)}</strong> of <strong class="text-slate-900 font-bold">{(projects.length > 0 ? projects : fallbackOperationalProjects).length}</strong> total projects
           </span>
         </div>
 
@@ -1061,7 +1061,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
             id="project-load-more-btn" 
             class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#0B3B60] hover:bg-[#002B49] text-white text-xs font-bold transition-all duration-200 shadow-xs hover:shadow-md cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3B60]"
           >
-            <span id="project-load-more-text">Load All {projects.length} Projects</span>
+            <span id="project-load-more-text">Load All {(projects.length > 0 ? projects : fallbackOperationalProjects).length} Projects</span>
             <span id="project-load-more-icon" class="text-xs transition-transform duration-200">&darr;</span>
           </button>
 
