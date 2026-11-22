@@ -242,7 +242,10 @@ import Ticker from './Ticker.astro';
         try {
           var sitemapRes = await fetch('/search-index.json');
           if (sitemapRes.ok) {
-            searchIndex = await sitemapRes.json();
+            var sData = await sitemapRes.json();
+            if (Array.isArray(sData)) {
+              searchIndex = sData;
+            }
           }
         } catch(err) {
           console.error('Failed to load sitemap search index:', err);
@@ -251,13 +254,15 @@ import Ticker from './Ticker.astro';
           var projectsRes = await fetch((window.__API_BASE__ || '') + '/api/projects');
           if (projectsRes.ok) {
             var projects = await projectsRes.json();
-            projects.forEach(function(p) {
-              searchIndex.push({
-                title: p.name,
-                url: '/our-business/power-station-details?id=' + p.id,
-                description: 'About ' + p.name + ' - Capacity: ' + p.capacityMw + ' MW, Location: ' + (p.location || 'J&K') + '. Status: ' + p.status + '.'
+            if (Array.isArray(projects)) {
+              projects.forEach(function(p) {
+                searchIndex.push({
+                  title: p.name,
+                  url: '/our-business/power-station-details?id=' + p.id,
+                  description: 'About ' + p.name + ' - Capacity: ' + p.capacityMw + ' MW, Location: ' + (p.location || 'J&K') + '. Status: ' + p.status + '.'
+                });
               });
-            });
+            }
           }
         } catch(e) {
           // Ignore optional project lookup error

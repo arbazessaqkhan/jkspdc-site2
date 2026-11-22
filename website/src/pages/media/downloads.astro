@@ -10,11 +10,13 @@ try {
   const res = await fetch(`${BACKEND_URL}/api/downloads`);
   if (res.ok) {
     const dbItems = await res.json();
-    const active = dbItems.filter((d: any) => 
-      (!d.status || d.status === 'Active') &&
-      (!d.category || d.category.toLowerCase() === 'downloads' || d.category.toLowerCase() === 'official forms' || d.category.toLowerCase() === 'e-tendering forms')
-    );
-    downloads = active;
+    if (Array.isArray(dbItems)) {
+      const active = dbItems.filter((d: any) => 
+        (!d.status || d.status === 'Active') &&
+        (!d.category || d.category.toLowerCase() === 'downloads' || d.category.toLowerCase() === 'official forms' || d.category.toLowerCase() === 'e-tendering forms')
+      );
+      downloads = active;
+    }
   }
 } catch (e) {
   console.error('Error fetching downloads from backend:', e);

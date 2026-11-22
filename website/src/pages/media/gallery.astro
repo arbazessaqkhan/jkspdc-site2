@@ -4,15 +4,15 @@ import Icon from '../../components/Icon.astro';
 import { BACKEND_URL } from '../../utils/api-error';
 
 let galleryItems: any[] = [];
-let errorMessage = '';
 
 try {
   // Fetch from public API (filters out Draft items automatically)
   const res = await fetch(`${BACKEND_URL}/api/public/gallery`);
   if (res.ok) {
-    galleryItems = await res.json();
+    const data = await res.json();
+    galleryItems = Array.isArray(data) ? data : [];
   } else {
-    errorMessage = 'Failed to load media records from the backend database.';
+    console.error('Failed to load media records from the backend database. Status:', res.status);
   }
 
   // Also include photographs uploaded for projects (only if an image is uploaded or available)
@@ -27,7 +27,8 @@ try {
       }
 
       const projData = await projRes.json();
-      const projectPhotos = projData
+      const safeProjData = Array.isArray(projData) ? projData : [];
+      const projectPhotos = safeProjData
         .map((p: any) => {
           const img = resolveProjectImage(p);
           if (!img) return null;
@@ -47,7 +48,6 @@ try {
   }
 } catch (e) {
   console.error('Error fetching gallery items:', e);
-  errorMessage = 'Connection to administrative database failed. Displaying cached records.';
   galleryItems = [
     {
       id: 'gallery-seed-1',
@@ -118,15 +118,6 @@ function getImageUrl(url: string) {
     </div>
 
     <div class="animate-fadeInUp delay-200 space-y-6">
-      {errorMessage && (
-        <div class="mb-4">
-          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 rounded-lg">
-            <Icon name="alert-triangle" size={14} class="text-amber-800 shrink-0" />
-            <span>{errorMessage}</span>
-          </span>
-        </div>
-      )}
-
       {galleryItems.length === 0 ? (
         <div class="bg-slate-50 border border-slate-200 text-slate-700 rounded-2xl p-12 text-center text-sm shadow-xs">
           <p class="font-bold text-slate-800 text-base mb-1">No media records found</p>

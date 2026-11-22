@@ -4,7 +4,6 @@ import Icon from '../../../components/Icon.astro';
 import { getDocUrl } from '../../../utils/sanitizer';
 
 let tenders = [];
-let errorMessage = '';
 
 // Map-grouping tenders variables
 let processedTenders = [];
@@ -14,7 +13,8 @@ let recentCorrigendums = [];
 try {
   const res = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/tenders`);
   if (res.ok) {
-    tenders = await res.json();
+    const rawData = await res.json();
+    tenders = Array.isArray(rawData) ? rawData : [];
     
     // Process tenders and gather corrigendums for sidebar
     const allCorrigendums: any[] = [];
@@ -68,11 +68,10 @@ try {
     awardsAndBanned.sort((a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
 
   } else {
-    errorMessage = 'Failed to load tenders registry.';
+    console.error('Failed to load tenders registry. Status:', res.status);
   }
 } catch (e) {
   console.error('Error fetching/processing public tenders:', e);
-  errorMessage = 'Failed to connect to the backend server.';
 }
 
 
@@ -110,12 +109,6 @@ const allFilterLocations = Array.from(new Set([
     </div>
 
     <div class="space-y-8">
-
-    {errorMessage && (
-      <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 text-xs font-semibold">
-        {errorMessage}
-      </div>
-    )}
 
     <!-- Dynamic Segregation & Filter Bar -->
     <div id="filter-bar" class="bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-4">

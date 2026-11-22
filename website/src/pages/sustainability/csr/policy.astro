@@ -9,14 +9,16 @@ try {
   const res = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/policies`);
   if (res.ok) {
     const data = await res.json();
-    csrDocuments = data.filter((d: any) => 
-      d.status === 'Active' && 
-      (
-        d.category === 'CSR' || 
-        (d.title && d.title.toUpperCase().includes('CSR')) || 
-        (d.description && d.description.toUpperCase().includes('CSR'))
-      )
-    );
+    if (Array.isArray(data)) {
+      csrDocuments = data.filter((d: any) => 
+        d.status === 'Active' && 
+        (
+          d.category === 'CSR' || 
+          (d.title && d.title.toUpperCase().includes('CSR')) || 
+          (d.description && d.description.toUpperCase().includes('CSR'))
+        )
+      );
+    }
   }
 } catch (e) {
   console.error('Error fetching CSR policies:', e);

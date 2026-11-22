@@ -6,27 +6,30 @@ import { BACKEND_URL } from '../../utils/api-error';
 
 const PAGE_SIZE = 10;
 
-let projects = [];
-let errorMessage = '';
+let projects: any[] = [];
 
 const apiBase = import.meta.env.PUBLIC_API_BASE || BACKEND_URL;
 
 try {
   const res = await fetch(`${apiBase}/api/projects?status=Upcoming`);
   if (res.ok) {
-    projects = await res.json();
+    const data = await res.json();
+    if (Array.isArray(data)) {
+      projects = data;
+    }
   } else {
-    errorMessage = 'Failed to load projects under development.';
+    console.error('Failed to load projects under development. Status:', res.status);
   }
 } catch (e) {
-  errorMessage = 'Failed to connect to the backend server.';
+  console.error('Error fetching projects under development:', e);
 }
 
-const totalProjects = projects.length;
+const safeProjects = Array.isArray(projects) ? projects : [];
+const totalProjects = safeProjects.length;
 const lastPage = Math.max(1, Math.ceil(totalProjects / PAGE_SIZE));
 const rawPage = parseInt(Astro.url.searchParams.get('page') || '1', 10);
 const currentPage = Math.min(Math.max(Number.isFinite(rawPage) ? rawPage : 1, 1), lastPage);
-const pagedProjects = projects.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+const pagedProjects = safeProjects.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 ---
 
 <Layout 
@@ -52,12 +55,6 @@ const pagedProjects = projects.slice((currentPage - 1) * PAGE_SIZE, currentPage 
       <!-- Main Content -->
       <article class="w-full">
         
-        {errorMessage && (
-          <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 text-xs font-semibold">
-            {errorMessage}
-          </div>
-        )}
-
         <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs p-4 space-y-3">
           <div class="table-wrapper">
             <table class="table-data" role="table" aria-label="Projects Under Development List">

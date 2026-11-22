@@ -140,12 +140,15 @@ let officialContacts = [];
 try {
   const res = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/official-contacts`);
   if (res.ok) {
-    officialContacts = await res.json();
+    const rawData = await res.json();
+    if (Array.isArray(rawData)) {
+      officialContacts = rawData;
+    }
   }
 } catch (e) {
   console.error('Error fetching official contacts from backend:', e);
 }
-if (!officialContacts || officialContacts.length === 0) {
+if (!officialContacts || !Array.isArray(officialContacts) || officialContacts.length === 0) {
   officialContacts = fallbackOfficialContacts;
 }
 
@@ -154,12 +157,15 @@ let subOffices = [];
 try {
   const res = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/contact-sub-offices`);
   if (res.ok) {
-    subOffices = await res.json();
+    const rawSub = await res.json();
+    if (Array.isArray(rawSub)) {
+      subOffices = rawSub;
+    }
   }
 } catch (e) {
   console.error('Error fetching contact sub-offices from backend:', e);
 }
-if (!subOffices || subOffices.length === 0) {
+if (!subOffices || !Array.isArray(subOffices) || subOffices.length === 0) {
   subOffices = fallbackWingContacts;
 }
 

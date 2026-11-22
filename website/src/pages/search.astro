@@ -66,18 +66,23 @@ import Layout from '../layouts/Layout.astro';
       try {
         const response = await fetch('/search-index.json');
         if (response.ok) {
-          searchIndex = await response.json();
+          const sData = await response.json();
+          if (Array.isArray(sData)) {
+            searchIndex = sData;
+          }
         }
         const projectsRes = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/projects`);
         if (projectsRes.ok) {
           const projects = await projectsRes.json();
-          projects.forEach((p: any) => {
-            searchIndex.push({
-              title: p.name,
-              url: `/our-business/power-station-details?id=${p.id}`,
-              description: `About ${p.name} - Capacity: ${p.capacityMw} MW, Location: ${p.location || 'J&K'}, River Basin: ${p.basin || 'J&K'}. Status: ${p.status}.`
+          if (Array.isArray(projects)) {
+            projects.forEach((p: any) => {
+              searchIndex.push({
+                title: p.name,
+                url: `/our-business/power-station-details?id=${p.id}`,
+                description: `About ${p.name} - Capacity: ${p.capacityMw} MW, Location: ${p.location || 'J&K'}, River Basin: ${p.basin || 'J&K'}. Status: ${p.status}.`
+              });
             });
-          });
+          }
         }
         
         // Check query parameters immediately

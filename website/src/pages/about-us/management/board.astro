@@ -1,20 +1,24 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 
-let directors = [];
-let errorMessage = '';
+let directors: any[] = [];
 
 try {
   const res = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/directors`);
   if (res.ok) {
-    directors = await res.json();
-    directors.sort((a, b) => a.sNo !== b.sNo ? a.sNo - b.sNo : a.name.localeCompare(b.name));
+    const data = await res.json();
+    if (Array.isArray(data)) {
+      directors = data;
+      directors.sort((a, b) => a.sNo !== b.sNo ? a.sNo - b.sNo : a.name.localeCompare(b.name));
+    }
   } else {
-    errorMessage = 'Failed to load board of directors details.';
+    console.error('Failed to load board of directors details. Status:', res.status);
   }
 } catch (e) {
-  errorMessage = 'Failed to connect to the backend server.';
+  console.error('Error fetching board of directors:', e);
 }
+
+const safeDirectors = Array.isArray(directors) ? directors : [];
 ---
 
 <Layout 
@@ -48,16 +52,9 @@ try {
           </div>
         </div>
 
-        <!-- Error -->
-        {errorMessage && (
-          <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 text-xs font-semibold mb-4">
-            {errorMessage}
-          </div>
-        )}
-
         <!-- Directors Table -->
         <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs p-4 space-y-3">
-          {directors.length === 0 && !errorMessage ? (
+          {safeDirectors.length === 0 ? (
             <div class="text-center py-16 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 text-sm font-medium">
               No Board of Directors listed at the moment.
             </div>
@@ -73,7 +70,7 @@ try {
                   </tr>
                 </thead>
                 <tbody>
-                  {directors.map((dir, idx) => (
+                  {safeDirectors.map((dir, idx) => (
                     <tr>
                       <td class="text-center font-bold text-slate-500">{idx + 1}</td>
                       <td class="font-bold text-[#0B3B60]">{dir.name}</td>
@@ -93,7 +90,7 @@ try {
 
         <!-- Footer note -->
         <p class="mt-3 text-[11px] text-slate-400 font-medium text-right">
-          Total Members: <strong class="text-slate-600">{directors.length}</strong>
+          Total Members: <strong class="text-slate-600">{safeDirectors.length}</strong>
         </p>
       </article>
     </div>

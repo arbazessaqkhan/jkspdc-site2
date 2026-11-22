@@ -7,24 +7,20 @@ import { sanitizeHtml } from '../../utils/sanitizer';
 
 const id = Astro.url.searchParams.get('id')?.toString();
 let project: any = null;
-let errorMessage = '';
 
 const apiBase = import.meta.env.PUBLIC_API_BASE || BACKEND_URL;
 
 try {
-  if (!id) {
-    errorMessage = 'Power Station ID is required.';
-  } else {
+  if (id) {
     const res = await fetch(`${apiBase}/api/projects/${id}`);
     if (res.ok) {
       project = await res.json();
     } else {
-      errorMessage = 'Power station details not found.';
+      console.error('Failed to load power station details. Status:', res.status);
     }
   }
 } catch (e) {
   console.error('Error fetching power station details:', e);
-  errorMessage = 'Failed to connect to the backend server.';
 }
 
 // Check if an actual photograph has been uploaded for this project
@@ -135,13 +131,11 @@ const salientSpecs = getSalientSpecs(project);
       <p class="page-subtitle">Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL)</p>
     </div>
 
-    {errorMessage && (
-      <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 text-xs font-semibold">
-        {errorMessage}
+    {!project ? (
+      <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs p-12 text-center text-slate-500 text-xs font-semibold">
+        Power station details not available at this time.
       </div>
-    )}
-
-    {project && (
+    ) : (
       <article class="w-full space-y-8 animate-fadeInUp delay-100">
         <!-- Title and Status Badge -->
         <header class="border-b border-slate-200 pb-4">

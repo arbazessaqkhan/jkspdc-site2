@@ -21,40 +21,58 @@ try {
   // Fetch dignitaries
   const digRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/api/dignitaries`);
   if (digRes.ok) {
-    dignitaries = await digRes.json();
-    dignitaries.sort((a: any, b: any) => a.sNo - b.sNo);
+    const digData = await digRes.json();
+    if (Array.isArray(digData)) {
+      dignitaries = digData;
+      dignitaries.sort((a: any, b: any) => a.sNo - b.sNo);
+    }
   }
 
   // Fetch directors
   const dirRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/api/directors`);
   if (dirRes.ok) {
-    directors = await dirRes.json();
-    directors.sort((a: any, b: any) => a.sNo - b.sNo);
+    const dirData = await dirRes.json();
+    if (Array.isArray(dirData)) {
+      directors = dirData;
+      directors.sort((a: any, b: any) => a.sNo - b.sNo);
+    }
   }
 
   // Fetch tenders
   const tenderRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/api/tenders`);
   if (tenderRes.ok) {
-    tenders = await tenderRes.json();
+    const tenderData = await tenderRes.json();
+    if (Array.isArray(tenderData)) {
+      tenders = tenderData;
+    }
   }
 
   // Fetch projects
   const projRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/api/projects`);
   if (projRes.ok) {
-    projects = await projRes.json();
-    projects.sort((a, b) => (b.capacityMw || 0) - (a.capacityMw || 0));
+    const projData = await projRes.json();
+    if (Array.isArray(projData)) {
+      projects = projData;
+      projects.sort((a, b) => (b.capacityMw || 0) - (a.capacityMw || 0));
+    }
   }
 
   // Fetch notifications
   const notifRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/api/public/notifications`);
   if (notifRes.ok) {
-    notifications = await notifRes.json();
+    const notifData = await notifRes.json();
+    if (Array.isArray(notifData)) {
+      notifications = notifData;
+    }
   }
 
   // Fetch gallery items
   const galleryRes = await fetch(`${process.env.BACKEND_URL ?? import.meta.env.PUBLIC_API_BASE}/api/gallery`);
   if (galleryRes.ok) {
-    gallery = await galleryRes.json();
+    const galData = await galleryRes.json();
+    if (Array.isArray(galData)) {
+      gallery = galData;
+    }
   }
 
   // Fetch homepage hero carousel slides (admin-managed, active only, ordered by sortOrder)
@@ -99,6 +117,12 @@ try {
   console.error('Failed to sync index.astro from backend:', e);
 }
 
+const safeDignitaries = Array.isArray(dignitaries) ? dignitaries : [];
+const safeProjects = Array.isArray(projects) ? projects : [];
+const safeTenders = Array.isArray(tenders) ? tenders : [];
+const safeNotifications = Array.isArray(notifications) ? notifications : [];
+const safeGallery = Array.isArray(gallery) ? gallery : [];
+
 function getImageUrl(url: string) {
   if (!url) return '';
   if (url.startsWith('/uploads/')) {
@@ -110,13 +134,14 @@ function getImageUrl(url: string) {
 // 1. Corporate Overview carousel — ONLY items explicitly selected in the
 // Admin Media Gallery carousel config (homepage_welcome_settings), in the
 // administrator's order, excluding slides disabled by the administrator.
-const overviewSlides = welcomeSettings.items
+const welcomeItems = Array.isArray(welcomeSettings?.items) ? welcomeSettings.items : [];
+const overviewSlides = welcomeItems
   .filter((item: any) => item && item.imageUrl && item.isActive !== false)
   .slice()
   .sort((a: any, b: any) => (Number(a.displayOrder) || 0) - (Number(b.displayOrder) || 0));
 
 // 2. Project Photographs ONLY (Hydroelectric Plants, Dams, Solar Assets)
-const projectGalleryPhotos = gallery.filter((item: any) => 
+const projectGalleryPhotos = safeGallery.filter((item: any) => 
   item.partition && item.partition.toLowerCase() === 'projects'
 );
 const displayProjectPhotos = projectGalleryPhotos;
@@ -160,7 +185,7 @@ const fallbackOperationalProjects = [
 ];
 
 // Fallback purpose: When projects are populated from admin side, fallback is automatically removed
-const displayProjects = projects.length > 0 ? projects : fallbackOperationalProjects;
+const displayProjects = safeProjects.length > 0 ? safeProjects : fallbackOperationalProjects;
 
 
 
@@ -218,8 +243,8 @@ const getDocUrl = (url?: string) => {
 };
 
 const mergedTenderItems: any[] = [];
-if (tenders.length > 0) {
-  tenders.forEach((t: any) => {
+if (safeTenders.length > 0) {
+  safeTenders.forEach((t: any) => {
     // 1. Add the tender itself (strictly original publishDate/createdAt, NEVER updatedAt so updating an existing tender does not bump it)
     mergedTenderItems.push({
       id: t.id,
@@ -273,7 +298,7 @@ const feedTenders = displayTenders.slice(0, 10).map((item: any, rankIdx: number)
 }));
 
 // Use actual active database notifications
-const displayNotifs = notifications.slice();
+const displayNotifs = safeNotifications.slice();
 displayNotifs.sort((a, b) => new Date(b.publishDate || 0).getTime() - new Date(a.publishDate || 0).getTime());
 // Recent 10 notifications
 const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: number) => ({
@@ -633,12 +658,12 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
 
       <!-- Dignitaries Card Grid (Full Width, 4 cols) -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
-        {dignitaries.length === 0 ? (
+        {safeDignitaries.length === 0 ? (
           <div class="col-span-full text-center py-10 bg-slate-50 border border-slate-200 rounded-md text-slate-400 text-xs font-semibold">
             No dignitaries listed at the moment.
           </div>
         ) : (
-          dignitaries.map((d: any) => {
+          safeDignitaries.map((d: any) => {
             const profileHref = `/dignitaries/${d.id}`;
             const photoSrc = d.imageUrl || photoMap[d.name] || null;
             return (

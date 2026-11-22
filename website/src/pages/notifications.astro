@@ -4,22 +4,23 @@ import Icon from '../components/Icon.astro';
 import { getDocUrl } from '../utils/sanitizer';
 
 let notifications: any[] = [];
-let errorMessage = '';
 
 try {
   const res = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/public/notifications`);
   if (res.ok) {
-    notifications = await res.json();
+    const data = await res.json();
+    notifications = Array.isArray(data) ? data : [];
   } else {
-    errorMessage = 'Failed to load notifications.';
+    console.error('Failed to load notifications. Status:', res.status);
   }
 } catch (e) {
   console.error('Error fetching public notifications:', e);
-  errorMessage = 'Failed to connect to the server.';
 }
 
+const safeNotifications = Array.isArray(notifications) ? notifications : [];
+
 // Extract available years for filter
-const yearsSet = new Set(notifications.map(n => new Date(n.publishDate).getFullYear()));
+const yearsSet = new Set(safeNotifications.map(n => new Date(n.publishDate).getFullYear()));
 const years = Array.from(yearsSet).sort((a, b) => b - a);
 
 
@@ -49,12 +50,6 @@ const formatDate = (dateStr: string) => {
       <p class="page-subtitle">Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL)</p>
     </div>
 
-    {errorMessage && (
-      <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 text-xs font-semibold">
-        {errorMessage}
-      </div>
-    )}
-
     <!-- Content Layout -->
     <div class="mt-6">
       
@@ -68,7 +63,7 @@ const formatDate = (dateStr: string) => {
               <Icon name="megaphone" size={15} class="text-[#0B3B60] shrink-0" /> Segregate &amp; Filter Notifications
             </h3>
             <div class="text-xs font-semibold text-slate-500" id="count-display">
-              Showing {notifications.length} item(s)
+              Showing {safeNotifications.length} item(s)
             </div>
           </div>
 

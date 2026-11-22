@@ -6,26 +6,22 @@ import { getDocUrl } from '../../../utils/sanitizer';
 const id = Astro.url.searchParams.get('id')?.toString();
 let tender: any = null;
 let corrigendums: any[] = [];
-let errorMessage = '';
 
 try {
-  if (!id) {
-    errorMessage = 'Tender ID is required.';
-  } else {
+  if (id) {
     // Fetch tender
     const res = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/tenders/${id}`);
     if (res.ok) {
       tender = await res.json();
       
-      corrigendums = tender.corrigendums && Array.isArray(tender.corrigendums) ? [...tender.corrigendums] : [];
+      corrigendums = tender && tender.corrigendums && Array.isArray(tender.corrigendums) ? [...tender.corrigendums] : [];
       corrigendums.sort((a, b) => new Date(a.publishDate).getTime() - new Date(b.publishDate).getTime());
     } else {
-      errorMessage = 'Tender details not found.';
+      console.error('Failed to load tender details. Status:', res.status);
     }
   }
 } catch (e) {
   console.error('Error fetching tender details:', e);
-  errorMessage = 'Failed to connect to the backend server.';
 }
 
 
@@ -63,14 +59,12 @@ const formatSize = (bytes: number) => {
       <p class="page-subtitle">Jammu &amp; Kashmir State Power Development Corporation Limited (JKSPDCL)</p>
     </div>
 
-    <!-- Error State -->
-    {errorMessage && (
-      <div class="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 text-xs font-semibold">
-        {errorMessage}
+    <!-- Tender Details or Neutral Fallback -->
+    {!tender ? (
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-12 text-center text-slate-500 text-xs font-semibold">
+        Tender details not available at this time.
       </div>
-    )}
-
-    {tender && (
+    ) : (
       <article class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 md:p-8 space-y-8 text-left">
         
         <!-- Header -->

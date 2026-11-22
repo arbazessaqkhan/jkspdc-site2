@@ -9,10 +9,12 @@ try {
   const res = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/policies`);
   if (res.ok) {
     const data = await res.json();
-    memoDocs = data.filter((d: any) => 
-      d.status === 'Active' && 
-      (d.category === 'Memorandum' || d.category === 'MoA / AoA')
-    );
+    if (Array.isArray(data)) {
+      memoDocs = data.filter((d: any) => 
+        d.status === 'Active' && 
+        (d.category === 'Memorandum' || d.category === 'MoA / AoA')
+      );
+    }
   }
 } catch (e) {
   console.error('Error fetching memorandum document:', e);

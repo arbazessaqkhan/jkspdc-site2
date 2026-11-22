@@ -84,8 +84,17 @@ try {
     fetch(`${API_BASE}/api/public/notifications`).catch(() => null),
   ]);
 
-  const tenders: any[] = tendersRes && tendersRes.ok ? await tendersRes.json() : [];
-  const notifications: any[] = notificationsRes && notificationsRes.ok ? await notificationsRes.json() : [];
+  let tenders: any[] = [];
+  if (tendersRes && tendersRes.ok) {
+    const tData = await tendersRes.json();
+    if (Array.isArray(tData)) tenders = tData;
+  }
+
+  let notifications: any[] = [];
+  if (notificationsRes && notificationsRes.ok) {
+    const nData = await notificationsRes.json();
+    if (Array.isArray(nData)) notifications = nData;
+  }
 
   // Tenders (a tender published with documentType 'CORRIGENDUM' keeps Corrigendum type).
   for (const t of Array.isArray(tenders) ? tenders : []) {
