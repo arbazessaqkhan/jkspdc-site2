@@ -656,49 +656,64 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     <!-- ============================================================ -->
     <!-- HONORABLE DIGNITARIES (BOD) (FULL WIDTH BELOW UPDATES)        -->
     <!-- ============================================================ -->
-    <section class="flex flex-col mt-8 bg-brand-bg-light/40 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-8 rounded-sm">
-      <!-- Section Header -->
-      <div class="text-left mb-6 flex-shrink-0">
-        <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 border border-brand-primary-dark mb-2.5">Leadership &amp; Governance</span>
-        <h2 id="dignitaries-heading" class="text-lg xl:text-xl font-bold text-brand-text">Honorable Dignitaries</h2>
-        <div class="w-10 h-0.5 bg-sky-600/70 mt-2.5"></div>
-      </div>
+    <section id="dignitaries" aria-labelledby="dignitaries-heading" class="bg-slate-50 border-y border-slate-200 py-14 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Section Header -->
+        <div class="text-left mb-2 flex-shrink-0">
+          <span class="inline-block text-xs font-semibold tracking-wider uppercase text-[#0B3D6B]">LEADERSHIP &amp; GOVERNANCE</span>
+          <h2 id="dignitaries-heading" class="text-2xl sm:text-3xl font-bold text-slate-900 mt-1">Honorable Dignitaries</h2>
+          <div class="w-10 h-0.5 bg-[#0B3D6B] mt-2.5"></div>
+        </div>
 
-      <!-- Dignitaries Card Grid (Full Width, 4 cols) -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
-        {safeDignitaries.length === 0 ? (
-          <div class="col-span-full text-center py-10 bg-slate-50 border border-slate-200 rounded-md text-slate-400 text-xs font-semibold">
-            No dignitaries listed at the moment.
-          </div>
-        ) : (
-          safeDignitaries.map((d: any) => {
-            const profileHref = `/dignitaries/${d.id}`;
-            const photoSrc = d.imageUrl || photoMap[d.name] || null;
-            return (
-              <a href={profileHref} class="group bg-white rounded-md border border-slate-200 shadow-xs hover:shadow-md hover:border-brand-primary transition-shadow transition-colors duration-200 p-6 flex flex-col items-center text-center h-full w-full relative overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary">
-                <!-- Photo container (w-28 h-28 = 112px) - Static, no transition -->
-                <div class="w-28 h-28 rounded-full overflow-hidden bg-white border-2 border-slate-200 shadow-sm flex items-center justify-center flex-shrink-0 relative z-10">
-                  {photoSrc ? (
-                    <img src={photoSrc} alt={d.name} width="112" height="112" class="w-full h-full object-cover object-top" />
-                  ) : (
-                    <div class="w-full h-full bg-brand-primary-dark flex items-center justify-center text-white">
-                      <Icon name="user" size={48} class="text-white/80" />
-                    </div>
-                  )}
-                </div>
-                <!-- Card Content -->
-                <div class="mt-4 flex-grow flex flex-col items-center justify-center gap-2 relative z-10">
-                  <h3 class="font-bold text-slate-800 text-[15px] md:text-[17px] leading-snug group-hover:text-brand-primary transition-colors">{d.name}</h3>
-                  <div class="mt-1">
-                    <span class="inline-block text-xs text-brand-primary font-bold uppercase tracking-wider bg-slate-100 px-3 py-1 border border-slate-200">
-                      {d.position}
-                    </span>
+        <!-- Dignitaries Card Grid (Full Width, 4 cols) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 items-stretch mt-8 w-full">
+          {safeDignitaries.length === 0 ? (
+            <div class="col-span-full text-center py-12 bg-white border border-slate-200 rounded-lg text-slate-500 text-sm font-medium">
+              No dignitaries listed at the moment.
+            </div>
+          ) : (
+            safeDignitaries.map((d: any) => {
+              const profileHref = `/dignitaries/${d.id}`;
+              const photoSrc = d.imageUrl || photoMap[d.name] || null;
+              return (
+                <a 
+                  href={profileHref} 
+                  class="group bg-white border border-slate-200 rounded-lg p-5 shadow-xs hover:shadow-md hover:border-[#0B3D6B]/50 transition-all flex flex-col items-center text-center h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3D6B]"
+                >
+                  <!-- Fixed-Size Uniform Portrait Frame -->
+                  <div class="w-28 h-28 rounded-full overflow-hidden border-2 border-slate-200 group-hover:border-[#0B3D6B] bg-slate-100 shadow-xs mb-4 shrink-0 transition-colors flex items-center justify-center">
+                    {photoSrc ? (
+                      <img 
+                        src={photoSrc} 
+                        alt={d.name} 
+                        class="w-full h-full object-cover object-top" 
+                        loading="lazy" 
+                      />
+                    ) : (
+                      <div class="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400">
+                        <Icon name="user" size={48} class="text-slate-400" />
+                      </div>
+                    )}
                   </div>
-                </div>
-              </a>
-            );
-          })
-        )}
+                  <!-- Aligned Text & Details -->
+                  <div class="w-full flex-1 flex flex-col justify-start">
+                    <h3 class="text-base font-bold text-slate-900 group-hover:text-[#0B3D6B] transition-colors leading-snug">
+                      {d.name}
+                    </h3>
+                    <p class="text-xs font-medium uppercase tracking-wide text-slate-600 mt-1.5 leading-relaxed">
+                      {d.position}
+                    </p>
+                  </div>
+                  <!-- Bottom Link -->
+                  <div class="mt-auto pt-4 w-full border-t border-slate-100 mt-4 text-xs font-semibold text-[#0B3D6B] group-hover:underline flex items-center justify-center gap-1">
+                    <span>View Profile</span>
+                    <span>&rarr;</span>
+                  </div>
+                </a>
+              );
+            })
+          )}
+        </div>
       </div>
     </section>
 
@@ -813,138 +828,183 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
       </div>
     </section>
 
-    <section id="projects" aria-labelledby="projects-heading" class="text-left mt-8">
-      <!-- Section Header (Outside Card) -->
-      <div class="text-left mb-4 flex-shrink-0">
-        <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 border border-brand-primary-dark mb-2.5">Project Portfolio</span>
-        <h2 id="projects-heading" class="text-xl md:text-2xl font-bold text-brand-text">Project Portfolio</h2>
-        <div class="w-10 h-0.5 bg-brand-primary mt-2.5"></div>
-      </div>
-
-      <!-- White Card Container -->
-      <div class="bg-white rounded-md border border-slate-200 shadow-xs overflow-hidden">
-        <!-- Info Banner -->
-        <div class="px-8 md:px-12 pt-8 pb-0">
-          <div class="flex flex-col md:flex-row md:items-center justify-between gap-5">
-            <p class="text-sm text-slate-500 max-w-xl leading-relaxed">Discover operational hydroelectric plants, ongoing constructions and upcoming renewable projects across J&K.</p>
-            <div class="flex items-center gap-2 flex-wrap flex-shrink-0">
-              <div class="flex items-center gap-2 px-3 py-1.5 text-xs text-slate-700 font-semibold border border-slate-200 rounded-sm">
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> {displayProjects.filter((p: any) => p.status === 'Operational').length} Operational
-              </div>
-              <div class="flex items-center gap-2 px-3 py-1.5 text-xs text-slate-700 font-semibold border border-slate-200 rounded-sm">
-                <span class="w-2 h-2 rounded-full bg-amber-500"></span> {displayProjects.filter((p: any) => p.status === 'Under Construction').length} Under Construction
-              </div>
-              <div class="flex items-center gap-2 px-3 py-1.5 text-xs text-slate-700 font-semibold border border-slate-200 rounded-sm">
-                <span class="w-2 h-2 rounded-full bg-brand-primary"></span> {displayProjects.filter((p: any) => p.status === 'Upcoming').length} Upcoming
-              </div>
-            </div>
+    <section id="projects" aria-labelledby="projects-heading" class="text-left bg-slate-100/80 border-y border-slate-200 py-16 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header + Summary Counts Row -->
+        <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-8">
+          <div>
+            <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 border border-brand-primary-dark mb-2.5">Project Portfolio</span>
+            <h2 id="projects-heading" class="text-2xl md:text-3xl font-bold text-brand-text">Project Portfolio</h2>
+            <div class="w-10 h-0.5 bg-brand-primary mt-2.5 mb-2"></div>
+            <p class="text-sm text-slate-500 max-w-xl leading-relaxed">
+              Discover operational hydroelectric plants, ongoing constructions and upcoming renewable projects across J&K.
+            </p>
+          </div>
+          <div class="flex items-center gap-2 text-xs font-semibold text-slate-600 flex-wrap flex-shrink-0">
+            <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> {displayProjects.filter((p: any) => p.status === 'Operational').length} Operational</span>
+            <span class="text-slate-300">•</span>
+            <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-500"></span> {displayProjects.filter((p: any) => p.status === 'Under Construction').length} Under Construction</span>
+            <span class="text-slate-300">•</span>
+            <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-sky-500"></span> {displayProjects.filter((p: any) => p.status === 'Upcoming').length} Upcoming</span>
           </div>
         </div>
 
-        <!-- Filters + Search -->
-        <div class="px-8 md:px-12 pt-6">
-          <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-            <div class="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-md p-1 flex-wrap" role="tablist" aria-label="Project Categories">
-              {['All', 'Operational', 'Under Construction', 'Upcoming'].map((tab) => (
-                <button 
-                  type="button" 
-                  role="tab" 
-                  aria-selected={tab === 'All' ? 'true' : 'false'} 
-                  data-tab={tab} 
-                  class={`project-tab px-4 py-1.5 rounded-sm text-xs font-semibold transition-all ${tab === 'All' ? 'bg-brand-primary text-white shadow-sm' : 'text-slate-600 hover:bg-sky-50'}`}
-                >
-                  {tab === 'All' ? 'All Projects' : tab}
-                </button>
-              ))}
-            </div>
-            <div class="relative sm:ml-auto">
-              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 flex items-center pointer-events-none">
-                <Icon name="search" size={13} strokeWidth={2} />
-              </span>
-              <input 
-                id="project-search" 
-                type="text" 
-                placeholder="Search projects…" 
-                class="w-full sm:w-56 pl-9 pr-4 py-2 border border-slate-200 rounded-md text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 bg-white" 
-                aria-label="Search projects by name, river basin, or location"
-              />
-            </div>
+        <!-- Filters + Search Row -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+          <div class="inline-flex w-fit flex-wrap items-center gap-1 rounded-lg bg-slate-200/80 p-1" role="tablist" aria-label="Project Categories">
+            {['All', 'Operational', 'Under Construction', 'Upcoming'].map((tab) => (
+              <button 
+                type="button" 
+                role="tab" 
+                aria-selected={tab === 'All' ? 'true' : 'false'} 
+                data-tab={tab} 
+                class={`project-tab px-3.5 py-2 text-sm font-semibold whitespace-nowrap transition-all rounded-md ${tab === 'All' ? 'bg-[#0B3D6B] text-white shadow-xs' : 'text-slate-700 hover:text-slate-900 hover:bg-white/60'}`}
+              >
+                {tab === 'All' ? 'All Projects' : tab}
+              </button>
+            ))}
+          </div>
+          <div class="relative w-full md:w-72">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 flex items-center pointer-events-none">
+              <Icon name="search" size={14} strokeWidth={2} />
+            </span>
+            <input 
+              id="project-search" 
+              type="text" 
+              placeholder="Search projects…" 
+              class="w-full md:w-72 h-10 bg-white border border-slate-300 rounded-lg pl-9 pr-3.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3D6B]/40" 
+              aria-label="Search projects by name, river basin, or location"
+            />
           </div>
         </div>
 
         <!-- Project Cards Grid -->
-        <div class="px-8 md:px-12 pt-6 pb-3">
-          <div id="projects-grid" class={displayProjects.length > 0 ? "grid md:grid-cols-2 xl:grid-cols-3 gap-3" : "hidden"}>
-            {displayProjects.map((p) => (
+        <div id="projects-grid" class={displayProjects.length > 0 ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch" : "hidden"}>
+          {displayProjects.map((p) => {
+            const statusBadgeClass = p.status === 'Operational'
+              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+              : p.status === 'Under Construction'
+              ? 'bg-amber-50 text-amber-800 border border-amber-200'
+              : 'bg-sky-50 text-sky-800 border border-sky-200';
+            const topBorderClass = p.status === 'Operational'
+              ? 'border-t-emerald-600'
+              : p.status === 'Under Construction'
+              ? 'border-t-amber-500'
+              : 'border-t-[#0B3D6B]';
+            const statusDotClass = p.status === 'Operational'
+              ? 'bg-emerald-600'
+              : p.status === 'Under Construction'
+              ? 'bg-amber-500'
+              : 'bg-[#0B3D6B]';
+            const capVal = p.capacityMw ? `${p.capacityMw} MW` : '—';
+            const unitsVal = p.configuration || '—';
+            const typeVal = p.type || 'Hydro';
+            const codVal = p.yearOfCommissioning || '—';
+            return (
               <a 
                 href={`/our-business/power-station-details?id=${p.id}`} 
-                class="project-card block bg-white rounded-sm border border-slate-200 border-l-4 p-4 hover:border-sky-300 hover:border-l-sky-700 hover:bg-sky-50/50 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary group" 
+                class={`project-card group relative bg-white border border-slate-200/90 border-t-[3px] ${topBorderClass} rounded-lg p-4 shadow-xs hover:shadow-md hover:-translate-y-0.5 hover:border-[#0B3D6B]/50 transition-all duration-200 flex flex-col h-full overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3D6B]`} 
                 data-status={p.status} 
                 data-type={p.type} 
                 data-name={p.name.toLowerCase()} 
                 data-search={`${p.name} ${formatProjectName(p.name)} ${p.location || ''} ${p.basin || ''} ${p.type || ''} ${p.status}`.toLowerCase()}
               >
-                <div class="flex items-start justify-between gap-2 mb-3">
-                  <div class="flex-1 min-w-0 pr-1">
-                    <div class="font-bold text-slate-900 text-sm leading-snug group-hover:text-brand-primary transition-colors">{formatProjectName(p.name)}</div>
-                    {(p.location || p.basin) && (
-                      <div class="text-xs text-slate-400 mt-1">{p.location}{p.location && p.basin ? ' • ' : ''}{p.basin ? (p.basin.toLowerCase().includes('basin') ? p.basin : `${p.basin} Basin`) : ''}</div>
-                    )}
-                  </div>
-                  <span class={`status flex-shrink-0 !rounded-sm ${p.status === 'Operational' ? 'status-operational' : p.status === 'Under Construction' ? 'status-under-construction' : 'status-upcoming'}`}>{p.status}</span>
+                <!-- Compact, Aligned Header Block -->
+                <div class="min-h-[78px] flex flex-col">
+                  <!-- Status Badge -->
+                  <span class={`inline-flex w-fit items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded mb-2 ${statusBadgeClass}`}>
+                    <span class={`w-1.5 h-1.5 rounded-full ${statusDotClass}`}></span>
+                    {p.status}
+                  </span>
+
+                  <!-- Title -->
+                  <h3 class="text-[15px] font-bold text-slate-900 group-hover:text-[#0B3D6B] transition-colors leading-snug line-clamp-2">
+                    {formatProjectName(p.name)}
+                  </h3>
+
+                  <!-- Location/Basin -->
+                  {(p.location || p.basin) && (
+                    <p class="text-xs text-slate-500 mt-1 truncate">
+                      {p.location}{p.location && p.basin ? ' • ' : ''}{p.basin ? (p.basin.toLowerCase().includes('basin') ? p.basin : `${p.basin} Basin`) : ''}
+                    </p>
+                  )}
                 </div>
 
-                <dl class="mt-3 pt-2.5 border-t border-slate-200 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
-                  <div class="flex justify-between"><dt class="text-slate-500">Capacity</dt><dd class="font-semibold text-slate-800 tabular-nums">{p.capacityMw || 0} MW</dd></div>
-                  {p.configuration && <div class="flex justify-between"><dt class="text-slate-500">Units</dt><dd class="font-medium text-slate-700 tabular-nums">{p.configuration}</dd></div>}
-                  <div class="flex justify-between"><dt class="text-slate-500">Type</dt><dd class="font-medium text-slate-700">{p.type || 'Hydro'}</dd></div>
-                  <div class="flex justify-between"><dt class="text-slate-500">{p.status === 'Operational' ? 'COD' : 'Target'}</dt><dd class="font-medium text-slate-700 tabular-nums">{p.yearOfCommissioning || '—'}</dd></div>
+                <!-- Furnished, Compact 2×2 Specs Box -->
+                <dl class="grid grid-cols-2 gap-x-3 gap-y-2.5 bg-slate-50/90 border border-slate-200/70 rounded-md p-3 my-3.5">
+                  <div>
+                    <dt class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Capacity</dt>
+                    <dd class="text-[13px] font-bold text-[#0B3D6B] leading-tight truncate tabular-nums mt-0.5" title={capVal}>{capVal}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Units</dt>
+                    <dd class="text-[13px] font-bold text-slate-900 leading-tight truncate tabular-nums mt-0.5" title={unitsVal}>{unitsVal}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Type</dt>
+                    <dd class="text-[13px] font-bold text-slate-900 leading-tight truncate mt-0.5" title={typeVal}>{typeVal}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{p.status === 'Operational' ? 'COD' : 'Target'}</dt>
+                    <dd class="text-[13px] font-bold text-slate-900 leading-tight truncate tabular-nums mt-0.5" title={codVal}>{codVal}</dd>
+                  </div>
                 </dl>
-                <div class="mt-3 pt-2 border-t border-slate-100 text-xs font-semibold text-brand-primary">View Details &rarr;</div>
+
+                <!-- Crisp Compact Footer -->
+                <div class="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-[#0B3D6B]">
+                  <span class="inline-flex items-center gap-1 group-hover:gap-2 transition-all">
+                    <span>View Details</span>
+                    <span aria-hidden="true">&rarr;</span>
+                  </span>
+                </div>
               </a>
-            ))}
-          </div>
+            );
+          })}
+        </div>
 
-          {displayProjects.length === 0 && (
-            <div class="py-12 px-6 text-center max-w-lg mx-auto">
-              <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-500 border border-slate-200 flex items-center justify-center mx-auto mb-2.5">
-                <Icon name="building" size={18} />
-              </div>
-              <p class="text-sm font-bold text-slate-700">No power projects catalogued yet</p>
-              <p class="text-xs text-slate-500 mt-1 leading-relaxed">
-                Hydroelectric and renewable power stations will appear here once added in the administrative portal.
-              </p>
-            </div>
-          )}
-
-          <!-- Compact Empty State for Category with Zero Records -->
-          <div id="project-empty-category" class="hidden py-12 px-6 text-center max-w-lg mx-auto">
+        {displayProjects.length === 0 && (
+          <div class="py-12 px-6 text-center max-w-lg mx-auto">
             <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-500 border border-slate-200 flex items-center justify-center mx-auto mb-2.5">
               <Icon name="building" size={18} />
             </div>
-            <p class="text-sm font-bold text-slate-700">No projects currently under construction</p>
+            <p class="text-sm font-bold text-slate-700">No power projects catalogued yet</p>
             <p class="text-xs text-slate-500 mt-1 leading-relaxed">
-              Hydroelectric projects in survey, detailed project report (DPR) formulation, and statutory clearances are catalogued under Upcoming Projects.
+              Hydroelectric and renewable power stations will appear here once added in the administrative portal.
             </p>
           </div>
+        )}
 
-          <!-- Empty State for Search Filter with Zero Matches -->
-          <div id="project-empty-search" class="hidden py-12 px-6 text-center max-w-md mx-auto">
-            <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-400 border border-slate-200 flex items-center justify-center mx-auto mb-2.5">
-              <Icon name="search" size={18} />
-            </div>
-            <p class="text-sm font-bold text-slate-700">No projects found</p>
-            <p class="text-xs text-slate-500 mt-1">Try adjusting your search keywords or switching category tabs.</p>
+        <!-- Compact Empty State for Category with Zero Records -->
+        <div id="project-empty-category" class="hidden py-12 px-6 text-center max-w-lg mx-auto">
+          <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-500 border border-slate-200 flex items-center justify-center mx-auto mb-2.5">
+            <Icon name="building" size={18} />
           </div>
+          <p class="text-sm font-bold text-slate-700">No projects currently under construction</p>
+          <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+            Hydroelectric projects in survey, detailed project report (DPR) formulation, and statutory clearances are catalogued under Upcoming Projects.
+          </p>
+        </div>
+
+        <!-- Empty State for Search Filter with Zero Matches -->
+        <div id="project-empty-search" class="hidden py-12 px-6 text-center max-w-md mx-auto">
+          <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-400 border border-slate-200 flex items-center justify-center mx-auto mb-2.5">
+            <Icon name="search" size={18} />
+          </div>
+          <p class="text-sm font-bold text-slate-700">No projects found</p>
+          <p class="text-xs text-slate-500 mt-1">Try adjusting your search keywords or switching category tabs.</p>
         </div>
 
         <!-- View All Action Footer -->
         {displayProjects.length > 0 && (
-          <div class="mt-0">
-            <div class="flex items-center justify-between border-t border-slate-200 bg-slate-50/60 px-6 md:px-10 py-3.5">
-              <p class="text-xs text-slate-500">Showing {Math.min(6, displayProjects.length)} of {displayProjects.length} projects</p>
-              <a id="project-view-all-btn" href="#projects" class="inline-flex items-center gap-2 text-sm font-semibold text-brand-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary cursor-pointer">
-                View full project register ({displayProjects.length}) &darr;
+          <div id="project-footer-bar" class="mt-10 pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p id="project-count-text" class="text-sm font-medium text-slate-600">Showing {Math.min(6, displayProjects.length)} of {displayProjects.length} projects</p>
+            <div class="flex flex-wrap items-center justify-center sm:justify-end gap-3">
+              <a 
+                id="project-view-all-btn" 
+                href="#projects" 
+                class="h-11 px-5 rounded-md text-sm font-semibold inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors bg-[#0B3D6B] text-white hover:bg-[#082E52] shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3D6B] cursor-pointer"
+              >
+                View More &darr;
               </a>
             </div>
           </div>
@@ -957,214 +1017,83 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     <!-- ============================================================ -->
     <!-- QUICK ACCESS GRID                                             -->
     <!-- ============================================================ -->
-    <section aria-labelledby="quick-access-heading" class="text-left mt-8 bg-brand-bg-subtle -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-8 rounded-sm">
-      <!-- Section Header (Outside Card) -->
-      <div class="text-left mb-4 flex-shrink-0">
-        <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 border border-brand-primary-dark mb-2.5">Quick Access</span>
-        <h2 id="quick-access-heading" class="text-xl md:text-2xl font-bold text-brand-text">Navigate the Corporation</h2>
-        <div class="w-10 h-0.5 bg-sky-600/70 mt-2.5"></div>
-      </div>
-
-      <!-- White Card Container -->
-      <div class="bg-white rounded-md border border-slate-200 shadow-xs overflow-hidden">
-        <div class="px-8 md:px-12 pt-8 pb-3">
-          <p class="text-sm text-slate-500 max-w-2xl leading-relaxed">One-click access to the most-used services and information across the corporation.</p>
+    <section aria-labelledby="quick-access-heading" class="text-left bg-white border-t border-slate-200 py-12 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Section Header -->
+        <div class="text-left mb-2 flex-shrink-0">
+          <span class="inline-block text-xs font-semibold tracking-wider uppercase text-[#0B3D6B]">QUICK ACCESS</span>
+          <h2 id="quick-access-heading" class="text-2xl sm:text-3xl font-bold text-slate-900 mt-1">Navigate the Corporation</h2>
+          <div class="w-10 h-0.5 bg-[#0B3D6B] mt-2.5"></div>
+          <p class="text-sm text-slate-500 max-w-2xl leading-relaxed mt-2">One-click access to the most-used services and information across the corporation.</p>
         </div>
-        <div class="px-8 md:px-12 pb-10 pt-4">
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {quickLinks.map((link) => (
-              <a href={link.href} class="group relative bg-white border border-slate-200 rounded-md p-5 hover:border-sky-300 hover:bg-sky-50/40 transition-colors duration-200 overflow-hidden flex flex-col gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary">
-                <div class="w-11 h-11 rounded-sm bg-[#F4F8FB] border border-slate-200 text-[#0B3B60] group-hover:bg-[#0B3B60] group-hover:text-white flex items-center justify-center flex-shrink-0 transition-colors duration-200 shadow-xs group-hover:shadow-sm relative z-10">
-                  <Icon name={link.icon} size={22} strokeWidth={1.75} />
-                </div>
-                <div class="relative z-10">
-                  <div class="font-semibold text-[#333333] text-sm leading-snug group-hover:text-[#0B3B60] transition-colors">{link.label}</div>
-                  <div class="text-xs text-slate-500 mt-1 leading-relaxed">{link.desc}</div>
-                </div>
-                <span class="absolute bottom-4 right-4 text-brand-primary opacity-100 translate-x-0 transition-colors duration-200 text-base font-bold z-10">&rarr;</span>
-              </a>
-            ))}
-          </div>
+
+        <!-- 10-Item 5-Column Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mt-6">
+          {quickLinks.map((link) => (
+            <a 
+              href={link.href} 
+              class="group flex items-center gap-3 p-3.5 bg-slate-50/70 hover:bg-white border border-slate-200 hover:border-[#0B3D6B] rounded-md transition-all shadow-none hover:shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3D6B]"
+            >
+              <div class="w-9 h-9 rounded bg-[#0B3D6B]/10 text-[#0B3D6B] group-hover:bg-[#0B3D6B] group-hover:text-white flex items-center justify-center shrink-0 transition-colors">
+                <Icon name={link.icon} size={16} strokeWidth={2} class="w-4 h-4" />
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="text-sm font-bold text-slate-900 group-hover:text-[#0B3D6B] truncate transition-colors">{link.label}</div>
+                <div class="text-[11px] text-slate-500 truncate mt-0.5">{link.desc}</div>
+              </div>
+              <span class="text-xs text-slate-400 group-hover:text-[#0B3D6B] shrink-0 transition-colors" aria-hidden="true">&rarr;</span>
+            </a>
+          ))}
         </div>
       </div>
     </section>
 
     <!-- ============================================================ -->
-    <!-- QUICK LINKS LOGO MARQUEE SECTION                             -->
+    <!-- QUICK LINKS LOGO DIRECTORY SECTION                            -->
     <!-- ============================================================ -->
-    <section id="quick-links-section" aria-labelledby="marquee-heading" class="text-left mt-10 mb-4">
-      <!-- Section Header -->
-      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-4">
-        <div>
-          <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary font-bold bg-brand-primary/5 px-3 py-1 border border-brand-primary/20 mb-2">Government &amp; Regulatory Portals</span>
-          <h2 id="marquee-heading" class="text-xl md:text-2xl font-bold text-brand-text">Important Quick Links</h2>
-          <div class="w-10 h-0.5 bg-brand-primary mt-2"></div>
+    <section id="quick-links-section" aria-labelledby="marquee-heading" class="text-left bg-slate-50 border-t border-slate-200 py-10 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Section Header -->
+        <div class="text-left mb-2 flex-shrink-0">
+          <span class="inline-block text-xs font-semibold tracking-wider uppercase text-[#0B3D6B]">GOVERNMENT &amp; REGULATORY PORTALS</span>
+          <h2 id="marquee-heading" class="text-2xl sm:text-3xl font-bold text-slate-900 mt-1">Important Quick Links</h2>
+          <div class="w-10 h-0.5 bg-[#0B3D6B] mt-2.5"></div>
         </div>
-      </div>
 
-      <!-- Visible Responsive Cards Grid (No Horizontal Overflow or Clipping) -->
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 md:gap-5 lg:gap-5 xl:gap-6">
-        
-        <!-- 1. Central Electricity Authority -->
-        <a 
-          href="https://cea.nic.in/" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          title="Central Electricity Authority (opens in new tab)"
-          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-md py-2.5 px-2 hover:border-brand-primary hover:shadow-md transition-colors duration-200 h-full shadow-2xs"
-        >
-          <div class="h-9 w-full flex items-center justify-center mb-1">
-            <img src="/logos/cea.webp" alt="Central Electricity Authority Emblem" class="max-h-7 max-w-[80%] object-contain transition-opacity duration-200" />
-          </div>
-          <div class="w-full flex-1 flex flex-col justify-between">
-            <p class="font-bold text-slate-800 group-hover:text-brand-primary text-xs leading-tight transition-colors break-words">
-              Central Electricity Authority
-            </p>
-            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-xs text-slate-500 group-hover:text-brand-primary transition-colors">
-              <span class="font-medium truncate">cea.nic.in</span>
-              <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
-            </div>
-          </div>
-          <span class="sr-only">(opens in new tab)</span>
-        </a>
-
-        <!-- 2. Ministry of Environment, Forest and Climate Change -->
-        <a 
-          href="https://moef.gov.in/" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          title="Ministry of Environment, Forest and Climate Change (opens in new tab)"
-          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-md py-2.5 px-2 hover:border-brand-primary hover:shadow-md transition-colors duration-200 h-full shadow-2xs"
-        >
-          <div class="h-9 w-full flex items-center justify-center mb-1">
-            <img src="/logos/moef.png" alt="Ministry of Environment, Forest and Climate Change Emblem" class="max-h-7 max-w-[80%] object-contain transition-opacity duration-200" />
-          </div>
-          <div class="w-full flex-1 flex flex-col justify-between">
-            <p class="font-bold text-slate-800 group-hover:text-brand-primary text-xs leading-tight transition-colors break-words">
-              Ministry of Environment &amp; Forests
-            </p>
-            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-xs text-slate-500 group-hover:text-brand-primary transition-colors">
-              <span class="font-medium truncate">moef.gov.in</span>
-              <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
-            </div>
-          </div>
-          <span class="sr-only">(opens in new tab)</span>
-        </a>
-
-        <!-- 3. National Portal of India -->
-        <a 
-          href="https://www.india.gov.in/" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          title="National Portal of India (opens in new tab)"
-          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-md py-2.5 px-2 hover:border-brand-primary hover:shadow-md transition-colors duration-200 h-full shadow-2xs"
-        >
-          <div class="h-9 w-full flex items-center justify-center mb-1">
-            <img src="/logos/india.svg" alt="National Portal of India Emblem" class="max-h-6.5 max-w-[80%] object-contain transition-opacity duration-200" />
-          </div>
-          <div class="w-full flex-1 flex flex-col justify-between">
-            <p class="font-bold text-slate-800 group-hover:text-brand-primary text-xs leading-tight transition-colors break-words">
-              National Portal of India
-            </p>
-            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-xs text-slate-500 group-hover:text-brand-primary transition-colors">
-              <span class="font-medium truncate">india.gov.in</span>
-              <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
-            </div>
-          </div>
-          <span class="sr-only">(opens in new tab)</span>
-        </a>
-
-        <!-- 4. Ministry of New and Renewable Energy -->
-        <a 
-          href="https://mnre.gov.in/" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          title="Ministry of New and Renewable Energy (opens in new tab)"
-          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-md py-2.5 px-2 hover:border-brand-primary hover:shadow-md transition-colors duration-200 h-full shadow-2xs"
-        >
-          <div class="h-9 w-full flex items-center justify-center mb-1">
-            <img src="/logos/mnre.svg" alt="Ministry of New and Renewable Energy Emblem" class="max-h-7 max-w-[80%] object-contain transition-opacity duration-200" />
-          </div>
-          <div class="w-full flex-1 flex flex-col justify-between">
-            <p class="font-bold text-slate-800 group-hover:text-brand-primary text-xs leading-tight transition-colors break-words">
-              Ministry of New &amp; Renewable Energy
-            </p>
-            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-xs text-slate-500 group-hover:text-brand-primary transition-colors">
-              <span class="font-medium truncate">mnre.gov.in</span>
-              <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
-            </div>
-          </div>
-          <span class="sr-only">(opens in new tab)</span>
-        </a>
-
-        <!-- 5. Power Development Department J&K -->
-        <a 
-          href="https://pdd.jk.gov.in/" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          title="Power Development Department, Government of J&K (opens in new tab)"
-          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-md py-2.5 px-2 hover:border-brand-primary hover:shadow-md transition-colors duration-200 h-full shadow-2xs"
-        >
-          <div class="h-9 w-full flex items-center justify-center mb-1">
-            <img src="/logos/pdd.svg" alt="Power Development Department Emblem" class="max-h-7 max-w-[80%] object-contain p-0.5 transition-opacity duration-200" />
-          </div>
-          <div class="w-full flex-1 flex flex-col justify-between">
-            <p class="font-bold text-slate-800 group-hover:text-brand-primary text-xs leading-tight transition-colors break-words">
-              Power Development Dept (J&amp;K)
-            </p>
-            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-xs text-slate-500 group-hover:text-brand-primary transition-colors">
-              <span class="font-medium truncate">pdd.jk.gov.in</span>
-              <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
-            </div>
-          </div>
-          <span class="sr-only">(opens in new tab)</span>
-        </a>
-
-        <!-- 6. Central Water Commission -->
-        <a 
-          href="https://cwc.gov.in/" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          title="Central Water Commission (opens in new tab)"
-          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-md py-2.5 px-2 hover:border-brand-primary hover:shadow-md transition-colors duration-200 h-full shadow-2xs"
-        >
-          <div class="h-9 w-full flex items-center justify-center mb-1">
-            <img src="/logos/cwc.png" alt="Central Water Commission Emblem" class="max-h-7 max-w-[80%] object-contain transition-opacity duration-200" />
-          </div>
-          <div class="w-full flex-1 flex flex-col justify-between">
-            <p class="font-bold text-slate-800 group-hover:text-brand-primary text-xs leading-tight transition-colors break-words">
-              Central Water Commission
-            </p>
-            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-xs text-slate-500 group-hover:text-brand-primary transition-colors">
-              <span class="font-medium truncate">cwc.gov.in</span>
-              <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
-            </div>
-          </div>
-          <span class="sr-only">(opens in new tab)</span>
-        </a>
-
-        <!-- 7. J&K Joint Electricity Regulatory Commission -->
-        <a 
-          href="https://jercjkl.jk.gov.in/AboutUs.html" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          title="J&K Joint Electricity Regulatory Commission (opens in new tab)"
-          class="group flex flex-col items-center justify-between text-center bg-white border border-slate-200/90 rounded-md py-2.5 px-2 hover:border-brand-primary hover:shadow-md transition-colors duration-200 h-full shadow-2xs"
-        >
-          <div class="h-9 w-full flex items-center justify-center mb-1">
-            <img src="/logos/jerc.png" alt="J&K Joint Electricity Regulatory Commission Emblem" class="max-h-7 max-w-[80%] object-contain transition-opacity duration-200" />
-          </div>
-          <div class="w-full flex-1 flex flex-col justify-between">
-            <p class="font-bold text-slate-800 group-hover:text-brand-primary text-xs leading-tight transition-colors break-words">
-              J&amp;K Electricity Regulatory Commission
-            </p>
-            <div class="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-center gap-1 text-xs text-slate-500 group-hover:text-brand-primary transition-colors">
-              <span class="font-medium truncate">jercjkl.jk.gov.in</span>
-              <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
-            </div>
-          </div>
-          <span class="sr-only">(opens in new tab)</span>
-        </a>
+        <!-- Uniform 4-Column Government Portal Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mt-6">
+          {[
+            { name: "Central Electricity Authority", domain: "cea.nic.in", href: "https://cea.nic.in/", logo: "/logos/cea.webp" },
+            { name: "Ministry of Environment & Forests", domain: "moef.gov.in", href: "https://moef.gov.in/", logo: "/logos/moef.png" },
+            { name: "National Portal of India", domain: "india.gov.in", href: "https://www.india.gov.in/", logo: "/logos/india.svg" },
+            { name: "Ministry of New & Renewable Energy", domain: "mnre.gov.in", href: "https://mnre.gov.in/", logo: "/logos/mnre.svg" },
+            { name: "Power Development Dept (J&K)", domain: "pdd.jk.gov.in", href: "https://pdd.jk.gov.in/", logo: "/logos/pdd.svg" },
+            { name: "Central Water Commission", domain: "cwc.gov.in", href: "https://cwc.gov.in/", logo: "/logos/cwc.png" },
+            { name: "J&K Electricity Regulatory Commission", domain: "jercjkl.jk.gov.in", href: "https://jercjkl.jk.gov.in/AboutUs.html", logo: "/logos/jerc.png" },
+          ].map((portal) => (
+            <a 
+              href={portal.href} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              title={`${portal.name} (opens in new tab)`}
+              class="group flex items-center gap-3 p-3 bg-white border border-slate-200 hover:border-[#0B3D6B] rounded-md transition-all hover:shadow-xs h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3D6B]"
+            >
+              <div class="w-10 h-10 rounded bg-slate-50 border border-slate-100 p-1.5 flex items-center justify-center shrink-0">
+                <img src={portal.logo} alt={`${portal.name} Emblem`} class="w-full h-full object-contain" />
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="text-xs font-bold text-slate-900 group-hover:text-[#0B3D6B] leading-snug line-clamp-2 transition-colors">
+                  {portal.name}
+                </p>
+                <div class="text-[11px] text-slate-500 truncate mt-0.5 flex items-center gap-1 group-hover:text-[#0B3D6B] transition-colors">
+                  <span class="truncate">{portal.domain}</span>
+                  <Icon name="external-link" size={10} strokeWidth={2.5} class="shrink-0" />
+                </div>
+              </div>
+              <span class="sr-only">(opens in new tab)</span>
+            </a>
+          ))}
+        </div>
       </div>
     </section>
 
@@ -1349,6 +1278,8 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
   var emptyCategoryEl = document.getElementById('project-empty-category');
   var emptySearchEl = document.getElementById('project-empty-search');
   var viewAllBtn = document.getElementById('project-view-all-btn');
+  var projectCountEl = document.getElementById('project-count-text');
+  var projectFooterBar = document.getElementById('project-footer-bar');
 
   var PREVIEW_LIMIT = 6;
   var isExpandedAll = false;
@@ -1357,21 +1288,21 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     'All': {
       text: function() {
         return isExpandedAll 
-          ? 'Show fewer projects ↑' 
-          : 'View full project register (' + cards.length + ') ↓';
+          ? 'Show Less ↑' 
+          : 'View More ↓';
       },
       href: '#projects'
     },
     'Operational': {
-      text: function() { return 'View all operational projects →'; },
+      text: function() { return 'View More →'; },
       href: '/our-business/power-stations'
     },
     'Under Construction': {
-      text: function() { return 'View all under-construction projects →'; },
+      text: function() { return 'View More →'; },
       href: '/our-business/construction'
     },
     'Upcoming': {
-      text: function() { return 'View all upcoming projects →'; },
+      text: function() { return 'View More →'; },
       href: '/our-business/under-development'
     }
   };
@@ -1393,10 +1324,10 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     tabBtns.forEach(function(btn) {
       var isCurrent = btn.dataset.tab === activeTab;
       if (isCurrent) {
-        btn.className = 'project-tab px-4 py-1.5 rounded-md text-xs font-semibold transition-all bg-brand-primary text-white shadow-sm';
+        btn.className = 'project-tab px-3.5 py-2 text-sm font-semibold whitespace-nowrap transition-all rounded-md bg-[#0B3D6B] text-white shadow-xs';
         btn.setAttribute('aria-selected', 'true');
       } else {
-        btn.className = 'project-tab px-4 py-1.5 rounded-md text-xs font-semibold transition-all text-slate-600 hover:bg-sky-50';
+        btn.className = 'project-tab px-3.5 py-2 text-sm font-semibold whitespace-nowrap transition-all rounded-md text-slate-700 hover:text-slate-900 hover:bg-white/60';
         btn.setAttribute('aria-selected', 'false');
       }
     });
@@ -1404,6 +1335,11 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     if (viewAllBtn && categoryNav[activeTab]) {
       viewAllBtn.textContent = categoryNav[activeTab].text();
       viewAllBtn.setAttribute('href', categoryNav[activeTab].href);
+      if (activeTab === 'All') {
+        viewAllBtn.className = 'h-11 px-5 rounded-md text-sm font-semibold inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors bg-[#0B3D6B] text-white hover:bg-[#082E52] shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3D6B] cursor-pointer';
+      } else {
+        viewAllBtn.className = 'h-11 px-5 rounded-md text-sm font-semibold inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors bg-white text-[#0B3D6B] border border-[#0B3D6B] hover:bg-[#0B3D6B]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3D6B] cursor-pointer';
+      }
     }
   }
 
@@ -1420,6 +1356,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
       if (projectsGrid) projectsGrid.style.display = 'none';
       if (emptyCategoryEl) emptyCategoryEl.style.display = 'block';
       if (emptySearchEl) emptySearchEl.style.display = 'none';
+      if (projectFooterBar) projectFooterBar.style.display = 'none';
       cards.forEach(function(c) { c.style.display = 'none'; });
       return;
     }
@@ -1437,12 +1374,14 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     if (q && matchedCards.length === 0) {
       if (projectsGrid) projectsGrid.style.display = 'none';
       if (emptySearchEl) emptySearchEl.style.display = 'block';
+      if (projectFooterBar) projectFooterBar.style.display = 'none';
       cards.forEach(function(c) { c.style.display = 'none'; });
       return;
     }
 
     if (emptySearchEl) emptySearchEl.style.display = 'none';
     if (projectsGrid) projectsGrid.style.display = '';
+    if (projectFooterBar) projectFooterBar.style.display = '';
 
     // Show preview count when not searching and not expanded
     var shownCount = 0;
@@ -1461,6 +1400,11 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
         c.style.display = 'none';
       }
     });
+
+    var totalCount = q ? matchedCards.length : categoryCards.length;
+    if (projectCountEl) {
+      projectCountEl.textContent = 'Showing ' + shownCount + ' of ' + totalCount + ' projects';
+    }
   }
 
   if (viewAllBtn) {
