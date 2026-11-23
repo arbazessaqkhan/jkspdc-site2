@@ -2,139 +2,6 @@
 import Layout from '../../../layouts/Layout.astro';
 import Icon from '../../../components/Icon.astro';
 
-// Fallback seed data in case backend is temporarily unreachable
-const fallbackOfficialContacts = [
-  {
-    id: 'contact-seed-1',
-    name: 'Shri Rahul Yadav (IAS)',
-    position: 'Managing Director',
-    email: 'md-jkspdcl@jk.gov.in',
-    srinagarPhone: '0194-2483783',
-    srinagarFax: '0194-2451665',
-    jammuPhone: '0191-2430548',
-    jammuFax: '0191-2435403',
-    viewOrder: 1,
-  },
-  {
-    id: 'contact-seed-2',
-    name: 'Er. Javid Ahmad Dar',
-    position: 'Executive Director (Electric)',
-    email: 'ede@jkspdcl.com',
-    srinagarPhone: '0194-2483782',
-    srinagarFax: '0194-2483782',
-    jammuPhone: '0191-2459549',
-    jammuFax: '0191-2459549',
-    viewOrder: 2,
-  },
-  {
-    id: 'contact-seed-3',
-    name: 'Er. Dev Raj Bhagat',
-    position: 'Executive Director (Civil) (Chief Vigilance Officer)',
-    email: 'edciviljkspdc2@gmail.com',
-    srinagarPhone: '0194-2489033',
-    srinagarFax: '0194-2489033',
-    jammuPhone: '0191-2459534',
-    jammuFax: '0191-2459534',
-    viewOrder: 3,
-  },
-  {
-    id: 'contact-seed-4',
-    name: 'Smt. Santosh Kumari',
-    position: 'Director Finance',
-    email: 'patodfpdc@gmail.com',
-    srinagarPhone: '0194-2489032',
-    srinagarFax: '0194-2439474',
-    jammuPhone: '0191-2435159',
-    jammuFax: '0191-2435159',
-    viewOrder: 4,
-  },
-  {
-    id: 'contact-seed-5',
-    name: 'Shri Sunil Gupta',
-    position: 'Company Secretary',
-    email: 'csjkspdcl@gmail.com',
-    srinagarPhone: '0194-2483779',
-    srinagarFax: '0194-2483779',
-    jammuPhone: '0191-2439347',
-    jammuFax: '0191-2439347',
-    viewOrder: 5,
-  },
-  {
-    id: 'contact-seed-6',
-    name: 'Mrs. Roopali Puri',
-    position: 'Chief General Manager (Law)',
-    email: 'cgmlaw.jkspdcl@gmail.com',
-    srinagarPhone: '0191-2459537',
-    srinagarFax: '0191-2459537',
-    jammuPhone: '0191-2459537',
-    jammuFax: '0191-2459537',
-    viewOrder: 6,
-  },
-  {
-    id: 'contact-seed-7',
-    name: 'Shri Akhil Dutt',
-    position: 'Senior General Manager (Civil)',
-    email: 'sgmciviljkspdc@gmail.com',
-    srinagarPhone: '0194-2489033',
-    srinagarFax: '0194-2489033',
-    jammuPhone: '0191-2459534',
-    jammuFax: '0191-2459534',
-    viewOrder: 7,
-  },
-  {
-    id: 'contact-seed-8',
-    name: 'Mrs. Harjeet Kour',
-    position: 'General Manager (Accounts) (Departmental Vigilance Officer) Jammu',
-    email: 'gmajmu@gmail.com',
-    srinagarPhone: '0191-2459528',
-    srinagarFax: '0191-2459528',
-    jammuPhone: '0191-2459528',
-    jammuFax: '0191-2459528',
-    viewOrder: 8,
-  },
-  {
-    id: 'contact-seed-9',
-    name: 'Sh. Dawanjeet Singh',
-    position: 'Administrative Officer',
-    email: 'admjkpdc@gmail.com',
-    srinagarPhone: '0194-2489034',
-    srinagarFax: '0194-2489034',
-    jammuPhone: '0194-2489034',
-    jammuFax: '0194-2489034',
-    viewOrder: 9,
-  },
-];
-
-const fallbackWingContacts = [
-  {
-    id: 'wing-seed-1',
-    name: 'Generation BHEP',
-    designation: 'Chief Engineer',
-    email: 'ceebhep@gmail.com',
-    phone: '01998288376',
-    wing: 'BHEP',
-    viewOrder: 1,
-  },
-  {
-    id: 'wing-seed-2',
-    name: 'Generation Jammu',
-    designation: 'Chief Engineer',
-    email: 'cegenjammu6@gmail.com',
-    phone: '01912479899',
-    wing: 'Jammu',
-    viewOrder: 2,
-  },
-  {
-    id: 'wing-seed-3',
-    name: 'Generation Kashmir',
-    designation: 'Chief Engineer',
-    email: 'cegenkmr@gmail.com',
-    phone: '01942493140',
-    wing: 'Kashmir',
-    viewOrder: 3,
-  },
-];
-
 // Fetch official corporate contacts dynamically from Admin-managed database
 let officialContacts = [];
 try {
@@ -147,9 +14,6 @@ try {
   }
 } catch (e) {
   console.error('Error fetching official contacts from backend:', e);
-}
-if (!officialContacts || !Array.isArray(officialContacts) || officialContacts.length === 0) {
-  officialContacts = fallbackOfficialContacts;
 }
 
 // Fetch wing contacts & sub-offices dynamically from Admin-managed database
@@ -165,12 +29,9 @@ try {
 } catch (e) {
   console.error('Error fetching contact sub-offices from backend:', e);
 }
-if (!subOffices || !Array.isArray(subOffices) || subOffices.length === 0) {
-  subOffices = fallbackWingContacts;
-}
 
 // Dynamic wing contacts directly from Admin-managed database
-const wingContacts = subOffices;
+const wingContacts = Array.isArray(subOffices) ? subOffices : [];
 
 // Helper for obfuscating emails to prevent scrapers while maintaining readability
 function formatEmail(email?: string | null) {
@@ -309,41 +170,49 @@ function formatEmail(email?: string | null) {
             </tr>
           </thead>
           <tbody class="font-normal">
-            {officialContacts.map((c: any) => (
-              <tr class="transition-colors">
-                <!-- Name, Designation, Email -->
-                <td class="py-3.5 px-4 sm:px-6 border-r border-slate-200 text-center">
-                  <p class="font-bold text-slate-900 text-xs sm:text-sm">{c.name}</p>
-                  <p class="text-xs text-slate-700 mt-0.5">{c.position}</p>
-                  {c.email && (
-                    <p class="text-[11px] sm:text-xs text-slate-600 mt-0.5">
-                      email: <a href={`mailto:${c.email}`} class="text-[#0B3B60] hover:underline">{formatEmail(c.email)}</a>
-                    </p>
-                  )}
-                </td>
-
-                <!-- Srinagar Phone / Fax -->
-                <td class="py-3.5 px-4 sm:px-6 border-r border-slate-200 text-center text-xs sm:text-sm text-slate-700">
-                  {c.srinagarPhone && <p class="font-medium text-slate-900">{c.srinagarPhone}</p>}
-                  {c.srinagarFax && <p class="text-xs text-slate-600 mt-0.5">Fax. {c.srinagarFax}</p>}
-                  {!c.srinagarPhone && !c.srinagarFax && <span class="text-slate-400 italic">—</span>}
-                </td>
-
-                <!-- Jammu Phone / Fax -->
-                <td class="py-3.5 px-4 sm:px-6 text-center text-xs sm:text-sm text-slate-700">
-                  {c.jammuPhone && <p class="font-medium text-slate-900">{c.jammuPhone}</p>}
-                  {c.jammuFax && (
-                    <p class="text-xs text-slate-600 mt-0.5">
-                      Fax. {c.jammuFax}
-                    </p>
-                  )}
-                  {c.jammuFax && (
-                    <p class="text-[11px] text-slate-500 italic mt-0.5">(Fax on Automode 24 x 7)</p>
-                  )}
-                  {!c.jammuPhone && !c.jammuFax && <span class="text-slate-400 italic">—</span>}
+            {officialContacts.length === 0 ? (
+              <tr>
+                <td colspan="3" class="text-center py-8 text-slate-500 font-semibold italic text-xs">
+                  No official directory contacts listed at this time.
                 </td>
               </tr>
-            ))}
+            ) : (
+              officialContacts.map((c: any) => (
+                <tr class="transition-colors">
+                  <!-- Name, Designation, Email -->
+                  <td class="py-3.5 px-4 sm:px-6 border-r border-slate-200 text-center">
+                    <p class="font-bold text-slate-900 text-xs sm:text-sm">{c.name}</p>
+                    <p class="text-xs text-slate-700 mt-0.5">{c.position}</p>
+                    {c.email && (
+                      <p class="text-[11px] sm:text-xs text-slate-600 mt-0.5">
+                        email: <a href={`mailto:${c.email}`} class="text-[#0B3B60] hover:underline">{formatEmail(c.email)}</a>
+                      </p>
+                    )}
+                  </td>
+
+                  <!-- Srinagar Phone / Fax -->
+                  <td class="py-3.5 px-4 sm:px-6 border-r border-slate-200 text-center text-xs sm:text-sm text-slate-700">
+                    {c.srinagarPhone && <p class="font-medium text-slate-900">{c.srinagarPhone}</p>}
+                    {c.srinagarFax && <p class="text-xs text-slate-600 mt-0.5">Fax. {c.srinagarFax}</p>}
+                    {!c.srinagarPhone && !c.srinagarFax && <span class="text-slate-400 italic">—</span>}
+                  </td>
+
+                  <!-- Jammu Phone / Fax -->
+                  <td class="py-3.5 px-4 sm:px-6 text-center text-xs sm:text-sm text-slate-700">
+                    {c.jammuPhone && <p class="font-medium text-slate-900">{c.jammuPhone}</p>}
+                    {c.jammuFax && (
+                      <p class="text-xs text-slate-600 mt-0.5">
+                        Fax. {c.jammuFax}
+                      </p>
+                    )}
+                    {c.jammuFax && (
+                      <p class="text-[11px] text-slate-500 italic mt-0.5">(Fax on Automode 24 x 7)</p>
+                    )}
+                    {!c.jammuPhone && !c.jammuFax && <span class="text-slate-400 italic">—</span>}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -367,31 +236,39 @@ function formatEmail(email?: string | null) {
             </tr>
           </thead>
           <tbody class="font-normal">
-            {wingContacts.map((w: any) => (
-              <tr class="transition-colors">
-                <!-- Wing -->
-                <td class="py-3.5 px-4 sm:px-6 border-r border-slate-200 text-center font-bold text-slate-900">
-                  {w.wing}
-                  {w.address && <p class="text-[11px] font-normal text-slate-500 mt-0.5">{w.address}</p>}
-                </td>
-
-                <!-- Official with designation & email -->
-                <td class="py-3.5 px-4 sm:px-6 border-r border-slate-200 text-center">
-                  <p class="font-bold text-slate-900">{w.name}</p>
-                  <p class="text-xs text-slate-700 mt-0.5">{w.designation}</p>
-                  {w.email && (
-                    <p class="text-[11px] sm:text-xs text-slate-600 mt-0.5">
-                      <a href={`mailto:${w.email}`} class="text-[#0B3B60] hover:underline">{formatEmail(w.email)}</a>
-                    </p>
-                  )}
-                </td>
-
-                <!-- Phone -->
-                <td class="py-3.5 px-4 sm:px-6 text-center text-xs sm:text-sm font-medium text-slate-900">
-                  {w.phone ? w.phone : <span class="text-slate-400 italic">—</span>}
+            {wingContacts.length === 0 ? (
+              <tr>
+                <td colspan="3" class="text-center py-8 text-slate-500 font-semibold italic text-xs">
+                  No wing contacts listed at this time.
                 </td>
               </tr>
-            ))}
+            ) : (
+              wingContacts.map((w: any) => (
+                <tr class="transition-colors">
+                  <!-- Wing -->
+                  <td class="py-3.5 px-4 sm:px-6 border-r border-slate-200 text-center font-bold text-slate-900">
+                    {w.wing}
+                    {w.address && <p class="text-[11px] font-normal text-slate-500 mt-0.5">{w.address}</p>}
+                  </td>
+
+                  <!-- Official with designation & email -->
+                  <td class="py-3.5 px-4 sm:px-6 border-r border-slate-200 text-center">
+                    <p class="font-bold text-slate-900">{w.name}</p>
+                    <p class="text-xs text-slate-700 mt-0.5">{w.designation}</p>
+                    {w.email && (
+                      <p class="text-[11px] sm:text-xs text-slate-600 mt-0.5">
+                        <a href={`mailto:${w.email}`} class="text-[#0B3B60] hover:underline">{formatEmail(w.email)}</a>
+                      </p>
+                    )}
+                  </td>
+
+                  <!-- Phone -->
+                  <td class="py-3.5 px-4 sm:px-6 text-center text-xs sm:text-sm font-medium text-slate-900">
+                    {w.phone ? w.phone : <span class="text-slate-400 italic">—</span>}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

@@ -21,28 +21,6 @@ try {
 } catch (e) {
   console.error('Error fetching downloads from backend:', e);
 }
-
-// Fallback if backend is empty/offline
-if (downloads.length === 0) {
-  downloads = [
-    {
-      id: "static-dl-1",
-      title: "NIT Upload Request Form",
-      description: "Official form and instructions required for submitting NIT, e-NIT Gist, Quotations, or Corrigenda for upload to the web portal via webupdates[at]jkspdcl[dot]com.",
-      documentUrl: "/NIT Upload Request Form.pdf",
-      category: "Official Forms",
-      status: "Active"
-    },
-    {
-      id: "static-dl-2",
-      title: "User Creation",
-      description: "Requisite details form and instructions for generating user credentials and mapping digital signature certificates on jktenders.gov.in website.",
-      documentUrl: "/User Creation.pdf",
-      category: "E-Tendering Forms",
-      status: "Active"
-    }
-  ];
-}
 ---
 
 <Layout 
@@ -65,7 +43,12 @@ if (downloads.length === 0) {
     <div class="animate-fadeInUp delay-200 mt-6">
       <!-- Main List -->
       <article class="prose-gov space-y-4 w-full">
-        {downloads.map((doc) => (
+        {downloads.length === 0 ? (
+          <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs p-12 text-center text-slate-500 text-xs font-semibold">
+            No official downloads available at this time.
+          </div>
+        ) : (
+          downloads.map((doc) => (
           <div class="bg-white border border-gray-200 hover:border-[#9BC2E6] rounded-xl p-5 shadow-xs transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div class="space-y-2 flex-1">
               <span class="text-[9px] uppercase tracking-wider font-extrabold text-[#0B3B60] bg-[#0B3B60]/5 px-2.5 py-1 rounded-sm">
@@ -94,7 +77,7 @@ if (downloads.length === 0) {
               </a>
             </div>
           </div>
-        ))}
+        )))}
       </article>
     </div>
   </div>

@@ -19,17 +19,6 @@ try {
 } catch (e) {
   console.error('Error fetching memorandum document:', e);
 }
-
-if (memoDocs.length === 0) {
-  memoDocs = [
-    {
-      id: "fallback-moa",
-      title: "Memorandum & Articles of Association (MoA & AoA)",
-      description: "Official certified copies showing legal incorporation clauses under the Companies Act.",
-      documentUrl: "/MoA_AoA.pdf"
-    }
-  ];
-}
 ---
 
 <Layout 
@@ -59,7 +48,12 @@ if (memoDocs.length === 0) {
         </p>
 
         <!-- Document download boxes -->
-        {memoDocs.map((doc) => (
+        {memoDocs.length === 0 ? (
+          <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs p-12 text-center text-slate-500 text-xs font-semibold">
+            Memorandum & Articles of Association not available at this time.
+          </div>
+        ) : (
+          memoDocs.map((doc) => (
           <div class="bg-white border border-gray-200 hover:border-[#0B3B60]/40 rounded-xl p-5 shadow-sm transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h3 class="font-bold text-gray-900 text-sm mb-1">{doc.title}</h3>
@@ -70,7 +64,7 @@ if (memoDocs.length === 0) {
               <span>View MoA &amp; AoA PDF</span>
             </a>
           </div>
-        ))}
+        )))}
       </article>
     </div>
   </div>

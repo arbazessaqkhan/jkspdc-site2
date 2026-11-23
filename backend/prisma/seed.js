@@ -12,7 +12,6 @@ const SCRYPT_PARAMS = {
   saltLen: 16,
 };
 
-
 function hashPassword(password) {
   const salt = crypto.randomBytes(SCRYPT_PARAMS.saltLen);
   const derivedKey = crypto.scryptSync(password, salt, SCRYPT_PARAMS.keyLen, {
@@ -71,8 +70,7 @@ async function main() {
     console.log('Admin user already exists (role ensured as ADMIN).');
   }
 
-
-  // 2. Create Dignitaries & Board of Directors (BOD)
+  // 2. Create Dignitaries
   const dignitaries = [
     {
       id: 'dig-manoj-sinha',
@@ -82,7 +80,7 @@ async function main() {
       role: 'Honorable Lieutenant Governor',
       sNo: 1,
       imageUrl: '/dignitaries/manoj_sinha.png',
-      iasBatch: 'Hon\'ble Lt. Governor',
+      iasBatch: "Hon'ble Lt. Governor",
       education: 'M.Tech (Civil Engineering), IIT BHU',
       officeLocation: 'Raj Bhavan, J&K',
       description: 'Shri Manoj Sinha assumed office as the Lieutenant Governor of Jammu and Kashmir on August 7, 2020. Prior to this, he served as Minister of State (Independent Charge) for Communications and Minister of State for Railways in the Government of India. He is an alumnus of IIT (BHU) Varanasi.',
@@ -141,6 +139,7 @@ async function main() {
   }
   console.log('Dignitaries seeded.');
 
+  // 3. Create Board of Directors (BOD)
   const directors = [
     {
       id: 'dir-ashwani-kumar',
@@ -175,33 +174,92 @@ async function main() {
   for (const dir of directors) {
     await prisma.director.upsert({
       where: { id: dir.id },
-      create: {
-        id: dir.id,
-        name: dir.name,
-        position: dir.position,
-        role: dir.role,
-        sNo: dir.sNo,
-      },
-      update: {
-        name: dir.name,
-        position: dir.position,
-        role: dir.role,
-        sNo: dir.sNo,
-      },
+      create: dir,
+      update: dir,
     });
   }
   console.log('Board of Directors seeded.');
 
-  // 3. Power Stations (Managed exclusively via Admin Portal)
-  // Optional mock stations omitted to ensure production/staging start clean.
+  // 4. Power Stations (13 Operational Stations)
+  const stations = [
+    { id: 'op-pahalgam', name: 'MHEP PAHALGAM', capacityMw: 4.5, designEnergy: 14.92, yearOfCommissioning: 2005, basin: 'Jhelum Basin', location: 'Anantnag', status: 'Operational', type: 'Hydro', configuration: '2x2.25MW' },
+    { id: 'op-karnah', name: 'KARNAH', capacityMw: 2, designEnergy: 11.36, yearOfCommissioning: 1991, basin: 'Jhelum Basin', location: 'Kupwara', status: 'Operational', type: 'Hydro', configuration: '2x1MW' },
+    { id: 'op-ganderbal', name: 'GANDERBAL', capacityMw: 15, designEnergy: 90.15, yearOfCommissioning: 1955, basin: 'Jhelum Basin', location: 'Ganderbal', status: 'Operational', type: 'Hydro', configuration: '2x3MW + 2x4.5MW' },
+    { id: 'op-ushp-i', name: 'USHP I', capacityMw: 22.6, designEnergy: 106.62, yearOfCommissioning: 1973, basin: 'Jhelum Basin', location: 'Sumbal', status: 'Operational', type: 'Hydro', configuration: '2x11.3MW' },
+    { id: 'op-ushp-ii', name: 'USHP II', capacityMw: 105, designEnergy: 447.37, yearOfCommissioning: 2000, basin: 'Jhelum Basin', location: 'Kangan', status: 'Operational', type: 'Hydro', configuration: '3x35MW' },
+    { id: 'op-ljhp', name: 'LJHP', capacityMw: 105, designEnergy: 68.04, yearOfCommissioning: 1977, basin: 'Jhelum Basin', location: 'Baramulla', status: 'Operational', type: 'Hydro', configuration: '3x35MW' },
+    { id: 'op-bhaderwah', name: 'BHADERWAH', capacityMw: 1.5, designEnergy: 8.32, yearOfCommissioning: 2005, basin: 'Chenab Basin', location: 'Doda', status: 'Operational', type: 'Hydro', configuration: '3x0.5MW' },
+    { id: 'op-chep-iii', name: 'CHEP III', capacityMw: 7.5, designEnergy: 36.71, yearOfCommissioning: 2001, basin: 'Chenab Basin', location: 'Udhampur', status: 'Operational', type: 'Hydro', configuration: '3x2.5MW' },
+    { id: 'op-chep-ii', name: 'CHEP II', capacityMw: 2, designEnergy: 12, yearOfCommissioning: 1996, basin: 'Chenab Basin', location: 'Udhampur', status: 'Operational', type: 'Hydro', configuration: '2x1MW' },
+    { id: 'op-chep-i', name: 'CHEP I', capacityMw: 23.3, designEnergy: 110.02, yearOfCommissioning: 1971, basin: 'Chenab Basin', location: 'Udhampur', status: 'Operational', type: 'Hydro', configuration: '5x4.66MW' },
+    { id: 'op-bhep-i', name: 'BHEP I', capacityMw: 450, designEnergy: 2536.07, yearOfCommissioning: 2008, basin: 'Chenab Basin', location: 'Ramban', status: 'Operational', type: 'Hydro', configuration: '3x150MW' },
+    { id: 'op-bhep-ii', name: 'BHEP II', capacityMw: 450, designEnergy: 1302, yearOfCommissioning: 2015, basin: 'Chenab Basin', location: 'Ramban', status: 'Operational', type: 'Hydro', configuration: '3x150MW' },
+    { id: 'op-sewa-iii', name: 'SEWA III', capacityMw: 9, designEnergy: 33.06, yearOfCommissioning: 2002, basin: 'Ravi Basin', location: 'Kathua', status: 'Operational', type: 'Hydro', configuration: '3x3MW' },
+  ];
 
-  // 4. Gallery Items (Managed exclusively via Admin Media Gallery)
-  // Mock gallery items omitted so media is populated only by administrative upload.
+  for (const st of stations) {
+    const existing = await prisma.powerStation.findFirst({
+      where: { OR: [{ id: st.id }, { name: st.name }] },
+    });
+    if (!existing) {
+      await prisma.powerStation.create({ data: st });
+    }
+  }
+  console.log('Power stations seeded.');
 
-  // 5. Procurement Tenders (Managed exclusively via Admin Tender Portal)
-  // Sample mock tenders omitted so tender listings reflect only official admin notices.
+  // 5. IPP Projects (33 Projects across Phase 1, 2, and 3)
+  const ippProjects = [
+    // Phase 1
+    { name: 'Boniyar', capacityMw: 12, status: 'Work in progress', location: 'Baramula', awardedTo: 'Ms VRB Hydro Power', phase: 1 },
+    { name: 'Ranjala Dunadi', capacityMw: 15, status: 'Commissioned.', location: 'Doda', awardedTo: 'Ms Choudhary Power Projects Limited', phase: 1 },
+    { name: 'Kahmil', capacityMw: 4, status: 'Contract Terminated due to Poor Performance by Developer(2017 2018)', location: 'Kupwara', awardedTo: 'Ms Rehbar Engineering Ltd.', phase: 1 },
+    { name: 'Mandi', capacityMw: 12.5, status: 'Commissioned.', location: 'Punch', awardedTo: 'Ms Magpie Hydel Constructions', phase: 1 },
+    { name: 'Athwatoo', capacityMw: 10, status: 'Commissioned.', location: 'Bandipore', awardedTo: 'Ms Magpie and Co.', phase: 1 },
+    { name: 'Brenwar', capacityMw: 7.5, status: 'Commissioned.', location: 'Badgam', awardedTo: 'Ms P and R Engineering', phase: 1 },
+    { name: 'Aharbal', capacityMw: 22.5, status: 'Project Site surrendered due to Tourism and Environmental issues.', location: 'Pulwama', awardedTo: 'Ms JAL', phase: 1 },
+    { name: 'Drung', capacityMw: 5, status: 'Land Acquisition clearance in Progress.', location: 'Kathua', awardedTo: 'Ms Chenab Valley Leasing Company.', phase: 1 },
 
-  // 6. Seed Official Contacts (Corporate Office Directory)
+    // Phase 2
+    { name: 'Chandanwari', capacityMw: 7, status: 'DPR under preparation', location: 'Baramula', awardedTo: 'Ms Nazir Hussain Khan', phase: 2 },
+    { name: 'Ans I', capacityMw: 40, status: 'Implementation agreement was signed and DPR under preparation', location: 'Riasi', awardedTo: 'Ms Sri Awantika Consortium', phase: 2 },
+    { name: 'Girjan Ki Gali', capacityMw: 12, status: 'DPR under preparation', location: 'Rajaori', awardedTo: 'Ms Raheja Power Ventures Pvt Ltd', phase: 2 },
+    { name: 'Patnazi Bunjwa', capacityMw: 21, status: 'TEC accorded to DPR', location: 'Kishtwar', awardedTo: 'Ms Patnazi Power (Energo Group)', phase: 2 },
+
+    // Phase 3
+    { name: 'Chingus II', capacityMw: 3, status: 'No Response', location: 'Rajaori', awardedTo: '—', phase: 3 },
+    { name: 'Pumbai Aridajan', capacityMw: 4, status: 'No Response', location: 'Kulgam', awardedTo: '—', phase: 3 },
+    { name: 'Hanswar', capacityMw: 6, status: 'No Response', location: 'Kishtwar', awardedTo: '—', phase: 3 },
+    { name: 'Phagla', capacityMw: 16, status: 'No Response. (Project is being implemented under PMDP 2015)', location: 'Punch', awardedTo: '—', phase: 3 },
+    { name: 'Mawar', capacityMw: 10, status: 'Non Responsive Bid', location: 'Kupwara', awardedTo: '—', phase: 3 },
+    { name: 'Kutbal', capacityMw: 4, status: 'No Response', location: 'Kulgam', awardedTo: '—', phase: 3 },
+    { name: 'Shaliganga', capacityMw: 4.5, status: 'No Response', location: 'Badgam', awardedTo: '—', phase: 3 },
+    { name: 'Thanamandi', capacityMw: 2.75, status: 'No Response', location: 'Thanna Mandi', awardedTo: '—', phase: 3 },
+    { name: 'Boniyar II', capacityMw: 6, status: 'No Response', location: 'Baramula', awardedTo: '—', phase: 3 },
+    { name: 'Gulabgarh', capacityMw: 6.5, status: 'Bidder did not pay upfront premium. LOA Withdrawn. To be retendered.', location: 'Riasi', awardedTo: 'Ms Boom Systems Pvt.', phase: 3 },
+    { name: 'Kutimarg', capacityMw: 7.25, status: 'No Response', location: 'Kulgam', awardedTo: '—', phase: 3 },
+    { name: 'Shranz', capacityMw: 10, status: 'Bidder did not pay upfront premium. LOA Withdrawn. To be retendered.', location: 'Baramula', awardedTo: 'Ms Trumboo Cement Industries pvt. Ltd.', phase: 3 },
+    { name: 'Upper Ans I', capacityMw: 5.5, status: 'No Response', location: 'Rajaori', awardedTo: '—', phase: 3 },
+    { name: 'Shunahkag', capacityMw: 9, status: 'Bidder did not pay upfront premium. LOA Withdrawn.', location: 'Badgam', awardedTo: 'Ms Boom Systems Pvt. Ltd.', phase: 3 },
+    { name: 'Chingus I', capacityMw: 3, status: 'No Response', location: 'Rajaori', awardedTo: '—', phase: 3 },
+    { name: 'Sultanphatri', capacityMw: 3, status: 'DPR under preparation', location: 'Punch', awardedTo: 'Ms SRM Contractors Pvt. Ltd.', phase: 3 },
+    { name: 'Sewa I', capacityMw: 8, status: 'Non Responsive Bid', location: 'Kathua', awardedTo: '—', phase: 3 },
+    { name: 'Erin', capacityMw: 10, status: 'No Response', location: 'Bandipore', awardedTo: '—', phase: 3 },
+    { name: 'Nihama', capacityMw: 6, status: 'Bidder did not pay upfront premium. LOA Withdrawn.', location: 'Kulgam', awardedTo: 'Ms Middle East Recycling Company WILL.', phase: 3 },
+    { name: 'Chenani IV', capacityMw: 7, status: 'Non Responsive Bid.', location: 'Udhampur', awardedTo: '—', phase: 3 },
+    { name: 'Bringi', capacityMw: 4, status: 'No Response', location: 'Anantnag', awardedTo: '—', phase: 3 }
+  ];
+
+  for (const p of ippProjects) {
+    const existing = await prisma.ippProject.findFirst({
+      where: { name: p.name, phase: p.phase },
+    });
+    if (!existing) {
+      await prisma.ippProject.create({ data: p });
+    }
+  }
+  console.log('IPP Projects seeded.');
+
+  // 6. Official Contacts (Corporate Office Directory)
   const officialContacts = [
     {
       id: 'contact-seed-1',
@@ -322,7 +380,7 @@ async function main() {
   }
   console.log('Official contacts seeded.');
 
-  // 7. Seed Contact Sub-Offices / Wing Contacts
+  // 7. Contact Sub-Offices / Wing Contacts
   const subOffices = [
     {
       id: 'wing-seed-1',
@@ -365,8 +423,125 @@ async function main() {
   }
   console.log('Contact Sub-Offices / Wing Contacts seeded.');
 
-  // 8. Hero Carousel Slides (Managed exclusively via Admin Carousel Manager)
-  // Mock hero slides omitted to keep slides fully administered.
+  // 8. Downloads & Policies
+  const initialDownloads = [
+    {
+      title: 'NIT Upload Request Form',
+      category: 'Downloads',
+      description: 'Official form and instructions required for submitting NIT, e-NIT Gist, Quotations, or Corrigenda for upload to the web portal via webupdates[at]jkspdcl[dot]com.',
+      fileName: 'NIT Upload Request Form.pdf',
+      documentUrl: '/NIT Upload Request Form.pdf',
+      status: 'Active',
+    },
+    {
+      title: 'User Creation',
+      category: 'Downloads',
+      description: 'Requisite details form and instructions for generating user credentials and mapping digital signature certificates on jktenders.gov.in website.',
+      fileName: 'User Creation.pdf',
+      documentUrl: '/User Creation.pdf',
+      status: 'Active',
+    },
+    {
+      title: 'Whistle Blower Policy',
+      category: 'Policies',
+      description: 'Framework establishing a transparent vigilance mechanism for safeguarding the corporation against malpractices, abuse of authority, and corporate threats.',
+      fileName: 'Whistle Blower Policy.pdf',
+      documentUrl: '/Whistle Blower Policy.pdf',
+      status: 'Active',
+    },
+  ];
+
+  for (const item of initialDownloads) {
+    const existing = await prisma.download.findFirst({
+      where: { title: item.title },
+    });
+    if (!existing) {
+      await prisma.download.create({ data: item });
+    }
+  }
+  console.log('Downloads & Policies seeded.');
+
+  // 9. Policy Documents (MoA & AoA)
+  const initialPolicies = [
+    {
+      id: 'policy-moa-aoa',
+      title: 'Memorandum & Articles of Association (MoA & AoA)',
+      description: 'Official certified copies showing legal incorporation clauses under the Companies Act.',
+      category: 'Memorandum',
+      documentUrl: '/MoA_AoA.pdf',
+      status: 'Active',
+    },
+  ];
+
+  for (const pol of initialPolicies) {
+    await prisma.policyDocument.upsert({
+      where: { id: pol.id },
+      create: pol,
+      update: {},
+    });
+  }
+  console.log('Policy Documents (MoA & AoA) seeded.');
+
+  // 10. Gallery Items (6 authentic corporation photos)
+  const initialGallery = [
+    {
+      id: 'gallery-seed-1',
+      title: 'Signing of Implementation Agreement for Execution of Hydroelectric Projects NHPC Ltd. and JKSPDC',
+      imageUrl: '/gallery/signing_agreement.png',
+      partition: 'Official Events',
+      status: 'Active',
+      displayOrder: 1,
+    },
+    {
+      id: 'gallery-seed-2',
+      title: 'Retirement Ceremony of Executive Director Civil, JKSPDC',
+      imageUrl: '/gallery/retirement_ed_civil.png',
+      partition: 'Corporate',
+      status: 'Active',
+      displayOrder: 2,
+    },
+    {
+      id: 'gallery-seed-3',
+      title: 'Hydroelectric Power Infrastructure & Projects Overview',
+      imageUrl: '/gallery/projects_gallery.jpg',
+      partition: 'Projects',
+      status: 'Active',
+      displayOrder: 3,
+    },
+    {
+      id: 'gallery-seed-4',
+      title: 'Baglihar Hydro Electric Project (BHEP) Stage-I & II Dam Site',
+      imageUrl: '/projects/bhep-i.jpg',
+      partition: 'Projects',
+      status: 'Active',
+      displayOrder: 4,
+    },
+    {
+      id: 'gallery-seed-5',
+      title: 'Corporate HQ and Administrative Building, Srinagar & Jammu',
+      imageUrl: '/slider2.jpg',
+      partition: 'Corporate',
+      status: 'Active',
+      displayOrder: 5,
+    },
+    {
+      id: 'gallery-seed-6',
+      title: 'Official Executive Board Meeting & Review Conference',
+      imageUrl: '/slider3.jpg',
+      partition: 'Official Events',
+      status: 'Active',
+      displayOrder: 6,
+    },
+  ];
+
+  for (const gal of initialGallery) {
+    await prisma.galleryItem.upsert({
+      where: { id: gal.id },
+      create: gal,
+      update: {},
+    });
+  }
+  console.log('Gallery Items seeded.');
 
   console.log('Seeding completed successfully!');
 }

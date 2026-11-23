@@ -21,20 +21,6 @@ try {
 } catch (e) {
   console.error('Error fetching policies:', e);
 }
-
-// Fallback to preserve static whistleblower policy if backend is empty/unavailable
-if (policies.length === 0) {
-  policies = [
-    {
-      id: "fallback-1",
-      title: "Whistle Blower Policy",
-      description: "Framework establishing a transparent vigilance mechanism for safeguarding the corporation against malpractices, abuse of authority, and corporate threats.",
-      documentUrl: "/Whistle Blower Policy.pdf",
-      category: "Policies",
-      status: "Active"
-    }
-  ];
-}
 ---
 
 <Layout 
@@ -59,7 +45,12 @@ if (policies.length === 0) {
     <div class="animate-fadeInUp delay-200 mt-6">
       <!-- Main List -->
       <article class="prose-gov space-y-4 w-full">
-        {policies.map((p, index) => (
+        {policies.length === 0 ? (
+          <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs p-12 text-center text-slate-500 text-xs font-semibold">
+            No corporate policies available at this time.
+          </div>
+        ) : (
+          policies.map((p, index) => (
           <div class="bg-white border border-gray-200 hover:border-[#9BC2E6] rounded-xl p-5 shadow-xs transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div class="space-y-2 flex-1">
               <div class="flex items-center gap-2 flex-wrap">
@@ -110,7 +101,7 @@ if (policies.length === 0) {
               )}
             </div>
           </div>
-        ))}
+        )))}
       </article>
 
     </div>

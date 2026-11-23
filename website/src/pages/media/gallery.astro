@@ -48,44 +48,6 @@ try {
   }
 } catch (e) {
   console.error('Error fetching gallery items:', e);
-  galleryItems = [
-    {
-      id: 'gallery-seed-1',
-      title: 'Signing of Implementation Agreement for Execution of Hydroelectric Projects NHPC Ltd. and JKSPDC',
-      imageUrl: '/gallery/signing_agreement.png',
-      partition: 'Official Events',
-    },
-    {
-      id: 'gallery-seed-2',
-      title: 'Retirement Ceremony of Executive Director Civil, JKSPDC',
-      imageUrl: '/gallery/retirement_ed_civil.png',
-      partition: 'Corporate',
-    },
-    {
-      id: 'gallery-seed-3',
-      title: 'Hydroelectric Power Infrastructure & Projects Overview',
-      imageUrl: '/gallery/projects_gallery.jpg',
-      partition: 'Projects',
-    },
-    {
-      id: 'gallery-seed-4',
-      title: 'Baglihar Hydro Electric Project (BHEP) Stage-I & II Dam Site',
-      imageUrl: '/projects/bhep-i.jpg',
-      partition: 'Projects',
-    },
-    {
-      id: 'gallery-seed-5',
-      title: 'Corporate HQ and Administrative Building, Srinagar & Jammu',
-      imageUrl: '/slider2.jpg',
-      partition: 'Corporate',
-    },
-    {
-      id: 'gallery-seed-6',
-      title: 'Official Executive Board Meeting & Review Conference',
-      imageUrl: '/slider3.jpg',
-      partition: 'Official Events',
-    },
-  ];
 }
 
 const uniquePartitions = [...new Set(galleryItems.map(item => item.partition).filter(Boolean))];

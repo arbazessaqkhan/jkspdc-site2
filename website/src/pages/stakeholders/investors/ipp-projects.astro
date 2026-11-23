@@ -2,71 +2,6 @@
 import Layout from '../../../layouts/Layout.astro';
 import Icon from '../../../components/Icon.astro';
 
-// Fallback seed data in case backend service is temporarily offline
-const fallbackIppPhases = [
-  { 
-    id: 'phase-1', 
-    name: 'Phase 1', 
-    phaseNum: 1,
-    projects: [
-      { name: 'Boniyar HEP', capacityMw: 12, basin: 'Jhelum Basin', location: 'Baramula', status: 'Work in Progress', awardedTo: 'Ms VRB Hydro Power' },
-      { name: 'Ranjala Dunadi HEP', capacityMw: 15, basin: 'Chenab Basin', location: 'Doda', status: 'Commissioned', awardedTo: 'Ms Choudhary Power Projects Limited' },
-      { name: 'Kahmil HEP', capacityMw: 4, basin: 'Jhelum Basin', location: 'Kupwara', status: 'Terminated', awardedTo: 'Ms Rehbar Engineering Ltd.' },
-      { name: 'Mandi HEP', capacityMw: 12.5, basin: 'Jhelum Basin (Punch)', location: 'Punch', status: 'Commissioned', awardedTo: 'Ms Magpie Hydel Constructions' },
-      { name: 'Athwatoo HEP', capacityMw: 10, basin: 'Jhelum Basin', location: 'Bandipore', status: 'Commissioned', awardedTo: 'Ms Magpie and Co.' },
-      { name: 'Brenwar HEP', capacityMw: 7.5, basin: 'Jhelum Basin', location: 'Badgam', status: 'Commissioned', awardedTo: 'Ms P and R Engineering' },
-      { name: 'Aharbal HEP', capacityMw: 22.5, basin: 'Jhelum Basin', location: 'Pulwama', status: 'Surrendered', awardedTo: 'Ms JAL' },
-      { name: 'Drung HEP', capacityMw: 5, basin: 'Ravi Basin', location: 'Kathua', status: 'Land Acquisition', awardedTo: 'Ms Chenab Valley Leasing Company.' }
-    ]
-  },
-  { 
-    id: 'phase-2', 
-    name: 'Phase 2', 
-    phaseNum: 2,
-    projects: [
-      { name: 'Chandanwari HEP', capacityMw: 7, basin: 'Jhelum Basin', location: 'Baramula', status: 'DPR Preparation', awardedTo: 'Ms Nazir Hussain Khan' },
-      { name: 'Ans I HEP', capacityMw: 40, basin: 'Chenab Basin', location: 'Riasi', status: 'Implementation Agreement', awardedTo: 'Ms Sri Awantika Consortium' },
-      { name: 'Girjan Ki Gali HEP', capacityMw: 12, basin: 'Chenab Basin (Rajouri)', location: 'Rajaori', status: 'DPR Preparation', awardedTo: 'Ms Raheja Power Ventures Pvt Ltd' },
-      { name: 'Patnazi Bunjwa HEP', capacityMw: 21, basin: 'Chenab Basin', location: 'Kishtwar', status: 'TEC Accorded', awardedTo: 'Ms Patnazi Power (Energo Group)' }
-    ]
-  },
-  { 
-    id: 'phase-3', 
-    name: 'Phase 3', 
-    phaseNum: 3,
-    projects: [
-      { name: 'Chingus II HEP', capacityMw: 3, basin: 'Chenab Basin (Rajouri)', location: 'Rajaori', status: 'No Response', awardedTo: '—' },
-      { name: 'Pumbai Aridajan HEP', capacityMw: 4, basin: 'Jhelum Basin', location: 'Kulgam', status: 'No Response', awardedTo: '—' },
-      { name: 'Hanswar HEP', capacityMw: 6, basin: 'Chenab Basin', location: 'Kishtwar', status: 'No Response', awardedTo: '—' },
-      { name: 'Phagla HEP', capacityMw: 16, basin: 'Jhelum Basin (Punch)', location: 'Punch', status: 'No Response', awardedTo: '—' },
-      { name: 'Mawar HEP', capacityMw: 10, basin: 'Jhelum Basin', location: 'Kupwara', status: 'Non Responsive', awardedTo: '—' },
-      { name: 'Kutbal HEP', capacityMw: 4, basin: 'Jhelum Basin', location: 'Kulgam', status: 'No Response', awardedTo: '—' },
-      { name: 'Shaliganga HEP', capacityMw: 4.5, basin: 'Jhelum Basin', location: 'Badgam', status: 'No Response', awardedTo: '—' },
-      { name: 'Thanamandi HEP', capacityMw: 2.75, basin: 'Chenab Basin', location: 'Thanna Mandi', status: 'No Response', awardedTo: '—' },
-      { name: 'Boniyar HEP', capacityMw: 6, basin: 'Jhelum Basin', location: 'Baramula', status: 'No Response', awardedTo: '—' },
-      { name: 'Gulabgarh HEP', capacityMw: 6.5, basin: 'Chenab Basin', location: 'Riasi', status: 'LOA Withdrawn', awardedTo: 'Ms Boom Systems Pvt.' },
-      { name: 'Kutimarg HEP', capacityMw: 7.25, basin: 'Jhelum Basin', location: 'Kulgam', status: 'No Response', awardedTo: '—' },
-      { name: 'Shranz HEP', capacityMw: 10, basin: 'Jhelum Basin', location: 'Baramula', status: 'LOA Withdrawn', awardedTo: 'Ms Trumboo Cement Industries pvt. Ltd.' },
-      { name: 'Upper Ans I HEP', capacityMw: 5.5, basin: 'Chenab Basin', location: 'Rajaori', status: 'No Response', awardedTo: '—' },
-      { name: 'Shunahkag HEP', capacityMw: 9, basin: 'Jhelum Basin', location: 'Badgam', status: 'LOA Withdrawn', awardedTo: 'Ms Boom Systems Pvt. Ltd.' },
-      { name: 'Chingus I HEP', capacityMw: 3, basin: 'Chenab Basin (Rajouri)', location: 'Rajaori', status: 'No Response', awardedTo: '—' },
-      { name: 'Sultanphatri HEP', capacityMw: 3, basin: 'Jhelum Basin (Punch)', location: 'Punch', status: 'DPR Preparation', awardedTo: 'Ms SRM Contractors Pvt. Ltd.' },
-      { name: 'Sewa I HEP', capacityMw: 8, basin: 'Ravi Basin', location: 'Kathua', status: 'Non Responsive', awardedTo: '—' },
-      { name: 'Erin HEP', capacityMw: 10, basin: 'Jhelum Basin', location: 'Bandipore', status: 'No Response', awardedTo: '—' },
-      { name: 'Nihama HEP', capacityMw: 6, basin: 'Jhelum Basin', location: 'Kulgam', status: 'LOA Withdrawn', awardedTo: 'Ms Middle East Recycling Company WILL.' },
-      { name: 'Chenani IV HEP', capacityMw: 7, basin: 'Chenab Basin', location: 'Udhampur', status: 'Non Responsive', awardedTo: '—' },
-      { name: 'Bringi HEP', capacityMw: 4, basin: 'Jhelum Basin', location: 'Anantnag', status: 'No Response', awardedTo: '—' }
-    ]
-  },
-  { id: 'phase-4', name: 'Phase 4', phaseNum: 4, projects: [] },
-  { id: 'phase-5', name: 'Phase 5', phaseNum: 5, projects: [] },
-  { id: 'phase-6', name: 'Phase 6', phaseNum: 6, projects: [] },
-  { id: 'phase-7', name: 'Phase 7', phaseNum: 7, projects: [] },
-  { id: 'phase-8', name: 'Phase 8', phaseNum: 8, projects: [] },
-  { id: 'phase-9', name: 'Phase 9', phaseNum: 9, projects: [] },
-  { id: 'phase-10', name: 'Phase 10', phaseNum: 10, projects: [] }
-];
-
 // Fetch live IPP projects directly from the backend database (same database as Admin portal)
 let dbProjects: any[] = [];
 try {
@@ -78,7 +13,7 @@ try {
   console.error('Failed to sync IPP projects from backend API:', e);
 }
 
-// Generate the 10 phases using live database data (or fallback if backend empty/offline)
+// Generate the 10 phases using live database data
 const phasesWithCalculations = Array.from({ length: 10 }, (_, i) => {
   const phaseNum = i + 1;
   const phaseId = `phase-${phaseNum}`;
@@ -96,9 +31,6 @@ const phasesWithCalculations = Array.from({ length: 10 }, (_, i) => {
         awardedTo: p.awardedTo || '—',
         basin: p.basin || ''
       }));
-  } else {
-    const fallbackPhase = fallbackIppPhases.find((p) => p.phaseNum === phaseNum);
-    projects = fallbackPhase ? fallbackPhase.projects : [];
   }
 
   const totalCapacity = projects.reduce((sum: number, p: any) => sum + (Number(p.capacityMw) || 0), 0);
