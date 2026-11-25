@@ -293,10 +293,10 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
 
 <Layout title="Home | JKSPDC Official Portal" description="Official enterprise portal of Jammu and Kashmir State Power Development Corporation Ltd. Powering the future of J&K through clean, sustainable, and reliable energy generation." isHome={true}>
 
-  <!-- HERO CAROUSEL (admin-managed slides) -->
+  <!-- HERO CAROUSEL (admin-managed slides — GIGW 3.0 / UX4G directional scrim overlay) -->
   <section
     id="home"
-    class="hero-section relative w-full overflow-hidden bg-slate-900 border-b border-slate-200"
+    class="hero-section relative w-full h-[300px] sm:h-[340px] lg:h-[370px] xl:h-[420px] overflow-hidden bg-slate-900"
     aria-roledescription="carousel"
     aria-label="Featured highlights"
     data-hero-duration={heroSlideMs}
@@ -304,98 +304,100 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
   >
     {heroSlides.length > 0 ? (
       <>
-        <!-- 100% Unobstructed Hero Photo Container -->
-        <div class="relative w-full h-[340px] sm:h-[400px] lg:h-[440px] overflow-hidden bg-slate-900">
-          <div id="hero-slides" class="absolute inset-0">
-            {heroSlides.map((slide, i) => (
-              <div
-                class={`hero-slide absolute inset-0 transition-opacity duration-700 ease-out ${i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}
-                aria-hidden={i === 0 ? undefined : 'true'}
-                data-slide-title={slide.title || ''}
-                data-slide-desc={slide.description || ''}
-                data-slide-cta-href={slide.ctaHref || ''}
-                data-slide-cta-text={slide.ctaText || 'Explore Details'}
-              >
-                {slide.imageUrl ? (
-                  <img
-                    src={getImageUrl(slide.imageUrl)}
-                    alt={slide.title || ''}
-                    class="absolute inset-0 h-full w-full object-cover"
-                    fetchpriority={i === 0 ? 'high' : 'auto'}
-                    loading={i === 0 ? 'eager' : 'lazy'}
-                  />
-                ) : (
-                  <div class="absolute inset-0 bg-[#002B49]"></div>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {heroSlides.length > 1 && (
-            <>
-              <!-- Prev / Next Controls -->
-              <button
-                id="hero-prev"
-                type="button"
-                class="absolute left-3 sm:left-5 top-1/2 z-30 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/35 text-white backdrop-blur-sm transition-colors hover:bg-black/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-                aria-label="Previous slide"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
-              </button>
-              <button
-                id="hero-next"
-                type="button"
-                class="absolute right-3 sm:right-5 top-1/2 z-30 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/35 text-white backdrop-blur-sm transition-colors hover:bg-black/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-                aria-label="Next slide"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
-              </button>
-
-              <!-- Indicators: Cleanly centered at the bottom of the photo -->
-              <div
-                id="hero-indicators"
-                class="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2"
-                role="tablist"
-                aria-label="Carousel slide indicators"
-              >
-                {heroSlides.map((_, i) => (
-                  <button
-                    type="button"
-                    data-hero-indicator={String(i)}
-                    class={`hero-indicator-strip h-1.5 rounded-full transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${i === 0 ? 'bg-white ring-1 ring-[#0B3D6B]/50 w-8 shadow-sm' : 'bg-white/60 hover:bg-white w-3.5 shadow-xs'}`}
-                    aria-label={`Go to slide ${i + 1}`}
-                    aria-current={i === 0 ? 'true' : undefined}
-                  ></button>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-
-        <!-- Clean White Caption Bar Directly Below the Photo -->
-        <div id="hero-caption-bar" class="bg-white border-b border-slate-200">
-          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div class="min-w-0 flex-1">
-              <h2 id="hero-caption-title" class="text-xl sm:text-2xl font-bold text-[#0B3D6B] leading-tight">
-                {heroSlides[0]?.title || ''}
-              </h2>
-              <p id="hero-caption-desc" class="text-sm text-slate-900 mt-0.5">
-                {heroSlides[0]?.description || ''}
-              </p>
-            </div>
-            <a
-              id="hero-caption-cta"
-              href={heroSlides[0]?.ctaHref || '#projects'}
-              class={`shrink-0 inline-flex items-center gap-1.5 bg-[#0B3D6B] hover:bg-[#082E52] text-white text-sm font-semibold px-5 py-2.5 rounded-md transition-colors shadow-xs ${heroSlides[0]?.ctaHref ? '' : 'hidden'}`}
+        <div id="hero-slides" class="absolute inset-0">
+          {heroSlides.map((slide, i) => (
+            <div
+              class={`hero-slide absolute inset-0 transition-opacity duration-700 ease-out ${i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}
+              aria-hidden={i === 0 ? undefined : 'true'}
             >
-              <span id="hero-caption-cta-text">{heroSlides[0]?.ctaText || 'Explore Details'}</span>
-              <span aria-hidden="true">&rarr;</span>
-            </a>
-          </div>
+              {slide.imageUrl ? (
+                <img
+                  src={getImageUrl(slide.imageUrl)}
+                  alt={slide.title || ''}
+                  class="absolute inset-0 h-full w-full object-cover"
+                  fetchpriority={i === 0 ? 'high' : 'auto'}
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                />
+              ) : (
+                <div class="absolute inset-0 bg-[#002B49]"></div>
+              )}
+
+              <!-- Directional edge-only scrims: keep center/right photo bright while guaranteeing WCAG AA text contrast -->
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/15 to-transparent pointer-events-none" aria-hidden="true"></div>
+              <div class="absolute inset-y-0 left-0 w-full sm:w-3/5 bg-gradient-to-r from-[#0B3D6B]/80 via-[#0B3D6B]/35 to-transparent pointer-events-none" aria-hidden="true"></div>
+
+              <!-- Safe-Zone Caption (No Box, Fits Above the Fold on 13.3" Laptops) -->
+              <div class="absolute inset-0 z-10 flex items-center pointer-events-none">
+                <div class="max-w-7xl mx-auto w-full px-14 sm:px-20 pb-4">
+                  <div class="pointer-events-auto max-w-lg">
+                    <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold text-white leading-tight tracking-tight drop-shadow-sm">
+                      {slide.title}
+                    </h2>
+                    {slide.description && (
+                      <p class="text-xs sm:text-sm lg:text-base text-slate-100 mt-1.5 leading-snug line-clamp-2 drop-shadow-xs">
+                        {slide.description}
+                      </p>
+                    )}
+                    {slide.ctaHref && (
+                      <div class="mt-3.5">
+                        <a
+                          href={slide.ctaHref}
+                          class="inline-flex items-center gap-1.5 bg-white text-[#0B3D6B] hover:bg-slate-100 text-xs sm:text-sm font-semibold px-4 py-2 rounded-md shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                        >
+                          <span>{slide.ctaText || 'Explore Details'}</span>
+                          <span aria-hidden="true">&rarr;</span>
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
+
+        {heroSlides.length > 1 && (
+          <>
+            <!-- Prev / Next Controls -->
+            <button
+              id="hero-prev"
+              type="button"
+              class="absolute left-3 sm:left-5 top-1/2 z-30 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/30 text-white backdrop-blur-sm transition-colors hover:bg-black/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              aria-label="Previous slide"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+            </button>
+            <button
+              id="hero-next"
+              type="button"
+              class="absolute right-3 sm:right-5 top-1/2 z-30 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/30 text-white backdrop-blur-sm transition-colors hover:bg-black/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              aria-label="Next slide"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
+            </button>
+
+            <!-- Indicators: Cleanly centered at the bottom over feathered edge -->
+            <div
+              id="hero-indicators"
+              class="absolute bottom-3.5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2"
+              role="tablist"
+              aria-label="Carousel slide indicators"
+            >
+              {heroSlides.map((_, i) => (
+                <button
+                  type="button"
+                  data-hero-indicator={String(i)}
+                  class={`hero-indicator-strip h-1.5 rounded-full transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${i === 0 ? 'w-8 bg-white shadow-sm' : 'w-3.5 bg-white/50 hover:bg-white/85'}`}
+                  aria-label={`Go to slide ${i + 1}`}
+                  aria-current={i === 0 ? 'true' : undefined}
+                ></button>
+              ))}
+            </div>
+          </>
+        )}
       </>
     ) : (
-      <div class="relative w-full overflow-hidden bg-[#002B49]">
+      <div class="relative h-full w-full flex items-center justify-center bg-gradient-to-r from-[#002B49] via-[#0B3B60] to-[#002B49]">
         <div class="max-w-7xl mx-auto px-6 py-12 text-center text-white">
           <h1 class="text-2xl sm:text-4xl font-bold leading-tight tracking-tight">
             Jammu and Kashmir State Power Development Corporation Limited
@@ -1153,43 +1155,15 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     if (!heroIndicators || heroIndicators.length === 0) return;
     heroIndicators.forEach(function (ind, idx) {
       if (idx === activeIndex) {
-        ind.classList.remove('w-3.5', 'bg-white/60', 'hover:bg-white', 'shadow-xs');
-        ind.classList.add('w-8', 'bg-white', 'ring-1', 'ring-[#0B3D6B]/50', 'shadow-sm');
+        ind.classList.remove('w-3.5', 'bg-white/50', 'hover:bg-white/85');
+        ind.classList.add('w-8', 'bg-white', 'shadow-sm');
         ind.setAttribute('aria-current', 'true');
       } else {
-        ind.classList.remove('w-8', 'bg-white', 'ring-1', 'ring-[#0B3D6B]/50', 'shadow-sm');
-        ind.classList.add('w-3.5', 'bg-white/60', 'hover:bg-white', 'shadow-xs');
+        ind.classList.remove('w-8', 'bg-white', 'shadow-sm');
+        ind.classList.add('w-3.5', 'bg-white/50', 'hover:bg-white/85');
         ind.removeAttribute('aria-current');
       }
     });
-  }
-
-  var heroCaptionTitle = document.getElementById('hero-caption-title');
-  var heroCaptionDesc = document.getElementById('hero-caption-desc');
-  var heroCaptionCta = document.getElementById('hero-caption-cta');
-  var heroCaptionCtaText = document.getElementById('hero-caption-cta-text');
-
-  function updateCaptionBar(index) {
-    var activeSlide = slideEls[index];
-    if (!activeSlide) return;
-
-    var title = activeSlide.getAttribute('data-slide-title') || '';
-    var desc = activeSlide.getAttribute('data-slide-desc') || '';
-    var ctaHref = activeSlide.getAttribute('data-slide-cta-href') || '';
-    var ctaText = activeSlide.getAttribute('data-slide-cta-text') || 'Explore Details';
-
-    if (heroCaptionTitle) heroCaptionTitle.textContent = title;
-    if (heroCaptionDesc) heroCaptionDesc.textContent = desc;
-
-    if (heroCaptionCta) {
-      if (ctaHref) {
-        heroCaptionCta.setAttribute('href', ctaHref);
-        heroCaptionCta.classList.remove('hidden');
-        if (heroCaptionCtaText) heroCaptionCtaText.textContent = ctaText;
-      } else {
-        heroCaptionCta.classList.add('hidden');
-      }
-    }
   }
 
   function goTo(n) {
@@ -1214,7 +1188,6 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     }
 
     updateIndicators(cur);
-    updateCaptionBar(cur);
   }
 
   function stopHeroTimer() {
