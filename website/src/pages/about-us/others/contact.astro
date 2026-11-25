@@ -1,11 +1,14 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 import Icon from '../../../components/Icon.astro';
+import { BACKEND_URL } from '../../../utils/api-error';
+
+const apiBase = process.env.BACKEND_URL || import.meta.env.PUBLIC_API_BASE || BACKEND_URL;
 
 // Fetch official corporate contacts dynamically from Admin-managed database
 let officialContacts = [];
 try {
-  const res = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/official-contacts`);
+  const res = await fetch(`${apiBase}/api/official-contacts`);
   if (res.ok) {
     const rawData = await res.json();
     if (Array.isArray(rawData)) {
@@ -19,7 +22,7 @@ try {
 // Fetch wing contacts & sub-offices dynamically from Admin-managed database
 let subOffices = [];
 try {
-  const res = await fetch(`${import.meta.env.PUBLIC_API_BASE}/api/contact-sub-offices`);
+  const res = await fetch(`${apiBase}/api/contact-sub-offices`);
   if (res.ok) {
     const rawSub = await res.json();
     if (Array.isArray(rawSub)) {
