@@ -118,9 +118,11 @@ if (Astro.request.method === 'POST') {
   }
 }
 
-// Fetch AGM Documents List
+// Fetch AGM Documents List (server-side year & search)
+const yearFilter = Astro.url.searchParams.get('year')?.trim() || 'All';
 const { page, pageSize } = readPageParams(Astro.url);
-const pagedExtra: Record<string, string | undefined> = {  };
+const pagedExtra: Record<string, string | undefined> = {};
+if (yearFilter && yearFilter !== 'All') pagedExtra.year = yearFilter;
 let agmDocuments: any[] = [];
 let pagedTotal = 0;
 let pagedLastPage = 1;

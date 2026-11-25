@@ -18,9 +18,11 @@ const canMutate = canMutateRoutineContent(userRole);
 let errorMessage = '';
 let successMessage = '';
 
-// Fetch all resources
+// Fetch all resources (server-side category filtering)
+const categoryFilter = Astro.url.searchParams.get('category')?.trim() || 'All';
 const { page, pageSize } = readPageParams(Astro.url);
 const pagedExtra: Record<string, string | undefined> = {};
+if (categoryFilter && categoryFilter !== 'All') pagedExtra.category = categoryFilter;
 let resources: any[] = [];
 let pagedTotal = 0;
 let pagedLastPage = 1;

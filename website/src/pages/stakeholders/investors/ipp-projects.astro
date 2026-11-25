@@ -169,7 +169,7 @@ const initialPhase = requestedPhaseParam ? phasesWithCalculations.find(p => p.id
             <tbody id="table-tbody">
               {initialPhase && (
                 initialPhase.projects.length > 0 ? (
-                  initialPhase.projects.map((proj: any) => (
+                  initialPhase.projects.slice(0, 10).map((proj: any) => (
                     <tr>
                       <td class="text-left font-semibold text-slate-800 break-words" style="width: 25%;">
                         <div>{proj.name}</div>
@@ -199,6 +199,18 @@ const initialPhase = requestedPhaseParam ? phasesWithCalculations.find(p => p.id
             </tbody>
           </table>
         </div>
+
+        <!-- Accessible Pagination Bar (GIGW 3.0 / WCAG 2.2: 10 projects per page) -->
+        <nav
+          id="ipp-pagination"
+          aria-label="IPP Projects Pagination"
+          class={`pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${initialPhase && initialPhase.projects.length > 10 ? '' : 'hidden'}`}
+        >
+          <p id="ipp-page-info" class="text-xs font-medium text-slate-600">
+            {initialPhase ? `Showing 1–${Math.min(10, initialPhase.projects.length)} of ${initialPhase.projects.length} projects` : ''}
+          </p>
+          <div id="ipp-page-buttons" class="flex flex-wrap items-center gap-1.5"></div>
+        </nav>
       </div>
     </section>
   </div>
@@ -231,10 +243,67 @@ const initialPhase = requestedPhaseParam ? phasesWithCalculations.find(p => p.id
   var tbody = document.getElementById('table-tbody');
   var captionEl = document.getElementById('table-caption');
   var announcer = document.getElementById('a11y-announcer');
+  var paginationNav = document.getElementById('ipp-pagination');
+  var pageInfoEl = document.getElementById('ipp-page-info');
+  var pageBtnsEl = document.getElementById('ipp-page-buttons');
+  var PAGE_SIZE = 10;
+  var activePhaseId = null;
+  var currentPage = 1;
 
-  function renderPhase(phaseId, updateHistory) {
+  function renderPagination(phase, pageNum) {
+    if (!paginationNav || !pageInfoEl || !pageBtnsEl) return;
+    var total = phase.projects.length;
+    var totalPages = Math.ceil(total / PAGE_SIZE) || 1;
+    if (total <= PAGE_SIZE) {
+      paginationNav.classList.add('hidden');
+      pageBtnsEl.innerHTML = '';
+      return;
+    }
+
+    paginationNav.classList.remove('hidden');
+    var start = (pageNum - 1) * PAGE_SIZE + 1;
+    var end = Math.min(pageNum * PAGE_SIZE, total);
+    pageInfoEl.textContent = 'Showing ' + start + '–' + end + ' of ' + total + ' projects (Page ' + pageNum + ' of ' + totalPages + ')';
+
+    var html = '';
+    var prevDisabled = pageNum <= 1;
+    html += '<button type="button" data-page="' + (pageNum - 1) + '" ' + (prevDisabled ? 'disabled aria-disabled="true"' : '') +
+      ' class="ipp-page-btn px-3 py-1.5 rounded text-xs font-semibold border ' +
+      (prevDisabled ? 'border-slate-200 text-slate-400 bg-slate-50 cursor-not-allowed' : 'border-slate-300 text-slate-700 bg-white hover:bg-slate-50 cursor-pointer') +
+      '" aria-label="Previous page">&lsaquo; Prev</button>';
+
+    for (var p = 1; p <= totalPages; p++) {
+      var isCurrent = p === pageNum;
+      html += '<button type="button" data-page="' + p + '" ' + (isCurrent ? 'aria-current="page"' : '') +
+        ' class="ipp-page-btn min-w-[34px] px-2.5 py-1.5 rounded text-xs font-bold border transition-colors cursor-pointer ' +
+        (isCurrent ? 'bg-[#0B3B60] text-white border-[#0B3B60]' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50') +
+        '" aria-label="Page ' + p + '">' + p + '</button>';
+    }
+
+    var nextDisabled = pageNum >= totalPages;
+    html += '<button type="button" data-page="' + (pageNum + 1) + '" ' + (nextDisabled ? 'disabled aria-disabled="true"' : '') +
+      ' class="ipp-page-btn px-3 py-1.5 rounded text-xs font-semibold border ' +
+      (nextDisabled ? 'border-slate-200 text-slate-400 bg-slate-50 cursor-not-allowed' : 'border-slate-300 text-slate-700 bg-white hover:bg-slate-50 cursor-pointer') +
+      '" aria-label="Next page">Next &rsaquo;</button>';
+
+    pageBtnsEl.innerHTML = html;
+    pageBtnsEl.querySelectorAll('.ipp-page-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var targetPage = parseInt(btn.getAttribute('data-page') || '1', 10);
+        if (!btn.disabled && targetPage >= 1 && targetPage <= totalPages) {
+          renderPhase(activePhaseId, true, targetPage);
+          if (tableSection) tableSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  }
+
+  function renderPhase(phaseId, updateHistory, pageNum) {
     var phase = phaseMap[phaseId];
     if (!phase) return;
+    activePhaseId = phaseId;
+    var totalPages = Math.ceil(phase.projects.length / PAGE_SIZE) || 1;
+    currentPage = Math.min(Math.max(1, parseInt(pageNum || '1', 10)), totalPages);
 
     // 1. Update tab styling and accessibility states
     tabs.forEach(function(tab) {
@@ -264,18 +333,21 @@ const initialPhase = requestedPhaseParam ? phasesWithCalculations.find(p => p.id
       countEl.innerHTML = 'Showing ' + phase.projectCount + ' project(s) &bull; Total: ' + phase.totalMw;
     }
     if (captionEl) {
-      captionEl.textContent = 'List of IPP projects under ' + phase.name;
+      captionEl.textContent = 'List of IPP projects under ' + phase.name + ' (Page ' + currentPage + ' of ' + totalPages + ')';
     }
 
-    // 4. Render Table Rows with fixed column widths strictly matching the colgroup headers
+    // 4. Render Paginated Table Rows (10 per page)
+    var startIdx = (currentPage - 1) * PAGE_SIZE;
+    var pagedProjects = phase.projects.slice(startIdx, startIdx + PAGE_SIZE);
+
     if (tbody) {
-      if (phase.projects.length === 0) {
+      if (pagedProjects.length === 0) {
         tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-sm text-slate-500 font-semibold">' +
           'No projects are registered under this allotment phase yet.' +
         '</td></tr>';
       } else {
         var rowsHtml = '';
-        phase.projects.forEach(function(proj) {
+        pagedProjects.forEach(function(proj) {
           var loc = proj.location || '—';
           if (proj.basin) loc += ' • ' + proj.basin;
 
@@ -300,16 +372,23 @@ const initialPhase = requestedPhaseParam ? phasesWithCalculations.find(p => p.id
       }
     }
 
+    renderPagination(phase, currentPage);
+
     // 5. Accessible screen reader announcement
     if (announcer) {
-      announcer.textContent = phase.name + ' selected. ' + phase.projectCount + ' projects listed with total capacity of ' + phase.totalMw + '.';
+      announcer.textContent = phase.name + ' selected, page ' + currentPage + ' of ' + totalPages + '. ' + phase.projectCount + ' projects listed with total capacity of ' + phase.totalMw + '.';
     }
 
     // 6. Update URL query parameter
     if (updateHistory !== false) {
       var url = new URL(window.location.href);
       url.searchParams.set('phase', phaseId);
-      window.history.pushState({ phase: phaseId }, '', url.toString());
+      if (currentPage > 1) {
+        url.searchParams.set('page', String(currentPage));
+      } else {
+        url.searchParams.delete('page');
+      }
+      window.history.pushState({ phase: phaseId, page: currentPage }, '', url.toString());
     }
   }
 
@@ -362,8 +441,9 @@ const initialPhase = requestedPhaseParam ? phasesWithCalculations.find(p => p.id
   // Initial check on page load if query param exists
   var initialParams = new URLSearchParams(window.location.search);
   var initialPhaseId = initialParams.get('phase');
+  var initialPage = parseInt(initialParams.get('page') || '1', 10);
   if (initialPhaseId && phaseMap[initialPhaseId]) {
-    renderPhase(initialPhaseId, false);
+    renderPhase(initialPhaseId, false, initialPage);
   } else {
     // Make first tab focusable for keyboard users
     if (tabs[0]) tabs[0].setAttribute('tabindex', '0');

@@ -12,8 +12,13 @@ export class IppProjectsController {
 
   @Get()
   findAll(@Query() q: any, @Query('phase') phase?: string) {
-    const phaseNum = phase ? parseInt(phase, 10) : undefined;
+    const phaseNum = phase && phase !== 'all' ? parseInt(phase, 10) : undefined;
     return this.service.findAll(q, phaseNum);
+  }
+
+  @Get('stats')
+  getStats() {
+    return this.service.getStats();
   }
 
   @Get(':id')

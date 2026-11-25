@@ -103,9 +103,14 @@ if (Astro.request.method === 'POST') {
   }
 }
 
-// Fetch list of all IPP projects from backend
+// Fetch list of all IPP projects from backend with server-side phase & search filtering
+const phaseFilter = Astro.url.searchParams.get('phase')?.trim() || 'all';
+const searchQuery = Astro.url.searchParams.get('q')?.trim() || '';
 const { page, pageSize } = readPageParams(Astro.url);
 const pagedExtra: Record<string, string | undefined> = {};
+if (phaseFilter && phaseFilter !== 'all') pagedExtra.phase = phaseFilter;
+if (searchQuery) pagedExtra.search = searchQuery;
+
 let ippProjects: any[] = [];
 let pagedTotal = 0;
 let pagedLastPage = 1;
@@ -120,6 +125,15 @@ try {
   errorMessage = 'Network failure: Unable to reach backend server.';
 }
 const pagedState = { rows: ippProjects, total: pagedTotal, page, pageSize, lastPage: pagedLastPage, error: null };
+
+// Fetch corporation-wide IPP KPI stats
+let kpiStats = { totalProjects: pagedTotal, totalCapacityMw: 0, commissionedCount: 0, inProgressCount: 0 };
+try {
+  const statsRes = await fetch(`${BACKEND_URL}/api/ipp-projects/stats`);
+  if (statsRes.ok) {
+    kpiStats = await statsRes.json();
+  }
+} catch {}
 // All 56 locations provided by the user
 const locations = [
   'Akhnur', 'Anantnag', 'Awantipur', 'Badgam', 'Bandipore', 'Bandipura', 'Banihal', 'Baramula',
@@ -145,10 +159,11 @@ const phases = [
   { value: 10, label: 'Phase 10', legacyName: 'Ten' },
 ];
 
-// Calculate summary stats
-const totalCapacity = ippProjects.reduce((acc, p) => acc + (p.capacityMw || 0), 0);
-const commissionedCount = ippProjects.filter(p => p.status.toLowerCase().includes('commissioned')).length;
-const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes('progress') || p.status.toLowerCase().includes('dpr') || p.status.toLowerCase().includes('agreement')).length;
+// Use corporation-wide stats for KPI summary cards
+const totalProjectsCount = kpiStats.totalProjects ?? pagedTotal;
+const totalCapacity = kpiStats.totalCapacityMw ?? ippProjects.reduce((acc, p) => acc + (p.capacityMw || 0), 0);
+const commissionedCount = kpiStats.commissionedCount ?? ippProjects.filter(p => p.status.toLowerCase().includes('commissioned')).length;
+const inProgressCount = kpiStats.inProgressCount ?? ippProjects.filter(p => p.status.toLowerCase().includes('progress') || p.status.toLowerCase().includes('dpr') || p.status.toLowerCase().includes('agreement')).length;
 ---
 
 <AdminLayout title="IPP Projects" description="Manage Independent Power Producer (IPP) Hydroelectric Projects Across Phases I-X." activeTab="ipp">
@@ -197,7 +212,7 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
       <div class="bg-white rounded-lg border border-slate-200 p-3.5 shadow-2xs">
         <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Total IPP Projects</span>
-        <div class="text-xl font-extrabold text-slate-900 tracking-tight mt-0.5" id="stat-total-projects">{ippProjects.length}</div>
+        <div class="text-xl font-extrabold text-slate-900 tracking-tight mt-0.5" id="stat-total-projects">{totalProjectsCount}</div>
         <span class="text-[11px] text-slate-500 font-medium">Across 10 Phases</span>
       </div>
       <div class="bg-white rounded-lg border border-slate-200 p-3.5 shadow-2xs">
@@ -217,19 +232,23 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
       </div>
     </div>
 
-    <!-- Filter & Search Controls Bar -->
-    <div class="admin-toolbar">
+    <!-- Server-Side Filter & Search Controls Bar -->
+    <form method="GET" action="/admin/ipp-projects" class="admin-toolbar">
       <div class="flex flex-wrap items-center gap-3 flex-1 min-w-0">
         <!-- Phase Dropdown -->
         <div class="flex items-center gap-2">
           <label for="filter-phase" class="text-xs font-bold text-slate-600 whitespace-nowrap">Phase:</label>
           <select 
             id="filter-phase" 
-            class="bg-slate-50 border border-slate-300 rounded text-xs font-medium text-slate-800 px-2.5 py-1.5 focus:ring-1 focus:ring-[color:var(--adm-primary)] outline-none"
+            name="phase"
+            onchange="this.form.submit()"
+            class="bg-slate-50 border border-slate-300 rounded text-xs font-medium text-slate-800 px-2.5 py-1.5 focus:ring-1 focus:ring-[color:var(--adm-primary)] outline-none cursor-pointer"
           >
-            <option value="all">All Phases (10 Phases)</option>
+            <option value="all" selected={phaseFilter === 'all'}>All Phases (10 Phases)</option>
             {phases.map((ph) => (
-              <option value={ph.value.toString()}>{ph.label} ({ph.legacyName})</option>
+              <option value={ph.value.toString()} selected={phaseFilter === ph.value.toString()}>
+                {ph.label} ({ph.legacyName})
+              </option>
             ))}
           </select>
         </div>
@@ -242,17 +261,29 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
           </div>
           <input 
             type="text" 
+            name="q"
             id="search-ipp-input"
+            value={searchQuery}
             placeholder="Search name, location, company..." 
             class="admin-search-input w-full bg-slate-50 border border-slate-300 rounded text-xs text-slate-800 pr-3 py-1.5 focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none"
           />
         </div>
+
+        <button type="submit" class="px-3 py-1.5 bg-[#0B3D6B] hover:bg-[#082E52] text-white text-xs font-bold rounded cursor-pointer transition-colors">
+          Filter
+        </button>
+
+        {(phaseFilter !== 'all' || searchQuery) && (
+          <a href="/admin/ipp-projects" class="px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded transition-colors">
+            Reset
+          </a>
+        )}
       </div>
 
       <div class="text-xs text-slate-500 font-medium shrink-0">
-        Showing <span id="count-visible" class="font-bold text-slate-800">{ippProjects.length}</span> of <span class="font-bold text-slate-800">{ippProjects.length}</span> projects
+        Matching records: <span class="font-bold text-slate-800">{pagedTotal}</span>
       </div>
-    </div>
+    </form>
 
     <!-- IPP Projects Data Table -->
     <div class="admin-table-card">
@@ -265,7 +296,7 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
             <th scope="col" class="w-32 whitespace-nowrap text-left">Installed Capacity in MW</th>
             <th scope="col" class="min-w-[220px]">Status</th>
             <th scope="col" class="w-28 text-left">Location</th>
-            <th scope="col" class="min-w-[160px] text-left">Awarded To</th>
+            <th scope="col" class="min-w-[180px] pr-4 text-left">Awarded To</th>
             <th scope="col" class="w-16 text-center">Phase</th>
             {userIsAdmin && (
               <th scope="col" class="w-20 text-center sticky-col-right">Action</th>
@@ -298,7 +329,7 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
                     {item.status}
                   </td>
                   <td class="text-slate-700 text-xs cell-location">{item.location || '—'}</td>
-                  <td class="text-slate-700 text-xs cell-awarded">{item.awardedTo || '—'}</td>
+                  <td class="text-slate-700 text-xs cell-awarded whitespace-normal break-words pr-4">{item.awardedTo || '—'}</td>
                   <td class="text-center text-xs font-semibold text-slate-800 cell-phase">
                     {item.phase}
                   </td>
@@ -724,41 +755,6 @@ const inProgressCount = ippProjects.filter(p => p.status.toLowerCase().includes(
         };
       });
 
-      // Filter & Search Logic
-      function applyFilterAndSearch() {
-        var selectedPhase = filterPhase ? filterPhase.value : 'all';
-        var query = searchInput ? searchInput.value.toLowerCase().trim() : '';
-        var visibleCount = 0;
-
-        rows.forEach(function(row) {
-          var phase = row.getAttribute('data-phase');
-          var name = row.getAttribute('data-name') || '';
-          var location = row.getAttribute('data-location') || '';
-          var awarded = row.getAttribute('data-awarded') || '';
-          var status = row.getAttribute('data-status') || '';
-
-          var matchesPhase = (selectedPhase === 'all' || phase === selectedPhase);
-          var matchesQuery = !query || name.includes(query) || location.includes(query) || awarded.includes(query) || status.includes(query);
-
-          if (matchesPhase && matchesQuery) {
-            row.style.display = '';
-            visibleCount++;
-            var indexCell = row.querySelector('.row-index');
-            if (indexCell) indexCell.textContent = visibleCount.toString();
-          } else {
-            row.style.display = 'none';
-          }
-        });
-
-        if (countVisible) countVisible.textContent = visibleCount.toString();
-        var emptyRow = document.getElementById('no-matching-ipp-row');
-        if (emptyRow) {
-          emptyRow.style.display = (visibleCount === 0 && rows.length > 0) ? 'table-row' : 'none';
-        }
-      }
-
-      if (filterPhase) filterPhase.onchange = applyFilterAndSearch;
-      if (searchInput) searchInput.oninput = applyFilterAndSearch;
     }
 
     document.addEventListener('astro:page-load', initIppPage);

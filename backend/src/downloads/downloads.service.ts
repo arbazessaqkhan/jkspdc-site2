@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CreateDownloadDto, UpdateDownloadDto } from './downloads.dto';
-import { PaginationDto, wantsPagination, paginate } from '../common/pagination';
+import { wantsPagination, paginate } from '../common/pagination';
 
 @Injectable()
 export class DownloadsService {
@@ -18,8 +18,17 @@ export class DownloadsService {
    * Paged variant used by admin list pages (?page/?pageSize). Without
    * pagination params it returns the full array (legacy behaviour).
    */
-  async findAll(q: PaginationDto = {}, category?: string): Promise<any> {
-    const where = category ? { category } : undefined;
+  async findAll(q: any = {}, category?: string): Promise<any> {
+    const where: any = {};
+    if (category && category !== 'All') {
+      where.category = category;
+    }
+    if (q.status && typeof q.status === 'string' && q.status.trim() && q.status !== 'All') {
+      where.status = q.status.trim();
+    }
+    if (q.search && typeof q.search === 'string' && q.search.trim()) {
+      where.title = { contains: q.search.trim(), mode: 'insensitive' };
+    }
     if (!wantsPagination(q)) {
       return this.prisma.download.findMany({ where, orderBy: { publishDate: 'desc' } });
     }

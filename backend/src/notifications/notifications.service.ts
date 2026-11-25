@@ -32,6 +32,13 @@ export class NotificationsService {
         where.status = q.status.trim();
       }
     }
+    if (q.search && typeof q.search === 'string' && q.search.trim()) {
+      const term = q.search.trim();
+      where.OR = [
+        { title: { contains: term, mode: 'insensitive' } },
+        { fileName: { contains: term, mode: 'insensitive' } },
+      ];
+    }
     if (!wantsPagination(q)) {
       return this.prisma.notification.findMany({ where, orderBy: { publishDate: 'desc' } });
     }

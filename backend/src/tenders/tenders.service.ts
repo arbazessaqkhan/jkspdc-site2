@@ -54,6 +54,20 @@ export class TendersService {
         where.status = q.status.trim();
       }
     }
+    if (q.documentType && typeof q.documentType === 'string' && q.documentType.trim() && q.documentType !== 'All') {
+      where.documentType = q.documentType.trim();
+    }
+    if (q.workCategory && typeof q.workCategory === 'string' && q.workCategory.trim() && q.workCategory !== 'All') {
+      where.workCategory = q.workCategory.trim();
+    }
+    if (q.search && typeof q.search === 'string' && q.search.trim()) {
+      const term = q.search.trim();
+      where.OR = [
+        { title: { contains: term, mode: 'insensitive' } },
+        { referenceNo: { contains: term, mode: 'insensitive' } },
+        { locationTag: { contains: term, mode: 'insensitive' } },
+      ];
+    }
     if (!wantsPagination(q)) {
       return (await this.prisma.tender.findMany({ where, orderBy: { publishDate: 'desc' } })).map((t) => this.formatTender(t));
     }

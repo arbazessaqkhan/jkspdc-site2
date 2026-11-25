@@ -144,9 +144,13 @@ if (Astro.request.method === 'POST') {
   }
 }
 
-// Fetch Notifications List
+// Fetch Notifications List (server-side search & status filtering)
+const searchQuery = Astro.url.searchParams.get('q')?.trim() || '';
+const statusFilter = Astro.url.searchParams.get('status')?.trim() || 'All';
 const { page, pageSize } = readPageParams(Astro.url);
 const pagedExtra: Record<string, string | undefined> = {};
+if (searchQuery) pagedExtra.search = searchQuery;
+if (statusFilter && statusFilter !== 'All') pagedExtra.status = statusFilter;
 let notifications: any[] = [];
 let pagedTotal = 0;
 let pagedLastPage = 1;
@@ -193,16 +197,30 @@ const pagedState = { rows: notifications, total: pagedTotal, page, pageSize, las
       </div>
     )}
 
-    <!-- Quick Status Filter Tabs -->
+    <!-- Quick Status Filter Tabs (Server-Side) -->
     <div class="flex items-center gap-1.5 border-b border-slate-200 pb-2">
-      <button type="button" class="notif-status-tab px-3 py-1 rounded text-xs font-bold transition-colors bg-[color:var(--adm-primary)] text-white cursor-pointer" data-status="All">All</button>
-      <button type="button" class="notif-status-tab px-3 py-1 rounded text-xs font-bold transition-colors bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 cursor-pointer" data-status="Active">Active</button>
-      <button type="button" class="notif-status-tab px-3 py-1 rounded text-xs font-bold transition-colors bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 cursor-pointer" data-status="Archived">Archive</button>
-      <button type="button" class="notif-status-tab px-3 py-1 rounded text-xs font-bold transition-colors bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 cursor-pointer" data-status="Draft">Draft</button>
+      {[
+        { label: 'All', val: 'All' },
+        { label: 'Active', val: 'Active' },
+        { label: 'Archive', val: 'Archived' },
+        { label: 'Draft', val: 'Draft' },
+      ].map((t) => {
+        const isCurrent = statusFilter === t.val;
+        const href = `/admin/notifications?status=${encodeURIComponent(t.val)}${searchQuery ? `&q=${encodeURIComponent(searchQuery)}` : ''}`;
+        return (
+          <a
+            href={href}
+            class={`px-3 py-1 rounded text-xs font-bold transition-colors ${isCurrent ? 'bg-[color:var(--adm-primary)] text-white' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'}`}
+          >
+            {t.label}
+          </a>
+        );
+      })}
     </div>
 
-    <!-- Filter & Search Toolbar -->
-    <div class="admin-toolbar">
+    <!-- Filter & Search Toolbar (Server-Side) -->
+    <form method="GET" action="/admin/notifications" class="admin-toolbar">
+      <input type="hidden" name="status" value={statusFilter} />
       <div class="flex items-center gap-3 flex-wrap flex-1 min-w-0">
         <div class="admin-search-wrapper relative w-full sm:w-72">
           <div class="admin-search-icon">
@@ -210,27 +228,29 @@ const pagedState = { rows: notifications, total: pagedTotal, page, pageSize, las
           </div>
           <input 
             type="text" 
+            name="q"
             id="search-notif-input" 
+            value={searchQuery}
             placeholder="Search notifications..." 
             class="admin-search-input w-full bg-slate-50 border border-slate-300 rounded text-xs text-slate-800 pr-3 py-1.5 focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none"
           />
         </div>
 
-        <div class="flex items-center gap-2">
-          <label for="year-select" class="text-xs font-bold text-slate-600 shrink-0">Year:</label>
-          <select id="year-select" class="bg-slate-50 border border-slate-300 rounded text-xs py-1.5 px-2.5 text-slate-700 outline-none">
-            <option value="All">All Years</option>
-            <option value="2026" selected>2026</option>
-            <option value="2025">2025</option>
-            <option value="2024">2024</option>
-          </select>
-        </div>
+        <button type="submit" class="px-3 py-1.5 bg-[#0B3D6B] hover:bg-[#082E52] text-white text-xs font-bold rounded cursor-pointer transition-colors">
+          Filter
+        </button>
+
+        {(searchQuery || statusFilter !== 'All') && (
+          <a href="/admin/notifications" class="px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded transition-colors">
+            Reset
+          </a>
+        )}
       </div>
 
       <div class="text-xs text-slate-500 font-medium shrink-0">
-        Total Notifications: <span id="visible-notif-count" class="font-bold text-slate-800">{notifications.length}</span>
+        Matching Notifications: <span class="font-bold text-slate-800">{pagedTotal}</span>
       </div>
-    </div>
+    </form>
 
     <!-- Administrative Data Table -->
     <div class="admin-table-card">
