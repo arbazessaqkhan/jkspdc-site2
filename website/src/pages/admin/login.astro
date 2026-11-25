@@ -4,7 +4,7 @@ import '../../styles/admin.css';
 import Icon from '../../components/Icon.astro';
 
 let errorMessage = '';
-let step: 'login' | 'mfa-verify' | 'mfa-setup' | 'mfa-recovery-codes' = 'login';
+let step: 'login' | 'mfa-verify' | 'mfa-enroll-auth' | 'mfa-setup' | 'mfa-recovery-codes' = 'login';
 let mfaTicket = '';
 let mfaSecret = '';
 let mfaQrDataUrl = '';
@@ -232,6 +232,8 @@ const currentYear = new Date().getFullYear();
     <title>
       {step === 'mfa-verify'
         ? 'Two-Factor Verification | JKSPDC Admin'
+        : step === 'mfa-enroll-auth'
+        ? 'Enrolment Authorization | JKSPDC Admin'
         : step === 'mfa-setup'
         ? 'Enrol Multi-Factor Authentication | JKSPDC Admin'
         : step === 'mfa-recovery-codes'
@@ -348,6 +350,23 @@ const currentYear = new Date().getFullYear();
               : 'Jammu & Kashmir State Power Development Corporation Limited (JKSPDCL)'}
           </p>
         </div>
+
+        <!-- Onboarding Step Progress (Shown during initial MFA setup) -->
+        {(step === 'mfa-enroll-auth' || step === 'mfa-setup' || step === 'mfa-recovery-codes') && (
+          <div class="flex items-center justify-center gap-2 text-[11px] font-bold">
+            <span class={`px-2.5 py-1 rounded-full ${step === 'mfa-enroll-auth' ? 'bg-[#0B3B60] text-white' : 'bg-emerald-100 text-emerald-800'}`}>
+              1. Authorize
+            </span>
+            <span class="text-slate-300">&rarr;</span>
+            <span class={`px-2.5 py-1 rounded-full ${step === 'mfa-setup' ? 'bg-[#0B3B60] text-white' : step === 'mfa-recovery-codes' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500'}`}>
+              2. Scan QR
+            </span>
+            <span class="text-slate-300">&rarr;</span>
+            <span class={`px-2.5 py-1 rounded-full ${step === 'mfa-recovery-codes' ? 'bg-[#0B3B60] text-white' : 'bg-slate-100 text-slate-500'}`}>
+              3. Recovery Codes
+            </span>
+          </div>
+        )}
 
         <!-- Alert messages -->
         {errorMessage ? (

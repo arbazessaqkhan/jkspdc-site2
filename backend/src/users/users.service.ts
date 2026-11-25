@@ -3,6 +3,7 @@ import {
   NotFoundException,
   UnauthorizedException,
   BadRequestException,
+  ForbiddenException,
   InternalServerErrorException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -105,17 +106,38 @@ export class UsersService {
   async create(data: CreateUserDto, currentUser: any, ip: string, ua: string) {
     const { email, password, name, role, isActive } = data;
     if (!email || !password || !name) {
-      throw new Error('Email, password, and name are required');
+      throw new BadRequestException('Email, password, and name are required');
+    }
+
+    const assignedRole = (role || 'VIEWER').toUpperCase();
+    if (assignedRole === Role.ADMIN) {
+      throw new ForbiddenException(
+        'Administrator (ADMIN) accounts cannot be created via the web portal. Use the server CLI: npm run admin:provision',
+      );
+    }
+
+    let enrollmentCode: string | undefined;
+    let enrollmentCodeHash: string | null = null;
+    let enrollmentExpiresAt: Date | null = null;
+
+    if (assignedRole === Role.EDITOR) {
+      const mfaKey = this.getMfaEncryptionKey();
+      enrollmentCode = TotpUtil.generateEnrollmentCode();
+      enrollmentCodeHash = TotpUtil.hashEnrollmentCode(enrollmentCode, mfaKey);
+      enrollmentExpiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000); // 72 hours
     }
 
     const hashedPassword = await this.hashPassword(password);
     const user = await this.prisma.user.create({
       data: {
-        email,
+        email: email.trim().toLowerCase(),
         password: hashedPassword,
-        name,
-        role: role || 'VIEWER',
+        name: name.trim(),
+        role: assignedRole,
         isActive: isActive !== undefined ? isActive : true,
+        mfaEnabled: false,
+        mfaEnrollmentCodeHash: enrollmentCodeHash,
+        mfaEnrollmentExpiresAt: enrollmentExpiresAt,
       },
     });
 
@@ -124,7 +146,7 @@ export class UsersService {
       'USER_CREATE',
       ip,
       ua,
-      { createdUserId: user.id, email: user.email, name: user.name, role: user.role }
+      { createdUserId: user.id, email: user.email, name: user.name, role: user.role, mfaEnrollmentIssued: !!enrollmentCode }
     );
 
     return {
@@ -133,25 +155,52 @@ export class UsersService {
       name: user.name,
       role: user.role,
       isActive: user.isActive,
+      ...(enrollmentCode ? { enrollmentCode, enrollmentExpiresAt: enrollmentExpiresAt?.toISOString() } : {}),
     };
   }
 
   async update(id: string, data: UpdateUserDto, currentUser: any, ip: string, ua: string) {
-    await this.findOne(id);
-    
+    const existing = await this.findOne(id);
+
+    if (data.role !== undefined) {
+      const nextRole = data.role.toUpperCase();
+      if (nextRole === Role.ADMIN && existing.role !== Role.ADMIN) {
+        throw new ForbiddenException(
+          'Privilege escalation to ADMIN is disabled via the web portal. Provision ADMIN accounts via server CLI.',
+        );
+      }
+    }
+
     let hashedPassword;
     if (data.password) {
       hashedPassword = await this.hashPassword(data.password);
     }
 
+    let enrollmentCode: string | undefined;
+    let enrollmentCodeHash: string | undefined;
+    let enrollmentExpiresAt: Date | undefined;
+
+    if (
+      data.role !== undefined &&
+      data.role.toUpperCase() === Role.EDITOR &&
+      existing.role !== Role.EDITOR &&
+      !existing.mfaEnabled
+    ) {
+      const mfaKey = this.getMfaEncryptionKey();
+      enrollmentCode = TotpUtil.generateEnrollmentCode();
+      enrollmentCodeHash = TotpUtil.hashEnrollmentCode(enrollmentCode, mfaKey);
+      enrollmentExpiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000);
+    }
+
     const user = await this.prisma.user.update({
       where: { id },
       data: {
-        email: data.email,
+        email: data.email ? data.email.trim().toLowerCase() : undefined,
         password: hashedPassword ? hashedPassword : undefined,
-        name: data.name,
-        role: data.role,
+        name: data.name ? data.name.trim() : undefined,
+        role: data.role ? data.role.toUpperCase() : undefined,
         isActive: data.isActive,
+        ...(enrollmentCodeHash ? { mfaEnrollmentCodeHash: enrollmentCodeHash, mfaEnrollmentExpiresAt: enrollmentExpiresAt } : {}),
       },
     });
 
@@ -182,6 +231,7 @@ export class UsersService {
       name: user.name,
       role: user.role,
       isActive: user.isActive,
+      ...(enrollmentCode ? { enrollmentCode, enrollmentExpiresAt: enrollmentExpiresAt?.toISOString() } : {}),
     };
   }
 

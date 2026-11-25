@@ -17,6 +17,7 @@ if (!isAdmin(userRole)) {
 }
 
 let errorMessage = '';
+let createdEnrollment: { name: string; email: string; role: string; code: string; expiresAt?: string } | null = null;
 const editId = Astro.url.searchParams.get('id')?.toString();
 
 let userData = {
@@ -103,7 +104,18 @@ if (Astro.request.method === 'POST') {
       });
 
       if (res.ok) {
-        return Astro.redirect('/admin/users?saved=true');
+        const savedUser = await res.json().catch(() => ({}));
+        if (savedUser?.enrollmentCode) {
+          createdEnrollment = {
+            name: savedUser.name || name || '',
+            email: savedUser.email || email || '',
+            role: savedUser.role || role || 'EDITOR',
+            code: savedUser.enrollmentCode,
+            expiresAt: savedUser.enrollmentExpiresAt,
+          };
+        } else {
+          return Astro.redirect('/admin/users?saved=true');
+        }
       } else {
         const apiErr = await parseApiError(res, 'save user account');
         if (apiErr.isUnauthorized) {
@@ -146,66 +158,140 @@ if (Astro.request.method === 'POST') {
       </script>
     )}
 
-    <!-- Form -->
-    <form method="POST" class="bg-white rounded-lg border border-slate-200 shadow-sm p-6 lg:p-8 flex flex-col gap-6">
-      <input type="hidden" name="id" value={userData.id} />
-
-      <!-- Section: Specifications -->
-      <div>
-        <h3 class="text-xs font-bold text-[color:var(--adm-primary)] uppercase tracking-wider border-b border-slate-100 pb-2 mb-4">Credentials &amp; Permissions</h3>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="form-group flex flex-col gap-1.5">
-            <label for="name" class="text-xs font-bold text-slate-700">Full Name <span class="text-red-500">*</span></label>
-            <input type="text" name="name" id="name" value={userData.name} class="form-input text-xs" required placeholder="e.g. Sh. Aniket Dev" />
+    <!-- One-Time Enrolment Code Confirmation Card -->
+    {createdEnrollment ? (
+      <>
+      <div class="bg-white rounded-xl border border-emerald-200 shadow-sm p-6 lg:p-8 flex flex-col gap-5">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+            <Icon name="shield" size={20} />
           </div>
-
-          <div class="form-group flex flex-col gap-1.5">
-            <label for="email" class="text-xs font-bold text-slate-700">Official Email Address <span class="text-red-500">*</span></label>
-            <input type="email" name="email" id="email" value={userData.email} class="form-input text-xs" required placeholder="e.g. aniket.dev@jkspdc.co.in" />
+          <div>
+            <h2 class="text-base font-bold text-slate-900">Account Registered &amp; MFA Enrolment Code Issued</h2>
+            <p class="text-xs text-slate-600 mt-1">
+              Share this single-use authorization code securely out-of-band with <strong>{createdEnrollment.name}</strong> (<span class="font-mono">{createdEnrollment.email}</span>). It is shown only once and expires in 72 hours.
+            </p>
           </div>
+        </div>
 
-          <div class="form-group flex flex-col gap-1.5">
-            <label for="password" class="text-xs font-bold text-slate-700">
-              Secure Password {editId ? '(Leave empty to keep existing)' : <span class="text-red-500">*</span>}
-            </label>
-            <input 
-              type="password" 
-              name="password" 
-              id="password" 
-              class="form-input text-xs" 
-              required={!editId} 
-              placeholder="••••••••" 
-              minlength="6"
-            />
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">Single-Use Enrolment Authorization Code</span>
+            <code id="generated-enr-code" class="text-lg font-mono font-extrabold text-[#0B3D6B] tracking-wider select-all mt-1 block">
+              {createdEnrollment.code}
+            </code>
+            {createdEnrollment.expiresAt && (
+              <span class="text-[11px] text-slate-500 mt-1 block">
+                Valid until: {new Date(createdEnrollment.expiresAt).toLocaleString('en-IN')}
+              </span>
+            )}
           </div>
+          <button
+            type="button"
+            id="btn-copy-enr-code"
+            class="px-4 py-2 bg-[#0B3D6B] hover:bg-[#082E52] text-white text-xs font-bold rounded-md transition-colors cursor-pointer inline-flex items-center gap-1.5 shrink-0"
+          >
+            <Icon name="copy" size={14} />
+            <span id="copy-enr-label">Copy Code</span>
+          </button>
+        </div>
 
-          <div class="form-group flex flex-col gap-1.5">
-            <label for="role" class="text-xs font-bold text-slate-700">Access Role</label>
-            <select name="role" id="role" class="form-select text-xs">
-              <option value="ADMIN" selected={userData.role === 'ADMIN'}>ADMIN (Full Control)</option>
-              <option value="EDITOR" selected={userData.role === 'EDITOR'}>EDITOR (CRUD on Content)</option>
-              <option value="VIEWER" selected={userData.role === 'VIEWER'}>VIEWER (Read-Only)</option>
-            </select>
-          </div>
+        <div class="p-3 bg-blue-50/70 border border-blue-200 rounded-lg text-xs text-blue-900">
+          <strong>Next Step for User:</strong> Go to <code class="font-mono font-bold">/admin/login</code> &rarr; sign in with email &amp; password &rarr; enter this <code class="font-mono font-bold">ENR-...</code> code &rarr; scan Authenticator QR &rarr; save backup recovery codes.
+        </div>
 
-          <div class="form-group flex flex-col gap-1.5">
-            <label for="isActive" class="text-xs font-bold text-slate-700">Status</label>
-            <select name="isActive" id="isActive" class="form-select text-xs">
-              <option value="true" selected={userData.isActive === true}>Active (Authorized to Sign In)</option>
-              <option value="false" selected={userData.isActive === false}>Inactive (Suspended Account)</option>
-            </select>
-          </div>
+        <div class="flex justify-end pt-2 border-t border-slate-100">
+          <a href="/admin/users?saved=true" class="admin-btn admin-btn-primary">
+            Done &mdash; Return to User Accounts &rarr;
+          </a>
         </div>
       </div>
 
-      <!-- Actions -->
-      <div class="flex justify-end gap-3 border-t border-slate-100 pt-6 mt-2">
-        <a href="/admin/users" class="admin-btn admin-btn-secondary">Cancel</a>
-        <button type="submit" class="admin-btn admin-btn-primary cursor-pointer">
-          {editId ? 'Update Account' : 'Register Account'}
-        </button>
-      </div>
-    </form>
+      <script is:inline define:vars={{ enrCode: createdEnrollment.code }}>
+        (function() {
+          var btn = document.getElementById('btn-copy-enr-code');
+          var lbl = document.getElementById('copy-enr-label');
+          if (btn) {
+            btn.addEventListener('click', function() {
+              navigator.clipboard.writeText(enrCode).then(function() {
+                if (lbl) lbl.textContent = 'Copied!';
+                setTimeout(function() { if (lbl) lbl.textContent = 'Copy Code'; }, 2500);
+              });
+            });
+          }
+        })();
+      </script>
+      </>
+    ) : (
+      <form method="POST" class="bg-white rounded-lg border border-slate-200 shadow-sm p-6 lg:p-8 flex flex-col gap-6">
+        <input type="hidden" name="id" value={userData.id} />
+
+        <!-- Section: Specifications -->
+        <div>
+          <h3 class="text-xs font-bold text-[color:var(--adm-primary)] uppercase tracking-wider border-b border-slate-100 pb-2 mb-4">Credentials &amp; Permissions</h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-group flex flex-col gap-1.5">
+              <label for="name" class="text-xs font-bold text-slate-700">Full Name <span class="text-red-500">*</span></label>
+              <input type="text" name="name" id="name" value={userData.name} class="form-input text-xs" required placeholder="e.g. Sh. Aniket Dev" />
+            </div>
+
+            <div class="form-group flex flex-col gap-1.5">
+              <label for="email" class="text-xs font-bold text-slate-700">Official Email Address <span class="text-red-500">*</span></label>
+              <input type="email" name="email" id="email" value={userData.email} class="form-input text-xs" required placeholder="e.g. aniket.dev@jkspdc.co.in" />
+            </div>
+
+            <div class="form-group flex flex-col gap-1.5">
+              <label for="password" class="text-xs font-bold text-slate-700">
+                Secure Password {editId ? '(Leave empty to keep existing)' : <span class="text-red-500">*</span>}
+              </label>
+              <input 
+                type="password" 
+                name="password" 
+                id="password" 
+                class="form-input text-xs" 
+                required={!editId} 
+                placeholder="••••••••" 
+                minlength="6"
+              />
+            </div>
+
+            <div class="form-group flex flex-col gap-1.5">
+              <label for="role" class="text-xs font-bold text-slate-700">Access Role</label>
+              {editId && userData.role === 'ADMIN' ? (
+                <>
+                  <input type="hidden" name="role" value="ADMIN" />
+                  <input type="text" value="ADMIN (System Provisioned)" class="form-input text-xs bg-slate-100 text-slate-600 cursor-not-allowed" disabled />
+                </>
+              ) : (
+                <select name="role" id="role" class="form-select text-xs">
+                  <option value="EDITOR" selected={userData.role === 'EDITOR'}>EDITOR (CRUD on Content — MFA Required)</option>
+                  <option value="VIEWER" selected={userData.role === 'VIEWER'}>VIEWER (Read-Only)</option>
+                </select>
+              )}
+              <p class="text-[11px] text-slate-500">
+                PSU Security Policy: <code class="font-mono font-semibold">ADMIN</code> accounts are provisioned exclusively via server CLI (<code class="font-mono">npm run admin:provision</code>).
+              </p>
+            </div>
+
+            <div class="form-group flex flex-col gap-1.5">
+              <label for="isActive" class="text-xs font-bold text-slate-700">Status</label>
+              <select name="isActive" id="isActive" class="form-select text-xs">
+                <option value="true" selected={userData.isActive === true}>Active (Authorized to Sign In)</option>
+                <option value="false" selected={userData.isActive === false}>Inactive (Suspended Account)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-end gap-3 border-t border-slate-100 pt-6 mt-2">
+          <a href="/admin/users" class="admin-btn admin-btn-secondary">Cancel</a>
+          <button type="submit" class="admin-btn admin-btn-primary cursor-pointer">
+            {editId ? 'Update Account' : 'Register Account'}
+          </button>
+        </div>
+      </form>
+    )}
   </div>
 </AdminLayout>
