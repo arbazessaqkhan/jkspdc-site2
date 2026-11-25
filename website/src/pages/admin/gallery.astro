@@ -223,7 +223,7 @@ const activeOverviewItemCount = Array.isArray(overviewSettings.items)
           href="/admin/gallery-form" 
           class="admin-btn admin-btn-primary flex items-center gap-1.5 self-start sm:self-auto cursor-pointer bg-[#0B5C9E] hover:bg-[#094b82] text-white font-bold px-4 py-2 rounded-md shadow-xs transition-colors"
         >
-          <Icon name="plus" size={14} /> Add Image
+          <Icon name="plus" size={14} /> Add Gallery / Photos
         </a>
       )}
     </div>
@@ -342,8 +342,9 @@ const activeOverviewItemCount = Array.isArray(overviewSettings.items)
           <thead>
             <tr class="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
               <th scope="col" class="py-3.5 px-4 w-12 text-center">#</th>
-              <th scope="col" class="py-3.5 px-4 w-28 text-center">Thumbnail</th>
-              <th scope="col" class="py-3.5 px-4 min-w-[200px]">Image Title</th>
+              <th scope="col" class="py-3.5 px-4 w-32 text-center">Thumbnail</th>
+              <th scope="col" class="py-3.5 px-4 min-w-[200px]">Gallery Title</th>
+              <th scope="col" class="py-3.5 px-4 w-36">Category</th>
               <th scope="col" class="py-3.5 px-4 min-w-[160px]">Associated Project</th>
               <th scope="col" class="py-3.5 px-4 w-36 text-center whitespace-nowrap">Overview Carousel</th>
               <th scope="col" class="py-3.5 px-4 w-28 text-center">Added</th>
@@ -353,11 +354,11 @@ const activeOverviewItemCount = Array.isArray(overviewSettings.items)
           <tbody class="divide-y divide-slate-100 text-xs">
             {galleryList.length === 0 ? (
               <tr>
-                <td colspan={canMutate ? 7 : 6} class="text-center text-slate-500 py-12 text-xs font-semibold italic">
+                <td colspan={canMutate ? 8 : 7} class="text-center text-slate-500 py-12 text-xs font-semibold italic">
                   <Icon name="folder" size={32} class="mx-auto text-slate-300 mb-2" />
                   {searchQuery || projectFilter 
                     ? 'No images match the selected filter criteria.' 
-                    : 'No images in Media Gallery yet. Click "+ Add Image" to upload.'}
+                    : 'No images in Media Gallery yet. Click "+ Add Gallery" to upload.'}
                 </td>
               </tr>
             ) : (
@@ -365,6 +366,7 @@ const activeOverviewItemCount = Array.isArray(overviewSettings.items)
                 const isInOverview = Array.isArray(overviewSettings.items) && overviewSettings.items.some(
                   (it: any) => it.id === item.id || it.imageUrl === item.imageUrl
                 );
+                const count = item.imageCount || (Array.isArray(item.images) ? item.images.length : 1);
 
                 return (
                   <tr key={item.id} class="hover:bg-slate-50/60 transition-colors">
@@ -372,7 +374,7 @@ const activeOverviewItemCount = Array.isArray(overviewSettings.items)
                       {(page - 1) * pageSize + idx + 1}
                     </td>
                     <td class="py-3.5 px-4 text-center">
-                      <div class="w-20 h-14 rounded border border-slate-200 bg-slate-100 overflow-hidden shadow-2xs mx-auto group relative">
+                      <div class="relative w-20 h-14 rounded border border-slate-200 bg-slate-100 overflow-hidden shadow-2xs mx-auto group">
                         <img 
                           src={getImageUrl(item.imageUrl)} 
                           alt={item.title} 
@@ -380,10 +382,25 @@ const activeOverviewItemCount = Array.isArray(overviewSettings.items)
                           loading="lazy"
                           onerror="this.onerror=null; this.src='/slider1.jpg';"
                         />
+                        {count > 1 && (
+                          <span class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-900/85 text-white shadow-xs backdrop-blur-xs">
+                            {count} photos
+                          </span>
+                        )}
                       </div>
                     </td>
                     <td class="py-3.5 px-4 font-bold text-slate-800">
                       <span>{item.title}</span>
+                      {count > 1 && (
+                        <span class="ml-2 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                          <Icon name="image" size={10} /> {count} photos
+                        </span>
+                      )}
+                    </td>
+                    <td class="py-3.5 px-4">
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                        {item.partition || 'General'}
+                      </span>
                     </td>
                     <td class="py-3.5 px-4 text-slate-600 font-medium">
                       {item.projectName ? (

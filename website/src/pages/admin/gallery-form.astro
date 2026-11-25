@@ -1,7 +1,6 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import Icon from '../../components/Icon.astro';
-import FileUploader from '../../components/admin/FileUploader.astro';
 import { canMutateRoutineContent } from '../../utils/roles';
 import { parseApiError, BACKEND_URL } from '../../utils/api-error';
 
@@ -22,8 +21,23 @@ const editId = Astro.url.searchParams.get('id')?.toString();
 let itemData = {
   id: '',
   title: '',
+  partition: 'General',
+  projectId: '',
   imageUrl: '',
+  images: [] as { id: string; imageUrl: string; caption?: string; displayOrder?: number }[],
 };
+
+// Fetch projects for optional assignment
+let projectsList: { id: string; name: string }[] = [];
+try {
+  const pRes = await fetch(`${BACKEND_URL}/api/public/stations`);
+  if (pRes.ok) {
+    const rawStations = await pRes.json();
+    projectsList = rawStations.map((s: any) => ({ id: s.id, name: s.name })).sort((a: any, b: any) => a.name.localeCompare(b.name));
+  }
+} catch (e) {
+  console.error('Error fetching projects list:', e);
+}
 
 // Fetch data if editing
 if (editId) {
@@ -34,7 +48,12 @@ if (editId) {
       itemData = {
         id: data.id || '',
         title: data.title || '',
+        partition: data.partition || 'General',
+        projectId: data.projectId || '',
         imageUrl: data.imageUrl || '',
+        images: Array.isArray(data.images) && data.images.length > 0 
+          ? data.images 
+          : (data.imageUrl ? [{ id: 'cover', imageUrl: data.imageUrl }] : []),
       };
     } else {
       const apiErr = await parseApiError(res, 'load gallery item details');
@@ -84,23 +103,39 @@ if (Astro.request.method === 'POST') {
     const formData = await Astro.request.formData();
     const id = formData.get('id')?.toString();
     const title = formData.get('title')?.toString()?.trim() || '';
-    const imageUrl = formData.get('imageUrl')?.toString()?.trim() || '';
+    const partition = formData.get('partition')?.toString()?.trim() || 'General';
+    const projectId = formData.get('projectId')?.toString()?.trim() || '';
+    const imagesJson = formData.get('imagesJson')?.toString()?.trim() || '[]';
+
+    let imagesList: string[] = [];
+    try {
+      imagesList = JSON.parse(imagesJson);
+    } catch {
+      imagesList = [];
+    }
 
     itemData = {
       id: id || '',
       title,
-      imageUrl,
+      partition,
+      projectId,
+      imageUrl: imagesList[0] || '',
+      images: imagesList.map((url, i) => ({ id: `img-${i}`, imageUrl: url })),
     };
 
     if (!title) {
-      errorMessage = 'Image Title is mandatory.';
-    } else if (!imageUrl) {
-      errorMessage = 'Image File is mandatory. Please select and upload an image.';
+      errorMessage = 'Gallery Title is mandatory.';
+    } else if (imagesList.length === 0) {
+      errorMessage = 'At least 1 photo is required. Please upload photos for this gallery.';
     } else {
+      const selectedProject = projectsList.find((p) => p.id === projectId);
       const payload: Record<string, any> = {
         title,
-        imageUrl,
-        partition: 'General',
+        partition,
+        imageUrl: imagesList[0],
+        images: imagesList,
+        projectId: projectId || null,
+        projectName: selectedProject ? selectedProject.name : null,
         status: 'Active',
       };
 
@@ -122,13 +157,14 @@ if (Astro.request.method === 'POST') {
         const wantOverview = formData.get('featuredInOverview') === 'true';
 
         let items = Array.isArray(overviewSettings.items) ? [...overviewSettings.items] : [];
-        const idx = items.findIndex((it: any) => (itemId && it.id === itemId) || it.imageUrl === imageUrl);
+        const primaryImage = imagesList[0];
+        const idx = items.findIndex((it: any) => (itemId && it.id === itemId) || it.imageUrl === primaryImage);
 
         if (wantOverview && idx < 0) {
           items.push({
             id: itemId,
             title,
-            imageUrl,
+            imageUrl: primaryImage,
             displayOrder: items.length + 1,
             isActive: true,
           });
@@ -148,7 +184,7 @@ if (Astro.request.method === 'POST') {
 
         return Astro.redirect('/admin/gallery');
       } else {
-        const apiErr = await parseApiError(res, `${editId ? 'update' : 'create'} gallery image`);
+        const apiErr = await parseApiError(res, `${editId ? 'update' : 'create'} gallery`);
         if (apiErr.isUnauthorized) {
           return Astro.redirect('/admin/login');
         }
@@ -157,14 +193,18 @@ if (Astro.request.method === 'POST') {
     }
   } catch (err) {
     console.error('Error saving gallery item:', err);
-    errorMessage = 'An unexpected error occurred while saving the gallery image.';
+    errorMessage = 'An unexpected error occurred while saving the gallery.';
   }
 }
+
+const existingImagesJson = JSON.stringify(
+  itemData.images.map(img => img.imageUrl).filter(Boolean)
+);
 ---
 
 <AdminLayout 
-  title={editId ? "Edit Gallery Image" : "Add Image — Central Media Gallery"} 
-  description="Upload and catalog images in the unified media library"
+  title={editId ? "Edit Gallery" : "Add Gallery / Album — Central Media Gallery"} 
+  description="Upload and catalog single or multi-photo galleries for JKSPDCL"
   activeTab="gallery"
 >
   <div class="max-w-3xl mx-auto flex flex-col gap-6">
@@ -175,16 +215,16 @@ if (Astro.request.method === 'POST') {
         &larr; Back to Central Media Gallery
       </a>
       <span>/</span>
-      <span class="text-slate-800 font-bold">{editId ? 'Edit Image' : 'Add Image'}</span>
+      <span class="text-slate-800 font-bold">{editId ? 'Edit Gallery' : 'Add Gallery'}</span>
     </div>
 
     <!-- Header Card -->
     <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-xs">
       <h1 class="text-lg font-bold text-slate-900 mb-1">
-        {editId ? 'Edit Gallery Image' : 'Add Image to Media Gallery'}
+        {editId ? 'Edit Gallery / Album' : 'Create New Gallery / Album'}
       </h1>
       <p class="text-xs text-slate-500">
-        All images are organized in the central gallery and can be featured in the Corporate Overview carousel.
+        Upload 1 to 15 high-resolution photographs per gallery. The first photo will serve as the cover image.
       </p>
 
       {errorMessage && (
@@ -194,43 +234,120 @@ if (Astro.request.method === 'POST') {
       )}
 
       <!-- Form -->
-      <form method="POST" id="gallery-image-form" class="mt-6 flex flex-col gap-5">
+      <form method="POST" id="gallery-album-form" class="mt-6 flex flex-col gap-5">
         {editId && <input type="hidden" name="id" value={itemData.id} />}
+        <input type="hidden" name="imagesJson" id="gallery-images-json" value={existingImagesJson} />
         
-        <!-- 1. Mandatory Field: Image Title -->
+        <!-- 1. Mandatory Field: Gallery Title -->
         <div class="flex flex-col gap-1.5">
           <label for="title" class="text-xs font-bold text-slate-700">
-            Image Title <span class="text-red-500">*</span>
+            Gallery / Event Title <span class="text-red-500">*</span>
           </label>
           <input 
             type="text" 
             id="title" 
             name="title" 
             value={itemData.title}
-            placeholder="e.g. Baglihar Hydroelectric Power Dam & Spillway" 
+            placeholder="e.g. Annual Board Review Meeting 2026 or Baglihar Dam Inspection" 
             class="admin-input text-xs" 
             required 
           />
-          <p class="text-[11px] text-slate-400">Clear descriptive title displayed in cards, alt-text, and lightboxes.</p>
+          <p class="text-[11px] text-slate-400">Clear descriptive title displayed in cards, alt-text, and public lightboxes.</p>
         </div>
 
-        <!-- 2. Mandatory Field: Image File (Standard 2 MB limit for images) -->
-        <div class="flex flex-col gap-1.5">
-          <FileUploader 
-            id="gallery-image-file" 
-            label="Image File" 
-            required={!editId && !itemData.imageUrl}
-            variant="image" 
-            accept="image/jpeg,image/png,image/webp" 
-            helpText="JPG, PNG, or WebP"
-            maxSizeMB={2}
-            existingUrl={getImageUrl(itemData.imageUrl)}
-            existingName={itemData.title || 'Current Photo'}
-          />
-          <input type="hidden" name="imageUrl" id="gallery-image-url-input" value={itemData.imageUrl} />
+        <!-- 2. Category & Associated Project (Side-by-Side) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Category Dropdown -->
+          <div class="flex flex-col gap-1.5">
+            <label for="partition" class="text-xs font-bold text-slate-700">
+              Category <span class="text-red-500">*</span>
+            </label>
+            <select 
+              id="partition" 
+              name="partition" 
+              class="admin-input text-xs cursor-pointer"
+              required
+            >
+              <option value="Official Events" selected={itemData.partition === 'Official Events'}>Official Events</option>
+              <option value="Corporate" selected={itemData.partition === 'Corporate'}>Corporate</option>
+              <option value="Projects" selected={itemData.partition === 'Projects'}>Projects</option>
+              <option value="General" selected={itemData.partition === 'General' || !itemData.partition}>General</option>
+            </select>
+            <p class="text-[11px] text-slate-400">Controls the badge and filter tag on the public gallery.</p>
+          </div>
+
+          <!-- Associated Project (Optional) -->
+          <div class="flex flex-col gap-1.5">
+            <label for="projectId" class="text-xs font-bold text-slate-700">
+              Associated Power Station / Project (Optional)
+            </label>
+            <select 
+              id="projectId" 
+              name="projectId" 
+              class="admin-input text-xs cursor-pointer"
+            >
+              <option value="">— None / General Corporate —</option>
+              {projectsList.map((p) => (
+                <option value={p.id} selected={p.id === itemData.projectId}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+            <p class="text-[11px] text-slate-400">Links photographs to the designated power station.</p>
+          </div>
         </div>
 
-        <!-- 3. Corporate Overview Carousel Feature -->
+        <!-- 3. Multi-Image Uploader Block -->
+        <div class="flex flex-col gap-2 pt-2 border-t border-slate-100">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-bold text-slate-700">
+              Gallery Photographs <span class="text-red-500">*</span>
+            </label>
+            <span id="photo-count-badge" class="text-[11px] font-semibold text-slate-500">
+              0 photos selected (max 15)
+            </span>
+          </div>
+
+          <!-- Drag and Drop Browse Box -->
+          <div 
+            id="multi-dropzone" 
+            class="border-2 border-dashed border-slate-300 hover:border-[#0B5C9E] bg-slate-50/70 hover:bg-slate-50 rounded-xl p-6 text-center cursor-pointer transition-colors"
+          >
+            <input 
+              type="file" 
+              id="multi-file-input" 
+              class="hidden" 
+              multiple 
+              accept="image/jpeg,image/png,image/webp" 
+            />
+            <div class="flex flex-col items-center justify-center gap-2 pointer-events-none">
+              <div class="w-10 h-10 rounded-full bg-blue-50 text-[#0B5C9E] flex items-center justify-center">
+                <Icon name="image" size={20} />
+              </div>
+              <div>
+                <p class="text-xs font-bold text-slate-800">
+                  Click to choose photos or drag and drop here
+                </p>
+                <p class="text-[11px] text-slate-500 mt-0.5">
+                  Select 1 to 15 images (JPG, PNG, WebP &bull; up to 2 MB each). First image is cover.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upload Progress Indicator -->
+          <div id="upload-status" class="hidden text-xs text-blue-700 font-semibold bg-blue-50 p-2.5 rounded-lg border border-blue-200 flex items-center gap-2">
+            <span class="inline-block w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></span>
+            <span id="upload-status-text">Uploading photos...</span>
+          </div>
+
+          <!-- Thumbnail Grid Preview with Removal & Cover Marker -->
+          <div id="preview-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3 mt-2">
+            <!-- Rendered dynamically by JavaScript -->
+          </div>
+        </div>
+
+        <!-- 4. Corporate Overview Carousel Feature -->
         <div class="p-3.5 bg-sky-50/70 border border-sky-200/80 rounded-lg">
           <label class="flex items-start gap-2.5 cursor-pointer select-none">
             <input 
@@ -241,8 +358,8 @@ if (Astro.request.method === 'POST') {
               class="w-4 h-4 text-blue-600 rounded mt-0.5" 
             />
             <div>
-              <span class="text-xs font-bold text-slate-800">Feature in Corporate Overview Carousel</span>
-              <p class="text-[11px] text-slate-500 mt-0.5">Include this photograph in the "Welcome to JKSPDCL" rotating gallery carousel on the homepage.</p>
+              <span class="text-xs font-bold text-slate-800">Feature Cover in Corporate Overview Carousel</span>
+              <p class="text-[11px] text-slate-500 mt-0.5">Include this gallery's cover photograph in the "Welcome to JKSPDCL" rotating carousel on the homepage.</p>
             </div>
           </label>
         </div>
@@ -257,8 +374,8 @@ if (Astro.request.method === 'POST') {
               Clear
             </button>
           )}
-          <button type="submit" class="admin-btn admin-btn-primary text-xs px-5 py-2 cursor-pointer">
-            {editId ? 'Update Image' : 'Save Image'}
+          <button type="submit" id="btn-submit" class="admin-btn admin-btn-primary text-xs px-5 py-2 cursor-pointer bg-[#0B5C9E] hover:bg-[#094b82] text-white font-bold rounded-lg shadow-xs transition-colors">
+            {editId ? 'Update Gallery' : 'Save Gallery'}
           </button>
         </div>
       </form>
@@ -267,127 +384,198 @@ if (Astro.request.method === 'POST') {
   </div>
 
   <script is:inline>
-    var fileInput = document.getElementById('gallery-image-file-input');
-    var dropzone = document.getElementById('gallery-image-file-dropzone');
-    var urlInput = document.getElementById('gallery-image-url-input');
-    var submitBtn = document.querySelector('button[type="submit"]');
-    var isUploading = false;
-    var initialBtnText = submitBtn ? submitBtn.textContent.trim() : 'Save Image';
+    (function() {
+      var dropzone = document.getElementById('multi-dropzone');
+      var fileInput = document.getElementById('multi-file-input');
+      var jsonInput = document.getElementById('gallery-images-json');
+      var previewGrid = document.getElementById('preview-grid');
+      var countBadge = document.getElementById('photo-count-badge');
+      var statusBox = document.getElementById('upload-status');
+      var statusText = document.getElementById('upload-status-text');
+      var submitBtn = document.getElementById('btn-submit');
+      var isUploading = false;
 
-    function removeGalleryPhoto() {
-      if (urlInput) urlInput.value = '';
-      if (fileInput) fileInput.value = '';
-      if (dropzone) {
-        dropzone.classList.remove('has-file');
-        var nameEl = dropzone.querySelector('.admin-uploader-file-name');
-        var sizeEl = dropzone.querySelector('.admin-uploader-file-size');
-        var preview = dropzone.querySelector('.admin-uploader-preview img');
-        if (nameEl) nameEl.textContent = '';
-        if (sizeEl) sizeEl.textContent = '';
-        if (preview) {
-          preview.src = '';
-          preview.classList.add('invisible');
-        }
+      var imagesList = [];
+      try {
+        imagesList = JSON.parse(jsonInput ? jsonInput.value : '[]') || [];
+      } catch (e) {
+        imagesList = [];
       }
-    }
 
-    if (fileInput) {
-      fileInput.addEventListener('change', async function(e) {
-        var file = e.target.files && e.target.files[0];
-        if (!file) return;
+      function updateUI() {
+        if (jsonInput) jsonInput.value = JSON.stringify(imagesList);
+        if (countBadge) {
+          countBadge.textContent = imagesList.length + ' photo' + (imagesList.length === 1 ? '' : 's') + ' selected (max 15)';
+        }
+
+        if (!previewGrid) return;
+        previewGrid.innerHTML = '';
+
+        imagesList.forEach(function(url, idx) {
+          var col = document.createElement('div');
+          col.className = 'relative group aspect-square rounded-lg overflow-hidden border border-slate-200 bg-slate-100 shadow-2xs';
+
+          var img = document.createElement('img');
+          img.src = url.startsWith('/uploads/') ? url : url;
+          img.alt = 'Photo ' + (idx + 1);
+          img.className = 'w-full h-full object-cover';
+          img.onerror = function() { this.src = '/slider1.jpg'; };
+
+          // Cover badge for first image
+          if (idx === 0) {
+            var coverBadge = document.createElement('span');
+            coverBadge.className = 'absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wider bg-emerald-600 text-white shadow-xs z-10';
+            coverBadge.textContent = 'Cover';
+            col.appendChild(coverBadge);
+          }
+
+          // Remove Button
+          var removeBtn = document.createElement('button');
+          removeBtn.type = 'button';
+          removeBtn.className = 'absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-slate-900/80 hover:bg-red-600 text-white flex items-center justify-center text-xs transition-colors cursor-pointer z-10';
+          removeBtn.setAttribute('aria-label', 'Remove photo ' + (idx + 1));
+          removeBtn.innerHTML = '&times;';
+          removeBtn.onclick = function(e) {
+            e.stopPropagation();
+            imagesList.splice(idx, 1);
+            updateUI();
+          };
+
+          col.appendChild(img);
+          col.appendChild(removeBtn);
+          previewGrid.appendChild(col);
+        });
+      }
+
+      // Initial render
+      updateUI();
+
+      // Dropzone click & drag events
+      if (dropzone && fileInput) {
+        dropzone.addEventListener('click', function() {
+          if (!isUploading) fileInput.click();
+        });
+
+        dropzone.addEventListener('dragover', function(e) {
+          e.preventDefault();
+          dropzone.classList.add('border-[#0B5C9E]', 'bg-blue-50/40');
+        });
+
+        dropzone.addEventListener('dragleave', function() {
+          dropzone.classList.remove('border-[#0B5C9E]', 'bg-blue-50/40');
+        });
+
+        dropzone.addEventListener('drop', function(e) {
+          e.preventDefault();
+          dropzone.classList.remove('border-[#0B5C9E]', 'bg-blue-50/40');
+          if (e.dataTransfer && e.dataTransfer.files) {
+            handleFiles(e.dataTransfer.files);
+          }
+        });
+
+        fileInput.addEventListener('change', function(e) {
+          if (e.target && e.target.files) {
+            handleFiles(e.target.files);
+          }
+        });
+      }
+
+      async function handleFiles(filesList) {
+        var files = Array.from(filesList);
+        if (files.length === 0) return;
+
+        var availableSlots = 15 - imagesList.length;
+        if (availableSlots <= 0) {
+          alert('Maximum 15 photos allowed per gallery.');
+          return;
+        }
+
+        if (files.length > availableSlots) {
+          alert('Only ' + availableSlots + ' more photo(s) can be added. The remaining will be ignored.');
+          files = files.slice(0, availableSlots);
+        }
 
         isUploading = true;
-        if (submitBtn) {
-          submitBtn.disabled = true;
-          submitBtn.textContent = 'Uploading image…';
-        }
-        if (dropzone) dropzone.classList.add('opacity-50', 'pointer-events-none');
+        if (submitBtn) submitBtn.disabled = true;
+        if (statusBox) statusBox.classList.remove('hidden');
 
-        var formData = new FormData();
-        formData.append('file', file);
-        formData.append('category', 'image');
+        for (var i = 0; i < files.length; i++) {
+          var file = files[i];
+          if (statusText) statusText.textContent = 'Uploading photo ' + (i + 1) + ' of ' + files.length + ' (' + file.name + ')...';
 
-        try {
-          var res = await fetch('/api/admin/upload', {
-            method: 'POST',
-            body: formData,
-          });
+          var formData = new FormData();
+          formData.append('file', file);
+          formData.append('category', 'image');
 
-          if (!res.ok) {
-            if (res.status === 401) {
-              window.location.href = '/admin/login';
-              return;
+          try {
+            var res = await fetch('/api/admin/upload', {
+              method: 'POST',
+              body: formData,
+            });
+
+            if (!res.ok) {
+              if (res.status === 401) {
+                window.location.href = '/admin/login';
+                return;
+              }
+              var err = await res.json().catch(function() { return {}; });
+              throw new Error(err.message || 'Upload failed');
             }
-            var err = await res.json().catch(function() { return {}; });
-            throw new Error(err.message || 'Upload failed');
-          }
 
-          var result = await res.json();
-          var rawUrl = result.url || '';
-          var serverUrl = rawUrl.includes('/uploads/') ? '/uploads/' + rawUrl.split('/uploads/')[1] : rawUrl;
-
-          if (urlInput) urlInput.value = serverUrl;
-          if (dropzone) {
-            dropzone.classList.add('has-file');
-            var nameEl = dropzone.querySelector('.admin-uploader-file-name');
-            var preview = dropzone.querySelector('.admin-uploader-preview img');
-            if (nameEl) nameEl.textContent = file.name;
-            if (preview) {
-              preview.src = serverUrl;
-              preview.classList.remove('invisible');
+            var result = await res.json();
+            var rawUrl = result.url || '';
+            var serverUrl = rawUrl.includes('/uploads/') ? '/uploads/' + rawUrl.split('/uploads/')[1] : rawUrl;
+            if (serverUrl) {
+              imagesList.push(serverUrl);
+              updateUI();
             }
-          }
-        } catch (err) {
-          alert('Upload failed: ' + err.message);
-          removeGalleryPhoto();
-        } finally {
-          isUploading = false;
-          if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.textContent = initialBtnText;
-          }
-          if (dropzone) dropzone.classList.remove('opacity-50', 'pointer-events-none');
-        }
-      });
-
-      fileInput.addEventListener('uploader:cleared', removeGalleryPhoto);
-    }
-
-    // Clear form handler
-    var clearBtn = document.getElementById('btn-clear-form');
-    if (clearBtn) {
-      clearBtn.addEventListener('click', function() {
-        var form = document.getElementById('gallery-image-form');
-        var titleInput = document.getElementById('title');
-
-        var hasData = (titleInput && titleInput.value.trim() !== '') ||
-          (urlInput && urlInput.value.trim() !== '');
-
-        if (hasData) {
-          if (!confirm('Are you sure you want to clear all entered form fields and selected image?')) {
-            return;
+          } catch (err) {
+            alert('Failed to upload ' + file.name + ': ' + err.message);
           }
         }
 
-        if (form) {
-          form.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="checkbox"])').forEach(function(i) { i.value = ''; });
-          var overviewCb = form.querySelector('input[name="featuredInOverview"]');
-          if (overviewCb) overviewCb.checked = false;
-        }
-        removeGalleryPhoto();
-        if (titleInput) titleInput.focus();
-      });
-    }
+        isUploading = false;
+        if (submitBtn) submitBtn.disabled = false;
+        if (statusBox) statusBox.classList.add('hidden');
+        if (fileInput) fileInput.value = '';
+      }
 
-    var formEl = document.getElementById('gallery-image-form');
-    if (formEl) {
-      formEl.addEventListener('submit', function(e) {
-        if (isUploading) {
-          e.preventDefault();
-          alert('Please wait for the image upload to finish before saving.');
-          return false;
-        }
-      });
-    }
+      // Clear Form button
+      var clearBtn = document.getElementById('btn-clear-form');
+      if (clearBtn) {
+        clearBtn.addEventListener('click', function() {
+          if (confirm('Are you sure you want to clear this gallery form?')) {
+            var form = document.getElementById('gallery-album-form');
+            if (form) {
+              var titleInput = document.getElementById('title');
+              if (titleInput) titleInput.value = '';
+              var partition = document.getElementById('partition');
+              if (partition) partition.value = 'General';
+              var projectId = document.getElementById('projectId');
+              if (projectId) projectId.value = '';
+            }
+            imagesList = [];
+            updateUI();
+          }
+        });
+      }
+
+      // Prevent submit while uploading
+      var formEl = document.getElementById('gallery-album-form');
+      if (formEl) {
+        formEl.addEventListener('submit', function(e) {
+          if (isUploading) {
+            e.preventDefault();
+            alert('Please wait for photos to finish uploading before saving.');
+            return false;
+          }
+          if (imagesList.length === 0) {
+            e.preventDefault();
+            alert('Please select and upload at least 1 photo for this gallery.');
+            return false;
+          }
+        });
+      }
+    })();
   </script>
 </AdminLayout>

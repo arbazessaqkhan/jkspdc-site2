@@ -296,7 +296,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
   <!-- HERO CAROUSEL (admin-managed slides) -->
   <section
     id="home"
-    class="hero-section relative w-full overflow-hidden bg-[#002B49]"
+    class="hero-section relative w-full overflow-hidden bg-slate-900 border-b border-slate-200"
     aria-roledescription="carousel"
     aria-label="Featured highlights"
     data-hero-duration={heroSlideMs}
@@ -304,99 +304,103 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
   >
     {heroSlides.length > 0 ? (
       <>
-        <div id="hero-slides" class="absolute inset-0">
-          {heroSlides.map((slide, i) => (
-            <div
-              class={`hero-slide absolute inset-0 transition-opacity duration-700 ease-out ${i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}
-              aria-hidden={i === 0 ? undefined : 'true'}
-            >
-              {slide.imageUrl ? (
-                <img
-                  src={getImageUrl(slide.imageUrl)}
-                  alt={slide.title || ''}
-                  class="absolute inset-0 h-full w-full object-cover"
-                  fetchpriority={i === 0 ? 'high' : 'auto'}
-                  loading={i === 0 ? 'eager' : 'lazy'}
-                />
-              ) : (
-                <div class="absolute inset-0 bg-[#002B49]"></div>
-              )}
-
-              <!-- No dark scrim: images keep their natural brightness -->
-              <div class="absolute inset-0 z-20 flex items-end sm:items-center">
-                <div class="w-full max-w-7xl mx-auto pl-16 sm:pl-20 lg:pl-24 pr-6 sm:pr-8 lg:pr-10 pb-6 sm:pb-0">
-                  <div class="max-w-2xl text-white">
-                    <h2 class="text-2xl sm:text-4xl lg:text-[2.75rem] font-bold leading-tight tracking-tight" style="text-shadow: 0 2px 12px rgba(0,0,0,0.5);">
-                      {slide.title}
-                    </h2>
-                    <div class="mt-4 h-0.5 w-14 bg-[#0EA4E5]"></div>
-                    {slide.description && (
-                      <p class="mt-4 max-w-xl text-sm sm:text-base text-white/90 leading-relaxed line-clamp-3" style="text-shadow: 0 1px 6px rgba(0,0,0,0.55);">
-                        {slide.description}
-                      </p>
-                    )}
-                    {slide.ctaHref && (
-                      <a
-                        href={slide.ctaHref}
-                        class="mt-6 inline-flex h-11 items-center gap-2 rounded-sm bg-[#0B3B60] px-6 text-sm font-semibold text-white transition-colors hover:bg-[#002B49] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-                      >
-                        {slide.ctaText || 'Explore Details'} &rarr;
-                      </a>
-                    )}
-                  </div>
-                </div>
+        <!-- 100% Unobstructed Hero Photo Container -->
+        <div class="relative w-full h-[340px] sm:h-[400px] lg:h-[440px] overflow-hidden bg-slate-900">
+          <div id="hero-slides" class="absolute inset-0">
+            {heroSlides.map((slide, i) => (
+              <div
+                class={`hero-slide absolute inset-0 transition-opacity duration-700 ease-out ${i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}
+                aria-hidden={i === 0 ? undefined : 'true'}
+                data-slide-title={slide.title || ''}
+                data-slide-desc={slide.description || ''}
+                data-slide-cta-href={slide.ctaHref || ''}
+                data-slide-cta-text={slide.ctaText || 'Explore Details'}
+              >
+                {slide.imageUrl ? (
+                  <img
+                    src={getImageUrl(slide.imageUrl)}
+                    alt={slide.title || ''}
+                    class="absolute inset-0 h-full w-full object-cover"
+                    fetchpriority={i === 0 ? 'high' : 'auto'}
+                    loading={i === 0 ? 'eager' : 'lazy'}
+                  />
+                ) : (
+                  <div class="absolute inset-0 bg-[#002B49]"></div>
+                )}
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+
+          {heroSlides.length > 1 && (
+            <>
+              <!-- Prev / Next Controls -->
+              <button
+                id="hero-prev"
+                type="button"
+                class="absolute left-3 sm:left-5 top-1/2 z-30 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/35 text-white backdrop-blur-sm transition-colors hover:bg-black/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                aria-label="Previous slide"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+              </button>
+              <button
+                id="hero-next"
+                type="button"
+                class="absolute right-3 sm:right-5 top-1/2 z-30 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/35 text-white backdrop-blur-sm transition-colors hover:bg-black/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                aria-label="Next slide"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
+              </button>
+
+              <!-- Indicators: Cleanly centered at the bottom of the photo -->
+              <div
+                id="hero-indicators"
+                class="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2"
+                role="tablist"
+                aria-label="Carousel slide indicators"
+              >
+                {heroSlides.map((_, i) => (
+                  <button
+                    type="button"
+                    data-hero-indicator={String(i)}
+                    class={`hero-indicator-strip h-1.5 rounded-full transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${i === 0 ? 'bg-white ring-1 ring-[#0B3D6B]/50 w-8 shadow-sm' : 'bg-white/60 hover:bg-white w-3.5 shadow-xs'}`}
+                    aria-label={`Go to slide ${i + 1}`}
+                    aria-current={i === 0 ? 'true' : undefined}
+                  ></button>
+                ))}
+              </div>
+            </>
+          )}
         </div>
 
-        {heroSlides.length > 1 && (
-          <>
-            <button
-              id="hero-prev"
-              type="button"
-              class="absolute left-3 sm:left-5 top-1/2 z-30 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/25 text-white/90 backdrop-blur-sm transition-colors hover:bg-black/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-              aria-label="Previous slide"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
-            </button>
-            <button
-              id="hero-next"
-              type="button"
-              class="absolute right-3 sm:right-5 top-1/2 z-30 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/25 text-white/90 backdrop-blur-sm transition-colors hover:bg-black/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-              aria-label="Next slide"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
-            </button>
-
-            <!-- Indicators: Horizontal Strips / Progress Dashes -->
-            <div
-              id="hero-indicators"
-              class="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center justify-center gap-1.5 sm:gap-2 px-3 py-1.5 rounded-full bg-black/30 backdrop-blur-xs"
-              role="tablist"
-              aria-label="Carousel slide indicators"
-            >
-              {heroSlides.map((_, i) => (
-                <button
-                  type="button"
-                  data-hero-indicator={String(i)}
-                  class={`hero-indicator-strip h-1 sm:h-1.5 rounded-full transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 ${i === 0 ? 'w-8 sm:w-10 bg-[#0EA4E5]' : 'w-4 sm:w-5 bg-white/40 hover:bg-white/70'}`}
-                  aria-label={`Go to slide ${i + 1}`}
-                  aria-current={i === 0 ? 'true' : undefined}
-                ></button>
-              ))}
+        <!-- Clean White Caption Bar Directly Below the Photo -->
+        <div id="hero-caption-bar" class="bg-white border-b border-slate-200">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div class="min-w-0 flex-1">
+              <h2 id="hero-caption-title" class="text-xl sm:text-2xl font-bold text-[#0B3D6B] leading-tight">
+                {heroSlides[0]?.title || ''}
+              </h2>
+              <p id="hero-caption-desc" class="text-sm text-slate-900 mt-0.5">
+                {heroSlides[0]?.description || ''}
+              </p>
             </div>
-          </>
-        )}
+            <a
+              id="hero-caption-cta"
+              href={heroSlides[0]?.ctaHref || '#projects'}
+              class={`shrink-0 inline-flex items-center gap-1.5 bg-[#0B3D6B] hover:bg-[#082E52] text-white text-sm font-semibold px-5 py-2.5 rounded-md transition-colors shadow-xs ${heroSlides[0]?.ctaHref ? '' : 'hidden'}`}
+            >
+              <span id="hero-caption-cta-text">{heroSlides[0]?.ctaText || 'Explore Details'}</span>
+              <span aria-hidden="true">&rarr;</span>
+            </a>
+          </div>
+        </div>
       </>
     ) : (
-      <div class="absolute inset-0 z-20 flex items-center justify-center bg-gradient-to-r from-[#002B49] via-[#0B3B60] to-[#002B49]">
-        <div class="w-full max-w-4xl mx-auto px-6 text-center text-white">
-          <h1 class="text-2xl sm:text-4xl lg:text-5xl font-bold leading-tight tracking-tight" style="text-shadow: 0 2px 10px rgba(0,0,0,0.5);">
+      <div class="relative w-full overflow-hidden bg-[#002B49]">
+        <div class="max-w-7xl mx-auto px-6 py-12 text-center text-white">
+          <h1 class="text-2xl sm:text-4xl font-bold leading-tight tracking-tight">
             Jammu and Kashmir State Power Development Corporation Limited
           </h1>
-          <div class="mt-4 h-0.5 w-16 bg-[#0EA4E5] mx-auto"></div>
-          <p class="mt-4 max-w-2xl mx-auto text-sm sm:text-base text-white/90 leading-relaxed" style="text-shadow: 0 1px 4px rgba(0,0,0,0.5);">
+          <p class="text-sm sm:text-base text-slate-200 mt-3 max-w-2xl mx-auto">
             Harnessing Clean, Sustainable, and Reliable Hydroelectric &amp; Renewable Energy for Jammu &amp; Kashmir.
           </p>
         </div>
@@ -405,250 +409,254 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
   </section>
 
   <!-- PAGE BODY — unified container + consistent vertical rhythm -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 space-y-14">
+  <div class="w-full">
 
     <!-- ============================================================ -->
-    <!-- DIGNITARIES SECTION (FULL WIDTH)                              -->
-    <!-- ==========================================================    <!-- ============================================================ -->
-    <!-- DIGNITARIES & UPDATES SIDE-BY-SIDE SECTION                     -->
-    <!-- ========================================================    <!-- ============================================================ -->
     <!-- WELCOME, TENDERS & NOTIFICATIONS (3-COLUMN LAYOUT)            -->
     <!-- ============================================================ -->
-    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-10 gap-6 items-stretch">
-      
-      <!-- LEFT COLUMN: WELCOME & OFFICE GALLERY CAROUSEL (40% width = 4 cols) -->
-      <div class="md:col-span-2 lg:col-span-4 flex flex-col">
-        <!-- Section Header -->
-        <div class="text-left mb-4 flex-shrink-0">
-          <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 border border-brand-primary-dark mb-2.5">Corporate Overview</span>
-          <h2 class="text-lg xl:text-xl font-bold text-brand-text">
-            Welcome to <span class="text-brand-primary">JKSPDCL</span>
-          </h2>
-          <div class="w-10 h-0.5 bg-sky-600/70 mt-2.5"></div>
-        </div>
+    <section class="bg-slate-50 border-b border-slate-200 py-12 lg:py-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+          
+          <!-- COLUMN 1: WELCOME & OFFICE GALLERY CAROUSEL -->
+          <div class="bg-white border border-slate-200 rounded-lg shadow-xs flex flex-col overflow-hidden h-full">
+            <!-- Card Header -->
+            <div class="px-5 py-3.5 border-b border-slate-200 bg-slate-50/70 flex items-center justify-between">
+              <div>
+                <span class="inline-block text-[11px] font-semibold tracking-wider uppercase text-[#0B3D6B]">CORPORATE OVERVIEW</span>
+                <h2 class="text-lg font-bold text-slate-900 leading-tight mt-0.5">Welcome to JKSPDCL</h2>
+              </div>
+            </div>
 
-        <!-- Welcome Card Container with Office Gallery Carousel -->
-        <div class="bg-white border border-slate-200 rounded-md p-4 flex flex-col justify-between flex-grow h-[320px] shadow-xs overflow-hidden relative">
-          <!-- Office Events, Retirements & Awards Carousel -->
-          {overviewSlides.length > 0 ? (
-            <div
-              class="relative w-full flex-grow rounded-md overflow-hidden shadow-xs border border-slate-200 bg-[#F4F8FB] group"
-              id="office-carousel-container"
-              data-overview-duration={String(welcomeSettings.duration * 1000)}
-              data-overview-autoplay={welcomeSettings.autoplay ? 'true' : 'false'}
-            >
-              <div class="absolute inset-0" id="office-slides">
-                {overviewSlides.map((photo: any, index: number) => (
-                  <div class={`office-slide absolute inset-0 transition-opacity duration-700 ease-in-out ${index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
-                    <img 
-                      src={getImageUrl(photo.imageUrl)} 
-                      alt={photo.title || ''} 
-                      class="w-full h-full object-cover" 
-                      loading={index === 0 ? 'eager' : 'lazy'}
-                    />
-                    <!-- Overlay Caption -->
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent flex flex-col justify-end p-3 z-10 text-left">
-                      <span class="block w-8 h-0.5 bg-brand-accent mb-1.5 shadow-xs" aria-hidden="true"></span>
-                      <h4 class="text-white text-xs font-bold leading-snug line-clamp-1" style="text-shadow: 0 1px 3px rgba(0,0,0,0.6);">
-                        {photo.title}
-                      </h4>
+            <!-- Fixed-Height Body -->
+            {overviewSlides.length > 0 ? (
+              <div
+                class="relative w-full h-[300px] bg-slate-100 overflow-hidden group"
+                id="office-carousel-container"
+                data-overview-duration={String(welcomeSettings.duration * 1000)}
+                data-overview-autoplay={welcomeSettings.autoplay ? 'true' : 'false'}
+              >
+                <div class="absolute inset-0" id="office-slides">
+                  {overviewSlides.map((photo: any, index: number) => (
+                    <div class={`office-slide absolute inset-0 transition-opacity duration-700 ease-in-out ${index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
+                      <img 
+                        src={getImageUrl(photo.imageUrl)} 
+                        alt={photo.title || ''} 
+                        class="w-full h-full object-cover" 
+                        loading={index === 0 ? 'eager' : 'lazy'}
+                      />
+                      <!-- Overlay Caption -->
+                      <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/30 to-transparent flex flex-col justify-end p-4 z-10 text-left">
+                        <span class="block w-8 h-0.5 bg-brand-accent mb-1.5 shadow-xs" aria-hidden="true"></span>
+                        <h4 class="text-white text-xs font-bold leading-snug line-clamp-1" style="text-shadow: 0 1px 3px rgba(0,0,0,0.6);">
+                          {photo.title}
+                        </h4>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
 
-              {overviewSlides.length > 1 && (
-                <>
-                  <!-- Controls -->
-                  <button id="office-prev" class="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-6 h-6 rounded-full bg-black/45 text-white flex items-center justify-center hover:bg-black/65 transition text-xs font-bold shadow-xs focus-visible:outline-none" aria-label="Previous image">&#8249;</button>
-                  <button id="office-next" class="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-6 h-6 rounded-full bg-black/45 text-white flex items-center justify-center hover:bg-black/65 transition text-xs font-bold shadow-xs focus-visible:outline-none" aria-label="Next image">&#8250;</button>
-
-                  <!-- Indicators (Dots) -->
-                  <div class="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 z-20">
-                    {overviewSlides.map((_: any, i: number) => (
-                      <button data-office-dot={String(i)} class={`w-1.5 h-1.5 transition-all duration-300 ${i === 0 ? 'bg-white w-3' : 'bg-white/50'}`} aria-label={`Go to slide ${i + 1}`}></button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-          ) : (
-            <div class="relative w-full flex-grow rounded-md overflow-hidden border border-slate-200 bg-gradient-to-br from-[#F4F8FB] to-[#E9F2F9] flex flex-col items-center justify-center p-6 text-center">
-              <div class="w-12 h-12 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary mb-3">
-                <Icon name="building" size={24} />
-              </div>
-              <h4 class="text-sm font-bold text-slate-800 mb-1">Corporate Overview</h4>
-              <p class="text-xs text-slate-500 max-w-xs leading-relaxed">
-                Jammu &amp; Kashmir State Power Development Corporation Limited. Featured gallery highlights can be curated via Media Gallery in Admin.
-              </p>
-            </div>
-          )}
-
-          <!-- Read More & Admin Gallery Link -->
-          <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-100">
-            <a href="/about-us/explore/overview" class="text-brand-primary hover:underline font-bold text-xs">
-              Read More &raquo;
-            </a>
-            <a href="/media/gallery" class="text-xs text-slate-500 hover:text-brand-primary font-semibold flex items-center gap-1.5">
-              <Icon name="camera" size={13} class="shrink-0" />
-              <span>Office Gallery &rarr;</span>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <!-- MIDDLE COLUMN: TENDERS & BIDS (30% width = 3 cols) -->
-      <div class="md:col-span-1 lg:col-span-3 flex flex-col">
-        <!-- Section Header -->
-        <div class="text-left mb-4 flex-shrink-0">
-          <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 border border-brand-primary-dark mb-2.5">Procurement</span>
-          <h2 id="tenders-heading" class="text-lg xl:text-xl font-bold text-brand-text">Tenders</h2>
-          <div class="w-10 h-0.5 bg-sky-600/70 mt-2.5"></div>
-        </div>
-
-        <!-- Tenders Card Container -->
-        <div class="bg-white border border-slate-200 rounded-md overflow-hidden flex flex-col justify-between flex-grow h-[320px] shadow-xs">
-          {feedTenders.length > 0 ? (
-            <div class="relative flex-grow overflow-hidden">
-              <div class="absolute left-0 right-0 top-0 h-4 bg-gradient-to-b from-[#ffffff] to-transparent z-10 pointer-events-none"></div>
-              <div class="absolute left-0 right-0 bottom-0 h-4 bg-gradient-to-t from-[#ffffff] to-transparent z-10 pointer-events-none"></div>
-
-              <div 
-                id="home-tenders-track" 
-                class={feedTenders.length >= 4 ? "feed-scroll-track flex flex-col" : "flex flex-col"}
-                style={feedTenders.length >= 4 ? `--scroll-duration: ${feedTenders.length * 1}s;` : undefined}
-              >
-                {(feedTenders.length >= 4 ? [1, 2] : [1]).map(() => (
+                {overviewSlides.length > 1 && (
                   <>
-                    {feedTenders.map((tender: any, index: number) => {
-                      const isCorr = tender.isCorrigendum;
-                      const isNew = tender.isNew;
-                      const tenderDetailsUrl = `/stakeholders/vendors/tender-details?id=${tender.parentTenderId || tender.id}${isCorr && tender.id ? `#corrigendum-${tender.id}` : ''}`;
-                      return (
-                        <a 
-                          href={tenderDetailsUrl} 
-                          onclick="this.blur()"
-                          class="feed-row block px-4 py-2.5 border-b border-slate-200 transition-colors duration-150 text-left select-none group"
-                          style={index % 2 === 0 ? 'background-color: #FFFFFF;' : 'background-color: #F8FAFC;'}
-                        >
-                          <div class="flex items-center gap-2 mb-1 flex-wrap">
-                            <span class="text-xs text-brand-primary font-bold flex items-center gap-1">
-                              <Icon name="calendar" size={11} class="shrink-0" />
-                              <span>{formatRefDate(tender.publishDate)}</span>
-                            </span>
-                            {isNew && (
-                              <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold uppercase tracking-wide bg-[#D9381E] text-white shadow-xs">
-                                NEW
-                              </span>
-                            )}
-                            {isCorr && (
-                              <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold uppercase tracking-wide bg-amber-100 text-amber-900 border border-amber-300">
-                                Corrigendum
-                              </span>
-                            )}
-                            {tender.referenceNo && (
-                              <span class="text-xs text-slate-400 font-mono hidden sm:inline">
-                                {tender.referenceNo}
-                              </span>
-                            )}
-                          </div>
-                          <h4 class="font-bold text-slate-800 text-xs leading-snug line-clamp-2 group-hover:text-brand-primary transition-colors">
-                            {isCorr ? (tender.title && tender.title.toLowerCase().startsWith('corrigendum') ? `${tender.title}${tender.parentTitle ? ` — ${tender.parentTitle}` : ''}` : `Corrigendum: ${tender.title}${tender.parentTitle ? ` — ${tender.parentTitle}` : ''}`) : tender.title}
-                          </h4>
-                        </a>
-                      );
-                    })}
+                    <!-- Controls -->
+                    <button id="office-prev" class="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-black/45 text-white flex items-center justify-center hover:bg-black/65 transition text-xs font-bold shadow-xs focus-visible:outline-none" aria-label="Previous image">&#8249;</button>
+                    <button id="office-next" class="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-black/45 text-white flex items-center justify-center hover:bg-black/65 transition text-xs font-bold shadow-xs focus-visible:outline-none" aria-label="Next image">&#8250;</button>
+
+                    <!-- Indicators (Dots) -->
+                    <div class="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 z-20">
+                      {overviewSlides.map((_: any, i: number) => (
+                        <button data-office-dot={String(i)} class={`w-1.5 h-1.5 transition-all duration-300 ${i === 0 ? 'bg-white w-3' : 'bg-white/50'}`} aria-label={`Go to slide ${i + 1}`}></button>
+                      ))}
+                    </div>
                   </>
-                ))}
+                )}
               </div>
-            </div>
-          ) : (
-            <div class="flex-grow flex flex-col items-center justify-center p-6 text-center bg-slate-50/50">
-              <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-2">
-                <Icon name="file-text" size={20} />
+            ) : (
+              <div class="relative w-full h-[300px] bg-slate-100 flex flex-col items-center justify-center p-6 text-center">
+                <div class="w-10 h-10 rounded-full bg-[#0B3D6B]/10 flex items-center justify-center text-[#0B3D6B] mb-2.5">
+                  <Icon name="building" size={20} />
+                </div>
+                <h4 class="text-sm font-bold text-slate-800 mb-1">Corporate Overview</h4>
+                <p class="text-xs text-slate-500 max-w-xs leading-relaxed">
+                  Jammu &amp; Kashmir State Power Development Corporation Limited. Featured gallery highlights can be curated via Media Gallery in Admin.
+                </p>
               </div>
-              <h4 class="text-xs font-bold text-slate-700 mb-1">No Active Tenders</h4>
-              <p class="text-[11px] text-slate-500 max-w-[200px] leading-relaxed">
-                There are currently no active procurement notices published.
-              </p>
+            )}
+
+            <!-- Card Footer -->
+            <div class="mt-auto px-5 py-3 border-t border-slate-200 bg-slate-50/50 flex items-center justify-between text-xs font-semibold text-[#0B3D6B]">
+              <a href="/about-us/explore/overview" class="hover:underline flex items-center gap-1">
+                <span>Read More</span>
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+              <a href="/media/gallery" class="hover:underline flex items-center gap-1.5 text-slate-600 hover:text-[#0B3D6B]">
+                <Icon name="camera" size={13} class="shrink-0" />
+                <span>Office Gallery &rarr;</span>
+              </a>
             </div>
-          )}
-          <div class="bg-slate-100/70 border-t border-slate-200/50 py-2.5 text-center text-xs font-bold flex-shrink-0">
-            <a href="/stakeholders/vendors/tender-bids" class="text-brand-primary hover:underline">View All Tenders &rarr;</a>
           </div>
-        </div>
-      </div>
 
-      <!-- RIGHT COLUMN: NOTIFICATIONS (30% width = 3 cols) -->
-      <div class="md:col-span-1 lg:col-span-3 flex flex-col">
-        <!-- Section Header -->
-        <div class="text-left mb-4 flex-shrink-0">
-          <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 border border-brand-primary-dark mb-2.5">Updates &amp; Notices</span>
-          <h2 id="notices-heading" class="text-lg xl:text-xl font-bold text-brand-text">Notifications</h2>
-          <div class="w-10 h-0.5 bg-sky-600/70 mt-2.5"></div>
-        </div>
+          <!-- COLUMN 2: TENDERS & BIDS -->
+          <div class="bg-white border border-slate-200 rounded-lg shadow-xs flex flex-col overflow-hidden h-full">
+            <!-- Card Header -->
+            <div class="px-5 py-3.5 border-b border-slate-200 bg-slate-50/70 flex items-center justify-between">
+              <div>
+                <span class="inline-block text-[11px] font-semibold tracking-wider uppercase text-[#0B3D6B]">PROCUREMENT</span>
+                <h2 id="tenders-heading" class="text-lg font-bold text-slate-900 leading-tight mt-0.5">Tenders</h2>
+              </div>
+            </div>
 
-        <!-- Notices Card Container -->
-        <div class="bg-white border border-slate-200 rounded-md overflow-hidden flex flex-col justify-between flex-grow h-[320px] shadow-xs">
-          {feedNotifications.length > 0 ? (
-            <div class="relative flex-grow overflow-hidden">
-              <div class="absolute left-0 right-0 top-0 h-4 bg-gradient-to-b from-[#ffffff] to-transparent z-10 pointer-events-none"></div>
-              <div class="absolute left-0 right-0 bottom-0 h-4 bg-gradient-to-t from-[#ffffff] to-transparent z-10 pointer-events-none"></div>
+            <!-- Fixed-Height Body (Marquee / List) -->
+            {feedTenders.length > 0 ? (
+              <div class="h-[300px] overflow-hidden relative px-4 py-2">
+                <div class="absolute left-0 right-0 top-0 h-4 bg-gradient-to-b from-white to-transparent z-10 pointer-events-none"></div>
+                <div class="absolute left-0 right-0 bottom-0 h-4 bg-gradient-to-t from-white to-transparent z-10 pointer-events-none"></div>
 
-              <div 
-                id="home-notifications-track" 
-                class={feedNotifications.length >= 4 ? "feed-scroll-track flex flex-col" : "flex flex-col"}
-                style={feedNotifications.length >= 4 ? `--scroll-duration: ${feedNotifications.length * 2.2}s;` : undefined}
-              >
-                {(feedNotifications.length >= 4 ? [1, 2] : [1]).map(() => (
-                  <>
-                    {feedNotifications.map((notif: any, index: number) => {
-                      const isNew = notif.isNew;
-                      const docUrl = getDocUrl(notif.documentUrl) || `/notifications`;
-                      return (
-                        <a 
-                          href={docUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          onclick="this.blur()"
-                          class="feed-row block px-4 py-2.5 border-b border-slate-200 transition-colors duration-150 text-left select-none group"
-                          style={index % 2 === 0 ? 'background-color: #FFFFFF;' : 'background-color: #F8FAFC;'}
-                        >
-                          <div class="flex items-center gap-2 mb-1 flex-wrap">
-                            <span class="text-xs text-brand-primary font-bold flex items-center gap-1">
-                              <Icon name="calendar" size={11} class="shrink-0" />
-                              <span>{formatRefDate(notif.publishDate)}</span>
-                            </span>
-                            {isNew && (
-                              <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold uppercase tracking-wide bg-[#D9381E] text-white shadow-xs">
-                                NEW
+                <div 
+                  id="home-tenders-track" 
+                  class={feedTenders.length >= 4 ? "feed-scroll-track flex flex-col" : "flex flex-col"}
+                  style={feedTenders.length >= 4 ? `--scroll-duration: ${feedTenders.length * 1}s;` : undefined}
+                >
+                  {(feedTenders.length >= 4 ? [1, 2] : [1]).map(() => (
+                    <>
+                      {feedTenders.map((tender: any) => {
+                        const isCorr = tender.isCorrigendum;
+                        const isNew = tender.isNew;
+                        const tenderDetailsUrl = `/stakeholders/vendors/tender-details?id=${tender.parentTenderId || tender.id}${isCorr && tender.id ? `#corrigendum-${tender.id}` : ''}`;
+                        return (
+                          <a 
+                            href={tenderDetailsUrl} 
+                            onclick="this.blur()"
+                            class="feed-row block border-b border-slate-100 py-3 last:border-b-0 transition-colors text-left select-none group"
+                          >
+                            <div class="flex items-center gap-2 mb-1 flex-wrap">
+                              <span class="text-[11px] font-medium text-slate-500 flex items-center gap-1">
+                                <Icon name="calendar" size={11} class="shrink-0 text-slate-400" />
+                                <span>{formatRefDate(tender.publishDate)}</span>
                               </span>
-                            )}
-                          </div>
-                          <h4 class="font-bold text-slate-800 text-xs leading-snug line-clamp-2 group-hover:text-brand-primary transition-colors">
-                            {notif.title}
-                          </h4>
-                        </a>
-                      );
-                    })}
-                  </>
-                ))}
+                              {isNew && (
+                                <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-bold uppercase tracking-wider bg-[#D9381E] text-white shadow-2xs">
+                                  NEW
+                                </span>
+                              )}
+                              {isCorr && (
+                                <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300">
+                                  Corrigendum
+                                </span>
+                              )}
+                              {tender.referenceNo && (
+                                <span class="text-[11px] text-slate-400 font-mono hidden sm:inline">
+                                  {tender.referenceNo}
+                                </span>
+                              )}
+                            </div>
+                            <h4 class="text-sm font-semibold text-slate-800 group-hover:text-[#0B3D6B] line-clamp-2 leading-snug transition-colors">
+                              {isCorr ? (tender.title && tender.title.toLowerCase().startsWith('corrigendum') ? `${tender.title}${tender.parentTitle ? ` — ${tender.parentTitle}` : ''}` : `Corrigendum: ${tender.title}${tender.parentTitle ? ` — ${tender.parentTitle}` : ''}`) : tender.title}
+                            </h4>
+                          </a>
+                        );
+                      })}
+                    </>
+                  ))}
+                </div>
               </div>
-            </div>
-          ) : (
-            <div class="flex-grow flex flex-col items-center justify-center p-6 text-center bg-slate-50/50">
-              <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-2">
-                <Icon name="bell" size={20} />
+            ) : (
+              <div class="h-[300px] flex flex-col items-center justify-center p-6 text-center bg-slate-50/50">
+                <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-2">
+                  <Icon name="file-text" size={20} />
+                </div>
+                <h4 class="text-xs font-bold text-slate-700 mb-1">No Active Tenders</h4>
+                <p class="text-[11px] text-slate-500 max-w-[200px] leading-relaxed">
+                  There are currently no active procurement notices published.
+                </p>
               </div>
-              <h4 class="text-xs font-bold text-slate-700 mb-1">No Notifications</h4>
-              <p class="text-[11px] text-slate-500 max-w-[200px] leading-relaxed">
-                There are currently no circulars or notices published.
-              </p>
+            )}
+
+            <!-- Card Footer -->
+            <div class="mt-auto px-5 py-3 border-t border-slate-200 bg-slate-50/50 flex items-center justify-between text-xs font-semibold text-[#0B3D6B]">
+              <a href="/stakeholders/vendors/tender-bids" class="hover:underline flex items-center gap-1">
+                <span>View All Tenders</span>
+                <span aria-hidden="true">&rarr;</span>
+              </a>
             </div>
-          )}
-          <div class="bg-slate-100/70 border-t border-slate-200/50 py-2.5 text-center text-xs font-bold flex-shrink-0">
-            <a href="/notifications" class="text-brand-primary hover:underline">View All Notifications &rarr;</a>
           </div>
+
+          <!-- COLUMN 3: NOTIFICATIONS -->
+          <div class="bg-white border border-slate-200 rounded-lg shadow-xs flex flex-col overflow-hidden h-full">
+            <!-- Card Header -->
+            <div class="px-5 py-3.5 border-b border-slate-200 bg-slate-50/70 flex items-center justify-between">
+              <div>
+                <span class="inline-block text-[11px] font-semibold tracking-wider uppercase text-[#0B3D6B]">UPDATES &amp; NOTICES</span>
+                <h2 id="notices-heading" class="text-lg font-bold text-slate-900 leading-tight mt-0.5">Notifications</h2>
+              </div>
+            </div>
+
+            <!-- Fixed-Height Body (Marquee / List) -->
+            {feedNotifications.length > 0 ? (
+              <div class="h-[300px] overflow-hidden relative px-4 py-2">
+                <div class="absolute left-0 right-0 top-0 h-4 bg-gradient-to-b from-white to-transparent z-10 pointer-events-none"></div>
+                <div class="absolute left-0 right-0 bottom-0 h-4 bg-gradient-to-t from-white to-transparent z-10 pointer-events-none"></div>
+
+                <div 
+                  id="home-notifications-track" 
+                  class={feedNotifications.length >= 4 ? "feed-scroll-track flex flex-col" : "flex flex-col"}
+                  style={feedNotifications.length >= 4 ? `--scroll-duration: ${feedNotifications.length * 2.2}s;` : undefined}
+                >
+                  {(feedNotifications.length >= 4 ? [1, 2] : [1]).map(() => (
+                    <>
+                      {feedNotifications.map((notif: any) => {
+                        const isNew = notif.isNew;
+                        const docUrl = getDocUrl(notif.documentUrl) || `/notifications`;
+                        return (
+                          <a 
+                            href={docUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            onclick="this.blur()"
+                            class="feed-row block border-b border-slate-100 py-3 last:border-b-0 transition-colors text-left select-none group"
+                          >
+                            <div class="flex items-center gap-2 mb-1 flex-wrap">
+                              <span class="text-[11px] font-medium text-slate-500 flex items-center gap-1">
+                                <Icon name="calendar" size={11} class="shrink-0 text-slate-400" />
+                                <span>{formatRefDate(notif.publishDate)}</span>
+                              </span>
+                              {isNew && (
+                                <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-bold uppercase tracking-wider bg-[#D9381E] text-white shadow-2xs">
+                                  NEW
+                                </span>
+                              )}
+                            </div>
+                            <h4 class="text-sm font-semibold text-slate-800 group-hover:text-[#0B3D6B] line-clamp-2 leading-snug transition-colors">
+                              {notif.title}
+                            </h4>
+                          </a>
+                        );
+                      })}
+                    </>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div class="h-[300px] flex flex-col items-center justify-center p-6 text-center bg-slate-50/50">
+                <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-2">
+                  <Icon name="bell" size={20} />
+                </div>
+                <h4 class="text-xs font-bold text-slate-700 mb-1">No Notifications</h4>
+                <p class="text-[11px] text-slate-500 max-w-[200px] leading-relaxed">
+                  There are currently no circulars or notices published.
+                </p>
+              </div>
+            )}
+
+            <!-- Card Footer -->
+            <div class="mt-auto px-5 py-3 border-t border-slate-200 bg-slate-50/50 flex items-center justify-between text-xs font-semibold text-[#0B3D6B]">
+              <a href="/notifications" class="hover:underline flex items-center gap-1">
+                <span>View All Notifications</span>
+                <span aria-hidden="true">&rarr;</span>
+              </a>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>
@@ -656,17 +664,17 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     <!-- ============================================================ -->
     <!-- HONORABLE DIGNITARIES (BOD) (FULL WIDTH BELOW UPDATES)        -->
     <!-- ============================================================ -->
-    <section id="dignitaries" aria-labelledby="dignitaries-heading" class="bg-slate-50 border-y border-slate-200 py-14 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+    <section id="dignitaries" aria-labelledby="dignitaries-heading" class="bg-white border-b border-slate-200 py-12 lg:py-16">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Section Header -->
-        <div class="text-left mb-2 flex-shrink-0">
+        <div class="text-left mb-8 flex-shrink-0">
           <span class="inline-block text-xs font-semibold tracking-wider uppercase text-[#0B3D6B]">LEADERSHIP &amp; GOVERNANCE</span>
           <h2 id="dignitaries-heading" class="text-2xl sm:text-3xl font-bold text-slate-900 mt-1">Honorable Dignitaries</h2>
           <div class="w-10 h-0.5 bg-[#0B3D6B] mt-2.5"></div>
         </div>
 
         <!-- Dignitaries Card Grid (Full Width, 4 cols) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 items-stretch mt-8 w-full">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 items-stretch w-full">
           {safeDignitaries.length === 0 ? (
             <div class="col-span-full text-center py-12 bg-white border border-slate-200 rounded-lg text-slate-500 text-sm font-medium">
               No dignitaries listed at the moment.
@@ -720,46 +728,71 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     <!-- ============================================================ -->
     <!-- ABOUT & PHOTO GALLERY MERGED SECTION                         -->
     <!-- ============================================================ -->
-    <section id="about" aria-labelledby="about-heading" class="text-left mt-8 bg-brand-bg-subtle -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-8 rounded-sm">
-      <!-- Section Header (Outside Card) -->
-      <div class="text-left mb-4 flex-shrink-0">
-        <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 border border-brand-primary-dark mb-2.5">Corporate Profile & Media</span>
-        <h2 id="about-heading" class="text-xl md:text-2xl font-bold text-brand-text">About Us & Photo Gallery</h2>
-        <div class="w-10 h-0.5 bg-sky-600/70 mt-2.5"></div>
-      </div>
+    <section id="about" aria-labelledby="about-heading" class="text-left bg-slate-50 border-b border-slate-200 py-12 lg:py-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Section Header -->
+        <div class="text-left mb-8 flex-shrink-0">
+          <span class="inline-block text-xs font-semibold tracking-wider uppercase text-[#0B3D6B]">Corporate Profile &amp; Media</span>
+          <h2 id="about-heading" class="text-2xl sm:text-3xl font-bold text-slate-900 mt-1">About Us &amp; Photo Gallery</h2>
+          <div class="w-10 h-0.5 bg-[#0B3D6B] mt-2.5"></div>
+        </div>
 
-      <!-- White Card Container -->
-      <div class="bg-white rounded-md shadow-xs border border-slate-200 overflow-hidden">
-        <div class="px-8 md:px-12 py-12 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+        <!-- 2-Column Side-by-Side Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
 
-          <!-- Left: Text Column (7 cols) -->
-          <div class="lg:col-span-7 flex flex-col justify-between h-full">
+          <!-- Left: Text Column (6 cols — Corporate Profile) -->
+          <div class="lg:col-span-6 flex flex-col justify-between h-full">
             <div>
-              <h3 class="text-2xl md:text-3xl font-bold leading-tight text-brand-primary-dark mb-6">Powering J&amp;K Since 1995</h3>
-              <div class="space-y-4 mb-8">
-                <p class="text-slate-600 text-[15px] leading-[1.65]">
+              <h3 class="text-xl sm:text-2xl font-bold text-slate-900 mb-3">Powering J&amp;K Since 1995</h3>
+              <div class="text-sm sm:text-[15px] text-slate-600 leading-relaxed space-y-3">
+                <p>
                   Jammu and Kashmir State Power Development Corporation Limited (JKSPDCL) is a wholly owned Public Sector Undertaking (PSU) of the Government of Jammu &amp; Kashmir, incorporated in 1995 under the Companies Act.
                 </p>
-                <p class="text-slate-600 text-[15px] leading-[1.65]">
-                  With an authorised share capital of Rs.&nbsp;5,000 crores, JKSPDC has investments of Rs.&nbsp;2,357.61 crores in joint ventures with NHPC — including CVPPPL and RHPCL — harnessing the vast hydroelectric potential of the region.
+                <p>
+                  With an authorised share capital of ₹5,000 crores, JKSPDC has investments of ₹2,357.61 crores in joint ventures with NHPC — including CVPPPL and RHPCL — harnessing the vast hydroelectric potential of the region.
                 </p>
+              </div>
+
+              <!-- Compact 3-stat strip -->
+              <div class="grid grid-cols-3 gap-3 my-6 pt-5 border-t border-slate-200">
+                <div>
+                  <div class="text-lg font-bold text-[#0B3D6B]">1995</div>
+                  <div class="text-[11px] font-medium uppercase tracking-wide text-slate-500 mt-0.5">Incorporated</div>
+                </div>
+                <div>
+                  <div class="text-lg font-bold text-[#0B3D6B]">₹5,000 Cr</div>
+                  <div class="text-[11px] font-medium uppercase tracking-wide text-slate-500 mt-0.5">Authorised Capital</div>
+                </div>
+                <div>
+                  <div class="text-lg font-bold text-[#0B3D6B]">₹2,357.61 Cr</div>
+                  <div class="text-[11px] font-medium uppercase tracking-wide text-slate-500 mt-0.5">JV Investments</div>
+                </div>
               </div>
             </div>
 
+            <!-- Action Buttons -->
             <div class="flex flex-wrap items-center gap-3">
-              <a href="/about-us/explore/overview" class="inline-flex items-center gap-2 bg-brand-primary-dark hover:bg-brand-primary text-white font-semibold px-6 py-2.5 rounded-md text-xs transition-all shadow-sm hover:shadow-md">
-                Learn More About Us &rarr;
+              <a 
+                href="/about-us/explore/overview" 
+                class="h-10 px-5 rounded-md text-sm font-semibold inline-flex items-center gap-2 transition-colors bg-[#0B3D6B] text-white hover:bg-[#082E52] shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3D6B]"
+              >
+                <span>Learn More About Us</span>
+                <span aria-hidden="true">&rarr;</span>
               </a>
-              <a href="/media/gallery" class="inline-flex items-center gap-2 border border-slate-200 hover:border-brand-primary text-slate-600 hover:text-brand-primary hover:bg-slate-50 font-semibold px-6 py-2.5 rounded-md text-xs transition-all bg-white shadow-sm">
-                Explore Full Gallery &raquo;
+              <a 
+                href="/media/gallery" 
+                class="h-10 px-5 rounded-md text-sm font-semibold inline-flex items-center gap-2 transition-colors bg-white text-[#0B3D6B] border border-[#0B3D6B] hover:bg-slate-50 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3D6B]"
+              >
+                <span>Explore Full Gallery</span>
+                <span aria-hidden="true">&rarr;</span>
               </a>
             </div>
           </div>
 
-          <!-- Right: Project Photographs Carousel Column (5 cols) -->
-          <div class="lg:col-span-5 flex flex-col justify-center w-full">
+          <!-- Right: Project Photographs Carousel Column (6 cols — Framed Photo Gallery Slider) -->
+          <div class="lg:col-span-6 flex flex-col justify-center w-full">
             {displayProjectPhotos.length > 0 ? (
-              <div class="relative w-full aspect-[4/3] rounded-md overflow-hidden shadow-md border border-slate-200 bg-[#F4F8FB] group" id="project-carousel-container">
+              <div class="relative w-full aspect-[16/10] rounded-lg overflow-hidden shadow-xs border border-slate-200 bg-slate-100 group" id="project-carousel-container">
                 <!-- Carousel Track -->
                 <div class="absolute inset-0" id="project-slides">
                   {displayProjectPhotos.map((photo: any, index: number) => (
@@ -771,22 +804,22 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                         loading={index === 0 ? 'eager' : 'lazy'}
                       />
                       <!-- Overlay Caption -->
-                      <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent flex flex-col justify-end p-5 z-10">
-                        <div class="flex items-center gap-2 mb-2 flex-wrap">
-                          <span class="inline-block text-xs font-bold uppercase bg-brand-primary text-white px-2.5 py-0.5 tracking-wider shadow-sm">
+                      <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/30 to-transparent flex flex-col justify-end p-4 pb-10 z-10">
+                        <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+                          <span class="inline-block text-[10px] font-bold uppercase bg-[#0B3D6B] text-white px-2 py-0.5 tracking-wider rounded-sm">
                             {photo.partition || 'Hydroelectric Project'}
                           </span>
                           {photo.capacity && (
-                            <span class="inline-block text-xs font-bold uppercase bg-black/55 text-white/90 px-2 py-0.5 tracking-[0.12em] border-l-2 border-brand-accent shadow-sm">
+                            <span class="inline-block text-[10px] font-bold uppercase bg-black/60 text-white px-2 py-0.5 tracking-wider border-l-2 border-[#0EA4E5] rounded-sm">
                               {photo.capacity}
                             </span>
                           )}
                         </div>
-                        <h4 class="text-white text-xs md:text-sm font-bold leading-snug tracking-wide line-clamp-2" style="text-shadow: 0 1px 4px rgba(0,0,0,0.5);">
+                        <h4 class="text-white text-xs sm:text-sm font-bold leading-snug tracking-wide line-clamp-1" style="text-shadow: 0 1px 3px rgba(0,0,0,0.6);">
                           {photo.title}
                         </h4>
                         {photo.location && (
-                          <p class="text-white/80 text-xs mt-1 font-semibold flex items-center gap-1">
+                          <p class="text-white/80 text-[11px] mt-0.5 font-medium flex items-center gap-1">
                             <Icon name="map-pin" size={11} class="shrink-0 text-white/90" />
                             <span>{photo.location}</span>
                           </p>
@@ -799,8 +832,8 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                 {displayProjectPhotos.length > 1 && (
                   <>
                     <!-- Controls -->
-                    <button id="project-prev" class="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/45 text-white flex items-center justify-center hover:bg-black/60 transition text-sm font-bold shadow-sm focus-visible:outline-none" aria-label="Previous image">&#8249;</button>
-                    <button id="project-next" class="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/45 text-white flex items-center justify-center hover:bg-black/60 transition text-sm font-bold shadow-sm focus-visible:outline-none" aria-label="Next image">&#8250;</button>
+                    <button id="project-prev" class="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/45 text-white flex items-center justify-center hover:bg-black/65 transition text-sm font-bold shadow-xs focus-visible:outline-none" aria-label="Previous image">&#8249;</button>
+                    <button id="project-next" class="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/45 text-white flex items-center justify-center hover:bg-black/65 transition text-sm font-bold shadow-xs focus-visible:outline-none" aria-label="Next image">&#8250;</button>
 
                     <!-- Indicators (Dots) -->
                     <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20">
@@ -812,9 +845,9 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                 )}
               </div>
             ) : (
-              <div class="relative w-full aspect-[4/3] rounded-md overflow-hidden border border-slate-200 bg-gradient-to-br from-[#F4F8FB] to-[#E9F2F9] flex flex-col items-center justify-center p-6 text-center">
-                <div class="w-12 h-12 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary mb-3">
-                  <Icon name="image" size={24} />
+              <div class="relative w-full aspect-[16/10] rounded-lg overflow-hidden border border-slate-200 bg-slate-100 flex flex-col items-center justify-center p-6 text-center">
+                <div class="w-10 h-10 rounded-full bg-[#0B3D6B]/10 flex items-center justify-center text-[#0B3D6B] mb-2.5">
+                  <Icon name="image" size={20} />
                 </div>
                 <h4 class="text-sm font-bold text-slate-800 mb-1">Project Photographs</h4>
                 <p class="text-xs text-slate-500 max-w-xs leading-relaxed">
@@ -828,14 +861,14 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
       </div>
     </section>
 
-    <section id="projects" aria-labelledby="projects-heading" class="text-left bg-slate-100/80 border-y border-slate-200 py-16 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+    <section id="projects" aria-labelledby="projects-heading" class="text-left bg-white border-b border-slate-200 py-12 lg:py-16">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header + Summary Counts Row -->
         <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-8">
           <div>
-            <span class="inline-block text-xs uppercase tracking-[0.12em] text-brand-primary-dark font-bold bg-transparent px-3 py-1 border border-brand-primary-dark mb-2.5">Project Portfolio</span>
-            <h2 id="projects-heading" class="text-2xl md:text-3xl font-bold text-brand-text">Project Portfolio</h2>
-            <div class="w-10 h-0.5 bg-brand-primary mt-2.5 mb-2"></div>
+            <span class="inline-block text-xs font-semibold tracking-wider uppercase text-[#0B3D6B]">PROJECT PORTFOLIO</span>
+            <h2 id="projects-heading" class="text-2xl sm:text-3xl font-bold text-slate-900 mt-1">Project Portfolio</h2>
+            <div class="w-10 h-0.5 bg-[#0B3D6B] mt-2.5 mb-2"></div>
             <p class="text-sm text-slate-500 max-w-xl leading-relaxed">
               Discover operational hydroelectric plants, ongoing constructions and upcoming renewable projects across J&K.
             </p>
@@ -851,14 +884,14 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
 
         <!-- Filters + Search Row -->
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-          <div class="inline-flex w-fit flex-wrap items-center gap-1 rounded-lg bg-slate-200/80 p-1" role="tablist" aria-label="Project Categories">
+          <div class="inline-flex w-full sm:w-fit overflow-x-auto flex-nowrap items-center gap-1 rounded-lg bg-slate-200/80 p-1" role="tablist" aria-label="Project Categories">
             {['All', 'Operational', 'Under Construction', 'Upcoming'].map((tab) => (
               <button 
                 type="button" 
                 role="tab" 
                 aria-selected={tab === 'All' ? 'true' : 'false'} 
                 data-tab={tab} 
-                class={`project-tab px-3.5 py-2 text-sm font-semibold whitespace-nowrap transition-all rounded-md ${tab === 'All' ? 'bg-[#0B3D6B] text-white shadow-xs' : 'text-slate-700 hover:text-slate-900 hover:bg-white/60'}`}
+                class={`project-tab px-3.5 py-2 text-sm font-semibold whitespace-nowrap transition-all rounded-md shrink-0 ${tab === 'All' ? 'bg-[#0B3D6B] text-white shadow-xs' : 'text-slate-700 hover:text-slate-900 hover:bg-white/60'}`}
               >
                 {tab === 'All' ? 'All Projects' : tab}
               </button>
@@ -1017,10 +1050,10 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     <!-- ============================================================ -->
     <!-- QUICK ACCESS GRID                                             -->
     <!-- ============================================================ -->
-    <section aria-labelledby="quick-access-heading" class="text-left bg-white border-t border-slate-200 py-12 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+    <section aria-labelledby="quick-access-heading" class="text-left bg-slate-50 border-b border-slate-200 py-12 lg:py-16">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Section Header -->
-        <div class="text-left mb-2 flex-shrink-0">
+        <div class="text-left mb-8 flex-shrink-0">
           <span class="inline-block text-xs font-semibold tracking-wider uppercase text-[#0B3D6B]">QUICK ACCESS</span>
           <h2 id="quick-access-heading" class="text-2xl sm:text-3xl font-bold text-slate-900 mt-1">Navigate the Corporation</h2>
           <div class="w-10 h-0.5 bg-[#0B3D6B] mt-2.5"></div>
@@ -1028,7 +1061,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
         </div>
 
         <!-- 10-Item 5-Column Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mt-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
           {quickLinks.map((link) => (
             <a 
               href={link.href} 
@@ -1051,17 +1084,17 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     <!-- ============================================================ -->
     <!-- QUICK LINKS LOGO DIRECTORY SECTION                            -->
     <!-- ============================================================ -->
-    <section id="quick-links-section" aria-labelledby="marquee-heading" class="text-left bg-slate-50 border-t border-slate-200 py-10 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+    <section id="quick-links-section" aria-labelledby="marquee-heading" class="text-left bg-white border-b border-slate-200 py-12 lg:py-16">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Section Header -->
-        <div class="text-left mb-2 flex-shrink-0">
+        <div class="text-left mb-8 flex-shrink-0">
           <span class="inline-block text-xs font-semibold tracking-wider uppercase text-[#0B3D6B]">GOVERNMENT &amp; REGULATORY PORTALS</span>
           <h2 id="marquee-heading" class="text-2xl sm:text-3xl font-bold text-slate-900 mt-1">Important Quick Links</h2>
           <div class="w-10 h-0.5 bg-[#0B3D6B] mt-2.5"></div>
         </div>
 
         <!-- Uniform 4-Column Government Portal Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mt-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {[
             { name: "Central Electricity Authority", domain: "cea.nic.in", href: "https://cea.nic.in/", logo: "/logos/cea.webp" },
             { name: "Ministry of Environment & Forests", domain: "moef.gov.in", href: "https://moef.gov.in/", logo: "/logos/moef.png" },
@@ -1120,15 +1153,43 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     if (!heroIndicators || heroIndicators.length === 0) return;
     heroIndicators.forEach(function (ind, idx) {
       if (idx === activeIndex) {
-        ind.classList.remove('w-4', 'sm:w-5', 'bg-white/40', 'hover:bg-white/70');
-        ind.classList.add('w-8', 'sm:w-10', 'bg-[#0EA4E5]');
+        ind.classList.remove('w-3.5', 'bg-white/60', 'hover:bg-white', 'shadow-xs');
+        ind.classList.add('w-8', 'bg-white', 'ring-1', 'ring-[#0B3D6B]/50', 'shadow-sm');
         ind.setAttribute('aria-current', 'true');
       } else {
-        ind.classList.remove('w-8', 'sm:w-10', 'bg-[#0EA4E5]');
-        ind.classList.add('w-4', 'sm:w-5', 'bg-white/40', 'hover:bg-white/70');
+        ind.classList.remove('w-8', 'bg-white', 'ring-1', 'ring-[#0B3D6B]/50', 'shadow-sm');
+        ind.classList.add('w-3.5', 'bg-white/60', 'hover:bg-white', 'shadow-xs');
         ind.removeAttribute('aria-current');
       }
     });
+  }
+
+  var heroCaptionTitle = document.getElementById('hero-caption-title');
+  var heroCaptionDesc = document.getElementById('hero-caption-desc');
+  var heroCaptionCta = document.getElementById('hero-caption-cta');
+  var heroCaptionCtaText = document.getElementById('hero-caption-cta-text');
+
+  function updateCaptionBar(index) {
+    var activeSlide = slideEls[index];
+    if (!activeSlide) return;
+
+    var title = activeSlide.getAttribute('data-slide-title') || '';
+    var desc = activeSlide.getAttribute('data-slide-desc') || '';
+    var ctaHref = activeSlide.getAttribute('data-slide-cta-href') || '';
+    var ctaText = activeSlide.getAttribute('data-slide-cta-text') || 'Explore Details';
+
+    if (heroCaptionTitle) heroCaptionTitle.textContent = title;
+    if (heroCaptionDesc) heroCaptionDesc.textContent = desc;
+
+    if (heroCaptionCta) {
+      if (ctaHref) {
+        heroCaptionCta.setAttribute('href', ctaHref);
+        heroCaptionCta.classList.remove('hidden');
+        if (heroCaptionCtaText) heroCaptionCtaText.textContent = ctaText;
+      } else {
+        heroCaptionCta.classList.add('hidden');
+      }
+    }
   }
 
   function goTo(n) {
@@ -1153,6 +1214,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     }
 
     updateIndicators(cur);
+    updateCaptionBar(cur);
   }
 
   function stopHeroTimer() {
@@ -1351,17 +1413,41 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
       return activeTab === 'All' || c.dataset.status === activeTab;
     });
 
-    // Zero records in category (e.g. Under Construction)
-    if (categoryCards.length === 0) {
+    // Zero records in category: only show category-specific empty state if projects exist overall
+    // AND the user actively selected a specific category tab that has 0 matching items (e.g. Under Construction).
+    // If all projects count (cards.length) is 0, keep emptyCategoryEl hidden so ONLY the main empty state shows.
+    if (cards.length > 0 && categoryCards.length === 0) {
       if (projectsGrid) projectsGrid.style.display = 'none';
-      if (emptyCategoryEl) emptyCategoryEl.style.display = 'block';
-      if (emptySearchEl) emptySearchEl.style.display = 'none';
+      if (emptyCategoryEl) {
+        emptyCategoryEl.classList.remove('hidden');
+        emptyCategoryEl.style.display = 'block';
+      }
+      if (emptySearchEl) {
+        emptySearchEl.classList.add('hidden');
+        emptySearchEl.style.display = 'none';
+      }
       if (projectFooterBar) projectFooterBar.style.display = 'none';
       cards.forEach(function(c) { c.style.display = 'none'; });
       return;
     }
 
-    if (emptyCategoryEl) emptyCategoryEl.style.display = 'none';
+    if (emptyCategoryEl) {
+      emptyCategoryEl.classList.add('hidden');
+      emptyCategoryEl.style.display = 'none';
+    }
+
+    // If total projects are 0, do nothing further to prevent interfering with main empty state
+    if (cards.length === 0) {
+      if (emptyCategoryEl) {
+        emptyCategoryEl.classList.add('hidden');
+        emptyCategoryEl.style.display = 'none';
+      }
+      if (emptySearchEl) {
+        emptySearchEl.classList.add('hidden');
+        emptySearchEl.style.display = 'none';
+      }
+      return;
+    }
 
     // Match with search query if typed
     var matchedCards = categoryCards.filter(function(c) {

@@ -292,9 +292,32 @@ export class PublicApiService {
   async getGallery(projectId?: string) {
     const where: any = { status: { in: ['Active', 'Archived'] } };
     if (projectId) where.projectId = projectId;
-    return this.prisma.galleryItem.findMany({
+    const items = await this.prisma.galleryItem.findMany({
       where,
+      include: {
+        images: {
+          orderBy: { displayOrder: 'asc' },
+        },
+      },
       orderBy: [{ displayOrder: 'asc' }, { createdAt: 'desc' }],
+    });
+
+    return items.map((item: any) => {
+      const childImages = Array.isArray(item.images) ? item.images : [];
+      const images = childImages.length > 0 
+        ? childImages.map((img: any) => ({
+            id: img.id,
+            imageUrl: img.imageUrl,
+            caption: img.caption || null,
+            displayOrder: img.displayOrder || 0,
+          }))
+        : (item.imageUrl ? [{ id: `cover-${item.id}`, imageUrl: item.imageUrl, caption: null, displayOrder: 0 }] : []);
+
+      return {
+        ...item,
+        images,
+        imageCount: images.length,
+      };
     });
   }
 }

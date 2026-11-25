@@ -1,15 +1,25 @@
-import { IsString, IsOptional, MinLength, IsInt, ValidateIf } from 'class-validator';
+import { IsString, IsOptional, MinLength, IsInt, ValidateIf, IsArray, IsIn } from 'class-validator';
+
+export const GALLERY_CATEGORIES = ['Official Events', 'Corporate', 'Projects', 'General'] as const;
+export type GalleryCategory = (typeof GALLERY_CATEGORIES)[number];
 
 export class CreateGalleryItemDto {
   @IsString()
   @MinLength(1, { message: 'Title is required' })
   title!: string;
 
+  @IsOptional()
   @IsString()
-  imageUrl!: string;
+  imageUrl?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  images?: string[];
 
   @IsOptional()
   @IsString()
+  @IsIn(GALLERY_CATEGORIES, { message: 'Category must be one of: Official Events, Corporate, Projects, General' })
   partition?: string;
 
   @IsOptional()
@@ -42,11 +52,17 @@ export class UpdateGalleryItemDto {
   imageUrl?: string;
 
   @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  images?: string[];
+
+  @IsOptional()
   @IsString()
   status?: string;
 
   @IsOptional()
   @IsString()
+  @IsIn(GALLERY_CATEGORIES, { message: 'Category must be one of: Official Events, Corporate, Projects, General' })
   partition?: string;
 
   @IsOptional()
@@ -63,3 +79,4 @@ export class UpdateGalleryItemDto {
   @IsInt()
   displayOrder?: number;
 }
+
