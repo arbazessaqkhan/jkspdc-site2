@@ -1,4 +1,15 @@
-﻿-- CreateTable
+-- Ensure GalleryItem has all columns required by schema.prisma (for DBs initialized from baseline_postgres)
+ALTER TABLE "public"."GalleryItem"
+    ADD COLUMN IF NOT EXISTS "status" TEXT NOT NULL DEFAULT 'Active',
+    ADD COLUMN IF NOT EXISTS "projectId" TEXT,
+    ADD COLUMN IF NOT EXISTS "projectName" TEXT,
+    ADD COLUMN IF NOT EXISTS "displayOrder" INTEGER NOT NULL DEFAULT 0;
+
+ALTER TABLE "public"."GalleryItem"
+    ALTER COLUMN "partition" DROP NOT NULL,
+    ALTER COLUMN "partition" SET DEFAULT 'General';
+
+-- CreateTable
 CREATE TABLE IF NOT EXISTS "public"."GalleryImage" (
     "id" TEXT NOT NULL,
     "galleryItemId" TEXT NOT NULL,
