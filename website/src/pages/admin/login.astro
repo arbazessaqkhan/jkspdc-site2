@@ -318,38 +318,88 @@ const currentYear = new Date().getFullYear();
     </div>
 
     <!-- Login Content -->
-    <main id="main-login-content" class="flex-grow flex items-center justify-center px-4 py-12" tabindex="-1">
-      <div class="w-full max-w-lg bg-white rounded-2xl border border-slate-200 shadow-xl p-8 sm:p-10 flex flex-col gap-6 relative overflow-hidden">
+    <main id="main-login-content" class="flex-grow flex items-center justify-center px-4 py-8 sm:py-12" tabindex="-1">
+      <div class="w-full max-w-4xl bg-white rounded-2xl border border-slate-200/90 shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 relative">
 
-        <!-- Brand accent line -->
-        <div class="admin-accent-line absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#0B3B60] via-[#0D7A87] to-[#0B3B60]"></div>
+        <!-- Left Institutional Security Panel (Desktop) -->
+        <aside class="hidden lg:flex lg:col-span-5 bg-gradient-to-br from-[#002B49] via-[#0B3B60] to-[#0E4976] text-white p-8 flex-col justify-between relative overflow-hidden">
+          <div class="relative z-10">
+            <div class="inline-flex items-center gap-3 bg-white/95 p-2.5 rounded-xl shadow-md mb-6">
+              <img src="/logo.png" alt="JKSPDC Logo" class="h-11 w-auto object-contain" />
+            </div>
+            <span class="inline-block text-[10px] font-bold uppercase tracking-[0.18em] text-[#52B5E8] mb-2">
+              Enterprise Operations Portal
+            </span>
+            <h2 class="text-xl font-extrabold leading-snug tracking-tight text-white">
+              Jammu &amp; Kashmir State Power Development Corporation Ltd.
+            </h2>
+            <p class="text-xs text-slate-200/90 mt-2.5 leading-relaxed">
+              Authorized administrative gateway for power station monitoring, e-procurement tenders, statutory disclosures, and portal governance.
+            </p>
+          </div>
 
-        <!-- Header -->
-        <div class="text-center flex flex-col items-center gap-2">
-          <img src="/logo.png" alt="JKSPDC Logo" class="h-16 w-auto object-contain mb-1" />
-          <h1 class="text-xl sm:text-2xl font-extrabold text-[color:var(--adm-primary-dark)] tracking-tight">
-            {step === 'mfa-verify'
-              ? 'Multi-Factor Verification'
-              : step === 'mfa-enroll-auth'
-              ? 'Enrolment Authorization'
-              : step === 'mfa-setup'
-              ? 'Enrol Authenticator App'
-              : step === 'mfa-recovery-codes'
-              ? 'Security Recovery Codes'
-              : 'Administrative Sign In'}
-          </h1>
-          <p class="text-xs text-slate-500 font-medium max-w-xs">
-            {step === 'mfa-verify'
-              ? 'Enter the one-time passcode from your authenticator application to verify your identity.'
-              : step === 'mfa-enroll-auth'
-              ? 'Enter the single-use enrolment code issued by your JKSPDC System Administrator to initialize MFA registration.'
-              : step === 'mfa-setup'
-              ? 'Scan the QR code with your authenticator app (Google Authenticator, Microsoft Authenticator).'
-              : step === 'mfa-recovery-codes'
-              ? 'Save these single-use recovery codes in a secure location. They allow access if you lose your phone.'
-              : 'Jammu & Kashmir State Power Development Corporation Limited (JKSPDCL)'}
-          </p>
-        </div>
+          <div class="relative z-10 space-y-2.5 pt-6 border-t border-white/15 text-xs">
+            <div class="flex items-center gap-2.5 text-slate-100">
+              <span class="w-7 h-7 rounded-lg bg-white/10 border border-white/15 flex items-center justify-center shrink-0">
+                <Icon name="shield-check" size={14} class="text-[#52B5E8]" />
+              </span>
+              <div>
+                <p class="font-bold leading-tight">Mandatory TOTP MFA</p>
+                <p class="text-[11px] text-slate-300">Hardware/app 2FA enforced for admins</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2.5 text-slate-100">
+              <span class="w-7 h-7 rounded-lg bg-white/10 border border-white/15 flex items-center justify-center shrink-0">
+                <Icon name="clock" size={14} class="text-[#52B5E8]" />
+              </span>
+              <div>
+                <p class="font-bold leading-tight">30-Minute Session Cap</p>
+                <p class="text-[11px] text-slate-300">Automatic timeout &amp; httpOnly cookies</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2.5 text-slate-100">
+              <span class="w-7 h-7 rounded-lg bg-white/10 border border-white/15 flex items-center justify-center shrink-0">
+                <Icon name="scroll-text" size={14} class="text-[#52B5E8]" />
+              </span>
+              <div>
+                <p class="font-bold leading-tight">Full Audit Trail</p>
+                <p class="text-[11px] text-slate-300">All actions logged under GIGW 3.0</p>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Right Authentication Panel -->
+        <div class="lg:col-span-7 p-7 sm:p-10 flex flex-col justify-center gap-6 relative">
+          <!-- Mobile-only top accent -->
+          <div class="lg:hidden absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#0B3B60] via-[#0EA4E5] to-[#0B3B60]"></div>
+
+          <!-- Header -->
+          <div class="text-center lg:text-left flex flex-col items-center lg:items-start gap-1.5">
+            <img src="/logo.png" alt="JKSPDC Logo" class="h-14 w-auto object-contain mb-1 lg:hidden" />
+            <h1 class="text-xl sm:text-2xl font-extrabold text-[color:var(--adm-primary-dark)] tracking-tight">
+              {step === 'mfa-verify'
+                ? 'Multi-Factor Verification'
+                : step === 'mfa-enroll-auth'
+                ? 'Enrolment Authorization'
+                : step === 'mfa-setup'
+                ? 'Enrol Authenticator App'
+                : step === 'mfa-recovery-codes'
+                ? 'Security Recovery Codes'
+                : 'Administrative Sign In'}
+            </h1>
+            <p class="text-xs text-slate-500 font-medium max-w-md">
+              {step === 'mfa-verify'
+                ? 'Enter the one-time passcode from your authenticator application to verify your identity.'
+                : step === 'mfa-enroll-auth'
+                ? 'Enter the single-use enrolment code issued by your JKSPDC System Administrator to initialize MFA registration.'
+                : step === 'mfa-setup'
+                ? 'Scan the QR code with your authenticator app (Google Authenticator, Microsoft Authenticator).'
+                : step === 'mfa-recovery-codes'
+                ? 'Save these single-use recovery codes in a secure location. They allow access if you lose your phone.'
+                : 'Sign in with your official JKSPDCL credentials to access the Admin Console.'}
+            </p>
+          </div>
 
         <!-- Onboarding Step Progress (Shown during initial MFA setup) -->
         {(step === 'mfa-enroll-auth' || step === 'mfa-setup' || step === 'mfa-recovery-codes') && (
@@ -396,23 +446,33 @@ const currentYear = new Date().getFullYear();
 
             <div class="flex flex-col gap-1.5">
               <label for="password" class="text-xs font-bold text-slate-700">Password <span class="text-red-500">*</span></label>
-              <input
-                type="password"
-                name="password"
-                id="password"
-                placeholder="••••••••••••"
-                class="form-input text-xs w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 focus:bg-white focus:ring-2 focus:ring-focus focus:border-[#0B3B60] outline-none"
-                required
-                autocomplete="current-password"
-              />
+              <div class="relative">
+                <input
+                  type="password"
+                  name="password"
+                  id="password"
+                  placeholder="••••••••••••"
+                  class="form-input text-xs w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 pr-16 text-slate-800 focus:bg-white focus:ring-2 focus:ring-focus focus:border-[#0B3B60] outline-none"
+                  required
+                  autocomplete="current-password"
+                />
+                <button
+                  type="button"
+                  id="toggle-password-vis"
+                  class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[11px] font-bold text-slate-500 hover:text-[#0B3B60] px-1.5 py-0.5 rounded cursor-pointer"
+                  aria-label="Show password"
+                >
+                  Show
+                </button>
+              </div>
             </div>
 
             <button
               type="submit"
-              class="w-full py-3 px-4 bg-[#0B3B60] hover:bg-[#0EA4E5] text-white rounded-lg text-xs font-bold transition-colors shadow-md mt-2 cursor-pointer flex items-center justify-center gap-2"
+              class="w-full py-3 px-4 bg-[#0B3B60] hover:bg-[#002B49] text-white rounded-lg text-xs font-bold transition-colors shadow-md mt-2 cursor-pointer flex items-center justify-center gap-2"
             >
               <Icon name="lock" size={14} />
-              <span>Verify Password</span>
+              <span>Sign In &amp; Continue</span>
             </button>
           </form>
         )}
@@ -675,6 +735,7 @@ const currentYear = new Date().getFullYear();
             &larr; Back to Public Citizen Portal
           </a>
         </div>
+        </div>
       </div>
     </main>
 
@@ -688,6 +749,16 @@ const currentYear = new Date().getFullYear();
     <!-- Client-side script for dynamic UI toggles & code copying -->
     <script is:inline define:vars={{ recoveryCodes }}>
       (function() {
+        var pwInput = document.getElementById('password');
+        var pwToggle = document.getElementById('toggle-password-vis');
+        if (pwInput && pwToggle) {
+          pwToggle.addEventListener('click', function() {
+            var isPw = pwInput.type === 'password';
+            pwInput.type = isPw ? 'text' : 'password';
+            pwToggle.textContent = isPw ? 'Hide' : 'Show';
+            pwToggle.setAttribute('aria-label', isPw ? 'Hide password' : 'Show password');
+          });
+        }
         var verifyForm = document.getElementById('mfa-verify-form');
         var recoveryForm = document.getElementById('mfa-recovery-form');
         var btnSwitchToRecovery = document.getElementById('btn-switch-to-recovery');

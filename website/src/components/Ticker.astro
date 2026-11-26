@@ -107,7 +107,7 @@ try {
       type,
       title: t.title,
       referenceNo: t.referenceNo ?? null,
-      url: `/stakeholders/vendors/tender-details?id=${t.id}`,
+      url: t.documentUrl ? resolveDocUrl(t.documentUrl) : `/stakeholders/vendors/tender-details?id=${t.id}`,
       publishDate: pubDate,
       closingDate: toDate(t.closingDate),
       fileFormat: t.fileFormat || detectFormat(t.documentUrl),
@@ -126,13 +126,14 @@ try {
       if (!corr || typeof corr !== 'object') continue;
       const corrId = corr.id ?? `${t.id}-${i}`;
       const corrPubDate = toDate(corr.publishDate) ?? toDate(corr.createdAt) ?? toDate(corr.uploadedAt) ?? tenderPubDate;
+      const corrDocUrl = corr.documentUrl || t.documentUrl;
 
       records.push({
         key: `corrigendum-${t.id}-${corrId}`,
         type: 'Corrigendum',
         title: corr.title || `Corrigendum to ${t.title}`,
         referenceNo: t.referenceNo ?? null,
-        url: `/stakeholders/vendors/tender-details?id=${t.id}#corrigendum-${corrId}`,
+        url: corrDocUrl ? resolveDocUrl(corrDocUrl) : `/stakeholders/vendors/tender-details?id=${t.id}#corrigendum-${corrId}`,
         publishDate: corrPubDate,
         closingDate: toDate(corr.extendedClosingDate) ?? toDate(t.closingDate),
         fileFormat: corr.fileFormat || detectFormat(corr.documentUrl) || t.fileFormat || detectFormat(t.documentUrl),
@@ -206,8 +207,8 @@ const tickerItems = records
                 </strong>
                 <a
                   href={item.url}
-                  target={item.url.startsWith('http') ? '_blank' : undefined}
-                  rel={item.url.startsWith('http') ? 'noopener noreferrer' : undefined}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   tabindex={groupIndex > 0 ? -1 : undefined}
                   class="text-[12.5px] font-medium text-white/95 transition-colors hover:text-white hover:underline focus-visible:text-white focus-visible:underline"
                 >

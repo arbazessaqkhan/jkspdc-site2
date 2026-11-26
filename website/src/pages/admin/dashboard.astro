@@ -40,32 +40,56 @@ async function fetchJson<T>(url: string, options?: RequestInit): Promise<T | nul
   }
 }
 
+interface SystemTelemetry {
+  uptimeSeconds: number;
+  memoryMb: number;
+  dbConnected: boolean;
+  dbLatencyMs: number;
+  totalUsers: number;
+  mfaEnabledUsers: number;
+  auditEvents24h: number;
+  serverTime: string;
+}
+
 interface Summary {
-  kpis: { operationalProjects: number; openTenders: number; pendingApplications: number };
+  kpis: {
+    operationalProjects: number;
+    openTenders: number;
+    pendingApplications: number;
+    totalCapacityMw?: number;
+    deltas: {
+      operationalProjects: number;
+      openTenders: number;
+      pendingApplications: number;
+    };
+  };
   projectStages: { operational: number; underConstruction: number; upcoming: number };
   tenderPipeline: {
     open: number; closingSoon: number; closed: number;
     nearestClosing: { id: string; title: string; referenceNo: string; closingDate: string | null } | null;
   };
   activitySeries: { date: string; count: number }[];
+  system?: SystemTelemetry;
 }
 
 let summary: Summary | null = null;
 let errorMessage = '';
+let initialLatencyMs = 0;
 
-// Raw data for actionable panels
 let activeTenders: { id: string; referenceNo: string; title: string; closingDate: string | null }[] = [];
 let pendingApplications: { id: string; name: string; email: string; createdAt: string }[] = [];
-interface AuditItem { action: string; details: string | null; createdAt: string; user?: { name?: string } | null }
+interface AuditItem { action: string; details: string | null; createdAt: string; }
 let recentActivity: AuditItem[] = [];
 
 if (userIsAdmin) {
+  const start = performance.now();
   const [summaryRes, tendersRes, submissionsRes, logsRes] = await Promise.all([
     fetchJson<Summary>(`${BACKEND_URL}/api/dashboard-summary`, { headers: { Authorization: `Bearer ${sessionToken}` } }),
-    fetchJson<unknown>(`${BACKEND_URL}/api/tenders?status=Active&pageSize=50`, { headers: { Authorization: `Bearer ${sessionToken}` } }),
-    fetchJson<unknown>(`${BACKEND_URL}/api/contact?pageSize=50`, { headers: { Authorization: `Bearer ${sessionToken}` } }),
+    fetchJson<unknown>(`${BACKEND_URL}/api/tenders?status=Active&pageSize=25`, { headers: { Authorization: `Bearer ${sessionToken}` } }),
+    fetchJson<unknown>(`${BACKEND_URL}/api/contact?pageSize=15`, { headers: { Authorization: `Bearer ${sessionToken}` } }),
     fetchJson<unknown>(`${BACKEND_URL}/api/audit-logs?pageSize=20`, { headers: { Authorization: `Bearer ${sessionToken}` } }),
   ]);
+  initialLatencyMs = Math.max(1, Math.round(performance.now() - start));
   summary = summaryRes;
   if (!summary) {
     errorMessage = 'Could not load dashboard metrics. Ensure the backend REST service is online.';
@@ -73,9 +97,9 @@ if (userIsAdmin) {
   activeTenders = asArray<{ id: string; referenceNo?: string; title?: string; closingDate?: string | null }>(tendersRes)
     .filter((t) => !t.closingDate || new Date(t.closingDate).getTime() > Date.now())
     .sort((a, b) => new Date(a.closingDate || '2999-12-31').getTime() - new Date(b.closingDate || '2999-12-31').getTime())
-    .slice(0, 5) as typeof activeTenders;
-  pendingApplications = asArray<{ id: string; name?: string; email?: string; createdAt?: string }>(submissionsRes).slice(0, 5) as typeof pendingApplications;
-  recentActivity = asArray<{ action?: string; details?: string | null; createdAt?: string }>(logsRes).slice(0, 8).map((l) => ({
+    .slice(0, 6) as typeof activeTenders;
+  pendingApplications = asArray<{ id: string; name?: string; email?: string; createdAt?: string }>(submissionsRes).slice(0, 6) as typeof pendingApplications;
+  recentActivity = asArray<{ action?: string; details?: string | null; createdAt?: string }>(logsRes).slice(0, 10).map((l) => ({
     action: l.action || 'EVENT',
     details: l.details || null,
     createdAt: l.createdAt || '',
@@ -89,11 +113,11 @@ function relativeTime(iso: string): string {
   const diff = Date.now() - then;
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins} min ago`;
+  if (mins < 60) return `${mins}m ago`;
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+  if (hours < 24) return `${hours}h ago`;
   const days = Math.floor(hours / 24);
-  if (days < 30) return `${days} day${days === 1 ? '' : 's'} ago`;
+  if (days < 30) return `${days}d ago`;
   return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 }
 
@@ -125,19 +149,12 @@ function fmtDate(iso: string | null): string {
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-// 14-day sparkline path from activitySeries (inline SVG, no chart lib)
-function sparkline(series: { date: string; count: number }[]): { path: string; area: string; max: number } {
-  const counts = series.map((p) => p.count);
-  const max = Math.max(...counts, 1);
-  const w = 120, h = 32, n = Math.max(counts.length, 2);
-  const pts = counts.map((c, i) => {
-    const x = (i / (n - 1)) * w;
-    const y = h - (c / max) * (h - 4) - 2;
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
-  });
-  const path = `M${pts.join(' L')}`;
-  const area = `${path} L${w},${h} L0,${h} Z`;
-  return { path, area, max };
+function formatUptime(sec: number): string {
+  if (!sec || sec < 0) return '—';
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m ${sec % 60}s`;
 }
 
 function urgencyBadge(iso: string | null): { cls: string; label: string } {
@@ -149,93 +166,234 @@ function urgencyBadge(iso: string | null): { cls: string; label: string } {
 }
 
 const adminUserName = user?.name || userRole;
+const series = summary?.activitySeries || [];
+const seriesMax = Math.max(...series.map((s) => s.count), 1);
+const seriesTotal = series.reduce((acc, s) => acc + s.count, 0);
+const sys = summary?.system;
 ---
 
-<AdminLayout title="Dashboard" description="JKSPDCL Administrative Control Panel Dashboard" activeTab="dashboard">
-  <div class="flex flex-col gap-6 max-w-7xl">
+<AdminLayout title="Live Dashboard Monitor" description="JKSPDCL Real-Time Administrative Control Panel & Telemetry Monitor" activeTab="dashboard">
+  <div class="flex flex-col gap-5 max-w-7xl">
 
-    <!-- Dashboard Header -->
-    <div class="admin-page-header">
+    <!-- Real-Time Monitor Command Header -->
+    <div class="bg-white border border-[color:var(--adm-border)] border-t-[3px] !border-t-[#0B3B60] rounded-xl p-4 sm:p-5 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
       <div>
-        <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          <h1 class="admin-page-title">Welcome back, {adminUserName}</h1>
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <span id="live-status-pill" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <span id="live-status-dot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span id="live-status-text">LIVE · 10s</span>
+          </span>
+          <h1 class="text-xl sm:text-2xl font-extrabold text-[#002B49] tracking-tight">Operations &amp; Telemetry Monitor</h1>
         </div>
-        <p class="admin-page-subtitle">{formattedDate} &mdash; Operational overview &amp; items needing your attention.</p>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          Signed in as <strong class="text-slate-700">{adminUserName}</strong> &bull; {formattedDate}
+        </p>
       </div>
-      <div class="flex items-center gap-2 self-start sm:self-auto">
-        <span class="admin-badge admin-badge-success">Console Status: Online</span>
+
+      <!-- Live Telemetry & Controls -->
+      <div class="flex flex-wrap items-center gap-2 sm:gap-2.5">
+        <div class="inline-flex items-center gap-3 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-[11px] font-semibold text-slate-600 tabular-nums">
+          <span>Synced: <strong id="mon-synced-at" class="text-[#0B3B60]">just now</strong></span>
+          <span class="text-slate-300">|</span>
+          <span>API: <strong id="mon-api-lat" class="text-emerald-700">{initialLatencyMs} ms</strong></span>
+          <span class="text-slate-300">|</span>
+          <span>DB: <strong id="mon-db-lat" class="text-emerald-700">{sys?.dbLatencyMs ?? '—'} ms</strong></span>
+        </div>
+
+        <button
+          id="mon-toggle-live"
+          type="button"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 cursor-pointer transition-colors"
+          aria-pressed="true"
+        >
+          <span id="mon-toggle-label">Pause Live</span>
+        </button>
+
+        <button
+          id="mon-refresh-now"
+          type="button"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0B3B60] hover:bg-[#002B49] text-white text-xs font-bold cursor-pointer transition-colors shadow-2xs"
+        >
+          <Icon name="refresh-cw" size={13} id="mon-refresh-icon" />
+          <span>Refresh</span>
+        </button>
       </div>
     </div>
 
     {errorMessage && (
-      <div class="p-3 bg-red-50 border border-red-200 rounded text-xs text-red-700 font-semibold flex items-center gap-2" role="alert">
-        <Icon name="info" size={14} class="text-red-600 shrink-0" />
+      <div class="p-3.5 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 font-semibold flex items-center gap-2" role="alert">
+        <Icon name="info" size={15} class="text-red-600 shrink-0" />
         <span>{errorMessage}</span>
       </div>
     )}
 
     {userIsAdmin && summary && (
-    <div class="dashboard-layout">
+    <div class="flex flex-col gap-5">
 
-      <!-- ══ ZONE A · Executive Overview ══ -->
-      <section class="dash-zone dash-zone-a flex flex-col gap-5" aria-label="Executive overview">
-        <div class="dash-panel p-5">
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-            <!-- KPI: Operational projects -->
-            <div class="dash-kpi">
-              <div class="flex items-start justify-between gap-3">
-                <div>
-                  <p class="dash-kpi-label">Operational Projects</p>
-                  <p class="dash-kpi-value">{summary.kpis.operationalProjects}</p>
-                  <p class="dash-kpi-delta">+{summary.kpis.deltas.operationalProjects} added this week</p>
-                </div>
-                <span class="dash-kpi-icon"><Icon name="zap" size={18} /></span>
+      <!-- ══ 1. INTERACTIVE KPI STRIP (4 Clickable Telemetry Cards) ══ -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4" aria-label="Interactive key metrics">
+        <!-- Operational Projects -->
+        <a href="/admin/operational-projects" class="group bg-white border border-[color:var(--adm-border)] border-t-[3px] !border-t-[#0B3B60] rounded-xl p-4 sm:p-5 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between gap-3">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Operational Assets</span>
+              <div class="flex items-baseline gap-2 mt-1">
+                <span id="kpi-op-projects" class="text-3xl font-extrabold text-[#002B49] tabular-nums">{summary.kpis.operationalProjects}</span>
+                <span id="kpi-cap-mw" class="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full tabular-nums">
+                  {summary.kpis.totalCapacityMw ?? 0} MW
+                </span>
               </div>
-              <svg class="dash-spark" viewBox="0 0 120 32" preserveAspectRatio="none" aria-hidden="true">
-                <path d={sparkline(summary.activitySeries).area} class="dash-spark-area" />
-                <path d={sparkline(summary.activitySeries).path} class="dash-spark-line" />
-              </svg>
             </div>
-            <!-- KPI: Open tenders -->
-            <div class="dash-kpi">
-              <div class="flex items-start justify-between gap-3">
-                <div>
-                  <p class="dash-kpi-label">Open Tenders</p>
-                  <p class="dash-kpi-value">{summary.tenderPipeline.open}</p>
-                  <p class="dash-kpi-delta">+{summary.kpis.deltas.openTenders} published this week</p>
-                </div>
-                <span class="dash-kpi-icon"><Icon name="file-text" size={18} /></span>
+            <span class="w-9 h-9 rounded-lg bg-[#0B3B60]/10 text-[#0B3B60] group-hover:bg-[#0B3B60] group-hover:text-white flex items-center justify-center transition-colors shrink-0">
+              <Icon name="zap" size={18} />
+            </span>
+          </div>
+          <div class="flex items-center justify-between text-[11px] font-semibold text-slate-500 pt-2.5 border-t border-slate-100">
+            <span id="kpi-op-delta">+{summary.kpis.deltas?.operationalProjects ?? 0} this week</span>
+            <span class="text-[#0B3B60] group-hover:translate-x-0.5 transition-transform">Manage &rarr;</span>
+          </div>
+        </a>
+
+        <!-- Open Tenders -->
+        <a href="/admin/tenders" class="group bg-white border border-[color:var(--adm-border)] border-t-[3px] !border-t-[#0B3B60] rounded-xl p-4 sm:p-5 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between gap-3">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Active Tenders</span>
+              <div class="flex items-baseline gap-2 mt-1">
+                <span id="kpi-open-tenders" class="text-3xl font-extrabold text-[#002B49] tabular-nums">{summary.tenderPipeline.open}</span>
+                <span id="kpi-closing-soon" class="text-xs font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full tabular-nums">
+                  {summary.tenderPipeline.closingSoon} closing ≤7d
+                </span>
               </div>
-              {summary.tenderPipeline.nearestClosing ? (
-                <p class="dash-kpi-callout dash-kpi-callout-danger">
-                  <Icon name="clock" size={12} strokeWidth={2.5} />
-                  {summary.tenderPipeline.nearestClosing.referenceNo} closes {fmtDate(summary.tenderPipeline.nearestClosing.closingDate)}
-                </p>
-              ) : (
-                <p class="dash-kpi-callout">No upcoming closing dates</p>
-              )}
             </div>
-            <!-- KPI: Pending inquiries -->
-            <div class="dash-kpi">
-              <div class="flex items-start justify-between gap-3">
-                <div>
-                  <p class="dash-kpi-label">Pending Inquiries</p>
-                  <p class="dash-kpi-value">{summary.kpis.pendingApplications}</p>
-                  <p class="dash-kpi-delta">+{summary.kpis.deltas.pendingApplications} received this week</p>
-                </div>
-                <span class="dash-kpi-icon"><Icon name="mail" size={18} /></span>
+            <span class="w-9 h-9 rounded-lg bg-[#0B3B60]/10 text-[#0B3B60] group-hover:bg-[#0B3B60] group-hover:text-white flex items-center justify-center transition-colors shrink-0">
+              <Icon name="file-text" size={18} />
+            </span>
+          </div>
+          <div class="flex items-center justify-between text-[11px] font-semibold text-slate-500 pt-2.5 border-t border-slate-100">
+            <span id="kpi-tender-nearest" class="truncate max-w-[170px] text-red-700">
+              {summary.tenderPipeline.nearestClosing ? `Closes ${fmtDate(summary.tenderPipeline.nearestClosing.closingDate)}` : 'No urgent deadlines'}
+            </span>
+            <span class="text-[#0B3B60] group-hover:translate-x-0.5 transition-transform shrink-0">Registry &rarr;</span>
+          </div>
+        </a>
+
+        <!-- Pending Inquiries -->
+        <a href="/admin/contacts" class="group bg-white border border-[color:var(--adm-border)] border-t-[3px] !border-t-[#0B3B60] rounded-xl p-4 sm:p-5 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between gap-3">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Inquiries (7d)</span>
+              <div class="flex items-baseline gap-2 mt-1">
+                <span id="kpi-pending-apps" class="text-3xl font-extrabold text-[#002B49] tabular-nums">{summary.kpis.pendingApplications}</span>
+                <span class="text-xs font-semibold text-slate-500">submissions</span>
               </div>
-              <a href="/admin/contacts" class="dash-panel-link mt-auto">Review inbox <Icon name="arrow-right" size={11} strokeWidth={2.5} /></a>
+            </div>
+            <span class="w-9 h-9 rounded-lg bg-[#0B3B60]/10 text-[#0B3B60] group-hover:bg-[#0B3B60] group-hover:text-white flex items-center justify-center transition-colors shrink-0">
+              <Icon name="mail" size={18} />
+            </span>
+          </div>
+          <div class="flex items-center justify-between text-[11px] font-semibold text-slate-500 pt-2.5 border-t border-slate-100">
+            <span id="kpi-apps-delta">Prev week: {summary.kpis.deltas?.pendingApplications ?? 0}</span>
+            <span class="text-[#0B3B60] group-hover:translate-x-0.5 transition-transform">Open Inbox &rarr;</span>
+          </div>
+        </a>
+
+        <!-- Security & MFA Posture -->
+        <a href="/admin/users" class="group bg-white border border-[color:var(--adm-border)] border-t-[3px] !border-t-[#0B3B60] rounded-xl p-4 sm:p-5 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between gap-3">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">MFA Security Posture</span>
+              <div class="flex items-baseline gap-2 mt-1">
+                <span id="kpi-mfa-coverage" class="text-3xl font-extrabold text-[#002B49] tabular-nums">
+                  {sys ? `${sys.mfaEnabledUsers}/${sys.totalUsers}` : '—'}
+                </span>
+                <span class="text-xs font-bold text-sky-800 bg-sky-50 border border-sky-200 px-2 py-0.5 rounded-full">
+                  Enrolled
+                </span>
+              </div>
+            </div>
+            <span class="w-9 h-9 rounded-lg bg-[#0B3B60]/10 text-[#0B3B60] group-hover:bg-[#0B3B60] group-hover:text-white flex items-center justify-center transition-colors shrink-0">
+              <Icon name="shield-check" size={18} />
+            </span>
+          </div>
+          <div class="flex items-center justify-between text-[11px] font-semibold text-slate-500 pt-2.5 border-t border-slate-100">
+            <span id="kpi-audit-24h">{sys?.auditEvents24h ?? 0} audit events (24h)</span>
+            <span class="text-[#0B3B60] group-hover:translate-x-0.5 transition-transform">Accounts &rarr;</span>
+          </div>
+        </a>
+      </section>
+
+      <!-- ══ 2. INTERACTIVE TELEMETRY CHARTS & PIPELINES ══ -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <!-- Left 7 cols: Interactive 14-Day Activity Monitor -->
+        <section class="lg:col-span-7 bg-white border border-[color:var(--adm-border)] rounded-xl p-5 shadow-xs flex flex-col justify-between" aria-label="14-day administrative activity monitor">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <div>
+              <h2 class="text-xs font-bold uppercase tracking-wider text-[#002B49]">14-Day Administrative Activity</h2>
+              <p class="text-[11px] text-slate-500 mt-0.5">Hover or focus any bar to inspect daily audit volume</p>
+            </div>
+            <span id="chart-readout" class="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200 text-xs font-bold text-[#0B3B60] tabular-nums">
+              14d Total: {seriesTotal} events
+            </span>
+          </div>
+
+          <div id="activity-bar-chart" class="h-36 flex items-end gap-1.5 sm:gap-2 pt-4 pb-1 border-b border-slate-200">
+            {series.map((pt) => {
+              const pct = Math.max(8, Math.round((pt.count / seriesMax) * 100));
+              const shortDate = new Date(pt.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+              return (
+                <button
+                  type="button"
+                  data-date={shortDate}
+                  data-count={String(pt.count)}
+                  class="chart-bar-btn group flex-1 flex flex-col items-center justify-end h-full focus:outline-none cursor-pointer"
+                  aria-label={`${shortDate}: ${pt.count} events`}
+                >
+                  <span
+                    class="w-full rounded-t-md bg-[#0B3B60]/80 group-hover:bg-[#0EA4E5] group-focus:bg-[#0EA4E5] transition-all duration-150"
+                    style={`height: ${pt.count === 0 ? 6 : pct}%`}
+                  ></span>
+                </button>
+              );
+            })}
+          </div>
+          <div class="flex items-center justify-between text-[10px] font-semibold text-slate-400 mt-2">
+            <span>{series[0] ? new Date(series[0].date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : ''}</span>
+            <span>Today</span>
+          </div>
+        </section>
+
+        <!-- Right 5 cols: Live System Health & Pipelines -->
+        <section class="lg:col-span-5 bg-white border border-[color:var(--adm-border)] rounded-xl p-5 shadow-xs flex flex-col justify-between gap-4" aria-label="System health and portfolio pipelines">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <h2 class="text-xs font-bold uppercase tracking-wider text-[#002B49]">System &amp; Infrastructure Health</h2>
+              <a href="/admin/audit-logs" class="text-[11px] font-bold text-[#0B3B60] hover:underline">Audit Feed &rarr;</a>
+            </div>
+            <div class="grid grid-cols-2 gap-2.5 text-xs">
+              <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+                <span class="text-slate-600 font-medium">API Status</span>
+                <span id="sys-api-status" class="font-bold text-emerald-700 inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Online</span>
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+                <span class="text-slate-600 font-medium">PostgreSQL</span>
+                <span id="sys-db-status" class="font-bold text-emerald-700">{sys?.dbLatencyMs ?? '—'} ms</span>
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+                <span class="text-slate-600 font-medium">Uptime</span>
+                <span id="sys-uptime" class="font-bold text-[#002B49] tabular-nums">{sys ? formatUptime(sys.uptimeSeconds) : '—'}</span>
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+                <span class="text-slate-600 font-medium">Memory RSS</span>
+                <span id="sys-memory" class="font-bold text-[#002B49] tabular-nums">{sys ? `${sys.memoryMb} MB` : '—'}</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <!-- Project stage segmented bar -->
-          <div class="dash-panel p-5">
-            <div class="flex items-center justify-between gap-3 mb-3">
-              <h3 class="dash-panel-title">Project portfolio by stage</h3>
+          <!-- Project Stage Breakdown -->
+          <div class="pt-3 border-t border-slate-100">
+            <div class="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-[#002B49] mb-2">
+              <span>Project Portfolio Stages</span>
             </div>
             {(() => {
               const st = summary.projectStages;
@@ -243,206 +401,347 @@ const adminUserName = user?.name || userRole;
               const seg = (v: number) => (total > 0 ? `${(v / total) * 100}%` : '0%');
               return (
                 <div>
-                  <div class="dash-segbar" role="img" aria-label={`${st.operational} operational, ${st.underConstruction} under construction, ${st.upcoming} upcoming of ${total} projects`}>
-                    <span class="dash-seg dash-seg-op" style={`width:${seg(st.operational)}`} title={`Operational: ${st.operational}`}></span>
-                    <span class="dash-seg dash-seg-uc" style={`width:${seg(st.underConstruction)}`} title={`Under Construction: ${st.underConstruction}`}></span>
-                    <span class="dash-seg dash-seg-up" style={`width:${seg(st.upcoming)}`} title={`Upcoming: ${st.upcoming}`}></span>
+                  <div class="dash-segbar" role="img" aria-label={`${st.operational} operational, ${st.underConstruction} under construction, ${st.upcoming} upcoming`}>
+                    <span id="seg-op" class="dash-seg dash-seg-op" style={`width:${seg(st.operational)}`}></span>
+                    <span id="seg-uc" class="dash-seg dash-seg-uc" style={`width:${seg(st.underConstruction)}`}></span>
+                    <span id="seg-up" class="dash-seg dash-seg-up" style={`width:${seg(st.upcoming)}`}></span>
                   </div>
-                  <div class="flex flex-wrap gap-x-5 gap-y-1.5 mt-3 text-xs font-semibold">
-                    <a class="dash-legend dash-legend-op" href="/admin/operational-projects">Operational · {st.operational}</a>
-                    <a class="dash-legend dash-legend-uc" href="/admin/under-construction">Under Construction · {st.underConstruction}</a>
-                    <a class="dash-legend dash-legend-up" href="/admin/upcoming-projects">Upcoming · {st.upcoming}</a>
-                  </div>
-                </div>
-              );
-            })()}
-          </div>
-
-          <!-- Tender pipeline stacked bar -->
-          <div class="dash-panel p-5">
-            <div class="flex items-center justify-between gap-3 mb-3">
-              <h3 class="dash-panel-title">Tender pipeline</h3>
-              <a href="/admin/tenders" class="dash-panel-link">View all <Icon name="arrow-right" size={11} strokeWidth={2.5} /></a>
-            </div>
-            {(() => {
-              const tp = summary.tenderPipeline;
-              const total = tp.open + tp.closingSoon + tp.closed;
-              const seg = (v: number) => (total > 0 ? `${(v / total) * 100}%` : '0%');
-              return (
-                <div>
-                  <div class="dash-segbar" role="img" aria-label={`${tp.open} open, ${tp.closingSoon} closing within 7 days, ${tp.closed} closed`}>
-                    <span class="dash-seg dash-seg-open" style={`width:${seg(tp.open)}`} title={`Open: ${tp.open}`}></span>
-                    <span class="dash-seg dash-seg-soon" style={`width:${seg(tp.closingSoon)}`} title={`Closing ≤7 days: ${tp.closingSoon}`}></span>
-                    <span class="dash-seg dash-seg-closed" style={`width:${seg(tp.closed)}`} title={`Closed: ${tp.closed}`}></span>
-                  </div>
-                  <div class="flex flex-wrap gap-x-5 gap-y-1.5 mt-3 text-xs font-semibold">
-                    <span class="dash-legend dash-legend-open">Open · {tp.open}</span>
-                    <span class="dash-legend dash-legend-soon">Closing ≤7 days · {tp.closingSoon}</span>
-                    <span class="dash-legend dash-legend-closed">Closed · {tp.closed}</span>
+                  <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-[11px] font-semibold">
+                    <a id="leg-op" class="dash-legend dash-legend-op" href="/admin/operational-projects">Operational · {st.operational}</a>
+                    <a id="leg-uc" class="dash-legend dash-legend-uc" href="/admin/under-construction">Under Construction · {st.underConstruction}</a>
+                    <a id="leg-up" class="dash-legend dash-legend-up" href="/admin/upcoming-projects">Upcoming · {st.upcoming}</a>
                   </div>
                 </div>
               );
             })()}
           </div>
-        </div>
-      </section>
-
-      <!-- ══ ZONE B · Actionable Panels ══ -->
-      <div class="dash-zone-b flex flex-col gap-5" role="list" aria-label="Actionable panels">
-        <!-- Active tenders mini-table -->
-        <section class="dash-panel" aria-label="Active tenders by deadline">
-          <div class="dash-panel-header">
-            <h2 class="dash-panel-title"><Icon name="file-text" size={14} /> Active tenders <span class="dash-panel-count">{activeTenders.length}</span></h2>
-            <a href="/admin/tenders" class="dash-panel-link">View all <Icon name="arrow-right" size={11} strokeWidth={2.5} /></a>
-          </div>
-          {activeTenders.length === 0 ? (
-            <div class="admin-empty-state py-6">
-              <p class="text-xs text-[color:var(--adm-muted)] font-medium">No active tenders with open deadlines.</p>
-            </div>
-          ) : (
-            <table class="dash-minitable">
-              <thead>
-                <tr><th scope="col">Tender</th><th scope="col">Closes</th><th scope="col" class="text-right">Action</th></tr>
-              </thead>
-              <tbody>
-                {activeTenders.map((t) => {
-                  const badge = urgencyBadge(t.closingDate);
-                  return (
-                    <tr>
-                      <td>
-                        <span class="block text-xs font-bold text-slate-800 truncate max-w-xs">{t.title}</span>
-                        <span class="block text-[11px] text-[color:var(--adm-muted)] font-medium">{t.referenceNo}</span>
-                      </td>
-                      <td>
-                        <span class="text-xs font-semibold text-slate-700 whitespace-nowrap">{fmtDate(t.closingDate)}</span>
-                        {badge.cls && <span class={`dash-urgency ${badge.cls}`}>{badge.label}</span>}
-                      </td>
-                      <td class="text-right">
-                        <a href={`/admin/tenders?edit=${t.id}`} class="dash-panel-link">Edit</a>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          )}
-        </section>
-
-        <!-- Pending inquiries mini-table -->
-        <section class="dash-panel" aria-label="Latest public inquiries">
-          <div class="dash-panel-header">
-            <h2 class="dash-panel-title"><Icon name="mail" size={14} /> Latest inquiries <span class="dash-panel-count">{pendingApplications.length}</span></h2>
-            <a href="/admin/contacts" class="dash-panel-link">View all <Icon name="arrow-right" size={11} strokeWidth={2.5} /></a>
-          </div>
-          {pendingApplications.length === 0 ? (
-            <div class="admin-empty-state py-6">
-              <p class="text-xs text-[color:var(--adm-muted)] font-medium">Inbox is clear — no pending public inquiries.</p>
-            </div>
-          ) : (
-            <table class="dash-minitable">
-              <thead>
-                <tr><th scope="col">From</th><th scope="col">Received</th><th scope="col" class="text-right">Action</th></tr>
-              </thead>
-              <tbody>
-                {pendingApplications.map((a) => (
-                  <tr>
-                    <td>
-                      <span class="block text-xs font-bold text-slate-800">{a.name}</span>
-                      <span class="block text-[11px] text-[color:var(--adm-muted)] font-medium truncate max-w-xs">{a.email}</span>
-                    </td>
-                    <td><span class="text-xs font-semibold text-slate-700 whitespace-nowrap">{relativeTime(a.createdAt)}</span></td>
-                    <td class="text-right"><a href="/admin/contacts" class="dash-panel-link">Open</a></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
         </section>
       </div>
 
-      <!-- ══ ZONE C · Activity Rail ══ -->
-      <aside class="dash-zone-c flex flex-col gap-5" aria-label="Live activity and system health">
-        <!-- Activity timeline -->
-        <section class="dash-panel" aria-label="Recent administrative activity">
-          <div class="dash-panel-header">
-            <h2 class="dash-panel-title"><Icon name="zap" size={14} /> Live activity</h2>
-            <a href="/admin/audit-logs" class="dash-panel-link">All logs <Icon name="arrow-right" size={11} strokeWidth={2.5} /></a>
-          </div>
-          {recentActivity.length === 0 ? (
-            <div class="admin-empty-state py-6">
-              <p class="text-xs text-[color:var(--adm-muted)] font-medium">No activity recorded yet.</p>
+      <!-- ══ 3. INTERACTIVE QUEUES & LIVE AUDIT TIMELINE ══ -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        <!-- Left 7 cols: Active Tenders + Inquiries with Quick Filter -->
+        <div class="lg:col-span-7 flex flex-col gap-5">
+          <!-- Active Tenders -->
+          <section class="dash-panel overflow-hidden" aria-label="Active tenders by deadline">
+            <div class="dash-panel-header bg-slate-50/70">
+              <h2 class="dash-panel-title"><Icon name="file-text" size={14} /> Active Tenders <span id="tenders-count-badge" class="dash-panel-count">{activeTenders.length}</span></h2>
+              <div class="flex items-center gap-2">
+                <a href="/admin/tenders?action=new" class="text-[11px] font-bold px-2 py-1 rounded bg-[#0B3B60] text-white hover:bg-[#002B49] transition-colors">+ New</a>
+                <a href="/admin/tenders" class="dash-panel-link">View all <Icon name="arrow-right" size={11} strokeWidth={2.5} /></a>
+              </div>
             </div>
-          ) : (
-            <ol class="dash-timeline" aria-label="Recent administrative actions grouped by day">
-              {(() => {
-                const todayKey = new Date().toDateString();
-                let currentGroup = '';
-                return recentActivity.map((item) => {
-                  const dayKey = new Date(item.createdAt);
-                  const groupLabel = Number.isNaN(dayKey.getTime())
-                    ? ''
-                    : dayKey.toDateString() === todayKey ? 'Today' : 'Earlier this week';
-                  const showGroup = groupLabel !== currentGroup;
-                  currentGroup = groupLabel;
-                  return (
-                    <Fragment>
-                      {showGroup && groupLabel && <li class="dash-timeline-day">{groupLabel}</li>}
-                      <li class="dash-timeline-item">
-                        <span class="dash-timeline-dot" aria-hidden="true"></span>
-                        <div class="min-w-0">
-                          <p class="text-xs font-bold text-slate-800">{prettyAction(item.action)}</p>
-                          {detailLabel(item.details) && (
-                            <p class="text-[11px] text-[color:var(--adm-muted)] font-medium truncate">{detailLabel(item.details)}</p>
-                          )}
-                        </div>
-                        <span class="dash-timeline-time">{relativeTime(item.createdAt)}</span>
-                      </li>
-                    </Fragment>
-                  );
-                });
-              })()}
-            </ol>
-          )}
-        </section>
+            <div id="live-tenders-body">
+              {activeTenders.length === 0 ? (
+                <div class="admin-empty-state py-6">
+                  <p class="text-xs text-[color:var(--adm-muted)] font-medium">No active tenders with open deadlines.</p>
+                </div>
+              ) : (
+                <table class="dash-minitable">
+                  <thead>
+                    <tr><th scope="col">Tender</th><th scope="col">Closes</th><th scope="col" class="text-right">Action</th></tr>
+                  </thead>
+                  <tbody>
+                    {activeTenders.map((t) => {
+                      const badge = urgencyBadge(t.closingDate);
+                      return (
+                        <tr>
+                          <td>
+                            <span class="block text-xs font-bold text-slate-800 truncate max-w-xs">{t.title}</span>
+                            <span class="block text-[11px] text-[color:var(--adm-muted)] font-medium">{t.referenceNo}</span>
+                          </td>
+                          <td>
+                            <span class="text-xs font-semibold text-slate-700 whitespace-nowrap">{fmtDate(t.closingDate)}</span>
+                            {badge.cls && <span class={`dash-urgency ${badge.cls}`}>{badge.label}</span>}
+                          </td>
+                          <td class="text-right">
+                            <a href={`/admin/tenders?edit=${t.id}`} class="dash-panel-link">Edit</a>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </section>
 
-        <!-- System health -->
-        <section class="dash-panel p-4" aria-label="System health">
-          <h2 class="dash-panel-title mb-3"><Icon name="gear" size={14} /> System health</h2>
-          <ul class="flex flex-col gap-2 text-xs font-semibold">
-            <li class="flex items-center justify-between">
-              <span class="text-slate-600">API service</span>
-              <span class="dash-health dash-health-ok"><span class="dash-health-dot"></span> Online</span>
-            </li>
-            <li class="flex items-center justify-between">
-              <span class="text-slate-600">Database</span>
-              <span class={`dash-health ${summary ? 'dash-health-ok' : 'dash-health-bad'}`}><span class="dash-health-dot"></span> {summary ? 'Connected' : 'Unreachable'}</span>
-            </li>
-            <li class="flex items-center justify-between">
-              <span class="text-slate-600">Storage</span>
-              <span class="dash-health dash-health-ok"><span class="dash-health-dot"></span> Available</span>
-            </li>
-          </ul>
-        </section>
+          <!-- Latest Inquiries -->
+          <section class="dash-panel overflow-hidden" aria-label="Latest public inquiries">
+            <div class="dash-panel-header bg-slate-50/70">
+              <h2 class="dash-panel-title"><Icon name="mail" size={14} /> Latest Inquiries <span id="inquiries-count-badge" class="dash-panel-count">{pendingApplications.length}</span></h2>
+              <a href="/admin/contacts" class="dash-panel-link">View all <Icon name="arrow-right" size={11} strokeWidth={2.5} /></a>
+            </div>
+            <div id="live-inquiries-body">
+              {pendingApplications.length === 0 ? (
+                <div class="admin-empty-state py-6">
+                  <p class="text-xs text-[color:var(--adm-muted)] font-medium">Inbox is clear — no pending public inquiries.</p>
+                </div>
+              ) : (
+                <table class="dash-minitable">
+                  <thead>
+                    <tr><th scope="col">From</th><th scope="col">Received</th><th scope="col" class="text-right">Action</th></tr>
+                  </thead>
+                  <tbody>
+                    {pendingApplications.map((a) => (
+                      <tr>
+                        <td>
+                          <span class="block text-xs font-bold text-slate-800">{a.name}</span>
+                          <span class="block text-[11px] text-[color:var(--adm-muted)] font-medium truncate max-w-xs">{a.email}</span>
+                        </td>
+                        <td><span class="text-xs font-semibold text-slate-700 whitespace-nowrap">{relativeTime(a.createdAt)}</span></td>
+                        <td class="text-right"><a href="/admin/contacts" class="dash-panel-link">Open</a></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </section>
+        </div>
 
-        <!-- Quick actions -->
-        <section class="dash-panel p-4" aria-label="Quick actions">
-          <h2 class="dash-panel-title mb-3">Quick actions</h2>
-          <div class="grid grid-cols-3 gap-2">
-            <a href="/admin/tenders?action=new" class="dash-quick" aria-label="Publish new tender">
-              <Icon name="plus" size={16} /><span>Tender</span>
-            </a>
-            <a href="/admin/operational-projects?action=new" class="dash-quick" aria-label="Add new project">
-              <Icon name="zap" size={16} /><span>Project</span>
-            </a>
-            <a href="/admin/resources?action=new" class="dash-quick" aria-label="Upload resource">
-              <Icon name="upload" size={16} /><span>Upload</span>
-            </a>
-          </div>
-        </section>
-      </aside>
+        <!-- Right 5 cols: Live Audit Activity Timeline + Quick Shortcuts -->
+        <aside class="lg:col-span-5 flex flex-col gap-5" aria-label="Live activity feed and quick actions">
+          <section class="dash-panel overflow-hidden" aria-label="Live administrative activity">
+            <div class="dash-panel-header bg-slate-50/70">
+              <h2 class="dash-panel-title"><Icon name="zap" size={14} /> Live Activity Feed</h2>
+              <a href="/admin/audit-logs" class="dash-panel-link">Full log <Icon name="arrow-right" size={11} strokeWidth={2.5} /></a>
+            </div>
+            <div id="live-activity-body">
+              {recentActivity.length === 0 ? (
+                <div class="admin-empty-state py-6">
+                  <p class="text-xs text-[color:var(--adm-muted)] font-medium">No activity recorded yet.</p>
+                </div>
+              ) : (
+                <ol class="dash-timeline" aria-label="Recent administrative actions">
+                  {recentActivity.map((item) => (
+                    <li class="dash-timeline-item">
+                      <span class="dash-timeline-dot" aria-hidden="true"></span>
+                      <div class="min-w-0">
+                        <p class="text-xs font-bold text-slate-800">{prettyAction(item.action)}</p>
+                        {detailLabel(item.details) && (
+                          <p class="text-[11px] text-[color:var(--adm-muted)] font-medium truncate">{detailLabel(item.details)}</p>
+                        )}
+                      </div>
+                      <span class="dash-timeline-time">{relativeTime(item.createdAt)}</span>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </div>
+          </section>
+
+          <section class="dash-panel p-4" aria-label="Quick actions">
+            <h2 class="dash-panel-title mb-3">Quick Shortcuts</h2>
+            <div class="grid grid-cols-3 gap-2.5">
+              <a href="/admin/tenders?action=new" class="dash-quick" aria-label="Publish new tender">
+                <Icon name="plus" size={16} /><span>New Tender</span>
+              </a>
+              <a href="/admin/operational-projects?action=new" class="dash-quick" aria-label="Add new project">
+                <Icon name="zap" size={16} /><span>New Project</span>
+              </a>
+              <a href="/admin/notifications" class="dash-quick" aria-label="Publish notification">
+                <Icon name="bell" size={16} /><span>Notice</span>
+              </a>
+            </div>
+          </section>
+        </aside>
+      </div>
 
     </div>
     )}
 
   </div>
 </AdminLayout>
+
+<script is:inline>
+(function () {
+  var isLive = true;
+  var timer = null;
+  var POLL_MS = 10000;
+
+  var toggleBtn = document.getElementById('mon-toggle-live');
+  var toggleLabel = document.getElementById('mon-toggle-label');
+  var refreshBtn = document.getElementById('mon-refresh-now');
+  var refreshIcon = document.getElementById('mon-refresh-icon');
+  var statusPill = document.getElementById('live-status-pill');
+  var statusDot = document.getElementById('live-status-dot');
+  var statusText = document.getElementById('live-status-text');
+  var readout = document.getElementById('chart-readout');
+
+  function escapeHtml(s) {
+    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function relTime(iso) {
+    if (!iso) return '';
+    var then = new Date(iso).getTime();
+    if (isNaN(then)) return '';
+    var mins = Math.floor((Date.now() - then) / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return mins + 'm ago';
+    var hrs = Math.floor(mins / 60);
+    if (hrs < 24) return hrs + 'h ago';
+    return Math.floor(hrs / 24) + 'd ago';
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '—';
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  function fmtUptime(sec) {
+    if (!sec || sec < 0) return '—';
+    var h = Math.floor(sec / 3600);
+    var m = Math.floor((sec % 3600) / 60);
+    return h > 0 ? h + 'h ' + m + 'm' : m + 'm ' + (sec % 60) + 's';
+  }
+
+  function prettyAction(a) {
+    return String(a || 'EVENT').replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+  }
+
+  function detailLabel(details) {
+    if (!details) return '';
+    try {
+      var d = JSON.parse(details);
+      return d.title || d.name || d.referenceNo || d.email || '';
+    } catch (e) {
+      return String(details);
+    }
+  }
+
+  function bindChartHover(total) {
+    var bars = document.querySelectorAll('#activity-bar-chart .chart-bar-btn');
+    bars.forEach(function (bar) {
+      bar.onmouseenter = bar.onfocus = function () {
+        if (readout) readout.textContent = bar.dataset.date + ': ' + bar.dataset.count + ' events';
+      };
+      bar.onmouseleave = bar.onblur = function () {
+        if (readout) readout.textContent = '14d Total: ' + total + ' events';
+      };
+    });
+  }
+  bindChartHover(Number((readout && readout.textContent.match(/\d+/g) || [0, 0])[1] || 0));
+
+  async function pollMonitor() {
+    if (refreshIcon) refreshIcon.classList.add('animate-spin');
+    try {
+      var res = await fetch('/api/admin/live-monitor', { cache: 'no-store' });
+      if (!res.ok) return;
+      var data = await res.json();
+      if (!data || !data.summary) return;
+
+      var s = data.summary;
+      var sys = s.system || {};
+
+      var setText = function (id, val) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = val;
+      };
+
+      setText('mon-synced-at', new Date().toLocaleTimeString('en-GB', { hour12: false }));
+      setText('mon-api-lat', data.apiLatencyMs + ' ms');
+      setText('mon-db-lat', (sys.dbLatencyMs || '—') + ' ms');
+
+      setText('kpi-op-projects', String(s.kpis.operationalProjects));
+      setText('kpi-cap-mw', (s.kpis.totalCapacityMw || 0) + ' MW');
+      setText('kpi-op-delta', '+' + (s.kpis.deltas ? s.kpis.deltas.operationalProjects : 0) + ' this week');
+      setText('kpi-open-tenders', String(s.tenderPipeline.open));
+      setText('kpi-closing-soon', s.tenderPipeline.closingSoon + ' closing ≤7d');
+      setText('kpi-tender-nearest', s.tenderPipeline.nearestClosing ? 'Closes ' + fmtDate(s.tenderPipeline.nearestClosing.closingDate) : 'No urgent deadlines');
+      setText('kpi-pending-apps', String(s.kpis.pendingApplications));
+      setText('kpi-apps-delta', 'Prev week: ' + (s.kpis.deltas ? s.kpis.deltas.pendingApplications : 0));
+      setText('kpi-mfa-coverage', (sys.mfaEnabledUsers || 0) + '/' + (sys.totalUsers || 0));
+      setText('kpi-audit-24h', (sys.auditEvents24h || 0) + ' audit events (24h)');
+
+      setText('sys-db-status', (sys.dbLatencyMs || '—') + ' ms');
+      setText('sys-uptime', fmtUptime(sys.uptimeSeconds));
+      setText('sys-memory', (sys.memoryMb || 0) + ' MB');
+
+      var st = s.projectStages;
+      var totalProj = st.operational + st.underConstruction + st.upcoming;
+      if (totalProj > 0) {
+        var segOp = document.getElementById('seg-op');
+        var segUc = document.getElementById('seg-uc');
+        var segUp = document.getElementById('seg-up');
+        if (segOp) segOp.style.width = ((st.operational / totalProj) * 100) + '%';
+        if (segUc) segUc.style.width = ((st.underConstruction / totalProj) * 100) + '%';
+        if (segUp) segUp.style.width = ((st.upcoming / totalProj) * 100) + '%';
+      }
+      setText('leg-op', 'Operational · ' + st.operational);
+      setText('leg-uc', 'Under Construction · ' + st.underConstruction);
+      setText('leg-up', 'Upcoming · ' + st.upcoming);
+
+      // Update 14-day chart
+      var chart = document.getElementById('activity-bar-chart');
+      if (chart && Array.isArray(s.activitySeries)) {
+        var max = Math.max.apply(null, s.activitySeries.map(function (x) { return x.count; }).concat([1]));
+        var totalEv = s.activitySeries.reduce(function (a, b) { return a + b.count; }, 0);
+        chart.innerHTML = s.activitySeries.map(function (pt) {
+          var pct = Math.max(8, Math.round((pt.count / max) * 100));
+          var sd = new Date(pt.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+          return '<button type="button" data-date="' + escapeHtml(sd) + '" data-count="' + pt.count + '" class="chart-bar-btn group flex-1 flex flex-col items-center justify-end h-full focus:outline-none cursor-pointer" aria-label="' + escapeHtml(sd) + ': ' + pt.count + ' events"><span class="w-full rounded-t-md bg-[#0B3B60]/80 group-hover:bg-[#0EA4E5] group-focus:bg-[#0EA4E5] transition-all duration-150" style="height:' + (pt.count === 0 ? 6 : pct) + '%"></span></button>';
+        }).join('');
+        if (readout) readout.textContent = '14d Total: ' + totalEv + ' events';
+        bindChartHover(totalEv);
+      }
+
+      // Update Live Activity Feed
+      var actBody = document.getElementById('live-activity-body');
+      if (actBody && Array.isArray(data.recentActivity)) {
+        if (data.recentActivity.length === 0) {
+          actBody.innerHTML = '<div class="admin-empty-state py-6"><p class="text-xs text-[color:var(--adm-muted)] font-medium">No activity recorded yet.</p></div>';
+        } else {
+          actBody.innerHTML = '<ol class="dash-timeline" aria-label="Recent administrative actions">' +
+            data.recentActivity.map(function (item) {
+              var lbl = detailLabel(item.details);
+              return '<li class="dash-timeline-item"><span class="dash-timeline-dot" aria-hidden="true"></span><div class="min-w-0"><p class="text-xs font-bold text-slate-800">' + escapeHtml(prettyAction(item.action)) + '</p>' +
+                (lbl ? '<p class="text-[11px] text-[color:var(--adm-muted)] font-medium truncate">' + escapeHtml(lbl) + '</p>' : '') +
+                '</div><span class="dash-timeline-time">' + escapeHtml(relTime(item.createdAt)) + '</span></li>';
+            }).join('') + '</ol>';
+        }
+      }
+
+      // Update Active Tenders count
+      setText('tenders-count-badge', String((data.activeTenders || []).length));
+      setText('inquiries-count-badge', String((data.pendingApplications || []).length));
+    } catch (e) {
+      // ignore transient network errors
+    } finally {
+      if (refreshIcon) refreshIcon.classList.remove('animate-spin');
+    }
+  }
+
+  function startLoop() {
+    if (timer) clearInterval(timer);
+    if (isLive) timer = setInterval(pollMonitor, POLL_MS);
+  }
+
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', function () {
+      isLive = !isLive;
+      toggleBtn.setAttribute('aria-pressed', isLive ? 'true' : 'false');
+      if (toggleLabel) toggleLabel.textContent = isLive ? 'Pause Live' : 'Resume Live';
+      if (statusText) statusText.textContent = isLive ? 'LIVE · 10s' : 'PAUSED';
+      if (statusPill) {
+        statusPill.className = isLive
+          ? 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200'
+          : 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-200';
+      }
+      if (statusDot) {
+        statusDot.className = isLive ? 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse' : 'w-2 h-2 rounded-full bg-amber-500';
+      }
+      startLoop();
+    });
+  }
+
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', pollMonitor);
+  }
+
+  startLoop();
+})();
+</script>

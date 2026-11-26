@@ -234,16 +234,22 @@ const allFilterLocations = Array.from(new Set([
                             <span class="text-[10px] font-bold uppercase tracking-wider text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
                               Corrigenda ({tender.corrigendums.length})
                             </span>
-                            {tender.corrigendums.map((c: any) => (
-                              <a 
-                                href={`/stakeholders/vendors/tender-details?id=${tender.id}#corrigendum-${c.id}`} 
-                                class="text-[11px] font-semibold text-[#0B3B60] hover:underline inline-flex items-center gap-1 bg-slate-50 hover:bg-slate-100 px-2 py-0.5 rounded border border-slate-200 transition-colors"
-                                title={c.title}
-                              >
-                                <Icon name="paperclip" size={11} class="shrink-0 text-[#0B3B60]" />
-                                <span class="truncate max-w-[200px]">{c.title}</span>
-                              </a>
-                            ))}
+                            {tender.corrigendums.map((c: any) => {
+                              const corrDocHref = getDocUrl(c.documentUrl);
+                              const corrHref = corrDocHref || `/stakeholders/vendors/tender-details?id=${tender.id}#corrigendum-${c.id}`;
+                              return (
+                                <a 
+                                  href={corrHref}
+                                  target={corrDocHref ? '_blank' : undefined}
+                                  rel={corrDocHref ? 'noopener noreferrer' : undefined}
+                                  class="text-[11px] font-semibold text-[#0B3B60] hover:underline inline-flex items-center gap-1 bg-slate-50 hover:bg-slate-100 px-2 py-0.5 rounded border border-slate-200 transition-colors"
+                                  title={c.title}
+                                >
+                                  <Icon name="paperclip" size={11} class="shrink-0 text-[#0B3B60]" />
+                                  <span class="truncate max-w-[200px]">{c.title}</span>
+                                </a>
+                              );
+                            })}
                           </div>
                         )}
                       </td>

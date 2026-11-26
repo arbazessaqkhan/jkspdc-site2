@@ -964,19 +964,14 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
           </div>
         </div>
 
-        <!-- Project Cards Grid -->
-        <div id="projects-grid" class={displayProjects.length > 0 ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch" : "hidden"}>
+        <!-- Consistent 3-Column Project Cards (uniform height, zero empty dashes) -->
+        <div id="projects-grid" class={displayProjects.length > 0 ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch" : "hidden"}>
           {displayProjects.map((p) => {
             const statusBadgeClass = p.status === 'Operational'
               ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
               : p.status === 'Under Construction'
               ? 'bg-amber-50 text-amber-800 border border-amber-200'
               : 'bg-sky-50 text-sky-800 border border-sky-200';
-            const topBorderClass = p.status === 'Operational'
-              ? 'border-t-emerald-600'
-              : p.status === 'Under Construction'
-              ? 'border-t-amber-500'
-              : 'border-t-[#0B3D6B]';
             const statusDotClass = p.status === 'Operational'
               ? 'bg-emerald-600'
               : p.status === 'Under Construction'
@@ -986,63 +981,63 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
             const unitsVal = p.configuration ? String(p.configuration).trim() : null;
             const typeVal = p.type || 'Hydro';
             const codVal = p.yearOfCommissioning ? String(p.yearOfCommissioning).trim() : null;
+            const rightMetricLabel = codVal
+              ? (p.status === 'Operational' ? 'Commissioned' : 'Target Year')
+              : unitsVal
+              ? 'Configuration'
+              : 'Sector';
+            const rightMetricValue = codVal || unitsVal || (p.sector || 'State Sector');
+            const detailsHref = `/our-business/power-station-details?id=${p.id}`;
             return (
-              <a 
-                href={`/our-business/power-station-details?id=${p.id}`} 
-                class={`project-card group relative bg-white border border-slate-200/90 border-t-[3px] ${topBorderClass} rounded-lg shadow-xs hover:shadow-md hover:-translate-y-0.5 hover:border-[#0B3D6B]/50 transition-all duration-200 flex flex-col h-full overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3D6B]`} 
-                data-status={p.status} 
-                data-type={p.type} 
-                data-name={p.name.toLowerCase()} 
+              <a
+                href={detailsHref}
+                class="project-card group bg-white border border-slate-200/90 border-t-[3px] !border-t-[#0B3D6B] rounded-lg shadow-xs hover:shadow-md hover:-translate-y-0.5 hover:border-[#0B3D6B]/50 transition-all duration-200 flex flex-col h-full overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3D6B]"
+                data-status={p.status}
+                data-type={p.type}
+                data-name={p.name.toLowerCase()}
                 data-search={`${p.name} ${formatProjectName(p.name)} ${p.location || ''} ${p.basin || ''} ${p.type || ''} ${p.status}`.toLowerCase()}
               >
-                <div class="p-5 flex-1 flex flex-col">
-                  <!-- Compact, Aligned Header Block -->
-                  <div class="min-h-[76px] flex flex-col">
-                    <span class={`inline-flex w-fit items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded mb-2 ${statusBadgeClass}`}>
+                <!-- Consistent Header Strip -->
+                <div class="bg-slate-50/80 border-b border-slate-100 px-4 py-3 flex flex-col justify-start">
+                  <div class="flex items-center justify-between gap-2 mb-2">
+                    <span class={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${statusBadgeClass}`}>
                       <span class={`w-1.5 h-1.5 rounded-full ${statusDotClass}`}></span>
                       {p.status}
                     </span>
-
-                    <h3 class="text-[15px] font-bold text-slate-900 group-hover:text-[#0B3D6B] transition-colors leading-snug line-clamp-2">
-                      {formatProjectName(p.name)}
-                    </h3>
-
-                    {(p.location || p.basin) && (
-                      <p class="text-xs text-slate-500 mt-1 truncate">
-                        {p.location}{p.location && p.basin ? ' • ' : ''}{p.basin ? (p.basin.toLowerCase().includes('basin') ? p.basin : `${p.basin} Basin`) : ''}
-                      </p>
-                    )}
+                    <span class="text-[10.5px] font-semibold text-slate-500 bg-white border border-slate-200/80 px-2 py-0.5 rounded truncate max-w-[115px]">
+                      {typeVal}
+                    </span>
                   </div>
 
-                  <!-- Dynamic Specs Box (hides empty Units/Target dashes gracefully) -->
-                  <dl class="grid grid-cols-2 gap-x-3 gap-y-2.5 bg-slate-50/90 border border-slate-200/70 rounded-md p-3.5 mt-3.5">
-                    {capVal && (
-                      <div>
-                        <dt class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Capacity</dt>
-                        <dd class="text-[13px] font-bold text-[#0B3D6B] leading-tight truncate tabular-nums mt-0.5" title={capVal}>{capVal}</dd>
-                      </div>
-                    )}
-                    <div>
-                      <dt class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Type</dt>
-                      <dd class="text-[13px] font-bold text-slate-900 leading-tight truncate mt-0.5" title={typeVal}>{typeVal}</dd>
+                  <h3 class="text-[14.5px] font-bold text-slate-900 group-hover:text-[#0B3D6B] transition-colors leading-snug line-clamp-2 min-h-[40px]">
+                    {formatProjectName(p.name)}
+                  </h3>
+
+                  <p class="text-[11.5px] text-slate-500 mt-1 truncate">
+                    {p.location || 'J&K'}{p.basin ? ` • ${p.basin.toLowerCase().includes('basin') ? p.basin : `${p.basin} Basin`}` : ''}
+                  </p>
+                </div>
+
+                <!-- Uniform Metric Strip Body -->
+                <div class="p-4 flex-1 flex items-center">
+                  <div class="w-full bg-slate-50/90 border border-slate-200/70 rounded-md px-3.5 py-2.5 flex items-center justify-between gap-3">
+                    <div class="min-w-0">
+                      <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-500 block">Capacity</span>
+                      <span class="text-sm font-extrabold text-[#0B3D6B] tabular-nums leading-tight block mt-0.5">
+                        {capVal || 'N/A'}
+                      </span>
                     </div>
-                    {unitsVal && (
-                      <div>
-                        <dt class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Units</dt>
-                        <dd class="text-[13px] font-bold text-slate-900 leading-tight truncate tabular-nums mt-0.5" title={unitsVal}>{unitsVal}</dd>
-                      </div>
-                    )}
-                    {codVal && (
-                      <div>
-                        <dt class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{p.status === 'Operational' ? 'COD' : 'Target'}</dt>
-                        <dd class="text-[13px] font-bold text-slate-900 leading-tight truncate tabular-nums mt-0.5" title={codVal}>{codVal}</dd>
-                      </div>
-                    )}
-                  </dl>
+                    <div class="text-right min-w-0">
+                      <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-500 block">{rightMetricLabel}</span>
+                      <span class="text-xs font-bold text-slate-800 truncate block mt-0.5 max-w-[130px]" title={rightMetricValue}>
+                        {rightMetricValue}
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
                 <!-- Matching Card Footer -->
-                <div class="mt-auto px-5 py-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between text-xs font-semibold text-[#0B3D6B]">
+                <div class="mt-auto px-4 py-2.5 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between text-xs font-semibold text-[#0B3D6B]">
                   <span class="group-hover:underline">View Details</span>
                   <span class="transition-transform group-hover:translate-x-0.5" aria-hidden="true">&rarr;</span>
                 </div>
@@ -1083,17 +1078,20 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
           <p class="text-xs text-slate-500 mt-1">Try adjusting your search keywords or switching category tabs.</p>
         </div>
 
-        <!-- View All Action Footer -->
+        <!-- 10-Per-Page Pagination Footer -->
         {displayProjects.length > 0 && (
-          <div id="project-footer-bar" class="mt-10 pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p id="project-count-text" class="text-sm font-medium text-slate-600">Showing {Math.min(6, displayProjects.length)} of {displayProjects.length} projects</p>
-            <div class="flex flex-wrap items-center justify-center sm:justify-end gap-3">
-              <a 
-                id="project-view-all-btn" 
-                href="#projects" 
-                class="h-11 px-5 rounded-md text-sm font-semibold inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors bg-[#0B3D6B] text-white hover:bg-[#082E52] shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3D6B] cursor-pointer"
+          <div id="project-footer-bar" class="mt-8 pt-5 border-t border-slate-200 flex flex-wrap items-center justify-between gap-4">
+            <p id="project-count-text" class="text-xs font-medium text-slate-500">
+              Showing <strong class="text-slate-700">1–{Math.min(10, displayProjects.length)}</strong> of <strong class="text-slate-700">{displayProjects.length}</strong> projects
+            </p>
+            <div class="flex flex-wrap items-center gap-3">
+              <nav id="project-pagination-controls" class="flex flex-wrap items-center gap-1.5" aria-label="Project portfolio pagination"></nav>
+              <a
+                href="/our-business/power-stations"
+                class="text-xs font-semibold text-[#0B3D6B] hover:underline inline-flex items-center gap-1 ml-1"
               >
-                View More &darr;
+                <span>Full Directory</span>
+                <span aria-hidden="true">&rarr;</span>
               </a>
             </div>
           </div>
@@ -1116,23 +1114,21 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
           <p class="text-sm text-slate-500 max-w-2xl leading-relaxed mt-2">One-click access to the most-used services and information across the corporation.</p>
         </div>
 
-        <!-- 10-Item 5-Column Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <!-- 10-Item Compact 5-Column Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
           {quickLinks.map((link) => (
             <a 
               href={link.href} 
-              class="group bg-white border border-slate-200/90 border-t-[3px] !border-t-[#0B3D6B] rounded-lg p-4 shadow-xs hover:shadow-md hover:-translate-y-0.5 hover:border-[#0B3D6B]/50 transition-all duration-200 flex flex-col justify-between gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3D6B]"
+              class="group bg-white border border-slate-200/90 border-t-[3px] !border-t-[#0B3D6B] rounded-lg px-3.5 py-3 shadow-xs hover:shadow-md hover:-translate-y-0.5 hover:border-[#0B3D6B]/50 transition-all duration-200 flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3D6B]"
             >
-              <div class="flex items-center justify-between gap-2">
-                <div class="w-10 h-10 rounded-lg bg-[#0B3D6B]/10 text-[#0B3D6B] group-hover:bg-[#0B3D6B] group-hover:text-white flex items-center justify-center shrink-0 transition-colors">
-                  <Icon name={link.icon} size={18} strokeWidth={2} class="w-[18px] h-[18px]" />
-                </div>
-                <span class="text-sm text-slate-400 group-hover:text-[#0B3D6B] group-hover:translate-x-0.5 transition-all" aria-hidden="true">&rarr;</span>
+              <div class="w-9 h-9 rounded-lg bg-[#0B3D6B]/10 text-[#0B3D6B] group-hover:bg-[#0B3D6B] group-hover:text-white flex items-center justify-center shrink-0 transition-colors">
+                <Icon name={link.icon} size={16} strokeWidth={2} class="w-4 h-4" />
               </div>
-              <div class="min-w-0">
-                <div class="text-sm font-bold text-slate-900 group-hover:text-[#0B3D6B] leading-snug transition-colors">{link.label}</div>
-                <div class="text-[11.5px] text-slate-500 leading-snug mt-1">{link.desc}</div>
+              <div class="min-w-0 flex-1">
+                <div class="text-[13px] font-bold text-slate-900 group-hover:text-[#0B3D6B] leading-tight truncate transition-colors">{link.label}</div>
+                <div class="text-[11px] text-slate-500 leading-tight truncate mt-0.5">{link.desc}</div>
               </div>
+              <span class="text-xs text-slate-400 group-hover:text-[#0B3D6B] group-hover:translate-x-0.5 shrink-0 transition-all" aria-hidden="true">&rarr;</span>
             </a>
           ))}
         </div>
@@ -1151,42 +1147,52 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
           <div class="w-10 h-0.5 bg-[#0B3D6B] mt-2.5 mx-auto"></div>
         </div>
 
-        <!-- Centered Government Portal Grid (4 on top, 3 centered at bottom) -->
-        <div class="flex flex-wrap justify-center gap-4">
-          {[
-            { name: "Central Electricity Authority", domain: "cea.nic.in", href: "https://cea.nic.in/", logo: "/logos/cea.webp" },
-            { name: "Ministry of Environment & Forests", domain: "moef.gov.in", href: "https://moef.gov.in/", logo: "/logos/moef.png" },
-            { name: "National Portal of India", domain: "india.gov.in", href: "https://www.india.gov.in/", logo: "/logos/india.svg" },
-            { name: "Ministry of New & Renewable Energy", domain: "mnre.gov.in", href: "https://mnre.gov.in/", logo: "/logos/mnre.svg" },
-            { name: "Power Development Dept (J&K)", domain: "pdd.jk.gov.in", href: "https://pdd.jk.gov.in/", logo: "/logos/pdd.svg" },
-            { name: "Central Water Commission", domain: "cwc.gov.in", href: "https://cwc.gov.in/", logo: "/logos/cwc.png" },
-            { name: "J&K Electricity Regulatory Commission", domain: "jercjkl.jk.gov.in", href: "https://jercjkl.jk.gov.in/AboutUs.html", logo: "/logos/jerc.png" },
-          ].map((portal) => (
-            <a 
-              href={portal.href} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              title={`${portal.name} (opens in new tab)`}
-              class="group bg-white border border-slate-200/90 border-t-[3px] !border-t-[#0B3D6B] rounded-lg shadow-xs hover:shadow-md hover:-translate-y-0.5 hover:border-[#0B3D6B]/50 transition-all duration-200 flex flex-col overflow-hidden w-full sm:w-[calc(50%-0.5rem)] md:w-[calc(33.333%-0.7rem)] lg:w-[calc(25%-0.75rem)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3D6B]"
-            >
-              <!-- Standardized Wide Emblem Band -->
-              <div class="w-full h-16 bg-slate-50/80 border-b border-slate-100 px-4 py-2.5 flex items-center justify-center">
-                <img src={portal.logo} alt={`${portal.name} Emblem`} class="max-h-10 max-w-full w-auto h-auto object-contain" />
+        <!-- Smooth Continuous Horizontal Marquee (pauses on hover/focus) -->
+        <div class="quick-links-marquee relative overflow-hidden py-2" role="region" aria-label="Government and Regulatory Portals Carousel">
+          <!-- Smooth Edge Fades -->
+          <div class="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 sm:w-16 bg-gradient-to-r from-white to-transparent" aria-hidden="true"></div>
+          <div class="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 sm:w-16 bg-gradient-to-l from-white to-transparent" aria-hidden="true"></div>
+
+          <div class="quick-links-track flex w-max items-stretch">
+            {[0, 1].map((dupIdx) => (
+              <div class="flex shrink-0 items-stretch gap-4 pr-4" aria-hidden={dupIdx > 0 ? 'true' : undefined}>
+                {[
+                  { name: "Central Electricity Authority", domain: "cea.nic.in", href: "https://cea.nic.in/", logo: "/logos/cea.webp" },
+                  { name: "Ministry of Environment & Forests", domain: "moef.gov.in", href: "https://moef.gov.in/", logo: "/logos/moef.png" },
+                  { name: "National Portal of India", domain: "india.gov.in", href: "https://www.india.gov.in/", logo: "/logos/india.svg" },
+                  { name: "Ministry of New & Renewable Energy", domain: "mnre.gov.in", href: "https://mnre.gov.in/", logo: "/logos/mnre.svg" },
+                  { name: "Power Development Dept (J&K)", domain: "pdd.jk.gov.in", href: "https://pdd.jk.gov.in/", logo: "/logos/pdd.svg" },
+                  { name: "Central Water Commission", domain: "cwc.gov.in", href: "https://cwc.gov.in/", logo: "/logos/cwc.png" },
+                  { name: "J&K Electricity Regulatory Commission", domain: "jercjkl.jk.gov.in", href: "https://jercjkl.jk.gov.in/AboutUs.html", logo: "/logos/jerc.png" },
+                ].map((portal) => (
+                  <a 
+                    href={portal.href} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    onclick="this.blur()"
+                    tabindex={dupIdx > 0 ? -1 : undefined}
+                    title={`${portal.name} (opens in new tab)`}
+                    class="group bg-white border border-slate-200/90 border-t-[3px] !border-t-[#0B3D6B] rounded-lg p-3 shadow-xs hover:shadow-md hover:-translate-y-0.5 hover:border-[#0B3D6B]/50 transition-all duration-200 flex items-center gap-3 text-left w-[265px] shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3D6B]"
+                  >
+                    <!-- Compact Wide Emblem Box -->
+                    <div class="w-14 h-11 rounded-md bg-slate-50 border border-slate-200/80 p-1.5 flex items-center justify-center shrink-0">
+                      <img src={portal.logo} alt={`${portal.name} Emblem`} class="max-w-full max-h-full w-auto h-auto object-contain" />
+                    </div>
+                    <div class="min-w-0 flex-1">
+                      <p class="text-xs font-bold text-slate-900 group-hover:text-[#0B3D6B] leading-snug line-clamp-2 transition-colors">
+                        {portal.name}
+                      </p>
+                      <div class="text-[11px] font-medium text-slate-500 group-hover:text-[#0B3D6B] truncate mt-0.5 flex items-center gap-1 transition-colors">
+                        <span class="truncate">{portal.domain}</span>
+                        <Icon name="external-link" size={10} strokeWidth={2.2} class="shrink-0" />
+                      </div>
+                    </div>
+                    <span class="sr-only">(opens in new tab)</span>
+                  </a>
+                ))}
               </div>
-              <!-- Title -->
-              <div class="px-4 py-3 flex-1 flex items-center justify-center text-center">
-                <p class="text-xs sm:text-[13px] font-bold text-slate-900 group-hover:text-[#0B3D6B] leading-snug line-clamp-2 transition-colors">
-                  {portal.name}
-                </p>
-              </div>
-              <!-- Matching Domain Footer Strip -->
-              <div class="mt-auto px-4 py-2 border-t border-slate-100 bg-slate-50/50 text-[11px] font-medium text-slate-500 group-hover:text-[#0B3D6B] flex items-center justify-center gap-1.5 transition-colors">
-                <span class="truncate">{portal.domain}</span>
-                <Icon name="external-link" size={11} strokeWidth={2.2} class="shrink-0" />
-              </div>
-              <span class="sr-only">(opens in new tab)</span>
-            </a>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -1364,46 +1370,21 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
   });
   setInterval(function() { goToProject(pCur + 1); }, 5500);
 
-  /* ── PROJECT FILTER & CATEGORY PREVIEW ───────────────────── */
+  /* ── PROJECT FILTER & 10-PER-PAGE PAGINATION ──────────────── */
   var cards = Array.from(document.querySelectorAll('.project-card'));
   var tabBtns = Array.from(document.querySelectorAll('.project-tab'));
   var searchEl = document.getElementById('project-search');
   var projectsGrid = document.getElementById('projects-grid');
   var emptyCategoryEl = document.getElementById('project-empty-category');
   var emptySearchEl = document.getElementById('project-empty-search');
-  var viewAllBtn = document.getElementById('project-view-all-btn');
+  var paginationEl = document.getElementById('project-pagination-controls');
   var projectCountEl = document.getElementById('project-count-text');
   var projectFooterBar = document.getElementById('project-footer-bar');
 
-  var PREVIEW_LIMIT = 6;
-  var isExpandedAll = false;
-
-  var categoryNav = {
-    'All': {
-      text: function() {
-        return isExpandedAll 
-          ? 'Show Less ↑' 
-          : 'View More ↓';
-      },
-      href: '#projects'
-    },
-    'Operational': {
-      text: function() { return 'View More →'; },
-      href: '/our-business/power-stations'
-    },
-    'Under Construction': {
-      text: function() { return 'View More →'; },
-      href: '/our-business/construction'
-    },
-    'Upcoming': {
-      text: function() { return 'View More →'; },
-      href: '/our-business/under-development'
-    }
-  };
-
+  var PAGE_SIZE = 10;
+  var currentPage = 1;
   var activeTab = 'All';
 
-  // Read URL query param if present (e.g. ?status=operational or ?status=upcoming)
   var urlParams = new URLSearchParams(window.location.search);
   var statusParam = urlParams.get('status');
   if (statusParam) {
@@ -1418,36 +1399,67 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     tabBtns.forEach(function(btn) {
       var isCurrent = btn.dataset.tab === activeTab;
       if (isCurrent) {
-        btn.className = 'project-tab px-3.5 py-2 text-sm font-semibold whitespace-nowrap transition-all rounded-md bg-[#0B3D6B] text-white shadow-xs';
+        btn.className = 'project-tab px-3.5 py-1.5 text-sm font-semibold whitespace-nowrap transition-all rounded-md bg-[#0B3D6B] text-white shadow-xs shrink-0 cursor-pointer';
         btn.setAttribute('aria-selected', 'true');
       } else {
-        btn.className = 'project-tab px-3.5 py-2 text-sm font-semibold whitespace-nowrap transition-all rounded-md text-slate-700 hover:text-slate-900 hover:bg-white/60';
+        btn.className = 'project-tab px-3.5 py-1.5 text-sm font-semibold whitespace-nowrap transition-all rounded-md text-slate-700 hover:text-slate-900 hover:bg-white/70 shrink-0 cursor-pointer';
         btn.setAttribute('aria-selected', 'false');
       }
     });
+  }
 
-    if (viewAllBtn && categoryNav[activeTab]) {
-      viewAllBtn.textContent = categoryNav[activeTab].text();
-      viewAllBtn.setAttribute('href', categoryNav[activeTab].href);
-      if (activeTab === 'All') {
-        viewAllBtn.className = 'h-11 px-5 rounded-md text-sm font-semibold inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors bg-[#0B3D6B] text-white hover:bg-[#082E52] shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3D6B] cursor-pointer';
+  function renderPagination(totalItems, totalPages) {
+    if (!paginationEl) return;
+    if (totalPages <= 1) {
+      paginationEl.innerHTML = '';
+      return;
+    }
+
+    var linkCls = 'inline-flex items-center justify-center min-w-8 h-8 px-2.5 rounded-md border border-slate-200 bg-white text-xs font-semibold text-slate-600 transition-colors hover:bg-[#EAF4FF] hover:text-[#0B3B60] hover:border-[#BDD7EE] cursor-pointer';
+    var disabledCls = 'inline-flex items-center justify-center min-w-8 h-8 px-2.5 rounded-md border border-slate-200 bg-white text-xs font-semibold text-slate-400 opacity-50 cursor-not-allowed';
+    var activeCls = 'inline-flex items-center justify-center min-w-8 h-8 px-2.5 rounded-md border border-[#0B3B60] bg-[#0B3B60] text-xs font-bold text-white cursor-default';
+
+    var html = '';
+    if (currentPage > 1) {
+      html += '<button type="button" data-page="' + (currentPage - 1) + '" class="' + linkCls + '" aria-label="Previous page">&lsaquo; Prev</button>';
+    } else {
+      html += '<button type="button" disabled class="' + disabledCls + '" aria-disabled="true">&lsaquo; Prev</button>';
+    }
+
+    for (var p = 1; p <= totalPages; p++) {
+      if (p === currentPage) {
+        html += '<button type="button" data-page="' + p + '" class="' + activeCls + '" aria-current="page" aria-label="Page ' + p + '">' + p + '</button>';
       } else {
-        viewAllBtn.className = 'h-11 px-5 rounded-md text-sm font-semibold inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors bg-white text-[#0B3D6B] border border-[#0B3D6B] hover:bg-[#0B3D6B]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3D6B] cursor-pointer';
+        html += '<button type="button" data-page="' + p + '" class="' + linkCls + '" aria-label="Page ' + p + '">' + p + '</button>';
       }
     }
+
+    if (currentPage < totalPages) {
+      html += '<button type="button" data-page="' + (currentPage + 1) + '" class="' + linkCls + '" aria-label="Next page">Next &rsaquo;</button>';
+    } else {
+      html += '<button type="button" disabled class="' + disabledCls + '" aria-disabled="true">Next &rsaquo;</button>';
+    }
+
+    paginationEl.innerHTML = html;
+    paginationEl.querySelectorAll('button[data-page]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var next = parseInt(btn.dataset.page, 10);
+        if (!isNaN(next) && next !== currentPage) {
+          currentPage = next;
+          filterProjects();
+          document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
   }
 
   function filterProjects() {
     var q = searchEl ? searchEl.value.trim().toLowerCase() : '';
 
-    // Filter projects belonging strictly to active category
     var categoryCards = cards.filter(function(c) {
       return activeTab === 'All' || c.dataset.status === activeTab;
     });
 
-    // Zero records in category: only show category-specific empty state if projects exist overall
-    // AND the user actively selected a specific category tab that has 0 matching items (e.g. Under Construction).
-    // If all projects count (cards.length) is 0, keep emptyCategoryEl hidden so ONLY the main empty state shows.
     if (cards.length > 0 && categoryCards.length === 0) {
       if (projectsGrid) projectsGrid.style.display = 'none';
       if (emptyCategoryEl) {
@@ -1468,7 +1480,6 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
       emptyCategoryEl.style.display = 'none';
     }
 
-    // If total projects are 0, do nothing further to prevent interfering with main empty state
     if (cards.length === 0) {
       if (emptyCategoryEl) {
         emptyCategoryEl.classList.add('hidden');
@@ -1481,14 +1492,12 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
       return;
     }
 
-    // Match with search query if typed
     var matchedCards = categoryCards.filter(function(c) {
       if (!q) return true;
       var searchContent = c.dataset.search || (c.dataset.name + ' ' + (c.dataset.status || ''));
       return searchContent.toLowerCase().includes(q);
     });
 
-    // Zero matches from search
     if (q && matchedCards.length === 0) {
       if (projectsGrid) projectsGrid.style.display = 'none';
       if (emptySearchEl) emptySearchEl.style.display = 'block';
@@ -1501,55 +1510,39 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     if (projectsGrid) projectsGrid.style.display = '';
     if (projectFooterBar) projectFooterBar.style.display = '';
 
-    // Show preview count when not searching and not expanded
-    var shownCount = 0;
-    var shouldLimit = !q && (!isExpandedAll || activeTab !== 'All');
+    var totalCount = matchedCards.length;
+    var totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+    if (currentPage > totalPages) currentPage = totalPages;
+
+    var startIdx = (currentPage - 1) * PAGE_SIZE;
+    var endIdx = Math.min(totalCount, startIdx + PAGE_SIZE);
+    var visibleSet = new Set(matchedCards.slice(startIdx, endIdx));
 
     cards.forEach(function(c) {
-      var isMatch = matchedCards.indexOf(c) !== -1;
-      if (isMatch) {
-        if (shouldLimit && shownCount >= PREVIEW_LIMIT) {
-          c.style.display = 'none';
-        } else {
-          c.style.display = '';
-          shownCount++;
-        }
-      } else {
-        c.style.display = 'none';
-      }
+      c.style.display = visibleSet.has(c) ? '' : 'none';
     });
 
-    var totalCount = q ? matchedCards.length : categoryCards.length;
     if (projectCountEl) {
-      projectCountEl.textContent = 'Showing ' + shownCount + ' of ' + totalCount + ' projects';
+      projectCountEl.innerHTML = 'Showing <strong class="text-slate-700">' + (totalCount === 0 ? 0 : startIdx + 1) + '–' + endIdx + '</strong> of <strong class="text-slate-700">' + totalCount + '</strong> projects';
     }
-  }
 
-  if (viewAllBtn) {
-    viewAllBtn.onclick = function(e) {
-      if (activeTab === 'All') {
-        e.preventDefault();
-        isExpandedAll = !isExpandedAll;
-        updateTabUI();
-        filterProjects();
-        if (!isExpandedAll) {
-          document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }
-    };
+    renderPagination(totalCount, totalPages);
   }
 
   tabBtns.forEach(function(btn) {
     btn.onclick = function() {
       activeTab = btn.dataset.tab;
-      isExpandedAll = false;
+      currentPage = 1;
       updateTabUI();
       filterProjects();
     };
   });
 
   if (searchEl) {
-    searchEl.oninput = filterProjects;
+    searchEl.oninput = function() {
+      currentPage = 1;
+      filterProjects();
+    };
   }
 
   updateTabUI();
@@ -1633,6 +1626,29 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
 
   .feed-row:hover {
     background-color: #EAF4FF !important;
+  }
+
+  /* ── IMPORTANT QUICK LINKS HORIZONTAL MARQUEE ── */
+  @keyframes quick-links-scroll {
+    0% {
+      transform: translate3d(0, 0, 0);
+    }
+    100% {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+
+  .quick-links-track {
+    animation-name: quick-links-scroll !important;
+    animation-duration: 30s !important;
+    animation-timing-function: linear !important;
+    animation-iteration-count: infinite !important;
+    will-change: transform;
+  }
+
+  .quick-links-marquee:hover .quick-links-track,
+  .quick-links-marquee:has(a:focus-visible) .quick-links-track {
+    animation-play-state: paused !important;
   }
 
 </style>

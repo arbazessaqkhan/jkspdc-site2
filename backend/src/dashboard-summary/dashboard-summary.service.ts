@@ -14,11 +14,23 @@ export interface TenderPipeline {
   nearestClosing: { id: string; title: string; referenceNo: string; closingDate: string | null } | null;
 }
 
+export interface SystemTelemetry {
+  uptimeSeconds: number;
+  memoryMb: number;
+  dbConnected: boolean;
+  dbLatencyMs: number;
+  totalUsers: number;
+  mfaEnabledUsers: number;
+  auditEvents24h: number;
+  serverTime: string;
+}
+
 export interface DashboardSummary {
   kpis: {
     operationalProjects: number;
     openTenders: number;
     pendingApplications: number;
+    totalCapacityMw: number;
     deltas: {
       operationalProjects: number;
       openTenders: number;
@@ -28,6 +40,7 @@ export interface DashboardSummary {
   projectStages: StageBreakdown;
   tenderPipeline: TenderPipeline;
   activitySeries: { date: string; count: number }[];
+  system: SystemTelemetry;
 }
 
 const dayKey = (d: Date) => d.toISOString().slice(0, 10);
@@ -39,9 +52,14 @@ export class DashboardSummaryService {
   async getSummary(): Promise<DashboardSummary> {
     const now = new Date();
     const in7Days = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
     const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const fourteenDaysAgoPrev = new Date(now.getTime() - 21 * 24 * 60 * 60 * 1000);
+
+    const dbStart = performance.now();
+    await this.prisma.$queryRaw`SELECT 1`;
+    const dbLatencyMs = Math.max(1, Math.round(performance.now() - dbStart));
 
     const [
       projects,
@@ -52,8 +70,11 @@ export class DashboardSummaryService {
       prevProjects,
       prevTenders,
       auditLogs,
+      totalUsers,
+      mfaEnabledUsers,
+      auditEvents24h,
     ] = await Promise.all([
-      this.prisma.powerStation.findMany({ select: { status: true } }),
+      this.prisma.powerStation.findMany({ select: { status: true, capacityMw: true } }),
       this.prisma.tender.groupBy({
         by: ['status'],
         _count: { _all: true },
@@ -77,14 +98,20 @@ export class DashboardSummaryService {
         where: { createdAt: { gte: fourteenDaysAgo } },
         select: { createdAt: true },
       }),
+      this.prisma.user.count(),
+      this.prisma.user.count({ where: { mfaEnabled: true } }),
+      this.prisma.auditLog.count({ where: { createdAt: { gte: twentyFourHoursAgo } } }),
     ]);
 
-    // Project stage breakdown
+    // Project stage breakdown & operational capacity
     const stageMap: StageBreakdown = { operational: 0, underConstruction: 0, upcoming: 0 };
+    let totalCapacityMw = 0;
     for (const p of projects) {
       const s = (p.status || '').toLowerCase();
-      if (s === 'operational') stageMap.operational++;
-      else if (s === 'under construction') stageMap.underConstruction++;
+      if (s === 'operational') {
+        stageMap.operational++;
+        totalCapacityMw += Number(p.capacityMw || 0);
+      } else if (s === 'under construction') stageMap.underConstruction++;
       else if (s === 'upcoming' || s === 'under development') stageMap.upcoming++;
     }
 
@@ -120,6 +147,7 @@ export class DashboardSummaryService {
         operationalProjects: stageMap.operational,
         openTenders: openCount,
         pendingApplications: submissions,
+        totalCapacityMw: Math.round(totalCapacityMw * 10) / 10,
         deltas: {
           operationalProjects: prevProjects,
           openTenders: prevTenders,
@@ -141,6 +169,16 @@ export class DashboardSummaryService {
           : null,
       },
       activitySeries,
+      system: {
+        uptimeSeconds: Math.round(process.uptime()),
+        memoryMb: Math.round(process.memoryUsage().rss / 1024 / 1024),
+        dbConnected: true,
+        dbLatencyMs,
+        totalUsers,
+        mfaEnabledUsers,
+        auditEvents24h,
+        serverTime: now.toISOString(),
+      },
     };
   }
 }

@@ -198,7 +198,18 @@ const visibleSections = NAV_SECTIONS.filter((s) => !s.adminOnly || userIsAdmin);
         </h2>
 
         <!-- Right Utilities & Profile Session -->
-        <div class="flex items-center gap-3 ml-auto">
+        <div class="flex items-center gap-2.5 sm:gap-3 ml-auto">
+          <a
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-slate-200 bg-white hover:bg-slate-50 text-[11px] font-semibold text-slate-600 hover:text-[#0B3B60] transition-colors"
+            title="Open Public Portal in new tab"
+          >
+            <Icon name="external-link" size={12} strokeWidth={2.2} />
+            <span>Public Site</span>
+          </a>
+
           <!-- Profile Badge -->
           <span class="admin-role-badge select-none">
             <span class="admin-role-dot" aria-hidden="true"></span>
