@@ -95,7 +95,7 @@ function getImageUrl(url: string) {
               <button 
                 id="toggle-gallery-active" 
                 type="button" 
-                class="px-3.5 py-2 text-sm font-semibold whitespace-nowrap transition-all rounded-md bg-[#0B3D6B] text-white shadow-xs cursor-pointer"
+                class="px-3.5 py-2 text-sm font-semibold whitespace-nowrap transition-all rounded-md bg-[#0B3B60] text-white shadow-xs cursor-pointer"
               >
                 Active Photos
               </button>
@@ -125,7 +125,7 @@ function getImageUrl(url: string) {
                 id="gallery-search" 
                 placeholder="Search photos by title or keyword…" 
                 autocomplete="off"
-                class="w-full sm:w-72 h-10 bg-white border border-slate-300 rounded-lg pl-9 pr-3.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3D6B]/40"
+                class="w-full sm:w-72 h-10 bg-white border border-slate-300 rounded-lg pl-9 pr-3.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3B60]/40"
                 aria-label="Search photos by title or keyword"
               />
             </div>
@@ -142,7 +142,7 @@ function getImageUrl(url: string) {
 
               return (
                 <article 
-                  class="gallery-item-card group bg-white border border-slate-200 rounded-lg overflow-hidden shadow-xs hover:shadow-md hover:border-[#0B3D6B]/50 transition-all flex flex-col h-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3D6B]"
+                  class="gallery-item-card group bg-white border border-slate-200 rounded-lg overflow-hidden shadow-xs hover:shadow-md hover:border-[#0B3B60]/50 transition-all flex flex-col h-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3B60]"
                   data-partition={item.partition || 'General'}
                   data-status={item.status || 'Active'}
                   data-src={getImageUrl(item.imageUrl)}
@@ -169,7 +169,7 @@ function getImageUrl(url: string) {
                       </div>
                     )}
                     <!-- Subtle Zoom Icon on Hover (Bottom Right Corner) -->
-                    <div class="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-full bg-black/45 group-hover:bg-[#0B3D6B] text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 shadow-sm z-10 pointer-events-none" aria-hidden="true">
+                    <div class="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-full bg-black/45 group-hover:bg-[#0B3B60] text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 shadow-sm z-10 pointer-events-none" aria-hidden="true">
                       <Icon name="zoom-in" size={14} class="text-white" />
                     </div>
                     <!-- Hover Tint -->
@@ -180,7 +180,7 @@ function getImageUrl(url: string) {
                   <div class="p-4 flex flex-col flex-1 bg-white">
                     <div class="flex items-center justify-between gap-2 mb-1">
                       {item.partition && (
-                        <span class="text-[11px] font-semibold uppercase tracking-wider text-[#0B3D6B] block truncate">
+                        <span class="text-[11px] font-semibold uppercase tracking-wider text-[#0B3B60] block truncate">
                           {item.partition}
                         </span>
                       )}
@@ -190,7 +190,7 @@ function getImageUrl(url: string) {
                         </span>
                       )}
                     </div>
-                    <h2 class="text-sm font-bold text-slate-900 group-hover:text-[#0B3D6B] leading-snug line-clamp-2 transition-colors">
+                    <h2 class="text-sm font-bold text-slate-900 group-hover:text-[#0B3B60] leading-snug line-clamp-2 transition-colors">
                       {item.title}
                     </h2>
                     {item.createdAt && (
@@ -301,7 +301,7 @@ function getImageUrl(url: string) {
     let lastFocusedElement: HTMLElement | null = null;
 
     function updateStatusButtons() {
-      const activeClasses = 'px-3.5 py-2 text-sm font-semibold whitespace-nowrap transition-all rounded-md bg-[#0B3D6B] text-white shadow-xs cursor-pointer';
+      const activeClasses = 'px-3.5 py-2 text-sm font-semibold whitespace-nowrap transition-all rounded-md bg-[#0B3B60] text-white shadow-xs cursor-pointer';
       const inactiveClasses = 'px-3.5 py-2 text-sm font-semibold whitespace-nowrap transition-all rounded-md text-slate-700 hover:text-slate-900 hover:bg-white/60 cursor-pointer';
 
       if (btnActive) btnActive.className = activeStatus === 'Active' ? activeClasses : inactiveClasses;
@@ -381,7 +381,7 @@ function getImageUrl(url: string) {
         lightboxCaption.innerHTML = `
           <div class="flex items-center justify-center gap-2 mb-2">
             ${isAlbum ? `
-              <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#0B3D6B] text-white shadow-xs">
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#0B3B60] text-white shadow-xs">
                 Photo ${currentPhotoIndex + 1} of ${currentAlbumPhotos.length}
               </span>
             ` : ''}

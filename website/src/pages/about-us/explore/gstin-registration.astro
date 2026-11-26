@@ -22,55 +22,61 @@ import Icon from '../../../components/Icon.astro';
     </div>
 
     <!-- Content -->
-    <div class="animate-fadeInUp delay-200">
+    <div class="animate-fadeInUp delay-200 mt-6 space-y-6">
       <!-- Main Content -->
-      <article class="prose-gov">
+      <article class="w-full space-y-6">
         
-        <!-- Registration Identifiers Dashboard Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
-          <div class="bg-gradient-to-br from-[#0B4F9C]/5 to-[#0B4F9C]/10 border border-[#0B3B60]/20 rounded-xl p-4 shadow-sm">
-            <span class="text-[10px] uppercase tracking-wider font-extrabold text-[#0B3B60] block">CIN (Corporate Identity Number)</span>
-            <span class="text-xs font-mono font-bold text-slate-800 block mt-1">U40101JK1995SGC001418</span>
+        <!-- Registration Identifiers Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div class="bg-white border border-slate-200/90 border-t-[3px] border-t-[#0B3B60] rounded-xl p-5 shadow-xs flex flex-col justify-between">
+            <span class="text-[11px] uppercase tracking-wider font-bold text-slate-500 block">CIN (Corporate Identity Number)</span>
+            <span class="text-sm sm:text-base font-mono font-extrabold text-[#002B49] tracking-tight block mt-1.5 select-all">U40101JK1995SGC001418</span>
           </div>
           
-          <div class="bg-gradient-to-br from-[#0B4F9C]/5 to-[#0B4F9C]/10 border border-[#0B3B60]/20 rounded-xl p-4 shadow-sm">
-            <span class="text-[10px] uppercase tracking-wider font-extrabold text-[#0B3B60] block">PAN (Permanent Account Number)</span>
-            <span class="text-xs font-mono font-bold text-slate-800 block mt-1">AAACJ9770H</span>
+          <div class="bg-white border border-slate-200/90 border-t-[3px] border-t-[#0B3B60] rounded-xl p-5 shadow-xs flex flex-col justify-between">
+            <span class="text-[11px] uppercase tracking-wider font-bold text-slate-500 block">PAN (Permanent Account Number)</span>
+            <span class="text-sm sm:text-base font-mono font-extrabold text-[#002B49] tracking-tight block mt-1.5 select-all">AAACJ9770H</span>
           </div>
 
-          <div class="bg-gradient-to-br from-[#D8681B]/5 to-[#D8681B]/10 border border-[#D8681B]/20 rounded-xl p-4 shadow-sm">
-            <span class="text-[10px] uppercase tracking-wider font-extrabold text-[#D8681B] block">Primary GSTIN</span>
-            <span class="text-xs font-mono font-bold text-[#D8681B] block mt-1">01AAACJ9770H2ZL</span>
+          <div class="bg-white border border-slate-200/90 border-t-[3px] border-t-[#0EA4E5] rounded-xl p-5 shadow-xs flex flex-col justify-between">
+            <span class="text-[11px] uppercase tracking-wider font-bold text-[#0B3B60] block">Primary GSTIN</span>
+            <span class="text-sm sm:text-base font-mono font-extrabold text-[#0B3B60] tracking-tight block mt-1.5 select-all">01AAACJ9770H2ZL</span>
           </div>
         </div>
 
-        <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
-          <h3 class="text-lg font-bold text-[#0B3B60] pb-2 border-b border-slate-100 flex items-center gap-2">
-            <Icon name="clipboard" size={20} class="text-[#0B3B60]" />
-            <span>Registration Details of JKSPDCL</span>
-          </h3>
+        <!-- Registration Details Table Card -->
+        <div class="bg-white border border-slate-200/80 rounded-xl p-5 sm:p-6 shadow-xs space-y-4">
+          <div class="pb-3 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-2">
+            <h2 class="text-base sm:text-lg font-bold text-[#0B3B60] flex items-center gap-2">
+              <Icon name="clipboard" size={18} class="text-[#0B3B60] shrink-0" />
+              <span>Registration Details of JKSPDCL</span>
+            </h2>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#0B3B60]/10 text-[#0B3B60]">
+              State Code: 01 (J&amp;K)
+            </span>
+          </div>
           <div class="table-wrapper">
-            <table class="table-data [&_th]:whitespace-normal [&_th]:align-top" aria-label="Registration Details of JKSPDCL">
+            <table class="table-data [&_th]:whitespace-normal [&_th]:align-middle" role="table" aria-label="Registration Details of JKSPDCL">
               <thead>
                 <tr>
-                  <th class="text-center font-bold w-10">#</th>
-                  <th class="font-bold th-wrap">Name of Projects/Units</th>
-                  <th class="font-bold th-wrap">Address of Principal / Additional Place of Business</th>
-                  <th class="font-bold th-wrap">State</th>
-                  <th class="text-center font-bold th-wrap">State Code</th>
-                  <th class="font-bold th-wrap">GSTIN</th>
-                  <th class="font-bold th-wrap">Principal Place of Business for GST</th>
+                  <th scope="col" class="text-center font-bold w-12">#</th>
+                  <th scope="col" class="font-bold min-w-[160px]">Name of Projects / Units</th>
+                  <th scope="col" class="font-bold min-w-[200px]">Principal / Additional Place of Business</th>
+                  <th scope="col" class="font-bold whitespace-nowrap">State</th>
+                  <th scope="col" class="text-center font-bold whitespace-nowrap">State Code</th>
+                  <th scope="col" class="font-bold whitespace-nowrap">GSTIN</th>
+                  <th scope="col" class="font-bold min-w-[200px]">Principal Place of Business for GST</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td class="text-center font-bold">1</td>
-                  <td class="font-semibold text-slate-800">Corporate Office, JKSPDC</td>
+                  <td class="text-center font-bold text-slate-500">1</td>
+                  <td class="font-bold text-[#0B3B60]">Corporate Office, JKSPDCL</td>
                   <td class="text-slate-600">Ashok Nagar, Satwari, Jammu-180004.</td>
-                  <td class="text-slate-600">Jammu & Kashmir</td>
+                  <td class="text-slate-700 whitespace-nowrap">Jammu &amp; Kashmir</td>
                   <td class="text-center font-mono font-semibold text-slate-800">01</td>
-                  <td class="font-mono font-bold text-[#0B3B60]">01AAACJ9770H2ZL</td>
-                  <td class="text-slate-600 font-semibold">Ashok Nagar, Satwari, Jammu-180004.</td>
+                  <td class="font-mono font-bold text-[#0B3B60] whitespace-nowrap">01AAACJ9770H2ZL</td>
+                  <td class="text-slate-700 font-medium">Ashok Nagar, Satwari, Jammu-180004.</td>
                 </tr>
               </tbody>
             </table>

@@ -177,18 +177,6 @@ const displayProjects = safeProjects;
 // missing setting; they never introduce carousel content.
 const heroSlideMs = Math.max(3, Math.min(10, Number(heroSettings.duration) || 3)) * 1000;
 
-const quickLinks = [
-  { icon: "building", label: "About JKSPDC", desc: "Corporate profile & leadership", href: "/about-us/explore/overview" },
-  { icon: "factory", label: "Projects", desc: "Explore power stations", href: "/our-business/power-stations" },
-  { icon: "file-text", label: "Tender Portal", desc: "Live tenders & bids", href: "/stakeholders/vendors/tender-bids" },
-  { icon: "scroll-text", label: "RTI", desc: "Right to Information", href: "/about-us/explore/rti" },
-  { icon: "landmark", label: "Investors", desc: "AGM & IPP Projects", href: "/stakeholders/investors/agm" },
-  { icon: "leaf", label: "CSR Policy", desc: "Community initiatives", href: "/sustainability/csr/policy" },
-  { icon: "image", label: "Media Gallery", desc: "Photos & event coverage", href: "/media/gallery" },
-  { icon: "download", label: "Downloads", desc: "Documents & forms", href: "/media/downloads" },
-  { icon: "bell", label: "Notifications", desc: "Circulars & updates", href: "/notifications" },
-  { icon: "eye", label: "Policies", desc: "Corporate guidelines", href: "/about-us/explore/policies" },
-];
 
 
 const corpStats = [
@@ -324,7 +312,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
 
               <!-- Directional edge-only scrims: keep center/right photo bright while guaranteeing WCAG AA text contrast -->
               <div class="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/15 to-transparent pointer-events-none" aria-hidden="true"></div>
-              <div class="absolute inset-y-0 left-0 w-full sm:w-3/5 bg-gradient-to-r from-[#0B3D6B]/80 via-[#0B3D6B]/35 to-transparent pointer-events-none" aria-hidden="true"></div>
+              <div class="absolute inset-y-0 left-0 w-full sm:w-3/5 bg-gradient-to-r from-[#0B3B60]/80 via-[#0B3B60]/35 to-transparent pointer-events-none" aria-hidden="true"></div>
 
               <!-- Safe-Zone Caption (No Box, Fits Above the Fold on 13.3" Laptops) -->
               <div class="absolute inset-0 z-10 flex items-center pointer-events-none">
@@ -342,7 +330,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                       <div class="mt-3.5">
                         <a
                           href={slide.ctaHref}
-                          class="inline-flex items-center gap-1.5 bg-white text-[#0B3D6B] hover:bg-slate-100 text-xs sm:text-sm font-semibold px-4 py-2 rounded-md shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                          class="inline-flex items-center gap-1.5 bg-white text-[#0B3B60] hover:bg-slate-100 text-xs sm:text-sm font-semibold px-4 py-2 rounded-md shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                         >
                           <span>{slide.ctaText || 'Explore Details'}</span>
                           <span aria-hidden="true">&rarr;</span>
@@ -421,14 +409,14 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
           
           <!-- COLUMN 1: WELCOME & OFFICE GALLERY CAROUSEL -->
-          <div class="bg-white border border-slate-200/90 border-t-[3px] border-t-[#0B3D6B] rounded-lg shadow-xs hover:shadow-md transition-shadow duration-200 flex flex-col overflow-hidden h-full">
-            <!-- Card Header -->
-            <div class="px-5 py-3.5 border-b border-slate-200/80 bg-slate-50/80 flex items-center justify-between gap-2">
+          <div class="bg-white border border-slate-200/90 rounded-xl shadow-xs hover:shadow-md transition-shadow duration-200 flex flex-col overflow-hidden h-full">
+            <!-- Card Header (Primary Color) -->
+            <div class="px-5 py-3.5 border-b border-[#002B49] bg-[#0B3B60] flex items-center justify-between gap-2">
               <div>
-                <span class="inline-block text-[11px] font-semibold tracking-wider uppercase text-[#0B3D6B]">CORPORATE OVERVIEW</span>
-                <h2 class="text-lg font-bold text-slate-900 leading-tight mt-0.5">Welcome to JKSPDCL</h2>
+                <span class="inline-block text-[11px] font-semibold tracking-wider uppercase text-[#A4D7F4]">CORPORATE OVERVIEW</span>
+                <h2 class="text-lg font-bold text-white leading-tight mt-0.5">Welcome to JKSPDCL</h2>
               </div>
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#0B3D6B]/10 text-[#0B3D6B] shrink-0">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/15 text-white border border-white/25 shrink-0">
                 Highlights
               </span>
             </div>
@@ -478,7 +466,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
               </div>
             ) : (
               <div class="relative w-full h-[300px] bg-slate-50/70 flex flex-col items-center justify-center p-6 text-center">
-                <div class="w-11 h-11 rounded-full bg-[#0B3D6B]/10 flex items-center justify-center text-[#0B3D6B] mb-2.5">
+                <div class="w-11 h-11 rounded-full bg-[#0B3B60]/10 flex items-center justify-center text-[#0B3B60] mb-2.5">
                   <Icon name="building" size={20} />
                 </div>
                 <h4 class="text-sm font-bold text-slate-800 mb-1">Corporate Overview</h4>
@@ -489,12 +477,12 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
             )}
 
             <!-- Card Footer -->
-            <div class="mt-auto px-5 py-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between text-xs font-semibold text-[#0B3D6B]">
+            <div class="mt-auto px-5 py-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between text-xs font-semibold text-[#0B3B60]">
               <a href="/about-us/explore/overview" class="hover:underline inline-flex items-center gap-1">
                 <span>Read More</span>
                 <span aria-hidden="true">&rarr;</span>
               </a>
-              <a href="/media/gallery" class="hover:underline inline-flex items-center gap-1.5 text-slate-600 hover:text-[#0B3D6B]">
+              <a href="/media/gallery" class="hover:underline inline-flex items-center gap-1.5 text-slate-600 hover:text-[#0B3B60]">
                 <Icon name="camera" size={13} class="shrink-0" />
                 <span>Office Gallery &rarr;</span>
               </a>
@@ -502,16 +490,16 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
           </div>
 
           <!-- COLUMN 2: TENDERS & BIDS -->
-          <div class="bg-white border border-slate-200/90 border-t-[3px] border-t-[#0B3D6B] rounded-lg shadow-xs hover:shadow-md transition-shadow duration-200 flex flex-col overflow-hidden h-full">
-            <!-- Card Header -->
-            <div class="px-5 py-3.5 border-b border-slate-200/80 bg-slate-50/80 flex items-center justify-between gap-2">
+          <div class="bg-white border border-slate-200/90 rounded-xl shadow-xs hover:shadow-md transition-shadow duration-200 flex flex-col overflow-hidden h-full">
+            <!-- Card Header (Primary Color) -->
+            <div class="px-5 py-3.5 border-b border-[#002B49] bg-[#0B3B60] flex items-center justify-between gap-2">
               <div>
-                <span class="inline-block text-[11px] font-semibold tracking-wider uppercase text-[#0B3D6B]">PROCUREMENT</span>
-                <h2 id="tenders-heading" class="text-lg font-bold text-slate-900 leading-tight mt-0.5">Tenders</h2>
+                <span class="inline-block text-[11px] font-semibold tracking-wider uppercase text-[#A4D7F4]">PROCUREMENT</span>
+                <h2 id="tenders-heading" class="text-lg font-bold text-white leading-tight mt-0.5">Tenders</h2>
               </div>
               {feedTenders.length > 0 && (
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-slow-pulse" aria-hidden="true"></span>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-100 border border-emerald-400/40 shrink-0">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-slow-pulse" aria-hidden="true"></span>
                   Live
                 </span>
               )}
@@ -561,7 +549,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                                 </span>
                               )}
                             </div>
-                            <h4 class="text-[13.5px] font-semibold text-slate-800 group-hover:text-[#0B3D6B] line-clamp-2 leading-snug transition-colors">
+                            <h4 class="text-[13.5px] font-semibold text-slate-800 group-hover:text-[#0B3B60] line-clamp-2 leading-snug transition-colors">
                               {isCorr ? (tender.title && tender.title.toLowerCase().startsWith('corrigendum') ? `${tender.title}${tender.parentTitle ? ` — ${tender.parentTitle}` : ''}` : `Corrigendum: ${tender.title}${tender.parentTitle ? ` — ${tender.parentTitle}` : ''}`) : tender.title}
                             </h4>
                           </a>
@@ -584,7 +572,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
             )}
 
             <!-- Card Footer -->
-            <div class="mt-auto px-5 py-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between text-xs font-semibold text-[#0B3D6B]">
+            <div class="mt-auto px-5 py-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between text-xs font-semibold text-[#0B3B60]">
               <a href="/stakeholders/vendors/tender-bids" class="hover:underline inline-flex items-center gap-1">
                 <span>View All Tenders</span>
                 <span aria-hidden="true">&rarr;</span>
@@ -596,15 +584,15 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
           </div>
 
           <!-- COLUMN 3: NOTIFICATIONS -->
-          <div class="bg-white border border-slate-200/90 border-t-[3px] border-t-[#0B3D6B] rounded-lg shadow-xs hover:shadow-md transition-shadow duration-200 flex flex-col overflow-hidden h-full">
-            <!-- Card Header -->
-            <div class="px-5 py-3.5 border-b border-slate-200/80 bg-slate-50/80 flex items-center justify-between gap-2">
+          <div class="bg-white border border-slate-200/90 rounded-xl shadow-xs hover:shadow-md transition-shadow duration-200 flex flex-col overflow-hidden h-full">
+            <!-- Card Header (Primary Color) -->
+            <div class="px-5 py-3.5 border-b border-[#002B49] bg-[#0B3B60] flex items-center justify-between gap-2">
               <div>
-                <span class="inline-block text-[11px] font-semibold tracking-wider uppercase text-[#0B3D6B]">UPDATES &amp; NOTICES</span>
-                <h2 id="notices-heading" class="text-lg font-bold text-slate-900 leading-tight mt-0.5">Notifications</h2>
+                <span class="inline-block text-[11px] font-semibold tracking-wider uppercase text-[#A4D7F4]">UPDATES &amp; NOTICES</span>
+                <h2 id="notices-heading" class="text-lg font-bold text-white leading-tight mt-0.5">Notifications</h2>
               </div>
               {feedNotifications.length > 0 && (
-                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-sky-50 text-[#0B3D6B] border border-sky-200 shrink-0">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/15 text-white border border-white/25 shrink-0">
                   {displayNotifs.length} {displayNotifs.length === 1 ? 'Notice' : 'Notices'}
                 </span>
               )}
@@ -650,7 +638,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                                 </span>
                               )}
                             </div>
-                            <h4 class="text-[13.5px] font-semibold text-slate-800 group-hover:text-[#0B3D6B] line-clamp-2 leading-snug transition-colors">
+                            <h4 class="text-[13.5px] font-semibold text-slate-800 group-hover:text-[#0B3B60] line-clamp-2 leading-snug transition-colors">
                               {notif.title}
                             </h4>
                           </a>
@@ -673,7 +661,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
             )}
 
             <!-- Card Footer -->
-            <div class="mt-auto px-5 py-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between text-xs font-semibold text-[#0B3D6B]">
+            <div class="mt-auto px-5 py-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between text-xs font-semibold text-[#0B3B60]">
               <a href="/notifications" class="hover:underline inline-flex items-center gap-1">
                 <span>View All Notifications</span>
                 <span aria-hidden="true">&rarr;</span>
@@ -692,9 +680,9 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Section Header -->
         <div class="text-left mb-8 flex-shrink-0">
-          <span class="inline-block text-xs font-semibold tracking-wider uppercase text-[#0B3D6B]">LEADERSHIP &amp; GOVERNANCE</span>
+          <span class="inline-block text-xs font-semibold tracking-wider uppercase text-[#0B3B60]">LEADERSHIP &amp; GOVERNANCE</span>
           <h2 id="dignitaries-heading" class="text-2xl sm:text-3xl font-bold text-slate-900 mt-1">Honorable Dignitaries</h2>
-          <div class="w-10 h-0.5 bg-[#0B3D6B] mt-2.5"></div>
+          <div class="w-10 h-0.5 bg-[#0B3B60] mt-2.5"></div>
         </div>
 
         <!-- Dignitaries Card Grid (Full Width, 4 cols) -->
@@ -710,11 +698,11 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
               return (
                 <a 
                   href={profileHref} 
-                  class="group relative bg-white border border-slate-200/90 border-t-[3px] border-t-[#0B3D6B] rounded-lg shadow-xs hover:shadow-md hover:-translate-y-0.5 hover:border-[#0B3D6B]/50 transition-all duration-200 flex flex-col items-center text-center h-full overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3D6B]"
+                  class="group bg-white border border-slate-200/90 rounded-xl shadow-xs hover:shadow-md hover:-translate-y-0.5 hover:border-[#0B3B60]/40 transition-all duration-200 flex flex-col items-center text-center h-full overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3B60]"
                 >
-                  <!-- Portrait Header Band (matches site card header tint) -->
-                  <div class="w-full bg-slate-50/80 border-b border-slate-100 pt-6 pb-5 px-5 flex items-center justify-center">
-                    <div class="w-28 h-28 rounded-full overflow-hidden border-2 border-white ring-2 ring-slate-200/90 group-hover:ring-[#0B3D6B]/60 bg-white shadow-xs shrink-0 transition-all flex items-center justify-center">
+                  <!-- Primary Header Band with Portrait -->
+                  <div class="w-full bg-[#0B3B60] border-b border-[#002B49] pt-5 pb-4 px-5 flex items-center justify-center">
+                    <div class="w-28 h-28 rounded-full overflow-hidden border-2 border-white ring-2 ring-white/25 group-hover:ring-white/60 bg-white shadow-sm shrink-0 transition-all flex items-center justify-center">
                       {photoSrc ? (
                         <img 
                           src={photoSrc} 
@@ -731,15 +719,15 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                   </div>
                   <!-- Aligned Text & Details -->
                   <div class="w-full flex-1 flex flex-col justify-start px-5 py-4">
-                    <h3 class="text-base font-bold text-slate-900 group-hover:text-[#0B3D6B] transition-colors leading-snug">
+                    <h3 class="text-base font-bold text-slate-900 group-hover:text-[#0B3B60] transition-colors leading-snug">
                       {d.name}
                     </h3>
                     <p class="text-xs font-medium uppercase tracking-wide text-slate-600 mt-1.5 leading-relaxed">
                       {d.position}
                     </p>
                   </div>
-                  <!-- Bottom Link Footer (matches site card footer) -->
-                  <div class="mt-auto w-full px-5 py-3 border-t border-slate-100 bg-slate-50/50 text-xs font-semibold text-[#0B3D6B] flex items-center justify-center gap-1">
+                  <!-- Bottom Link Footer -->
+                  <div class="mt-auto w-full px-5 py-3 border-t border-slate-100 bg-slate-50/50 text-xs font-semibold text-[#0B3B60] flex items-center justify-center gap-1">
                     <span class="group-hover:underline">View Profile</span>
                     <span class="transition-transform group-hover:translate-x-0.5" aria-hidden="true">&rarr;</span>
                   </div>
@@ -758,23 +746,23 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Section Header -->
         <div class="text-left mb-8 flex-shrink-0">
-          <span class="inline-block text-xs font-semibold tracking-wider uppercase text-[#0B3D6B]">CORPORATE PROFILE &amp; MEDIA</span>
+          <span class="inline-block text-xs font-semibold tracking-wider uppercase text-[#0B3B60]">CORPORATE PROFILE &amp; MEDIA</span>
           <h2 id="about-heading" class="text-2xl sm:text-3xl font-bold text-slate-900 mt-1">About Us &amp; Photo Gallery</h2>
-          <div class="w-10 h-0.5 bg-[#0B3D6B] mt-2.5"></div>
+          <div class="w-10 h-0.5 bg-[#0B3B60] mt-2.5"></div>
         </div>
 
         <!-- 2-Column Side-by-Side Equal-Height Cards -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
 
           <!-- Left: Corporate Profile Card (6 cols) -->
-          <div class="lg:col-span-6 bg-white border border-slate-200/90 border-t-[3px] border-t-[#0B3D6B] rounded-lg shadow-xs hover:shadow-md transition-shadow duration-200 flex flex-col overflow-hidden h-full">
+          <div class="lg:col-span-6 bg-white border border-slate-200/90 border-t-[3px] border-t-[#0B3B60] rounded-lg shadow-xs hover:shadow-md transition-shadow duration-200 flex flex-col overflow-hidden h-full">
             <!-- Card Header -->
             <div class="px-5 py-3.5 border-b border-slate-200/80 bg-slate-50/80 flex items-center justify-between gap-2">
               <div>
-                <span class="inline-block text-[11px] font-semibold tracking-wider uppercase text-[#0B3D6B]">ABOUT THE CORPORATION</span>
+                <span class="inline-block text-[11px] font-semibold tracking-wider uppercase text-[#0B3B60]">ABOUT THE CORPORATION</span>
                 <h3 class="text-lg font-bold text-slate-900 leading-tight mt-0.5">Powering J&amp;K Since 1995</h3>
               </div>
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#0B3D6B]/10 text-[#0B3D6B] shrink-0">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#0B3B60]/10 text-[#0B3B60] shrink-0">
                 Govt. PSU
               </span>
             </div>
@@ -793,27 +781,27 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
               <!-- Highlighted 3-Stat Grid (matches Project Portfolio specs box) -->
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
                 <div class="bg-slate-50/90 border border-slate-200/70 rounded-md p-3.5">
-                  <div class="text-lg font-bold text-[#0B3D6B] tabular-nums">1995</div>
+                  <div class="text-lg font-bold text-[#0B3B60] tabular-nums">1995</div>
                   <div class="text-[10.5px] font-semibold uppercase tracking-wider text-slate-500 mt-0.5">Incorporated</div>
                 </div>
                 <div class="bg-slate-50/90 border border-slate-200/70 rounded-md p-3.5">
-                  <div class="text-lg font-bold text-[#0B3D6B] tabular-nums">₹5,000 Cr</div>
+                  <div class="text-lg font-bold text-[#0B3B60] tabular-nums">₹5,000 Cr</div>
                   <div class="text-[10.5px] font-semibold uppercase tracking-wider text-slate-500 mt-0.5">Authorised Capital</div>
                 </div>
                 <div class="bg-slate-50/90 border border-slate-200/70 rounded-md p-3.5">
-                  <div class="text-lg font-bold text-[#0B3D6B] tabular-nums">₹2,357.61 Cr</div>
+                  <div class="text-lg font-bold text-[#0B3B60] tabular-nums">₹2,357.61 Cr</div>
                   <div class="text-[10.5px] font-semibold uppercase tracking-wider text-slate-500 mt-0.5">JV Investments</div>
                 </div>
               </div>
             </div>
 
             <!-- Card Footer -->
-            <div class="mt-auto px-5 py-3 border-t border-slate-100 bg-slate-50/50 flex flex-wrap items-center justify-between gap-3 text-xs font-semibold text-[#0B3D6B]">
+            <div class="mt-auto px-5 py-3 border-t border-slate-100 bg-slate-50/50 flex flex-wrap items-center justify-between gap-3 text-xs font-semibold text-[#0B3B60]">
               <a href="/about-us/explore/overview" class="hover:underline inline-flex items-center gap-1">
                 <span>Learn More About Us</span>
                 <span aria-hidden="true">&rarr;</span>
               </a>
-              <a href="/about-us/management/board" class="hover:underline inline-flex items-center gap-1 text-slate-600 hover:text-[#0B3D6B]">
+              <a href="/about-us/management/board" class="hover:underline inline-flex items-center gap-1 text-slate-600 hover:text-[#0B3B60]">
                 <span>Board of Directors</span>
                 <span aria-hidden="true">&rarr;</span>
               </a>
@@ -821,15 +809,15 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
           </div>
 
           <!-- Right: Project Photographs Carousel Card (6 cols) -->
-          <div class="lg:col-span-6 bg-white border border-slate-200/90 border-t-[3px] border-t-[#0B3D6B] rounded-lg shadow-xs hover:shadow-md transition-shadow duration-200 flex flex-col overflow-hidden h-full">
+          <div class="lg:col-span-6 bg-white border border-slate-200/90 border-t-[3px] border-t-[#0B3B60] rounded-lg shadow-xs hover:shadow-md transition-shadow duration-200 flex flex-col overflow-hidden h-full">
             <!-- Card Header -->
             <div class="px-5 py-3.5 border-b border-slate-200/80 bg-slate-50/80 flex items-center justify-between gap-2">
               <div>
-                <span class="inline-block text-[11px] font-semibold tracking-wider uppercase text-[#0B3D6B]">PROJECT SHOWCASE</span>
+                <span class="inline-block text-[11px] font-semibold tracking-wider uppercase text-[#0B3B60]">PROJECT SHOWCASE</span>
                 <h3 class="text-lg font-bold text-slate-900 leading-tight mt-0.5">Hydro &amp; Renewable Assets</h3>
               </div>
               {displayProjectPhotos.length > 0 && (
-                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-sky-50 text-[#0B3D6B] border border-sky-200 shrink-0">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-sky-50 text-[#0B3B60] border border-sky-200 shrink-0">
                   {displayProjectPhotos.length} {displayProjectPhotos.length === 1 ? 'Photo' : 'Photos'}
                 </span>
               )}
@@ -851,7 +839,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                       <!-- Overlay Caption -->
                       <div class="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-900/25 to-transparent flex flex-col justify-end p-4 pb-9 z-10">
                         <div class="flex items-center gap-2 mb-1.5 flex-wrap">
-                          <span class="inline-block text-[10px] font-bold uppercase bg-[#0B3D6B] text-white px-2 py-0.5 tracking-wider rounded-sm">
+                          <span class="inline-block text-[10px] font-bold uppercase bg-[#0B3B60] text-white px-2 py-0.5 tracking-wider rounded-sm">
                             {photo.partition || 'Hydroelectric Project'}
                           </span>
                           {photo.capacity && (
@@ -891,7 +879,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
               </div>
             ) : (
               <div class="relative w-full flex-1 min-h-[260px] bg-slate-50/70 flex flex-col items-center justify-center p-6 text-center">
-                <div class="w-11 h-11 rounded-full bg-[#0B3D6B]/10 flex items-center justify-center text-[#0B3D6B] mb-2.5">
+                <div class="w-11 h-11 rounded-full bg-[#0B3B60]/10 flex items-center justify-center text-[#0B3B60] mb-2.5">
                   <Icon name="image" size={20} />
                 </div>
                 <h4 class="text-sm font-bold text-slate-800 mb-1">Project Photographs</h4>
@@ -902,7 +890,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
             )}
 
             <!-- Card Footer -->
-            <div class="mt-auto px-5 py-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between text-xs font-semibold text-[#0B3D6B]">
+            <div class="mt-auto px-5 py-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between text-xs font-semibold text-[#0B3B60]">
               <a href="/media/gallery" class="hover:underline inline-flex items-center gap-1.5">
                 <Icon name="camera" size={13} class="shrink-0" />
                 <span>Explore Full Gallery &rarr;</span>
@@ -919,9 +907,9 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
         <!-- Header + Summary Counts Row -->
         <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-8">
           <div>
-            <span class="inline-block text-xs font-semibold tracking-wider uppercase text-[#0B3D6B]">PROJECT PORTFOLIO</span>
+            <span class="inline-block text-xs font-semibold tracking-wider uppercase text-[#0B3B60]">PROJECT PORTFOLIO</span>
             <h2 id="projects-heading" class="text-2xl sm:text-3xl font-bold text-slate-900 mt-1">Project Portfolio</h2>
-            <div class="w-10 h-0.5 bg-[#0B3D6B] mt-2.5 mb-2"></div>
+            <div class="w-10 h-0.5 bg-[#0B3B60] mt-2.5 mb-2"></div>
             <p class="text-sm text-slate-500 max-w-xl leading-relaxed">
               Discover operational hydroelectric plants, ongoing constructions and upcoming renewable projects across J&K.
             </p>
@@ -944,7 +932,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                 role="tab" 
                 aria-selected={tab === 'All' ? 'true' : 'false'} 
                 data-tab={tab} 
-                class={`project-tab px-3.5 py-1.5 text-sm font-semibold whitespace-nowrap transition-all rounded-md shrink-0 cursor-pointer ${tab === 'All' ? 'bg-[#0B3D6B] text-white shadow-xs' : 'text-slate-700 hover:text-slate-900 hover:bg-white/70'}`}
+                class={`project-tab px-3.5 py-1.5 text-sm font-semibold whitespace-nowrap transition-all rounded-md shrink-0 cursor-pointer ${tab === 'All' ? 'bg-[#0B3B60] text-white shadow-xs' : 'text-slate-700 hover:text-slate-900 hover:bg-white/70'}`}
               >
                 {tab === 'All' ? 'All Projects' : tab}
               </button>
@@ -958,7 +946,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
               id="project-search" 
               type="text" 
               placeholder="Search projects…" 
-              class="w-full md:w-72 h-9 bg-white border border-slate-200 rounded-md pl-9 pr-3.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3D6B]/40 transition-colors" 
+              class="w-full md:w-72 h-9 bg-white border border-slate-200 rounded-md pl-9 pr-3.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3B60]/40 transition-colors" 
               aria-label="Search projects by name, river basin, or location"
             />
           </div>
@@ -972,11 +960,16 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
               : p.status === 'Under Construction'
               ? 'bg-amber-50 text-amber-800 border border-amber-200'
               : 'bg-sky-50 text-sky-800 border border-sky-200';
+            const topBorderClass = p.status === 'Operational'
+              ? '!border-t-emerald-600'
+              : p.status === 'Under Construction'
+              ? '!border-t-amber-500'
+              : '!border-t-[#0B3B60]';
             const statusDotClass = p.status === 'Operational'
               ? 'bg-emerald-600'
               : p.status === 'Under Construction'
               ? 'bg-amber-500'
-              : 'bg-[#0B3D6B]';
+              : 'bg-[#0B3B60]';
             const capVal = p.capacityMw ? `${p.capacityMw} MW` : null;
             const unitsVal = p.configuration ? String(p.configuration).trim() : null;
             const typeVal = p.type || 'Hydro';
@@ -991,53 +984,47 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
             return (
               <a
                 href={detailsHref}
-                class="project-card group bg-white border border-slate-200/90 border-t-[3px] !border-t-[#0B3D6B] rounded-lg shadow-xs hover:shadow-md hover:-translate-y-0.5 hover:border-[#0B3D6B]/50 transition-all duration-200 flex flex-col h-full overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3D6B]"
+                class={`project-card group bg-white border border-slate-200/80 border-t-[3px] ${topBorderClass} rounded-xl p-4 shadow-xs hover:shadow-md hover:-translate-y-0.5 hover:border-[#0B3B60]/40 transition-all duration-200 flex flex-col h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3B60]`}
                 data-status={p.status}
                 data-type={p.type}
                 data-name={p.name.toLowerCase()}
                 data-search={`${p.name} ${formatProjectName(p.name)} ${p.location || ''} ${p.basin || ''} ${p.type || ''} ${p.status}`.toLowerCase()}
               >
-                <!-- Consistent Header Strip -->
-                <div class="bg-slate-50/80 border-b border-slate-100 px-4 py-3 flex flex-col justify-start">
-                  <div class="flex items-center justify-between gap-2 mb-2">
-                    <span class={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${statusBadgeClass}`}>
-                      <span class={`w-1.5 h-1.5 rounded-full ${statusDotClass}`}></span>
-                      {p.status}
-                    </span>
-                    <span class="text-[10.5px] font-semibold text-slate-500 bg-white border border-slate-200/80 px-2 py-0.5 rounded truncate max-w-[115px]">
-                      {typeVal}
-                    </span>
-                  </div>
-
-                  <h3 class="text-[14.5px] font-bold text-slate-900 group-hover:text-[#0B3D6B] transition-colors leading-snug line-clamp-2 min-h-[40px]">
-                    {formatProjectName(p.name)}
-                  </h3>
-
-                  <p class="text-[11.5px] text-slate-500 mt-1 truncate">
-                    {p.location || 'J&K'}{p.basin ? ` • ${p.basin.toLowerCase().includes('basin') ? p.basin : `${p.basin} Basin`}` : ''}
-                  </p>
+                <div class="flex items-center justify-between gap-2 mb-2.5">
+                  <span class={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${statusBadgeClass}`}>
+                    <span class={`w-1.5 h-1.5 rounded-full ${statusDotClass}`}></span>
+                    {p.status}
+                  </span>
+                  <span class="text-[10.5px] font-semibold text-slate-500 bg-slate-100/80 px-2 py-0.5 rounded truncate max-w-[115px]">
+                    {typeVal}
+                  </span>
                 </div>
 
-                <!-- Uniform Metric Strip Body -->
-                <div class="p-4 flex-1 flex items-center">
-                  <div class="w-full bg-slate-50/90 border border-slate-200/70 rounded-md px-3.5 py-2.5 flex items-center justify-between gap-3">
-                    <div class="min-w-0">
-                      <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-500 block">Capacity</span>
-                      <span class="text-sm font-extrabold text-[#0B3D6B] tabular-nums leading-tight block mt-0.5">
-                        {capVal || 'N/A'}
-                      </span>
-                    </div>
-                    <div class="text-right min-w-0">
-                      <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-500 block">{rightMetricLabel}</span>
-                      <span class="text-xs font-bold text-slate-800 truncate block mt-0.5 max-w-[130px]" title={rightMetricValue}>
-                        {rightMetricValue}
-                      </span>
-                    </div>
+                <h3 class="text-[14.5px] font-bold text-slate-900 group-hover:text-[#0B3B60] transition-colors leading-snug line-clamp-2 min-h-[40px]">
+                  {formatProjectName(p.name)}
+                </h3>
+
+                <p class="text-[11.5px] text-slate-500 mt-1 truncate mb-3">
+                  {p.location || 'J&K'}{p.basin ? ` • ${p.basin.toLowerCase().includes('basin') ? p.basin : `${p.basin} Basin`}` : ''}
+                </p>
+
+                <!-- Uniform Metric Strip -->
+                <div class="mt-auto w-full bg-slate-50/90 border border-slate-200/70 rounded-lg px-3.5 py-2.5 flex items-center justify-between gap-3">
+                  <div class="min-w-0">
+                    <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-500 block">Capacity</span>
+                    <span class="text-sm font-extrabold text-[#0B3B60] tabular-nums leading-tight block mt-0.5">
+                      {capVal || 'N/A'}
+                    </span>
+                  </div>
+                  <div class="text-right min-w-0">
+                    <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-500 block">{rightMetricLabel}</span>
+                    <span class="text-xs font-bold text-slate-800 truncate block mt-0.5 max-w-[130px]" title={rightMetricValue}>
+                      {rightMetricValue}
+                    </span>
                   </div>
                 </div>
 
-                <!-- Matching Card Footer -->
-                <div class="mt-auto px-4 py-2.5 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between text-xs font-semibold text-[#0B3D6B]">
+                <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-[#0B3B60]">
                   <span class="group-hover:underline">View Details</span>
                   <span class="transition-transform group-hover:translate-x-0.5" aria-hidden="true">&rarr;</span>
                 </div>
@@ -1088,7 +1075,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
               <nav id="project-pagination-controls" class="flex flex-wrap items-center gap-1.5" aria-label="Project portfolio pagination"></nav>
               <a
                 href="/our-business/power-stations"
-                class="text-xs font-semibold text-[#0B3D6B] hover:underline inline-flex items-center gap-1 ml-1"
+                class="text-xs font-semibold text-[#0B3B60] hover:underline inline-flex items-center gap-1 ml-1"
               >
                 <span>Full Directory</span>
                 <span aria-hidden="true">&rarr;</span>
@@ -1102,56 +1089,22 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
 
 
     <!-- ============================================================ -->
-    <!-- QUICK ACCESS GRID                                             -->
-    <!-- ============================================================ -->
-    <section aria-labelledby="quick-access-heading" class="text-left bg-slate-50 border-b border-slate-200 py-12 lg:py-16">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Section Header -->
-        <div class="text-left mb-8 flex-shrink-0">
-          <span class="inline-block text-xs font-semibold tracking-wider uppercase text-[#0B3D6B]">QUICK ACCESS</span>
-          <h2 id="quick-access-heading" class="text-2xl sm:text-3xl font-bold text-slate-900 mt-1">Navigate the Corporation</h2>
-          <div class="w-10 h-0.5 bg-[#0B3D6B] mt-2.5"></div>
-          <p class="text-sm text-slate-500 max-w-2xl leading-relaxed mt-2">One-click access to the most-used services and information across the corporation.</p>
-        </div>
-
-        <!-- 10-Item Compact 5-Column Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-          {quickLinks.map((link) => (
-            <a 
-              href={link.href} 
-              class="group bg-white border border-slate-200/90 border-t-[3px] !border-t-[#0B3D6B] rounded-lg px-3.5 py-3 shadow-xs hover:shadow-md hover:-translate-y-0.5 hover:border-[#0B3D6B]/50 transition-all duration-200 flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3D6B]"
-            >
-              <div class="w-9 h-9 rounded-lg bg-[#0B3D6B]/10 text-[#0B3D6B] group-hover:bg-[#0B3D6B] group-hover:text-white flex items-center justify-center shrink-0 transition-colors">
-                <Icon name={link.icon} size={16} strokeWidth={2} class="w-4 h-4" />
-              </div>
-              <div class="min-w-0 flex-1">
-                <div class="text-[13px] font-bold text-slate-900 group-hover:text-[#0B3D6B] leading-tight truncate transition-colors">{link.label}</div>
-                <div class="text-[11px] text-slate-500 leading-tight truncate mt-0.5">{link.desc}</div>
-              </div>
-              <span class="text-xs text-slate-400 group-hover:text-[#0B3D6B] group-hover:translate-x-0.5 shrink-0 transition-all" aria-hidden="true">&rarr;</span>
-            </a>
-          ))}
-        </div>
-      </div>
-    </section>
-
-    <!-- ============================================================ -->
     <!-- QUICK LINKS LOGO DIRECTORY SECTION                            -->
     <!-- ============================================================ -->
-    <section id="quick-links-section" aria-labelledby="marquee-heading" class="text-center bg-white border-b border-slate-200 py-12 lg:py-16">
+    <section id="quick-links-section" aria-labelledby="marquee-heading" class="text-center bg-slate-50 border-b border-slate-200 py-12 lg:py-16">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Centered Section Header -->
         <div class="text-center mb-8 flex-shrink-0">
-          <span class="inline-block text-xs font-semibold tracking-wider uppercase text-[#0B3D6B]">GOVERNMENT &amp; REGULATORY PORTALS</span>
+          <span class="inline-block text-xs font-semibold tracking-wider uppercase text-[#0B3B60]">GOVERNMENT &amp; REGULATORY PORTALS</span>
           <h2 id="marquee-heading" class="text-2xl sm:text-3xl font-bold text-slate-900 mt-1">Important Quick Links</h2>
-          <div class="w-10 h-0.5 bg-[#0B3D6B] mt-2.5 mx-auto"></div>
+          <div class="w-10 h-0.5 bg-[#0B3B60] mt-2.5 mx-auto"></div>
         </div>
 
         <!-- Smooth Continuous Horizontal Marquee (pauses on hover/focus) -->
         <div class="quick-links-marquee relative overflow-hidden py-2" role="region" aria-label="Government and Regulatory Portals Carousel">
           <!-- Smooth Edge Fades -->
-          <div class="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 sm:w-16 bg-gradient-to-r from-white to-transparent" aria-hidden="true"></div>
-          <div class="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 sm:w-16 bg-gradient-to-l from-white to-transparent" aria-hidden="true"></div>
+          <div class="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 sm:w-16 bg-gradient-to-r from-slate-50 to-transparent" aria-hidden="true"></div>
+          <div class="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 sm:w-16 bg-gradient-to-l from-slate-50 to-transparent" aria-hidden="true"></div>
 
           <div class="quick-links-track flex w-max items-stretch">
             {[0, 1].map((dupIdx) => (
@@ -1172,17 +1125,17 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                     onclick="this.blur()"
                     tabindex={dupIdx > 0 ? -1 : undefined}
                     title={`${portal.name} (opens in new tab)`}
-                    class="group bg-white border border-slate-200/90 border-t-[3px] !border-t-[#0B3D6B] rounded-lg p-3 shadow-xs hover:shadow-md hover:-translate-y-0.5 hover:border-[#0B3D6B]/50 transition-all duration-200 flex items-center gap-3 text-left w-[265px] shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3D6B]"
+                    class="group bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:shadow-md hover:-translate-y-0.5 hover:border-[#0B3B60]/50 transition-all duration-200 flex items-center gap-3 text-left w-[265px] shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3B60]"
                   >
                     <!-- Compact Wide Emblem Box -->
                     <div class="w-14 h-11 rounded-md bg-slate-50 border border-slate-200/80 p-1.5 flex items-center justify-center shrink-0">
                       <img src={portal.logo} alt={`${portal.name} Emblem`} class="max-w-full max-h-full w-auto h-auto object-contain" />
                     </div>
                     <div class="min-w-0 flex-1">
-                      <p class="text-xs font-bold text-slate-900 group-hover:text-[#0B3D6B] leading-snug line-clamp-2 transition-colors">
+                      <p class="text-xs font-bold text-slate-900 group-hover:text-[#0B3B60] leading-snug line-clamp-2 transition-colors">
                         {portal.name}
                       </p>
-                      <div class="text-[11px] font-medium text-slate-500 group-hover:text-[#0B3D6B] truncate mt-0.5 flex items-center gap-1 transition-colors">
+                      <div class="text-[11px] font-medium text-slate-500 group-hover:text-[#0B3B60] truncate mt-0.5 flex items-center gap-1 transition-colors">
                         <span class="truncate">{portal.domain}</span>
                         <Icon name="external-link" size={10} strokeWidth={2.2} class="shrink-0" />
                       </div>
@@ -1399,7 +1352,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     tabBtns.forEach(function(btn) {
       var isCurrent = btn.dataset.tab === activeTab;
       if (isCurrent) {
-        btn.className = 'project-tab px-3.5 py-1.5 text-sm font-semibold whitespace-nowrap transition-all rounded-md bg-[#0B3D6B] text-white shadow-xs shrink-0 cursor-pointer';
+        btn.className = 'project-tab px-3.5 py-1.5 text-sm font-semibold whitespace-nowrap transition-all rounded-md bg-[#0B3B60] text-white shadow-xs shrink-0 cursor-pointer';
         btn.setAttribute('aria-selected', 'true');
       } else {
         btn.className = 'project-tab px-3.5 py-1.5 text-sm font-semibold whitespace-nowrap transition-all rounded-md text-slate-700 hover:text-slate-900 hover:bg-white/70 shrink-0 cursor-pointer';
