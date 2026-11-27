@@ -216,7 +216,7 @@ const sys = summary?.system;
           <span id="mon-active-admins">{sys?.activeAdminsCount ?? 1} {(sys?.activeAdminsCount ?? 1) === 1 ? 'Admin' : 'Admins'} Live</span>
         </a>
 
-        <div class="inline-flex items-center gap-2.5 px-2.5 py-1 rounded bg-[#F4F6F9] border border-[#D8E0E8] text-[11px] font-semibold text-slate-600 tabular-nums">
+        <div class="inline-flex flex-wrap items-center gap-x-2.5 gap-y-1 px-2.5 py-1 rounded bg-[#F4F6F9] border border-[#D8E0E8] text-[11px] font-semibold text-slate-600 tabular-nums">
           <span>Synced: <strong id="mon-synced-at" class="text-[#0B2545]">just now</strong></span>
           <span class="text-slate-300">|</span>
           <span>API: <strong id="mon-api-lat" class="text-[#047857]">{initialLatencyMs} ms</strong></span>
@@ -428,7 +428,7 @@ const sys = summary?.system;
               <h2 class="text-xs font-bold uppercase tracking-wider text-[#0B2545]">System &amp; Infrastructure Health</h2>
               <a href="/admin/audit-logs" class="text-[11px] font-bold text-[#1D4ED8] hover:underline">Audit Feed &rarr;</a>
             </div>
-            <div class="grid grid-cols-2 gap-2 text-xs">
+            <div class="grid grid-cols-1 min-[380px]:grid-cols-2 gap-2 text-xs">
               <div class="p-2.5 rounded bg-[#F4F6F9] border border-[#D8E0E8] flex items-center justify-between">
                 <span class="text-slate-600 font-medium">API Status</span>
                 <span id="sys-api-status" class="font-bold text-[#047857] inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> Online</span>

@@ -209,7 +209,7 @@ const inProgressCount = kpiStats.inProgressCount ?? ippProjects.filter(p => p.st
     )}
 
     <!-- KPI Summary Cards -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+    <div class="grid grid-cols-1 min-[375px]:grid-cols-2 sm:grid-cols-4 gap-3.5">
       <div class="bg-white rounded-lg border border-slate-200 p-3.5 shadow-2xs">
         <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Total IPP Projects</span>
         <div class="text-xl font-extrabold text-slate-900 tracking-tight mt-0.5" id="stat-total-projects">{totalProjectsCount}</div>

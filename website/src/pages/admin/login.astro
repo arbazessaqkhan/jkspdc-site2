@@ -285,6 +285,12 @@ const currentYear = new Date().getFullYear();
         outline: 3px solid #106EE9;
         outline-offset: 2px;
       }
+      @media (max-width: 767px) {
+        input, button {
+          font-size: 16px;
+          min-height: 44px;
+        }
+      }
     </style>
     <script is:inline>
       function toggleHighContrast() {
@@ -696,7 +702,7 @@ const currentYear = new Date().getFullYear();
             </div>
 
             <div class="p-4 bg-slate-900 rounded-xl border border-slate-800 shadow-inner">
-              <div class="grid grid-cols-2 gap-2 text-center" id="recovery-codes-grid">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-center" id="recovery-codes-grid">
                 {recoveryCodes.map((code) => (
                   <div class="p-2 bg-slate-800/80 rounded border border-slate-700/60 font-mono text-xs font-bold text-emerald-400 tracking-wider">
                     {code}
@@ -705,7 +711,7 @@ const currentYear = new Date().getFullYear();
               </div>
             </div>
 
-            <div class="flex gap-2">
+            <div class="flex flex-col sm:flex-row gap-2">
               <button
                 type="button"
                 id="btn-copy-codes"

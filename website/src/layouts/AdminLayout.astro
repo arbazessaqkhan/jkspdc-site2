@@ -116,18 +116,18 @@ const visibleSections = NAV_SECTIONS.filter((s) => !s.adminOnly || userIsAdmin);
       })();
     </script>
   </head>
-  <body class="admin-page min-h-screen h-full overflow-x-hidden flex bg-[color:var(--adm-bg-subtle)]">
+  <body class="admin-page min-h-screen h-full flex bg-[color:var(--adm-bg-subtle)]" style="overflow-x: clip;">
 
     <a href="#main-admin-content" class="skip-link">Skip to Main Content</a>
 
-    <!-- Sidebar Navigation -->
-    <aside id="admin-sidebar" transition:persist="admin-sidebar" class="relative shrink-0 text-[color:var(--adm-text)] flex flex-col h-full z-45 transform -translate-x-full md:translate-x-0 md:static fixed top-0 left-0">
+    <!-- Sidebar Navigation (<1024px fixed slide-over drawer; >=1024px collapsible rail) -->
+    <aside id="admin-sidebar" transition:persist="admin-sidebar" class="fixed inset-y-0 left-0 z-50 lg:relative lg:inset-auto lg:z-45 shrink-0 text-[color:var(--adm-text)] flex flex-col h-full transform -translate-x-full lg:translate-x-0">
 
       <!-- Desktop Sidebar Toggle Button -->
       <button
         id="toggle-sidebar-collapse"
         type="button"
-        class="sidebar-collapse-btn hidden md:flex absolute -right-3.5 top-5 z-50 w-7 h-7 rounded-full bg-white border border-[color:var(--adm-border)] text-[color:var(--adm-muted)] shadow-md items-center justify-center cursor-pointer transition-all duration-150 hover:scale-110 focus:outline-none select-none"
+        class="sidebar-collapse-btn hidden lg:flex absolute -right-3.5 top-5 z-50 w-7 h-7 rounded-full bg-white border border-[color:var(--adm-border)] text-[color:var(--adm-muted)] shadow-md items-center justify-center cursor-pointer transition-all duration-150 hover:scale-110 focus:outline-none select-none"
         aria-label="Toggle Navigation Sidebar"
         title="Toggle sidebar (icons only)"
       >
@@ -175,8 +175,8 @@ const visibleSections = NAV_SECTIONS.filter((s) => !s.adminOnly || userIsAdmin);
       </div>
     </aside>
 
-    <!-- Overlay on mobile to dismiss sidebar -->
-    <div id="sidebar-overlay" class="fixed inset-0 bg-black/40 z-40 hidden md:hidden"></div>
+    <!-- Overlay on mobile & tablet to dismiss sidebar -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-slate-950/50 backdrop-blur-[1px] z-40 hidden lg:hidden"></div>
 
     <!-- Main Content Panel -->
     <div class="flex-grow flex flex-col min-w-0 h-full overflow-hidden">
@@ -184,26 +184,26 @@ const visibleSections = NAV_SECTIONS.filter((s) => !s.adminOnly || userIsAdmin);
       <!-- Top Brand Accent Line (locked palette) -->
       <div class="admin-accent-line"></div>
 
-      <!-- Top Action Bar (56px fixed, single-line) -->
-      <header class="admin-topbar h-14 px-4 sm:px-6 flex items-center justify-between gap-3 shrink-0 select-none whitespace-nowrap">
+      <!-- Top Action Bar (56px min, responsive single-line) -->
+      <header class="admin-topbar min-h-[56px] px-3 sm:px-6 flex items-center justify-between gap-2 sm:gap-3 shrink-0 select-none">
 
-        <!-- Toggle button on mobile -->
-        <button id="toggle-sidebar-btn" class="md:hidden p-2 text-[color:var(--adm-muted)] hover:bg-[color:var(--adm-bg-subtle)] rounded focus:outline-none shrink-0" aria-label="Toggle Navigation Sidebar">
+        <!-- Toggle button on mobile & tablet (<1024px) -->
+        <button id="toggle-sidebar-btn" type="button" class="lg:hidden min-w-[44px] min-h-[44px] -ml-1.5 flex items-center justify-center text-[color:var(--adm-muted)] hover:bg-[color:var(--adm-bg-subtle)] rounded focus:outline-none shrink-0 cursor-pointer" aria-label="Toggle Navigation Sidebar" aria-expanded="false" aria-controls="admin-sidebar">
           <Icon name="menu" size={20} />
         </button>
 
-        <!-- Dynamic Page Title / Breadcrumb (desktop) -->
-        <h2 class="admin-topbar-crumb hidden md:flex items-center gap-1.5 text-xs font-bold tracking-wide uppercase truncate min-w-0">
-          <span class="text-slate-500">JKSPDC ADMIN</span>
-          <span class="text-slate-300">/</span>
+        <!-- Dynamic Page Title / Breadcrumb -->
+        <h2 class="admin-topbar-crumb flex items-center gap-1.5 text-[11px] sm:text-xs font-bold tracking-wide uppercase truncate min-w-0">
+          <span class="hidden md:inline text-slate-500">JKSPDC ADMIN</span>
+          <span class="hidden md:inline text-slate-300">/</span>
           <span class="admin-topbar-current text-[#0B2545] truncate">{title}</span>
         </h2>
 
-        <!-- Quick Command Jump Trigger (Ctrl+K) -->
+        <!-- Quick Command Jump Trigger (Ctrl+K on Desktop, Search icon <1024px) -->
         <button
           type="button"
           id="admin-cmd-trigger"
-          class="hidden lg:inline-flex items-center justify-between gap-4 px-3 py-1.5 w-64 rounded border border-[#D8E0E8] bg-[#F4F6F9] hover:bg-white hover:border-[#0B2545]/40 text-xs text-slate-500 transition-colors cursor-pointer shrink-0"
+          class="hidden lg:inline-flex items-center justify-between gap-4 px-3 py-1.5 w-60 xl:w-64 rounded border border-[#D8E0E8] bg-[#F4F6F9] hover:bg-white hover:border-[#0B2545]/40 text-xs text-slate-500 transition-colors cursor-pointer shrink-0"
           aria-label="Quick jump to any admin module (Ctrl+K)"
         >
           <span class="inline-flex items-center gap-2">
@@ -214,7 +214,17 @@ const visibleSections = NAV_SECTIONS.filter((s) => !s.adminOnly || userIsAdmin);
         </button>
 
         <!-- Right Utilities & Profile Session -->
-        <div class="flex items-center gap-2 sm:gap-2.5 ml-auto shrink-0 whitespace-nowrap">
+        <div class="flex items-center gap-1.5 sm:gap-2.5 ml-auto shrink-0 whitespace-nowrap">
+          <button
+            type="button"
+            id="admin-cmd-trigger-mob"
+            class="lg:hidden min-w-[40px] min-h-[40px] rounded border border-[#D8E0E8] bg-[#F4F6F9] hover:bg-white text-slate-600 flex items-center justify-center cursor-pointer"
+            aria-label="Quick jump to any admin module"
+            title="Quick Jump (Ctrl+K)"
+          >
+            <Icon name="search" size={16} />
+          </button>
+
           <a
             href="/"
             target="_blank"
@@ -227,14 +237,14 @@ const visibleSections = NAV_SECTIONS.filter((s) => !s.adminOnly || userIsAdmin);
           </a>
 
           <!-- Profile Badge -->
-          <span class="admin-role-badge select-none whitespace-nowrap">
+          <span class="admin-role-badge hidden sm:inline-flex select-none whitespace-nowrap">
             <span class="admin-role-dot" aria-hidden="true"></span>
             {userRole}
           </span>
 
           <form method="POST" action="/admin/logout" class="inline m-0 p-0">
-            <button type="submit" id="admin-logout-btn" class="admin-btn admin-btn-ghost-danger admin-btn-sm whitespace-nowrap">
-              <Icon name="x" size={13} strokeWidth={2.5} /> Sign Out
+            <button type="submit" id="admin-logout-btn" class="admin-btn admin-btn-ghost-danger admin-btn-sm min-h-[40px] sm:min-h-0 px-2.5 sm:px-3 whitespace-nowrap" title="Sign Out">
+              <Icon name="x" size={13} strokeWidth={2.5} /> <span class="hidden sm:inline">Sign Out</span><span class="sm:hidden">Exit</span>
             </button>
           </form>
         </div>
@@ -283,8 +293,10 @@ const visibleSections = NAV_SECTIONS.filter((s) => !s.adminOnly || userIsAdmin);
       </div>
 
       <!-- Main Slot Content -->
-      <main id="main-admin-content" transition:animate="fade" class="flex-1 min-w-0 overflow-y-auto overflow-x-hidden p-5 sm:p-6 md:p-8 bg-[color:var(--adm-bg-subtle)] focus:outline-none" tabindex="-1">
-        <slot />
+      <main id="main-admin-content" transition:animate="fade" class="flex-1 min-w-0 overflow-y-auto overflow-x-hidden p-3 sm:p-5 lg:p-7 bg-[color:var(--adm-bg-subtle)] focus:outline-none" tabindex="-1">
+        <div class="admin-shell-container">
+          <slot />
+        </div>
       </main>
 
     </div>
@@ -330,26 +342,53 @@ const visibleSections = NAV_SECTIONS.filter((s) => !s.adminOnly || userIsAdmin);
     )}
 
     <script is:inline>
-      // Mobile sidebar logic
+      // Mobile & Tablet sidebar drawer logic (<1024px)
       var sidebar = document.getElementById('admin-sidebar');
       var toggleBtn = document.getElementById('toggle-sidebar-btn');
       var overlay = document.getElementById('sidebar-overlay');
 
-      function toggleSidebar() {
-        var isOpen = sidebar.classList.contains('translate-x-0');
-        if (isOpen) {
-          sidebar.classList.remove('translate-x-0');
-          sidebar.classList.add('-translate-x-full');
-          overlay.classList.add('hidden');
-        } else {
+      function setDrawerOpen(open) {
+        if (!sidebar || !overlay) return;
+        if (open) {
           sidebar.classList.remove('-translate-x-full');
           sidebar.classList.add('translate-x-0');
           overlay.classList.remove('hidden');
+          document.body.classList.add('admin-drawer-open');
+          if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'true');
+        } else {
+          sidebar.classList.remove('translate-x-0');
+          sidebar.classList.add('-translate-x-full');
+          overlay.classList.add('hidden');
+          document.body.classList.remove('admin-drawer-open');
+          if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
         }
       }
 
+      function toggleSidebar() {
+        var isOpen = sidebar && sidebar.classList.contains('translate-x-0');
+        setDrawerOpen(!isOpen);
+        if (isOpen && toggleBtn) toggleBtn.focus();
+      }
+
       toggleBtn?.addEventListener('click', toggleSidebar);
-      overlay?.addEventListener('click', toggleSidebar);
+      overlay?.addEventListener('click', function() {
+        setDrawerOpen(false);
+        if (toggleBtn) toggleBtn.focus();
+      });
+      document.getElementById('admin-nav-container')?.addEventListener('click', function(e) {
+        if (window.innerWidth < 1024 && e.target.closest('a[href]')) {
+          setDrawerOpen(false);
+        }
+      });
+      document.addEventListener('astro:page-load', function() {
+        if (window.innerWidth < 1024) setDrawerOpen(false);
+      });
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && sidebar && sidebar.classList.contains('translate-x-0') && window.innerWidth < 1024) {
+          setDrawerOpen(false);
+          if (toggleBtn) toggleBtn.focus();
+        }
+      });
 
       function toggleSidebarCollapse() {
         var sidebar = document.getElementById('admin-sidebar');
@@ -936,6 +975,7 @@ const visibleSections = NAV_SECTIONS.filter((s) => !s.adminOnly || userIsAdmin);
       (function() {
         function setupCmdPalette() {
           var trigger = document.getElementById('admin-cmd-trigger');
+          var triggerMob = document.getElementById('admin-cmd-trigger-mob');
           var modal = document.getElementById('admin-cmd-modal');
           var input = document.getElementById('admin-cmd-input');
           var items = document.querySelectorAll('#admin-cmd-list .admin-cmd-item');
@@ -954,6 +994,10 @@ const visibleSections = NAV_SECTIONS.filter((s) => !s.adminOnly || userIsAdmin);
           if (trigger && !trigger.dataset.cmdBound) {
             trigger.dataset.cmdBound = 'true';
             trigger.addEventListener('click', openCmd);
+          }
+          if (triggerMob && !triggerMob.dataset.cmdBound) {
+            triggerMob.dataset.cmdBound = 'true';
+            triggerMob.addEventListener('click', openCmd);
           }
           if (!modal.dataset.cmdBound) {
             modal.dataset.cmdBound = 'true';

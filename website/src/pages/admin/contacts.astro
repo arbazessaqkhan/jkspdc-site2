@@ -365,15 +365,15 @@ const totalCount = parsedSubmissions.length;
           <button type="button" id="modal-close-btn" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 flex items-center justify-center text-lg font-bold cursor-pointer transition-colors">&times;</button>
         </div>
 
-        <div class="p-6 flex flex-col gap-4 overflow-y-auto text-xs text-slate-700 leading-relaxed">
-          <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+        <div class="p-4 sm:p-6 flex flex-col gap-4 overflow-y-auto text-xs text-slate-700 leading-relaxed">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
             <div>
               <span class="text-[10px] uppercase font-bold text-slate-400 block">Submitter Name</span>
               <span id="modal-name" class="font-extrabold text-slate-900 text-sm"></span>
             </div>
             <div>
               <span class="text-[10px] uppercase font-bold text-slate-400 block">Email Address</span>
-              <span id="modal-email" class="font-mono text-[color:var(--adm-primary)] font-semibold"></span>
+              <span id="modal-email" class="font-mono text-[color:var(--adm-primary)] font-semibold break-all"></span>
             </div>
             <div>
               <span class="text-[10px] uppercase font-bold text-slate-400 block">Phone</span>
