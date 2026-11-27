@@ -1065,19 +1065,20 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
           <p class="text-xs text-slate-500 mt-1">Try adjusting your search keywords or switching category tabs.</p>
         </div>
 
-        <!-- 10-Per-Page Pagination Footer -->
+        <!-- 9-Per-Page Pagination Footer (3x3 balanced grid) -->
         {displayProjects.length > 0 && (
           <div id="project-footer-bar" class="mt-8 pt-5 border-t border-slate-200 flex flex-wrap items-center justify-between gap-4">
             <p id="project-count-text" class="text-xs font-medium text-slate-500">
-              Showing <strong class="text-slate-700">1–{Math.min(10, displayProjects.length)}</strong> of <strong class="text-slate-700">{displayProjects.length}</strong> projects
+              Showing <strong class="text-slate-700">1–{Math.min(9, displayProjects.length)}</strong> of <strong class="text-slate-700">{displayProjects.length}</strong> projects
             </p>
             <div class="flex flex-wrap items-center gap-3">
               <nav id="project-pagination-controls" class="flex flex-wrap items-center gap-1.5" aria-label="Project portfolio pagination"></nav>
               <a
+                id="project-category-link"
                 href="/our-business/power-stations"
-                class="text-xs font-semibold text-[#0B3B60] hover:underline inline-flex items-center gap-1 ml-1"
+                class="hidden text-xs font-semibold text-[#0B3B60] hover:underline items-center gap-1 ml-1"
               >
-                <span>Full Directory</span>
+                <span id="project-category-link-text">View Category Page</span>
                 <span aria-hidden="true">&rarr;</span>
               </a>
             </div>
@@ -1331,12 +1332,20 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
   var emptyCategoryEl = document.getElementById('project-empty-category');
   var emptySearchEl = document.getElementById('project-empty-search');
   var paginationEl = document.getElementById('project-pagination-controls');
+  var categoryLinkEl = document.getElementById('project-category-link');
+  var categoryLinkTextEl = document.getElementById('project-category-link-text');
   var projectCountEl = document.getElementById('project-count-text');
   var projectFooterBar = document.getElementById('project-footer-bar');
 
-  var PAGE_SIZE = 10;
+  var PAGE_SIZE = 9;
   var currentPage = 1;
   var activeTab = 'All';
+
+  var categoryRoutes = {
+    'Operational': { href: '/our-business/power-stations', label: 'All Operational Stations' },
+    'Under Construction': { href: '/our-business/construction', label: 'All Under Construction' },
+    'Upcoming': { href: '/our-business/under-development', label: 'All Upcoming Projects' },
+  };
 
   var urlParams = new URLSearchParams(window.location.search);
   var statusParam = urlParams.get('status');
@@ -1359,6 +1368,19 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
         btn.setAttribute('aria-selected', 'false');
       }
     });
+
+    if (categoryLinkEl && categoryLinkTextEl) {
+      var routeInfo = categoryRoutes[activeTab];
+      if (routeInfo) {
+        categoryLinkEl.setAttribute('href', routeInfo.href);
+        categoryLinkTextEl.textContent = routeInfo.label;
+        categoryLinkEl.classList.remove('hidden');
+        categoryLinkEl.classList.add('inline-flex');
+      } else {
+        categoryLinkEl.classList.add('hidden');
+        categoryLinkEl.classList.remove('inline-flex');
+      }
+    }
   }
 
   function renderPagination(totalItems, totalPages) {

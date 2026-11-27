@@ -90,17 +90,30 @@ export class AuthService {
     // Generate cryptographically secure raw token (256-bit entropy)
     const rawToken = crypto.randomBytes(32).toString('hex');
     const tokenHash = this.hashToken(rawToken);
-    const expiresAt = new Date(Date.now() + this.SESSION_LIFETIME_MS);
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + this.SESSION_LIFETIME_MS);
 
-    // Persist session to database (raw token is never saved)
-    await this.prisma.session.create({
-      data: {
-        tokenHash,
-        userId: user.id,
-        expiresAt,
-        lastActiveAt: new Date(),
-      },
-    });
+    // Enforce single active session per user: revoke all prior active sessions
+    // atomically before issuing the new session token (raw token is never saved).
+    await this.prisma.$transaction([
+      this.prisma.session.updateMany({
+        where: {
+          userId: user.id,
+          revokedAt: null,
+        },
+        data: {
+          revokedAt: now,
+        },
+      }),
+      this.prisma.session.create({
+        data: {
+          tokenHash,
+          userId: user.id,
+          expiresAt,
+          lastActiveAt: now,
+        },
+      }),
+    ]);
 
     return {
       token: rawToken,

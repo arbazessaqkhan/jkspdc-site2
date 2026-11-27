@@ -142,7 +142,7 @@ const formatDate = (dateStr: string) => {
               <th scope="col" class="w-16 text-center">S.No</th>
               <th scope="col" class="text-left">Meeting Title &amp; Particulars</th>
               <th scope="col" class="text-left w-48 whitespace-nowrap">Date of Meeting</th>
-              <th scope="col" class="text-center w-36 whitespace-nowrap">View Notice</th>
+              <th scope="col" class="text-center w-36 whitespace-nowrap">Document</th>
             </tr>
           </thead>
           <tbody id="agm-table-body">
@@ -161,6 +161,10 @@ const formatDate = (dateStr: string) => {
             ) : (
               agmDocuments.map((agm: any, idx: number) => {
                 const year = new Date(agm.meetingDate).getFullYear();
+                const docUrl = getDocUrl(agm.documentUrl);
+                const extMatch = (agm.fileName || agm.documentUrl || '').match(/\.([a-z0-9]+)(?:[?#]|$)/i);
+                const fileExt = extMatch ? extMatch[1].toUpperCase() : 'PDF';
+                const isPdf = fileExt === 'PDF';
                 return (
                   <tr 
                     class="agm-item-row hover:bg-slate-50/80 transition-colors"
@@ -182,15 +186,15 @@ const formatDate = (dateStr: string) => {
                     </td>
                     <td class="text-center whitespace-nowrap">
                       <a 
-                        href={getDocUrl(agm.documentUrl)} 
+                        href={docUrl} 
                         target="_blank" 
                         rel="noopener noreferrer" 
                         class="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 border border-[#0B3B60] hover:bg-[#0EA4E5] hover:text-white text-[#0B3B60] rounded text-xs font-bold transition-all"
-                        title={`View PDF: ${agm.fileName || agm.title} (opens in new tab)`}
+                        title={isPdf ? `View PDF: ${agm.fileName || agm.title} (opens in new tab)` : `Download ${fileExt}: ${agm.fileName || agm.title}`}
                       >
-                        <Icon name="file-text" size={12} />
-                        <span>View PDF</span>
-                        <span class="sr-only"> (opens in new tab)</span>
+                        <Icon name={isPdf ? 'file-text' : 'download'} size={12} />
+                        <span>{isPdf ? 'View PDF' : `Download ${fileExt}`}</span>
+                        <span class="sr-only"> {isPdf ? '(opens in new tab)' : '(downloads file)'}</span>
                       </a>
                     </td>
                   </tr>

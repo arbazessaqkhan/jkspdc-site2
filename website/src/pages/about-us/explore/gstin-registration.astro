@@ -44,43 +44,54 @@ import Icon from '../../../components/Icon.astro';
           </div>
         </div>
 
-        <!-- Registration Details Table Card -->
-        <div class="bg-white border border-slate-200/80 rounded-xl p-5 sm:p-6 shadow-xs space-y-4">
-          <div class="pb-3 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-2">
-            <h2 class="text-base sm:text-lg font-bold text-[#0B3B60] flex items-center gap-2">
-              <Icon name="clipboard" size={18} class="text-[#0B3B60] shrink-0" />
-              <span>Registration Details of JKSPDCL</span>
-            </h2>
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#0B3B60]/10 text-[#0B3B60]">
-              State Code: 01 (J&amp;K)
-            </span>
+        <!-- Scannable Registration Details Card -->
+        <div class="bg-white border border-slate-200/90 rounded-xl shadow-xs overflow-hidden">
+          <!-- Primary Header Band -->
+          <div class="bg-[#0B3B60] border-b border-[#002B49] px-5 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+              <span class="w-8 h-8 rounded-lg bg-white/15 border border-white/20 flex items-center justify-center shrink-0">
+                <Icon name="clipboard" size={17} class="text-white" />
+              </span>
+              <div>
+                <span class="block text-[10.5px] font-semibold uppercase tracking-wider text-[#A4D7F4]">Registered Entity &amp; Unit</span>
+                <h2 class="text-base sm:text-lg font-bold text-white leading-tight">Corporate Office, JKSPDCL</h2>
+              </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/15 text-white border border-white/25">
+                State Code: 01
+              </span>
+              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-mono font-bold bg-[#0EA4E5]/25 text-white border border-[#38BDF8]/40 select-all">
+                GSTIN: 01AAACJ9770H2ZL
+              </span>
+            </div>
           </div>
-          <div class="table-wrapper">
-            <table class="table-data [&_th]:whitespace-normal [&_th]:align-middle" role="table" aria-label="Registration Details of JKSPDCL">
-              <thead>
-                <tr>
-                  <th scope="col" class="text-center font-bold w-12">#</th>
-                  <th scope="col" class="font-bold min-w-[160px]">Name of Projects / Units</th>
-                  <th scope="col" class="font-bold min-w-[200px]">Principal / Additional Place of Business</th>
-                  <th scope="col" class="font-bold whitespace-nowrap">State</th>
-                  <th scope="col" class="text-center font-bold whitespace-nowrap">State Code</th>
-                  <th scope="col" class="font-bold whitespace-nowrap">GSTIN</th>
-                  <th scope="col" class="font-bold min-w-[200px]">Principal Place of Business for GST</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="text-center font-bold text-slate-500">1</td>
-                  <td class="font-bold text-[#0B3B60]">Corporate Office, JKSPDCL</td>
-                  <td class="text-slate-600">Ashok Nagar, Satwari, Jammu-180004.</td>
-                  <td class="text-slate-700 whitespace-nowrap">Jammu &amp; Kashmir</td>
-                  <td class="text-center font-mono font-semibold text-slate-800">01</td>
-                  <td class="font-mono font-bold text-[#0B3B60] whitespace-nowrap">01AAACJ9770H2ZL</td>
-                  <td class="text-slate-700 font-medium">Ashok Nagar, Satwari, Jammu-180004.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+
+          <!-- Structured Key-Value Details Grid -->
+          <dl class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-5 sm:p-6">
+            <div class="bg-slate-50/90 border border-slate-200/70 rounded-lg p-3.5">
+              <dt class="text-[10.5px] font-bold uppercase tracking-wider text-slate-500">Name of Projects / Units</dt>
+              <dd class="text-sm font-bold text-[#0B3B60] mt-1">Corporate Office, JKSPDCL</dd>
+            </div>
+            <div class="bg-slate-50/90 border border-slate-200/70 rounded-lg p-3.5">
+              <dt class="text-[10.5px] font-bold uppercase tracking-wider text-slate-500">State / Union Territory</dt>
+              <dd class="text-sm font-bold text-slate-900 mt-1">Jammu &amp; Kashmir <span class="text-xs font-mono font-semibold text-slate-500">(Code: 01)</span></dd>
+            </div>
+            <div class="bg-slate-50/90 border border-slate-200/70 rounded-lg p-3.5">
+              <dt class="text-[10.5px] font-bold uppercase tracking-wider text-slate-500">GSTIN</dt>
+              <dd class="text-sm font-mono font-extrabold text-[#0B3B60] mt-1 select-all">01AAACJ9770H2ZL</dd>
+            </div>
+            <div class="bg-slate-50/90 border border-slate-200/70 rounded-lg p-3.5 md:col-span-2 lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <dt class="text-[10.5px] font-bold uppercase tracking-wider text-slate-500">Address of Principal / Additional Place of Business</dt>
+                <dd class="text-sm font-semibold text-slate-800 mt-1">Ashok Nagar, Satwari, Jammu-180004.</dd>
+              </div>
+              <div class="md:border-l md:border-slate-200 md:pl-4">
+                <dt class="text-[10.5px] font-bold uppercase tracking-wider text-slate-500">Principal Place of Business for GST</dt>
+                <dd class="text-sm font-semibold text-slate-800 mt-1">Ashok Nagar, Satwari, Jammu-180004.</dd>
+              </div>
+            </div>
+          </dl>
         </div>
       </article>
     </div>
