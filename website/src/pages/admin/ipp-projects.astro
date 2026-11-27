@@ -232,8 +232,8 @@ const inProgressCount = kpiStats.inProgressCount ?? ippProjects.filter(p => p.st
       </div>
     </div>
 
-    <!-- Server-Side Filter & Search Controls Bar -->
-    <form method="GET" action="/admin/ipp-projects" class="admin-toolbar">
+    <!-- Live Filter & Search Controls Bar -->
+    <form method="GET" action="/admin/ipp-projects" class="admin-toolbar" data-live-filter>
       <div class="flex flex-wrap items-center gap-3 flex-1 min-w-0">
         <!-- Phase Dropdown -->
         <div class="flex items-center gap-2">
@@ -241,7 +241,6 @@ const inProgressCount = kpiStats.inProgressCount ?? ippProjects.filter(p => p.st
           <select 
             id="filter-phase" 
             name="phase"
-            onchange="this.form.submit()"
             class="bg-slate-50 border border-slate-300 rounded text-xs font-medium text-slate-800 px-2.5 py-1.5 focus:ring-1 focus:ring-[color:var(--adm-primary)] outline-none cursor-pointer"
           >
             <option value="all" selected={phaseFilter === 'all'}>All Phases (10 Phases)</option>
@@ -268,19 +267,9 @@ const inProgressCount = kpiStats.inProgressCount ?? ippProjects.filter(p => p.st
             class="admin-search-input w-full bg-slate-50 border border-slate-300 rounded text-xs text-slate-800 pr-3 py-1.5 focus:ring-1 focus:ring-[color:var(--adm-primary)] focus:border-[color:var(--adm-primary)] outline-none"
           />
         </div>
-
-        <button type="submit" class="px-3 py-1.5 bg-[#0B3D6B] hover:bg-[#082E52] text-white text-xs font-bold rounded cursor-pointer transition-colors">
-          Filter
-        </button>
-
-        {(phaseFilter !== 'all' || searchQuery) && (
-          <a href="/admin/ipp-projects" class="px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded transition-colors">
-            Reset
-          </a>
-        )}
       </div>
 
-      <div class="text-xs text-slate-500 font-medium shrink-0">
+      <div class="text-xs text-slate-500 font-medium shrink-0" data-live-count>
         Matching records: <span class="font-bold text-slate-800">{pagedTotal}</span>
       </div>
     </form>
@@ -758,6 +747,7 @@ const inProgressCount = kpiStats.inProgressCount ?? ippProjects.filter(p => p.st
     }
 
     document.addEventListener('astro:page-load', initIppPage);
+    document.addEventListener('admin:table-updated', initIppPage);
     initIppPage();
   </script>
 </AdminLayout>

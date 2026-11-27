@@ -23,11 +23,36 @@ export class AuditLogsService {
     }
   }
 
+  private async attachUsers(logs: any[]) {
+    if (!logs || logs.length === 0) return logs;
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const userIds = Array.from(
+      new Set(
+        logs
+          .map((l) => l.userId)
+          .filter((id): id is string => typeof id === 'string' && uuidRegex.test(id)),
+      ),
+    );
+    if (userIds.length === 0) {
+      return logs.map((l) => ({ ...l, user: null }));
+    }
+    const users = await this.prisma.user.findMany({
+      where: { id: { in: userIds } },
+      select: { id: true, name: true, email: true, role: true },
+    });
+    const userMap = new Map(users.map((u) => [u.id, u]));
+    return logs.map((l) => ({
+      ...l,
+      user: userMap.get(l.userId) ?? null,
+    }));
+  }
+
   async findAllLegacy() {
-    return this.prisma.auditLog.findMany({
+    const logs = await this.prisma.auditLog.findMany({
       orderBy: { createdAt: 'desc' },
       take: 100,
     });
+    return this.attachUsers(logs);
   }
 
   /**
@@ -36,14 +61,19 @@ export class AuditLogsService {
    */
   async findAll(q: PaginationDto = {}): Promise<any> {
     if (!wantsPagination(q)) {
-      return this.prisma.auditLog.findMany({ orderBy: { createdAt: 'desc' } });
+      const logs = await this.prisma.auditLog.findMany({ orderBy: { createdAt: 'desc' } });
+      return this.attachUsers(logs);
     }
-    return paginate({
+    const res = await paginate({
       page: q.page,
       pageSize: q.pageSize,
       count: () => this.prisma.auditLog.count({ where: undefined }),
       find: (skip, take) =>
         this.prisma.auditLog.findMany({ where: undefined, orderBy: { createdAt: 'desc' }, skip, take }),
     });
+    return {
+      ...res,
+      data: await this.attachUsers(res.data),
+    };
   }
 }

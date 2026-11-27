@@ -40,6 +40,12 @@ async function fetchJson<T>(url: string, options?: RequestInit): Promise<T | nul
   }
 }
 
+interface ActiveAdminInfo {
+  name: string;
+  email: string;
+  lastActiveAt: string;
+}
+
 interface SystemTelemetry {
   uptimeSeconds: number;
   memoryMb: number;
@@ -47,6 +53,8 @@ interface SystemTelemetry {
   dbLatencyMs: number;
   totalUsers: number;
   mfaEnabledUsers: number;
+  activeAdminsCount: number;
+  activeAdmins: ActiveAdminInfo[];
   auditEvents24h: number;
   serverTime: string;
 }
@@ -78,7 +86,7 @@ let initialLatencyMs = 0;
 
 let activeTenders: { id: string; referenceNo: string; title: string; closingDate: string | null }[] = [];
 let pendingApplications: { id: string; name: string; email: string; createdAt: string }[] = [];
-interface AuditItem { action: string; details: string | null; createdAt: string; }
+interface AuditItem { action: string; details: string | null; createdAt: string; userName?: string | null; }
 let recentActivity: AuditItem[] = [];
 
 if (userIsAdmin) {
@@ -99,10 +107,11 @@ if (userIsAdmin) {
     .sort((a, b) => new Date(a.closingDate || '2999-12-31').getTime() - new Date(b.closingDate || '2999-12-31').getTime())
     .slice(0, 6) as typeof activeTenders;
   pendingApplications = asArray<{ id: string; name?: string; email?: string; createdAt?: string }>(submissionsRes).slice(0, 6) as typeof pendingApplications;
-  recentActivity = asArray<{ action?: string; details?: string | null; createdAt?: string }>(logsRes).slice(0, 10).map((l) => ({
+  recentActivity = asArray<{ action?: string; details?: string | null; createdAt?: string; user?: { name?: string } | null }>(logsRes).slice(0, 10).map((l) => ({
     action: l.action || 'EVENT',
     details: l.details || null,
     createdAt: l.createdAt || '',
+    userName: l.user?.name || null,
   }));
 }
 
@@ -125,14 +134,22 @@ function prettyAction(action: string): string {
   return action.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-function detailLabel(details: string | null): string {
-  if (!details) return '';
-  try {
-    const d = JSON.parse(details);
-    return d.title || d.name || d.referenceNo || d.email || '';
-  } catch {
-    return details;
+function detailLabel(details: string | null, userName?: string | null): string {
+  const parts: string[] = [];
+  if (userName) parts.push(userName);
+  if (details) {
+    try {
+      const d = JSON.parse(details);
+      if (d.attempt !== undefined) parts.push(`Attempt #${d.attempt}`);
+      else if (d.mfaRequired === true) parts.push('MFA challenge issued');
+      else if (d.title || d.name || d.referenceNo || d.email) {
+        parts.push(d.title || d.name || d.referenceNo || d.email);
+      }
+    } catch {
+      parts.push(details);
+    }
   }
+  return parts.join(' · ');
 }
 
 function daysUntil(iso: string | null): number | null {
@@ -192,6 +209,16 @@ const sys = summary?.system;
 
       <!-- Live Telemetry & Controls -->
       <div class="flex flex-wrap items-center gap-2 sm:gap-2.5">
+        <a
+          href="/admin/users"
+          id="mon-active-admins-pill"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-[11px] font-bold text-emerald-800 tabular-nums hover:bg-emerald-100 transition-colors"
+          title={sys?.activeAdmins?.length ? `Active: ${sys.activeAdmins.map((a) => a.name).join(', ')}` : 'Active administrator sessions'}
+        >
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span id="mon-active-admins">{sys?.activeAdminsCount ?? 1} {(sys?.activeAdminsCount ?? 1) === 1 ? 'Admin' : 'Admins'} Live</span>
+        </a>
+
         <div class="inline-flex items-center gap-3 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-[11px] font-semibold text-slate-600 tabular-nums">
           <span>Synced: <strong id="mon-synced-at" class="text-[#0B3B60]">just now</strong></span>
           <span class="text-slate-300">|</span>
@@ -431,30 +458,30 @@ const sys = summary?.system;
                 <a href="/admin/tenders" class="dash-panel-link">View all <Icon name="arrow-right" size={11} strokeWidth={2.5} /></a>
               </div>
             </div>
-            <div id="live-tenders-body">
+            <div id="live-tenders-body" class="overflow-x-auto">
               {activeTenders.length === 0 ? (
                 <div class="admin-empty-state py-6">
                   <p class="text-xs text-[color:var(--adm-muted)] font-medium">No active tenders with open deadlines.</p>
                 </div>
               ) : (
-                <table class="dash-minitable">
+                <table class="dash-minitable w-full">
                   <thead>
-                    <tr><th scope="col">Tender</th><th scope="col">Closes</th><th scope="col" class="text-right">Action</th></tr>
+                    <tr><th scope="col">Tender</th><th scope="col" class="w-32 whitespace-nowrap">Closes</th><th scope="col" class="w-16 text-right whitespace-nowrap">Action</th></tr>
                   </thead>
                   <tbody>
                     {activeTenders.map((t) => {
                       const badge = urgencyBadge(t.closingDate);
                       return (
                         <tr>
-                          <td>
-                            <span class="block text-xs font-bold text-slate-800 truncate max-w-xs">{t.title}</span>
-                            <span class="block text-[11px] text-[color:var(--adm-muted)] font-medium">{t.referenceNo}</span>
+                          <td class="max-w-0 w-full">
+                            <span class="block text-xs font-bold text-slate-800 truncate">{t.title}</span>
+                            <span class="block text-[11px] text-[color:var(--adm-muted)] font-medium truncate">{t.referenceNo}</span>
                           </td>
-                          <td>
-                            <span class="text-xs font-semibold text-slate-700 whitespace-nowrap">{fmtDate(t.closingDate)}</span>
+                          <td class="whitespace-nowrap">
+                            <span class="text-xs font-semibold text-slate-700">{fmtDate(t.closingDate)}</span>
                             {badge.cls && <span class={`dash-urgency ${badge.cls}`}>{badge.label}</span>}
                           </td>
-                          <td class="text-right">
+                          <td class="text-right whitespace-nowrap">
                             <a href={`/admin/tenders?edit=${t.id}`} class="dash-panel-link">Edit</a>
                           </td>
                         </tr>
@@ -514,18 +541,21 @@ const sys = summary?.system;
                 </div>
               ) : (
                 <ol class="dash-timeline" aria-label="Recent administrative actions">
-                  {recentActivity.map((item) => (
+                  {recentActivity.map((item) => {
+                    const sub = detailLabel(item.details, item.userName);
+                    return (
                     <li class="dash-timeline-item">
                       <span class="dash-timeline-dot" aria-hidden="true"></span>
                       <div class="min-w-0">
                         <p class="text-xs font-bold text-slate-800">{prettyAction(item.action)}</p>
-                        {detailLabel(item.details) && (
-                          <p class="text-[11px] text-[color:var(--adm-muted)] font-medium truncate">{detailLabel(item.details)}</p>
+                        {sub && (
+                          <p class="text-[11px] text-[color:var(--adm-muted)] font-medium truncate">{sub}</p>
                         )}
                       </div>
                       <span class="dash-timeline-time">{relativeTime(item.createdAt)}</span>
                     </li>
-                  ))}
+                    );
+                  })}
                 </ol>
               )}
             </div>
@@ -603,14 +633,22 @@ const sys = summary?.system;
     return String(a || 'EVENT').replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, function (c) { return c.toUpperCase(); });
   }
 
-  function detailLabel(details) {
-    if (!details) return '';
-    try {
-      var d = JSON.parse(details);
-      return d.title || d.name || d.referenceNo || d.email || '';
-    } catch (e) {
-      return String(details);
+  function detailLabel(details, userName) {
+    var parts = [];
+    if (userName) parts.push(userName);
+    if (details) {
+      try {
+        var d = JSON.parse(details);
+        if (d.attempt !== undefined) parts.push('Attempt #' + d.attempt);
+        else if (d.mfaRequired === true) parts.push('MFA challenge issued');
+        else if (d.title || d.name || d.referenceNo || d.email) {
+          parts.push(d.title || d.name || d.referenceNo || d.email);
+        }
+      } catch (e) {
+        parts.push(String(details));
+      }
     }
+    return parts.join(' · ');
   }
 
   function bindChartHover(total) {
@@ -645,6 +683,12 @@ const sys = summary?.system;
       setText('mon-synced-at', new Date().toLocaleTimeString('en-GB', { hour12: false }));
       setText('mon-api-lat', data.apiLatencyMs + ' ms');
       setText('mon-db-lat', (sys.dbLatencyMs || '—') + ' ms');
+      var liveCount = typeof sys.activeAdminsCount === 'number' ? sys.activeAdminsCount : 1;
+      setText('mon-active-admins', liveCount + (liveCount === 1 ? ' Admin Live' : ' Admins Live'));
+      var livePill = document.getElementById('mon-active-admins-pill');
+      if (livePill && Array.isArray(sys.activeAdmins) && sys.activeAdmins.length > 0) {
+        livePill.title = 'Active: ' + sys.activeAdmins.map(function (a) { return a.name; }).join(', ');
+      }
 
       setText('kpi-op-projects', String(s.kpis.operationalProjects));
       setText('kpi-cap-mw', (s.kpis.totalCapacityMw || 0) + ' MW');
@@ -697,7 +741,7 @@ const sys = summary?.system;
         } else {
           actBody.innerHTML = '<ol class="dash-timeline" aria-label="Recent administrative actions">' +
             data.recentActivity.map(function (item) {
-              var lbl = detailLabel(item.details);
+              var lbl = detailLabel(item.details, item.userName);
               return '<li class="dash-timeline-item"><span class="dash-timeline-dot" aria-hidden="true"></span><div class="min-w-0"><p class="text-xs font-bold text-slate-800">' + escapeHtml(prettyAction(item.action)) + '</p>' +
                 (lbl ? '<p class="text-[11px] text-[color:var(--adm-muted)] font-medium truncate">' + escapeHtml(lbl) + '</p>' : '') +
                 '</div><span class="dash-timeline-time">' + escapeHtml(relTime(item.createdAt)) + '</span></li>';

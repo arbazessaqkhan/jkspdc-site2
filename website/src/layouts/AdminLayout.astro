@@ -788,6 +788,91 @@ const visibleSections = NAV_SECTIONS.filter((s) => !s.adminOnly || userIsAdmin);
         }
         window.bindAdminUploaders = bindAll;
       })();
+
+      // Global Live Filter Handler for admin toolbars (no Filter/Reset button clicks needed)
+      (function() {
+        function bindLiveFilters() {
+          document.querySelectorAll('form[data-live-filter]').forEach(function(form) {
+            if (form.dataset.liveFilterBound) return;
+            form.dataset.liveFilterBound = 'true';
+
+            var timer = null;
+            var controller = null;
+
+            async function runLiveFilter() {
+              if (controller) controller.abort();
+              controller = new AbortController();
+
+              var baseAction = form.getAttribute('action') || window.location.pathname;
+              var params = new URLSearchParams();
+              var fd = new FormData(form);
+              fd.forEach(function(val, key) {
+                var str = String(val || '').trim();
+                if (!str) return;
+                if ((key === 'phase' && str === 'all') || (key === 'status' && str === 'All')) return;
+                params.set(key, str);
+              });
+
+              var qs = params.toString();
+              var targetUrl = qs ? baseAction + '?' + qs : baseAction;
+
+              try {
+                var res = await fetch(targetUrl, {
+                  headers: { 'Accept': 'text/html' },
+                  signal: controller.signal,
+                });
+                if (!res.ok) return;
+                var html = await res.text();
+                var doc = new DOMParser().parseFromString(html, 'text/html');
+
+                var curCard = document.querySelector('.admin-table-card');
+                var nextCard = doc.querySelector('.admin-table-card');
+                if (curCard && nextCard) {
+                  curCard.innerHTML = nextCard.innerHTML;
+                }
+
+                var curCount = document.querySelector('[data-live-count]');
+                var nextCount = doc.querySelector('[data-live-count]');
+                if (curCount && nextCount) {
+                  curCount.innerHTML = nextCount.innerHTML;
+                }
+
+                window.history.replaceState({}, '', targetUrl);
+                document.dispatchEvent(new CustomEvent('admin:table-updated'));
+              } catch (err) {
+                if (err && err.name === 'AbortError') return;
+              }
+            }
+
+            form.addEventListener('submit', function(e) {
+              e.preventDefault();
+              if (timer) clearTimeout(timer);
+              runLiveFilter();
+            });
+
+            form.querySelectorAll('input[type="text"], input[type="search"]').forEach(function(inp) {
+              inp.addEventListener('input', function() {
+                if (timer) clearTimeout(timer);
+                timer = setTimeout(runLiveFilter, 200);
+              });
+            });
+
+            form.querySelectorAll('select').forEach(function(sel) {
+              sel.addEventListener('change', function() {
+                if (timer) clearTimeout(timer);
+                runLiveFilter();
+              });
+            });
+          });
+        }
+
+        document.addEventListener('astro:page-load', bindLiveFilters);
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', bindLiveFilters);
+        } else {
+          bindLiveFilters();
+        }
+      })();
     </script>
   </body>
 </html>

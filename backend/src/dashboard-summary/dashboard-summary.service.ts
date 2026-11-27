@@ -14,6 +14,12 @@ export interface TenderPipeline {
   nearestClosing: { id: string; title: string; referenceNo: string; closingDate: string | null } | null;
 }
 
+export interface ActiveAdminInfo {
+  name: string;
+  email: string;
+  lastActiveAt: string;
+}
+
 export interface SystemTelemetry {
   uptimeSeconds: number;
   memoryMb: number;
@@ -21,6 +27,8 @@ export interface SystemTelemetry {
   dbLatencyMs: number;
   totalUsers: number;
   mfaEnabledUsers: number;
+  activeAdminsCount: number;
+  activeAdmins: ActiveAdminInfo[];
   auditEvents24h: number;
   serverTime: string;
 }
@@ -73,6 +81,7 @@ export class DashboardSummaryService {
       totalUsers,
       mfaEnabledUsers,
       auditEvents24h,
+      activeAdminSessions,
     ] = await Promise.all([
       this.prisma.powerStation.findMany({ select: { status: true, capacityMw: true } }),
       this.prisma.tender.groupBy({
@@ -101,7 +110,36 @@ export class DashboardSummaryService {
       this.prisma.user.count(),
       this.prisma.user.count({ where: { mfaEnabled: true } }),
       this.prisma.auditLog.count({ where: { createdAt: { gte: twentyFourHoursAgo } } }),
+      this.prisma.session.findMany({
+        where: {
+          revokedAt: null,
+          expiresAt: { gt: now },
+          user: {
+            isActive: true,
+            role: { in: ['ADMIN', 'SUPER_ADMIN'] },
+          },
+        },
+        select: {
+          userId: true,
+          lastActiveAt: true,
+          user: { select: { name: true, email: true } },
+        },
+        orderBy: { lastActiveAt: 'desc' },
+      }),
     ]);
+
+    // Deduplicate active admin sessions by userId
+    const activeAdminMap = new Map<string, ActiveAdminInfo>();
+    for (const sess of activeAdminSessions) {
+      if (!activeAdminMap.has(sess.userId)) {
+        activeAdminMap.set(sess.userId, {
+          name: sess.user.name,
+          email: sess.user.email,
+          lastActiveAt: sess.lastActiveAt.toISOString(),
+        });
+      }
+    }
+    const activeAdmins = Array.from(activeAdminMap.values());
 
     // Project stage breakdown & operational capacity
     const stageMap: StageBreakdown = { operational: 0, underConstruction: 0, upcoming: 0 };
@@ -176,6 +214,8 @@ export class DashboardSummaryService {
         dbLatencyMs,
         totalUsers,
         mfaEnabledUsers,
+        activeAdminsCount: activeAdmins.length,
+        activeAdmins,
         auditEvents24h,
         serverTime: now.toISOString(),
       },

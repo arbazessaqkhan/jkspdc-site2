@@ -253,7 +253,7 @@ if (safeTenders.length > 0) {
         referenceNo: t.referenceNo,
         publishDate: c.publishDate || c.createdAt || t.publishDate,
         closingDate: c.extendedClosingDate || t.closingDate,
-        documentUrl: c.documentUrl || t.documentUrl,
+        documentUrl: c.documentUrl || c.fileUrl || t.documentUrl,
         isCorrigendum: true,
       });
     });
@@ -522,9 +522,13 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                         const isCorr = tender.isCorrigendum;
                         const isNew = tender.isNew;
                         const tenderDetailsUrl = `/stakeholders/vendors/tender-details?id=${tender.parentTenderId || tender.id}${isCorr && tender.id ? `#corrigendum-${tender.id}` : ''}`;
+                        const resolvedDocUrl = tender.documentUrl ? getDocUrl(tender.documentUrl) : '#';
+                        const targetHref = resolvedDocUrl && resolvedDocUrl !== '#' ? resolvedDocUrl : tenderDetailsUrl;
                         return (
                           <a 
-                            href={tenderDetailsUrl} 
+                            href={targetHref} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
                             onclick="this.blur()"
                             class="feed-row block border-b border-slate-100 py-3 last:border-b-0 transition-colors text-left select-none group"
                           >

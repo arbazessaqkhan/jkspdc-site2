@@ -291,20 +291,20 @@ const activeOverviewItemCount = Array.isArray(overviewSettings.items)
 
     <!-- Search & Filter Bar -->
     <div class="bg-white rounded-lg border border-slate-200 p-4 shadow-xs">
-      <form method="GET" class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+      <form method="GET" action="/admin/gallery" class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center" data-live-filter>
         <!-- Title Search -->
-        <div class="relative flex-1">
+        <div class="admin-search-wrapper flex-1">
+          <span class="admin-search-icon">
+            <Icon name="search" size={14} />
+          </span>
           <input 
             type="text" 
             name="q" 
             value={searchQuery} 
             placeholder="Search images by title..." 
-            class="admin-input pl-9 text-xs w-full"
+            class="admin-search-input admin-input text-xs w-full"
             aria-label="Search images by title"
           />
-          <span class="absolute left-3 top-2.5 text-slate-400">
-            <Icon name="search" size={14} />
-          </span>
         </div>
 
         <!-- Project Filter -->
@@ -322,16 +322,6 @@ const activeOverviewItemCount = Array.isArray(overviewSettings.items)
             ))}
           </select>
         </div>
-
-        <button type="submit" class="admin-btn admin-btn-primary text-xs px-4 py-2 cursor-pointer bg-[#0B5C9E] hover:bg-[#094b82] text-white font-bold rounded-lg transition-colors">
-          Filter
-        </button>
-
-        {(searchQuery || projectFilter) && (
-          <a href="/admin/gallery" class="admin-btn admin-btn-secondary text-xs px-3 py-2 text-center cursor-pointer">
-            Reset
-          </a>
-        )}
       </form>
     </div>
 

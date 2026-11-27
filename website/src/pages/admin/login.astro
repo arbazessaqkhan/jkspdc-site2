@@ -17,10 +17,14 @@ let isRecoveryMode = false;
 
 const BACKEND_URL = (import.meta.env.BACKEND_URL || process.env.BACKEND_URL || 'http://localhost:3000').replace(/\/+$/, '');
 
-const clientIp = Astro.request.headers.get('x-forwarded-for') || Astro.request.headers.get('x-real-ip');
+const clientIp = Astro.request.headers.get('x-forwarded-for') || Astro.request.headers.get('x-real-ip') || Astro.clientAddress;
+const clientUa = Astro.request.headers.get('user-agent');
 const forwardedHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
 if (clientIp) {
   forwardedHeaders['X-Forwarded-For'] = clientIp;
+}
+if (clientUa) {
+  forwardedHeaders['User-Agent'] = clientUa;
 }
 const incomingProto = Astro.request.headers.get('x-forwarded-proto');
 if (incomingProto) {

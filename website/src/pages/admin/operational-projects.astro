@@ -131,12 +131,12 @@ const pagedState = { rows: projects, total: pagedTotal, page, pageSize, lastPage
       <table class="table-data min-w-full text-left" id="operational-table">
         <thead>
           <tr>
-            <th scope="col" class="w-12 text-center">#</th>
-            <th scope="col" class="min-w-[200px]">Name of Power House</th>
-            <th scope="col" class="w-28 whitespace-nowrap">Configuration</th>
-            <th scope="col" class="w-32 whitespace-nowrap text-right">Capacity (MW)</th>
-            <th scope="col" class="w-32 whitespace-nowrap text-right">Design Energy</th>
-            <th scope="col" class="w-28 text-center whitespace-nowrap">Commissioned</th>
+            <th scope="col" class="w-10 text-center">#</th>
+            <th scope="col" class="min-w-[160px]">Name of Power House</th>
+            <th scope="col" class="w-24 whitespace-nowrap">Config</th>
+            <th scope="col" class="w-28 whitespace-nowrap text-right">Capacity</th>
+            <th scope="col" class="w-28 whitespace-nowrap text-right">Design Energy</th>
+            <th scope="col" class="w-24 text-center whitespace-nowrap">Year</th>
             {userIsAdmin && (
               <th scope="col" class="w-24 text-center whitespace-nowrap sticky-col-right">Action</th>
             )}

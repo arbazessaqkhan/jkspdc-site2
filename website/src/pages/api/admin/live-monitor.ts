@@ -49,12 +49,13 @@ export const GET: APIRoute = async ({ cookies, locals }) => {
 
   const pendingApplications = asArray<{ id: string; name?: string; email?: string; createdAt?: string }>(contactsRes).slice(0, 6);
 
-  const recentActivity = asArray<{ action?: string; details?: string | null; createdAt?: string }>(logsRes)
+  const recentActivity = asArray<{ action?: string; details?: string | null; createdAt?: string; user?: { name?: string } | null }>(logsRes)
     .slice(0, 10)
     .map((l) => ({
       action: l.action || 'EVENT',
       details: l.details || null,
       createdAt: l.createdAt || '',
+      userName: l.user?.name || null,
     }));
 
   return new Response(

@@ -225,6 +225,8 @@
 
 .admin-table-card .admin-table-container,
 .admin-table-card .admin-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
   border: 0;
   border-radius: var(--adm-radius-btn);
   box-shadow: none;
@@ -430,7 +432,8 @@
 }
 
 .admin-page .admin-search-wrapper input[type="text"],
-.admin-page input[type="text"].admin-search-input {
+.admin-page input[type="text"].admin-search-input,
+.admin-page .admin-input.pl-9 {
   padding-left: 2.25rem !important;
 }
 
