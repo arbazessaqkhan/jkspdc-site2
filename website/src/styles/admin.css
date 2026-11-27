@@ -9,24 +9,24 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* Brand (mirrors public @theme — locked palette) */
-  --adm-primary: #0B3B60;
-  --adm-primary-dark: #002B49;
-  --adm-accent: #0EA4E5;
-  --adm-orange: #E58A00;
-  --adm-red: #D9381E;
-  --adm-text: #333333;
+  /* GovTech Institutional Tokens (UX4G 3.0 + USWDS 3.0 + GIGW 3.0) */
+  --adm-primary: #0B2545;
+  --adm-primary-dark: #071A33;
+  --adm-accent: #1D4ED8;
+  --adm-orange: #B45309;
+  --adm-red: #B91C1C;
+  --adm-text: #1E293B;
   --adm-muted: #5B6B7E;
-  --adm-border: #D9E5EE;
-  --adm-bg-subtle: #F4F8FB;
+  --adm-border: #D8E0E8;
+  --adm-bg-subtle: #F4F6F9;
   --adm-hydro-teal: #A4D7F4;
-  --adm-success: #1E8E3E;
-  --adm-warning: #D97706;
-  --adm-error: #C62828;
-  --adm-radius-btn: 6px;
-  --adm-radius-card: 10px;
-  --adm-shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
-  --adm-focus-ring: #106EE9;
+  --adm-success: #047857;
+  --adm-warning: #B45309;
+  --adm-error: #B91C1C;
+  --adm-radius-btn: 4px;
+  --adm-radius-card: 6px;
+  --adm-shadow-card: 0 1px 2px 0 rgba(11, 37, 69, 0.04);
+  --adm-focus-ring: #1D4ED8;
   --adm-sidebar-w: 16rem;
   --adm-sidebar-w-collapsed: 4.375rem;
 }
@@ -1186,8 +1186,8 @@ html.sidebar-collapsed-preload #collapse-icon-collapsed {
 .dash-panel {
   background: #fff;
   border: 1px solid var(--adm-border);
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 2px rgba(11, 59, 96, 0.05);
+  border-radius: var(--adm-radius-card);
+  box-shadow: var(--adm-shadow-card);
 }
 
 .dash-panel-header {

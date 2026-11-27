@@ -190,237 +190,269 @@ const sys = summary?.system;
 ---
 
 <AdminLayout title="Live Dashboard Monitor" description="JKSPDCL Real-Time Administrative Control Panel & Telemetry Monitor" activeTab="dashboard">
-  <div class="flex flex-col gap-5 max-w-7xl">
+  <div class="flex flex-col gap-4 max-w-7xl">
 
-    <!-- Real-Time Monitor Command Header -->
-    <div class="bg-white border border-[color:var(--adm-border)] border-t-[3px] !border-t-[#0B3B60] rounded-xl p-4 sm:p-5 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-      <div>
-        <div class="flex items-center gap-2.5 flex-wrap">
-          <span id="live-status-pill" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
-            <span id="live-status-dot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span id="live-status-text">LIVE · 10s</span>
-          </span>
-          <h1 class="text-xl sm:text-2xl font-extrabold text-[#002B49] tracking-tight">Operations &amp; Telemetry Monitor</h1>
-        </div>
-        <p class="text-xs sm:text-sm text-slate-500 mt-1">
-          Signed in as <strong class="text-slate-700">{adminUserName}</strong> &bull; {formattedDate}
-        </p>
+    <!-- Row 1: Slim 44px Telemetry & Command Strip -->
+    <div class="bg-white border border-[#D8E0E8] rounded-md px-3.5 py-2 flex flex-wrap items-center justify-between gap-2 min-h-[44px]">
+      <div class="flex items-center gap-2.5 flex-wrap text-xs">
+        <span id="live-status-pill" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider bg-[#ECFDF5] text-[#047857] border border-emerald-200">
+          <span id="live-status-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+          <span id="live-status-text">LIVE · 10s</span>
+        </span>
+        <span class="font-bold text-[#0B2545]">{adminUserName}</span>
+        <span class="text-slate-300 hidden sm:inline">|</span>
+        <span class="text-[11px] text-slate-500 hidden sm:inline">{formattedDate}</span>
       </div>
 
       <!-- Live Telemetry & Controls -->
-      <div class="flex flex-wrap items-center gap-2 sm:gap-2.5">
+      <div class="flex flex-wrap items-center gap-2">
         <a
           href="/admin/users"
           id="mon-active-admins-pill"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-[11px] font-bold text-emerald-800 tabular-nums hover:bg-emerald-100 transition-colors"
+          class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#ECFDF5] border border-emerald-200 text-[11px] font-bold text-[#047857] tabular-nums hover:bg-emerald-100 transition-colors"
           title={sys?.activeAdmins?.length ? `Active: ${sys.activeAdmins.map((a) => a.name).join(', ')}` : 'Active administrator sessions'}
         >
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
           <span id="mon-active-admins">{sys?.activeAdminsCount ?? 1} {(sys?.activeAdminsCount ?? 1) === 1 ? 'Admin' : 'Admins'} Live</span>
         </a>
 
-        <div class="inline-flex items-center gap-3 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-[11px] font-semibold text-slate-600 tabular-nums">
-          <span>Synced: <strong id="mon-synced-at" class="text-[#0B3B60]">just now</strong></span>
+        <div class="inline-flex items-center gap-2.5 px-2.5 py-1 rounded bg-[#F4F6F9] border border-[#D8E0E8] text-[11px] font-semibold text-slate-600 tabular-nums">
+          <span>Synced: <strong id="mon-synced-at" class="text-[#0B2545]">just now</strong></span>
           <span class="text-slate-300">|</span>
-          <span>API: <strong id="mon-api-lat" class="text-emerald-700">{initialLatencyMs} ms</strong></span>
+          <span>API: <strong id="mon-api-lat" class="text-[#047857]">{initialLatencyMs} ms</strong></span>
           <span class="text-slate-300">|</span>
-          <span>DB: <strong id="mon-db-lat" class="text-emerald-700">{sys?.dbLatencyMs ?? '—'} ms</strong></span>
+          <span>DB: <strong id="mon-db-lat" class="text-[#047857]">{sys?.dbLatencyMs ?? '—'} ms</strong></span>
         </div>
 
         <button
           id="mon-toggle-live"
           type="button"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 cursor-pointer transition-colors"
+          class="inline-flex items-center gap-1 px-2.5 py-1 rounded border border-[#D8E0E8] bg-white hover:bg-[#F4F6F9] text-[11px] font-bold text-slate-700 cursor-pointer transition-colors"
           aria-pressed="true"
         >
-          <span id="mon-toggle-label">Pause Live</span>
+          <span id="mon-toggle-label">Pause</span>
         </button>
 
         <button
           id="mon-refresh-now"
           type="button"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0B3B60] hover:bg-[#002B49] text-white text-xs font-bold cursor-pointer transition-colors shadow-2xs"
+          class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#0B2545] hover:bg-[#071A33] text-white text-[11px] font-bold cursor-pointer transition-colors"
         >
-          <Icon name="refresh-cw" size={13} id="mon-refresh-icon" />
+          <Icon name="refresh-cw" size={12} id="mon-refresh-icon" />
           <span>Refresh</span>
         </button>
       </div>
     </div>
 
     {errorMessage && (
-      <div class="p-3.5 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 font-semibold flex items-center gap-2" role="alert">
-        <Icon name="info" size={15} class="text-red-600 shrink-0" />
+      <div class="p-3 bg-[#FEF2F2] border border-red-200 rounded-md text-xs text-[#B91C1C] font-semibold flex items-center gap-2" role="alert">
+        <Icon name="info" size={15} class="text-[#B91C1C] shrink-0" />
         <span>{errorMessage}</span>
       </div>
     )}
 
     {userIsAdmin && summary && (
-    <div class="flex flex-col gap-5">
+    <div class="flex flex-col gap-4">
 
-      <!-- ══ 1. INTERACTIVE KPI STRIP (4 Clickable Telemetry Cards) ══ -->
-      <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4" aria-label="Interactive key metrics">
+      <!-- ══ 1. INTERACTIVE KPI STRIP (4 Institutional Telemetry Tiles) ══ -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5" aria-label="Interactive key metrics">
         <!-- Operational Projects -->
-        <a href="/admin/operational-projects" class="group bg-white border border-[color:var(--adm-border)] border-t-[3px] !border-t-[#0B3B60] rounded-xl p-4 sm:p-5 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between gap-3">
+        <a href="/admin/operational-projects" class="group bg-white border border-[#D8E0E8] hover:border-[#0B2545]/50 rounded-md p-4 transition-colors flex flex-col justify-between gap-2.5">
           <div class="flex items-start justify-between gap-2">
             <div>
               <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Operational Assets</span>
               <div class="flex items-baseline gap-2 mt-1">
-                <span id="kpi-op-projects" class="text-3xl font-extrabold text-[#002B49] tabular-nums">{summary.kpis.operationalProjects}</span>
-                <span id="kpi-cap-mw" class="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full tabular-nums">
+                <span id="kpi-op-projects" class="text-2xl font-extrabold text-[#0B2545] tabular-nums">{summary.kpis.operationalProjects}</span>
+                <span id="kpi-cap-mw" class="text-[11px] font-bold text-[#047857] bg-[#ECFDF5] border border-emerald-200 px-2 py-0.5 rounded tabular-nums">
                   {summary.kpis.totalCapacityMw ?? 0} MW
                 </span>
               </div>
             </div>
-            <span class="w-9 h-9 rounded-lg bg-[#0B3B60]/10 text-[#0B3B60] group-hover:bg-[#0B3B60] group-hover:text-white flex items-center justify-center transition-colors shrink-0">
-              <Icon name="zap" size={18} />
+            <span class="w-8 h-8 rounded bg-[#F4F6F9] border border-[#D8E0E8] text-[#0B2545] group-hover:bg-[#0B2545] group-hover:text-white flex items-center justify-center transition-colors shrink-0">
+              <Icon name="zap" size={16} />
             </span>
           </div>
-          <div class="flex items-center justify-between text-[11px] font-semibold text-slate-500 pt-2.5 border-t border-slate-100">
+          <div class="flex items-center justify-between text-[11px] font-semibold text-slate-500 pt-2 border-t border-slate-100">
             <span id="kpi-op-delta">+{summary.kpis.deltas?.operationalProjects ?? 0} this week</span>
-            <span class="text-[#0B3B60] group-hover:translate-x-0.5 transition-transform">Manage &rarr;</span>
+            <span class="text-[#0B2545] group-hover:translate-x-0.5 transition-transform">Manage &rarr;</span>
           </div>
         </a>
 
         <!-- Open Tenders -->
-        <a href="/admin/tenders" class="group bg-white border border-[color:var(--adm-border)] border-t-[3px] !border-t-[#0B3B60] rounded-xl p-4 sm:p-5 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between gap-3">
+        <a href="/admin/tenders" class="group bg-white border border-[#D8E0E8] hover:border-[#0B2545]/50 rounded-md p-4 transition-colors flex flex-col justify-between gap-2.5">
           <div class="flex items-start justify-between gap-2">
             <div>
               <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Active Tenders</span>
               <div class="flex items-baseline gap-2 mt-1">
-                <span id="kpi-open-tenders" class="text-3xl font-extrabold text-[#002B49] tabular-nums">{summary.tenderPipeline.open}</span>
-                <span id="kpi-closing-soon" class="text-xs font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full tabular-nums">
+                <span id="kpi-open-tenders" class="text-2xl font-extrabold text-[#0B2545] tabular-nums">{summary.tenderPipeline.open}</span>
+                <span id="kpi-closing-soon" class="text-[11px] font-bold text-[#B45309] bg-[#FFFBEB] border border-amber-200 px-2 py-0.5 rounded tabular-nums">
                   {summary.tenderPipeline.closingSoon} closing ≤7d
                 </span>
               </div>
             </div>
-            <span class="w-9 h-9 rounded-lg bg-[#0B3B60]/10 text-[#0B3B60] group-hover:bg-[#0B3B60] group-hover:text-white flex items-center justify-center transition-colors shrink-0">
-              <Icon name="file-text" size={18} />
+            <span class="w-8 h-8 rounded bg-[#F4F6F9] border border-[#D8E0E8] text-[#0B2545] group-hover:bg-[#0B2545] group-hover:text-white flex items-center justify-center transition-colors shrink-0">
+              <Icon name="file-text" size={16} />
             </span>
           </div>
-          <div class="flex items-center justify-between text-[11px] font-semibold text-slate-500 pt-2.5 border-t border-slate-100">
-            <span id="kpi-tender-nearest" class="truncate max-w-[170px] text-red-700">
+          <div class="flex items-center justify-between text-[11px] font-semibold text-slate-500 pt-2 border-t border-slate-100">
+            <span id="kpi-tender-nearest" class="truncate max-w-[170px] text-[#B91C1C]">
               {summary.tenderPipeline.nearestClosing ? `Closes ${fmtDate(summary.tenderPipeline.nearestClosing.closingDate)}` : 'No urgent deadlines'}
             </span>
-            <span class="text-[#0B3B60] group-hover:translate-x-0.5 transition-transform shrink-0">Registry &rarr;</span>
+            <span class="text-[#0B2545] group-hover:translate-x-0.5 transition-transform shrink-0">Registry &rarr;</span>
           </div>
         </a>
 
         <!-- Pending Inquiries -->
-        <a href="/admin/contacts" class="group bg-white border border-[color:var(--adm-border)] border-t-[3px] !border-t-[#0B3B60] rounded-xl p-4 sm:p-5 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between gap-3">
+        <a href="/admin/contacts" class="group bg-white border border-[#D8E0E8] hover:border-[#0B2545]/50 rounded-md p-4 transition-colors flex flex-col justify-between gap-2.5">
           <div class="flex items-start justify-between gap-2">
             <div>
               <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Inquiries (7d)</span>
               <div class="flex items-baseline gap-2 mt-1">
-                <span id="kpi-pending-apps" class="text-3xl font-extrabold text-[#002B49] tabular-nums">{summary.kpis.pendingApplications}</span>
+                <span id="kpi-pending-apps" class="text-2xl font-extrabold text-[#0B2545] tabular-nums">{summary.kpis.pendingApplications}</span>
                 <span class="text-xs font-semibold text-slate-500">submissions</span>
               </div>
             </div>
-            <span class="w-9 h-9 rounded-lg bg-[#0B3B60]/10 text-[#0B3B60] group-hover:bg-[#0B3B60] group-hover:text-white flex items-center justify-center transition-colors shrink-0">
-              <Icon name="mail" size={18} />
+            <span class="w-8 h-8 rounded bg-[#F4F6F9] border border-[#D8E0E8] text-[#0B2545] group-hover:bg-[#0B2545] group-hover:text-white flex items-center justify-center transition-colors shrink-0">
+              <Icon name="mail" size={16} />
             </span>
           </div>
-          <div class="flex items-center justify-between text-[11px] font-semibold text-slate-500 pt-2.5 border-t border-slate-100">
+          <div class="flex items-center justify-between text-[11px] font-semibold text-slate-500 pt-2 border-t border-slate-100">
             <span id="kpi-apps-delta">Prev week: {summary.kpis.deltas?.pendingApplications ?? 0}</span>
-            <span class="text-[#0B3B60] group-hover:translate-x-0.5 transition-transform">Open Inbox &rarr;</span>
+            <span class="text-[#0B2545] group-hover:translate-x-0.5 transition-transform">Open Inbox &rarr;</span>
           </div>
         </a>
 
         <!-- Security & MFA Posture -->
-        <a href="/admin/users" class="group bg-white border border-[color:var(--adm-border)] border-t-[3px] !border-t-[#0B3B60] rounded-xl p-4 sm:p-5 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between gap-3">
+        <a href="/admin/users" class="group bg-white border border-[#D8E0E8] hover:border-[#0B2545]/50 rounded-md p-4 transition-colors flex flex-col justify-between gap-2.5">
           <div class="flex items-start justify-between gap-2">
             <div>
               <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">MFA Security Posture</span>
               <div class="flex items-baseline gap-2 mt-1">
-                <span id="kpi-mfa-coverage" class="text-3xl font-extrabold text-[#002B49] tabular-nums">
+                <span id="kpi-mfa-coverage" class="text-2xl font-extrabold text-[#0B2545] tabular-nums">
                   {sys ? `${sys.mfaEnabledUsers}/${sys.totalUsers}` : '—'}
                 </span>
-                <span class="text-xs font-bold text-sky-800 bg-sky-50 border border-sky-200 px-2 py-0.5 rounded-full">
+                <span class="text-[11px] font-bold text-[#1D4ED8] bg-blue-50 border border-blue-200 px-2 py-0.5 rounded">
                   Enrolled
                 </span>
               </div>
             </div>
-            <span class="w-9 h-9 rounded-lg bg-[#0B3B60]/10 text-[#0B3B60] group-hover:bg-[#0B3B60] group-hover:text-white flex items-center justify-center transition-colors shrink-0">
-              <Icon name="shield-check" size={18} />
+            <span class="w-8 h-8 rounded bg-[#F4F6F9] border border-[#D8E0E8] text-[#0B2545] group-hover:bg-[#0B2545] group-hover:text-white flex items-center justify-center transition-colors shrink-0">
+              <Icon name="shield-check" size={16} />
             </span>
           </div>
-          <div class="flex items-center justify-between text-[11px] font-semibold text-slate-500 pt-2.5 border-t border-slate-100">
+          <div class="flex items-center justify-between text-[11px] font-semibold text-slate-500 pt-2 border-t border-slate-100">
             <span id="kpi-audit-24h">{sys?.auditEvents24h ?? 0} audit events (24h)</span>
-            <span class="text-[#0B3B60] group-hover:translate-x-0.5 transition-transform">Accounts &rarr;</span>
+            <span class="text-[#0B2545] group-hover:translate-x-0.5 transition-transform">Accounts &rarr;</span>
           </div>
         </a>
       </section>
 
-      <!-- ══ 2. INTERACTIVE TELEMETRY CHARTS & PIPELINES ══ -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        <!-- Left 7 cols: Interactive 14-Day Activity Monitor -->
-        <section class="lg:col-span-7 bg-white border border-[color:var(--adm-border)] rounded-xl p-5 shadow-xs flex flex-col justify-between" aria-label="14-day administrative activity monitor">
-          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+      <!-- ══ 2. INTERACTIVE TELEMETRY CHARTS & PORTFOLIO HEALTH ══ -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+        <!-- Left 7 cols: Interactive 14-Day Activity SVG Chart -->
+        <section class="lg:col-span-7 bg-white border border-[#D8E0E8] rounded-md p-4 sm:p-5 flex flex-col justify-between" aria-label="14-day administrative activity monitor">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
             <div>
-              <h2 class="text-xs font-bold uppercase tracking-wider text-[#002B49]">14-Day Administrative Activity</h2>
-              <p class="text-[11px] text-slate-500 mt-0.5">Hover or focus any bar to inspect daily audit volume</p>
+              <h2 class="text-xs font-bold uppercase tracking-wider text-[#0B2545]">14-Day Administrative Activity</h2>
+              <p class="text-[11px] text-slate-500 mt-0.5">Hover any point or bar to inspect daily audit volume</p>
             </div>
-            <span id="chart-readout" class="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200 text-xs font-bold text-[#0B3B60] tabular-nums">
+            <span id="chart-readout" class="inline-flex items-center px-2.5 py-1 rounded bg-[#F4F6F9] border border-[#D8E0E8] text-xs font-bold text-[#0B2545] tabular-nums">
               14d Total: {seriesTotal} events
             </span>
           </div>
 
-          <div id="activity-bar-chart" class="h-36 flex items-end gap-1.5 sm:gap-2 pt-4 pb-1 border-b border-slate-200">
-            {series.map((pt) => {
-              const pct = Math.max(8, Math.round((pt.count / seriesMax) * 100));
+          {(() => {
+            const w = 560;
+            const h = 150;
+            const padL = 28;
+            const padR = 10;
+            const padT = 12;
+            const padB = 22;
+            const plotW = w - padL - padR;
+            const plotH = h - padT - padB;
+            const yMax = Math.max(seriesMax, 4);
+            const midVal = Math.round(yMax / 2);
+            const pts = series.map((pt, i) => {
+              const x = padL + (series.length > 1 ? (i / (series.length - 1)) * plotW : plotW / 2);
+              const y = padT + plotH - (pt.count / yMax) * plotH;
               const shortDate = new Date(pt.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-              return (
-                <button
-                  type="button"
-                  data-date={shortDate}
-                  data-count={String(pt.count)}
-                  class="chart-bar-btn group flex-1 flex flex-col items-center justify-end h-full focus:outline-none cursor-pointer"
-                  aria-label={`${shortDate}: ${pt.count} events`}
-                >
-                  <span
-                    class="w-full rounded-t-md bg-[#0B3B60]/80 group-hover:bg-[#0EA4E5] group-focus:bg-[#0EA4E5] transition-all duration-150"
-                    style={`height: ${pt.count === 0 ? 6 : pct}%`}
-                  ></span>
-                </button>
-              );
-            })}
-          </div>
-          <div class="flex items-center justify-between text-[10px] font-semibold text-slate-400 mt-2">
-            <span>{series[0] ? new Date(series[0].date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : ''}</span>
-            <span>Today</span>
-          </div>
+              return { x, y, count: pt.count, shortDate };
+            });
+            const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+            const areaPath = pts.length
+              ? `${linePath} L${pts[pts.length - 1].x.toFixed(1)},${(padT + plotH).toFixed(1)} L${pts[0].x.toFixed(1)},${(padT + plotH).toFixed(1)} Z`
+              : '';
+            return (
+              <div id="activity-svg-wrap" class="relative w-full">
+                <svg id="activity-svg-chart" viewBox={`0 0 ${w} ${h}`} class="w-full h-40 overflow-visible" role="img" aria-label="14-day administrative activity chart">
+                  <defs>
+                    <linearGradient id="dashAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#0B2545" stop-opacity="0.22" />
+                      <stop offset="100%" stop-color="#0B2545" stop-opacity="0.01" />
+                    </linearGradient>
+                  </defs>
+                  <!-- Horizontal Gridlines & Y-Axis Ticks -->
+                  <line x1={padL} y1={padT} x2={w - padR} y2={padT} stroke="#E2E8F0" stroke-dasharray="3 3" />
+                  <text x={padL - 6} y={padT + 3} text-anchor="end" class="fill-slate-400 text-[9px] font-mono">{yMax}</text>
+                  <line x1={padL} y1={padT + plotH / 2} x2={w - padR} y2={padT + plotH / 2} stroke="#E2E8F0" stroke-dasharray="3 3" />
+                  <text x={padL - 6} y={padT + plotH / 2 + 3} text-anchor="end" class="fill-slate-400 text-[9px] font-mono">{midVal}</text>
+                  <line x1={padL} y1={padT + plotH} x2={w - padR} y2={padT + plotH} stroke="#CBD5E1" />
+                  <text x={padL - 6} y={padT + plotH + 3} text-anchor="end" class="fill-slate-400 text-[9px] font-mono">0</text>
+
+                  {/* Area + Line */}
+                  {areaPath && <path d={areaPath} fill="url(#dashAreaGrad)" />}
+                  {linePath && <path d={linePath} fill="none" stroke="#0B2545" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />}
+
+                  {/* Interactive Data Points */}
+                  {pts.map((p, idx) => (
+                    <g class="chart-pt-group cursor-pointer" data-date={p.shortDate} data-count={String(p.count)} tabindex="0" aria-label={`${p.shortDate}: ${p.count} events`}>
+                      <rect x={p.x - 14} y={padT} width="28" height={plotH} fill="transparent" />
+                      <circle cx={p.x} cy={p.y} r="3.5" class="fill-white stroke-[#0B2545] transition-all" stroke-width="2" />
+                      {(idx === 0 || idx === Math.floor(pts.length / 2) || idx === pts.length - 1) && (
+                        <text x={p.x} y={h - 4} text-anchor={idx === 0 ? 'start' : idx === pts.length - 1 ? 'end' : 'middle'} class="fill-slate-400 text-[9.5px] font-semibold">
+                          {idx === pts.length - 1 ? 'Today' : p.shortDate}
+                        </text>
+                      )}
+                    </g>
+                  ))}
+                </svg>
+              </div>
+            );
+          })()}
         </section>
 
-        <!-- Right 5 cols: Live System Health & Pipelines -->
-        <section class="lg:col-span-5 bg-white border border-[color:var(--adm-border)] rounded-xl p-5 shadow-xs flex flex-col justify-between gap-4" aria-label="System health and portfolio pipelines">
+        <!-- Right 5 cols: Generation Portfolio & System Health -->
+        <section class="lg:col-span-5 bg-white border border-[#D8E0E8] rounded-md p-4 sm:p-5 flex flex-col justify-between gap-4" aria-label="System health and portfolio pipelines">
           <div>
             <div class="flex items-center justify-between gap-2 mb-3">
-              <h2 class="text-xs font-bold uppercase tracking-wider text-[#002B49]">System &amp; Infrastructure Health</h2>
-              <a href="/admin/audit-logs" class="text-[11px] font-bold text-[#0B3B60] hover:underline">Audit Feed &rarr;</a>
+              <h2 class="text-xs font-bold uppercase tracking-wider text-[#0B2545]">System &amp; Infrastructure Health</h2>
+              <a href="/admin/audit-logs" class="text-[11px] font-bold text-[#1D4ED8] hover:underline">Audit Feed &rarr;</a>
             </div>
-            <div class="grid grid-cols-2 gap-2.5 text-xs">
-              <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div class="p-2.5 rounded bg-[#F4F6F9] border border-[#D8E0E8] flex items-center justify-between">
                 <span class="text-slate-600 font-medium">API Status</span>
-                <span id="sys-api-status" class="font-bold text-emerald-700 inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Online</span>
+                <span id="sys-api-status" class="font-bold text-[#047857] inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> Online</span>
               </div>
-              <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+              <div class="p-2.5 rounded bg-[#F4F6F9] border border-[#D8E0E8] flex items-center justify-between">
                 <span class="text-slate-600 font-medium">PostgreSQL</span>
-                <span id="sys-db-status" class="font-bold text-emerald-700">{sys?.dbLatencyMs ?? '—'} ms</span>
+                <span id="sys-db-status" class="font-bold text-[#047857] tabular-nums">{sys?.dbLatencyMs ?? '—'} ms</span>
               </div>
-              <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+              <div class="p-2.5 rounded bg-[#F4F6F9] border border-[#D8E0E8] flex items-center justify-between">
                 <span class="text-slate-600 font-medium">Uptime</span>
-                <span id="sys-uptime" class="font-bold text-[#002B49] tabular-nums">{sys ? formatUptime(sys.uptimeSeconds) : '—'}</span>
+                <span id="sys-uptime" class="font-bold text-[#0B2545] tabular-nums">{sys ? formatUptime(sys.uptimeSeconds) : '—'}</span>
               </div>
-              <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+              <div class="p-2.5 rounded bg-[#F4F6F9] border border-[#D8E0E8] flex items-center justify-between">
                 <span class="text-slate-600 font-medium">Memory RSS</span>
-                <span id="sys-memory" class="font-bold text-[#002B49] tabular-nums">{sys ? `${sys.memoryMb} MB` : '—'}</span>
+                <span id="sys-memory" class="font-bold text-[#0B2545] tabular-nums">{sys ? `${sys.memoryMb} MB` : '—'}</span>
               </div>
             </div>
           </div>
 
           <!-- Project Stage Breakdown -->
           <div class="pt-3 border-t border-slate-100">
-            <div class="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-[#002B49] mb-2">
-              <span>Project Portfolio Stages</span>
+            <div class="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-[#0B2545] mb-2">
+              <span>Generation Portfolio Stages</span>
+              <span class="text-[11px] font-bold text-[#047857] tabular-nums">{summary.kpis.totalCapacityMw ?? 0} MW Active</span>
             </div>
             {(() => {
               const st = summary.projectStages;
@@ -445,137 +477,134 @@ const sys = summary?.system;
         </section>
       </div>
 
-      <!-- ══ 3. INTERACTIVE QUEUES & LIVE AUDIT TIMELINE ══ -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-        <!-- Left 7 cols: Active Tenders + Inquiries with Quick Filter -->
-        <div class="lg:col-span-7 flex flex-col gap-5">
-          <!-- Active Tenders -->
-          <section class="dash-panel overflow-hidden" aria-label="Active tenders by deadline">
-            <div class="dash-panel-header bg-slate-50/70">
-              <h2 class="dash-panel-title"><Icon name="file-text" size={14} /> Active Tenders <span id="tenders-count-badge" class="dash-panel-count">{activeTenders.length}</span></h2>
-              <div class="flex items-center gap-2">
-                <a href="/admin/tenders?action=new" class="text-[11px] font-bold px-2 py-1 rounded bg-[#0B3B60] text-white hover:bg-[#002B49] transition-colors">+ New</a>
-                <a href="/admin/tenders" class="dash-panel-link">View all <Icon name="arrow-right" size={11} strokeWidth={2.5} /></a>
+      <!-- ══ 3. BALANCED ACTION QUEUE & LIVE AUDIT TIMELINE ══ -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+        <!-- Left 6 cols: Tabbed Procurement & Citizen Inquiries Queue -->
+        <section class="lg:col-span-6 dash-panel overflow-hidden flex flex-col" aria-label="Procurement and inquiries queue">
+          <div class="dash-panel-header bg-[#F4F6F9] flex-wrap">
+            <div class="flex items-center gap-1.5" role="tablist" aria-label="Dashboard queues">
+              <button
+                type="button"
+                id="tab-btn-tenders"
+                role="tab"
+                aria-selected="true"
+                class="dash-queue-tab px-2.5 py-1 rounded text-xs font-bold bg-[#0B2545] text-white cursor-pointer transition-colors"
+                data-tab="tenders"
+              >
+                Closing Soon <span id="tenders-count-badge" class="ml-1 px-1.5 py-0.2 rounded bg-white/20 text-[10px] tabular-nums">{activeTenders.length} of {summary.tenderPipeline.open}</span>
+              </button>
+              <button
+                type="button"
+                id="tab-btn-inquiries"
+                role="tab"
+                aria-selected="false"
+                class="dash-queue-tab px-2.5 py-1 rounded text-xs font-bold bg-white text-slate-600 border border-[#D8E0E8] hover:bg-slate-50 cursor-pointer transition-colors"
+                data-tab="inquiries"
+              >
+                Public Inquiries <span id="inquiries-count-badge" class="ml-1 px-1.5 py-0.2 rounded bg-slate-100 text-slate-700 text-[10px] tabular-nums">{pendingApplications.length}</span>
+              </button>
+            </div>
+            <div class="flex items-center gap-2">
+              <a href="/admin/tenders?action=new" class="text-[11px] font-bold px-2 py-1 rounded bg-[#0B2545] text-white hover:bg-[#071A33] transition-colors">+ New</a>
+              <a id="queue-view-all" href="/admin/tenders" class="dash-panel-link">View all <Icon name="arrow-right" size={11} strokeWidth={2.5} /></a>
+            </div>
+          </div>
+
+          <!-- Tab 1: Closing Soon Tenders -->
+          <div id="live-tenders-body" class="overflow-x-auto flex-1">
+            {activeTenders.length === 0 ? (
+              <div class="admin-empty-state py-10">
+                <p class="text-xs text-[color:var(--adm-muted)] font-medium">No active tenders with open deadlines.</p>
               </div>
-            </div>
-            <div id="live-tenders-body" class="overflow-x-auto">
-              {activeTenders.length === 0 ? (
-                <div class="admin-empty-state py-6">
-                  <p class="text-xs text-[color:var(--adm-muted)] font-medium">No active tenders with open deadlines.</p>
-                </div>
-              ) : (
-                <table class="dash-minitable w-full">
-                  <thead>
-                    <tr><th scope="col">Tender</th><th scope="col" class="w-32 whitespace-nowrap">Closes</th><th scope="col" class="w-16 text-right whitespace-nowrap">Action</th></tr>
-                  </thead>
-                  <tbody>
-                    {activeTenders.map((t) => {
-                      const badge = urgencyBadge(t.closingDate);
-                      return (
-                        <tr>
-                          <td class="max-w-0 w-full">
-                            <span class="block text-xs font-bold text-slate-800 truncate">{t.title}</span>
-                            <span class="block text-[11px] text-[color:var(--adm-muted)] font-medium truncate">{t.referenceNo}</span>
-                          </td>
-                          <td class="whitespace-nowrap">
-                            <span class="text-xs font-semibold text-slate-700">{fmtDate(t.closingDate)}</span>
-                            {badge.cls && <span class={`dash-urgency ${badge.cls}`}>{badge.label}</span>}
-                          </td>
-                          <td class="text-right whitespace-nowrap">
-                            <a href={`/admin/tenders?edit=${t.id}`} class="dash-panel-link">Edit</a>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </section>
-
-          <!-- Latest Inquiries -->
-          <section class="dash-panel overflow-hidden" aria-label="Latest public inquiries">
-            <div class="dash-panel-header bg-slate-50/70">
-              <h2 class="dash-panel-title"><Icon name="mail" size={14} /> Latest Inquiries <span id="inquiries-count-badge" class="dash-panel-count">{pendingApplications.length}</span></h2>
-              <a href="/admin/contacts" class="dash-panel-link">View all <Icon name="arrow-right" size={11} strokeWidth={2.5} /></a>
-            </div>
-            <div id="live-inquiries-body">
-              {pendingApplications.length === 0 ? (
-                <div class="admin-empty-state py-6">
-                  <p class="text-xs text-[color:var(--adm-muted)] font-medium">Inbox is clear — no pending public inquiries.</p>
-                </div>
-              ) : (
-                <table class="dash-minitable">
-                  <thead>
-                    <tr><th scope="col">From</th><th scope="col">Received</th><th scope="col" class="text-right">Action</th></tr>
-                  </thead>
-                  <tbody>
-                    {pendingApplications.map((a) => (
-                      <tr>
-                        <td>
-                          <span class="block text-xs font-bold text-slate-800">{a.name}</span>
-                          <span class="block text-[11px] text-[color:var(--adm-muted)] font-medium truncate max-w-xs">{a.email}</span>
-                        </td>
-                        <td><span class="text-xs font-semibold text-slate-700 whitespace-nowrap">{relativeTime(a.createdAt)}</span></td>
-                        <td class="text-right"><a href="/admin/contacts" class="dash-panel-link">Open</a></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </section>
-        </div>
-
-        <!-- Right 5 cols: Live Audit Activity Timeline + Quick Shortcuts -->
-        <aside class="lg:col-span-5 flex flex-col gap-5" aria-label="Live activity feed and quick actions">
-          <section class="dash-panel overflow-hidden" aria-label="Live administrative activity">
-            <div class="dash-panel-header bg-slate-50/70">
-              <h2 class="dash-panel-title"><Icon name="zap" size={14} /> Live Activity Feed</h2>
-              <a href="/admin/audit-logs" class="dash-panel-link">Full log <Icon name="arrow-right" size={11} strokeWidth={2.5} /></a>
-            </div>
-            <div id="live-activity-body">
-              {recentActivity.length === 0 ? (
-                <div class="admin-empty-state py-6">
-                  <p class="text-xs text-[color:var(--adm-muted)] font-medium">No activity recorded yet.</p>
-                </div>
-              ) : (
-                <ol class="dash-timeline" aria-label="Recent administrative actions">
-                  {recentActivity.map((item) => {
-                    const sub = detailLabel(item.details, item.userName);
+            ) : (
+              <table class="dash-minitable w-full">
+                <thead>
+                  <tr><th scope="col">Tender</th><th scope="col" class="w-32 whitespace-nowrap">Closes</th><th scope="col" class="w-14 text-right whitespace-nowrap">Action</th></tr>
+                </thead>
+                <tbody>
+                  {activeTenders.map((t) => {
+                    const badge = urgencyBadge(t.closingDate);
                     return (
-                    <li class="dash-timeline-item">
-                      <span class="dash-timeline-dot" aria-hidden="true"></span>
-                      <div class="min-w-0">
-                        <p class="text-xs font-bold text-slate-800">{prettyAction(item.action)}</p>
-                        {sub && (
-                          <p class="text-[11px] text-[color:var(--adm-muted)] font-medium truncate">{sub}</p>
-                        )}
-                      </div>
-                      <span class="dash-timeline-time">{relativeTime(item.createdAt)}</span>
-                    </li>
+                      <tr>
+                        <td class="max-w-0 w-full">
+                          <span class="block text-xs font-bold text-slate-800 truncate">{t.title}</span>
+                          <span class="block text-[11px] text-[color:var(--adm-muted)] font-mono truncate">{t.referenceNo}</span>
+                        </td>
+                        <td class="whitespace-nowrap tabular-nums">
+                          <span class="text-xs font-semibold text-slate-700">{fmtDate(t.closingDate)}</span>
+                          {badge.cls && <span class={`dash-urgency ${badge.cls}`}>{badge.label}</span>}
+                        </td>
+                        <td class="text-right whitespace-nowrap">
+                          <a href={`/admin/tenders?edit=${t.id}`} class="dash-panel-link">Edit</a>
+                        </td>
+                      </tr>
                     );
                   })}
-                </ol>
-              )}
-            </div>
-          </section>
+                </tbody>
+              </table>
+            )}
+          </div>
 
-          <section class="dash-panel p-4" aria-label="Quick actions">
-            <h2 class="dash-panel-title mb-3">Quick Shortcuts</h2>
-            <div class="grid grid-cols-3 gap-2.5">
-              <a href="/admin/tenders?action=new" class="dash-quick" aria-label="Publish new tender">
-                <Icon name="plus" size={16} /><span>New Tender</span>
-              </a>
-              <a href="/admin/operational-projects?action=new" class="dash-quick" aria-label="Add new project">
-                <Icon name="zap" size={16} /><span>New Project</span>
-              </a>
-              <a href="/admin/notifications" class="dash-quick" aria-label="Publish notification">
-                <Icon name="bell" size={16} /><span>Notice</span>
-              </a>
-            </div>
-          </section>
-        </aside>
+          <!-- Tab 2: Public Inquiries (hidden by default) -->
+          <div id="live-inquiries-body" class="overflow-x-auto flex-1 hidden">
+            {pendingApplications.length === 0 ? (
+              <div class="admin-empty-state py-10">
+                <p class="text-xs text-[color:var(--adm-muted)] font-medium">Inbox is clear — no pending public inquiries.</p>
+              </div>
+            ) : (
+              <table class="dash-minitable w-full">
+                <thead>
+                  <tr><th scope="col">From</th><th scope="col" class="w-24 whitespace-nowrap">Received</th><th scope="col" class="w-16 text-right whitespace-nowrap">Action</th></tr>
+                </thead>
+                <tbody>
+                  {pendingApplications.map((a) => (
+                    <tr>
+                      <td class="max-w-0 w-full">
+                        <span class="block text-xs font-bold text-slate-800 truncate">{a.name}</span>
+                        <span class="block text-[11px] text-[color:var(--adm-muted)] font-medium truncate">{a.email}</span>
+                      </td>
+                      <td class="whitespace-nowrap"><span class="text-xs font-semibold text-slate-700">{relativeTime(a.createdAt)}</span></td>
+                      <td class="text-right whitespace-nowrap"><a href="/admin/contacts" class="dash-panel-link">Open</a></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </section>
+
+        <!-- Right 6 cols: Live Security & Activity Feed -->
+        <section class="lg:col-span-6 dash-panel overflow-hidden flex flex-col" aria-label="Live administrative activity">
+          <div class="dash-panel-header bg-[#F4F6F9]">
+            <h2 class="dash-panel-title"><Icon name="zap" size={14} /> Live Activity Feed</h2>
+            <a href="/admin/audit-logs" class="dash-panel-link">Full log <Icon name="arrow-right" size={11} strokeWidth={2.5} /></a>
+          </div>
+          <div id="live-activity-body" class="flex-1">
+            {recentActivity.length === 0 ? (
+              <div class="admin-empty-state py-10">
+                <p class="text-xs text-[color:var(--adm-muted)] font-medium">No activity recorded yet.</p>
+              </div>
+            ) : (
+              <ol class="dash-timeline" aria-label="Recent administrative actions">
+                {recentActivity.slice(0, 6).map((item) => {
+                  const sub = detailLabel(item.details, item.userName);
+                  return (
+                  <li class="dash-timeline-item">
+                    <span class="dash-timeline-dot" aria-hidden="true"></span>
+                    <div class="min-w-0">
+                      <p class="text-xs font-bold text-slate-800">{prettyAction(item.action)}</p>
+                      {sub && (
+                        <p class="text-[11px] text-[color:var(--adm-muted)] font-medium truncate">{sub}</p>
+                      )}
+                    </div>
+                    <span class="dash-timeline-time tabular-nums">{relativeTime(item.createdAt)}</span>
+                  </li>
+                  );
+                })}
+              </ol>
+            )}
+          </div>
+        </section>
       </div>
 
     </div>
@@ -652,17 +681,50 @@ const sys = summary?.system;
   }
 
   function bindChartHover(total) {
-    var bars = document.querySelectorAll('#activity-bar-chart .chart-bar-btn');
-    bars.forEach(function (bar) {
-      bar.onmouseenter = bar.onfocus = function () {
-        if (readout) readout.textContent = bar.dataset.date + ': ' + bar.dataset.count + ' events';
+    var pts = document.querySelectorAll('#activity-svg-chart .chart-pt-group');
+    pts.forEach(function (pt) {
+      pt.onmouseenter = pt.onfocus = function () {
+        var c = pt.querySelector('circle');
+        if (c) c.setAttribute('r', '5');
+        if (readout) readout.textContent = pt.getAttribute('data-date') + ': ' + pt.getAttribute('data-count') + ' events';
       };
-      bar.onmouseleave = bar.onblur = function () {
+      pt.onmouseleave = pt.onblur = function () {
+        var c = pt.querySelector('circle');
+        if (c) c.setAttribute('r', '3.5');
         if (readout) readout.textContent = '14d Total: ' + total + ' events';
       };
     });
   }
   bindChartHover(Number((readout && readout.textContent.match(/\d+/g) || [0, 0])[1] || 0));
+
+  // Queue tabs (Closing Soon Tenders <-> Public Inquiries)
+  var queueTabs = document.querySelectorAll('.dash-queue-tab');
+  var tendersBody = document.getElementById('live-tenders-body');
+  var inquiriesBody = document.getElementById('live-inquiries-body');
+  var queueViewAll = document.getElementById('queue-view-all');
+  queueTabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      var target = tab.getAttribute('data-tab');
+      queueTabs.forEach(function (t) {
+        var active = t === tab;
+        t.setAttribute('aria-selected', active ? 'true' : 'false');
+        t.className = active
+          ? 'dash-queue-tab px-2.5 py-1 rounded text-xs font-bold bg-[#0B2545] text-white cursor-pointer transition-colors'
+          : 'dash-queue-tab px-2.5 py-1 rounded text-xs font-bold bg-white text-slate-600 border border-[#D8E0E8] hover:bg-slate-50 cursor-pointer transition-colors';
+      });
+      if (tendersBody && inquiriesBody) {
+        if (target === 'inquiries') {
+          tendersBody.classList.add('hidden');
+          inquiriesBody.classList.remove('hidden');
+          if (queueViewAll) queueViewAll.setAttribute('href', '/admin/contacts');
+        } else {
+          inquiriesBody.classList.add('hidden');
+          tendersBody.classList.remove('hidden');
+          if (queueViewAll) queueViewAll.setAttribute('href', '/admin/tenders');
+        }
+      }
+    });
+  });
 
   async function pollMonitor() {
     if (refreshIcon) refreshIcon.classList.add('animate-spin');
@@ -719,16 +781,41 @@ const sys = summary?.system;
       setText('leg-uc', 'Under Construction · ' + st.underConstruction);
       setText('leg-up', 'Upcoming · ' + st.upcoming);
 
-      // Update 14-day chart
-      var chart = document.getElementById('activity-bar-chart');
-      if (chart && Array.isArray(s.activitySeries)) {
-        var max = Math.max.apply(null, s.activitySeries.map(function (x) { return x.count; }).concat([1]));
+      // Update 14-day SVG chart
+      var svgChart = document.getElementById('activity-svg-chart');
+      if (svgChart && Array.isArray(s.activitySeries) && s.activitySeries.length > 0) {
+        var max = Math.max.apply(null, s.activitySeries.map(function (x) { return x.count; }).concat([4]));
+        var mid = Math.round(max / 2);
         var totalEv = s.activitySeries.reduce(function (a, b) { return a + b.count; }, 0);
-        chart.innerHTML = s.activitySeries.map(function (pt) {
-          var pct = Math.max(8, Math.round((pt.count / max) * 100));
+        var w = 560, h = 150, padL = 28, padR = 10, padT = 12, padB = 22;
+        var plotW = w - padL - padR, plotH = h - padT - padB;
+        var len = s.activitySeries.length;
+        var pts = s.activitySeries.map(function (pt, i) {
+          var x = padL + (len > 1 ? (i / (len - 1)) * plotW : plotW / 2);
+          var y = padT + plotH - (pt.count / max) * plotH;
           var sd = new Date(pt.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-          return '<button type="button" data-date="' + escapeHtml(sd) + '" data-count="' + pt.count + '" class="chart-bar-btn group flex-1 flex flex-col items-center justify-end h-full focus:outline-none cursor-pointer" aria-label="' + escapeHtml(sd) + ': ' + pt.count + ' events"><span class="w-full rounded-t-md bg-[#0B3B60]/80 group-hover:bg-[#0EA4E5] group-focus:bg-[#0EA4E5] transition-all duration-150" style="height:' + (pt.count === 0 ? 6 : pct) + '%"></span></button>';
-        }).join('');
+          return { x: x, y: y, count: pt.count, sd: sd };
+        });
+        var lp = pts.map(function (p, i) { return (i === 0 ? 'M' : 'L') + p.x.toFixed(1) + ',' + p.y.toFixed(1); }).join(' ');
+        var ap = lp + ' L' + pts[pts.length - 1].x.toFixed(1) + ',' + (padT + plotH).toFixed(1) + ' L' + pts[0].x.toFixed(1) + ',' + (padT + plotH).toFixed(1) + ' Z';
+        svgChart.innerHTML =
+          '<defs><linearGradient id="dashAreaGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0B2545" stop-opacity="0.22"/><stop offset="100%" stop-color="#0B2545" stop-opacity="0.01"/></linearGradient></defs>' +
+          '<line x1="' + padL + '" y1="' + padT + '" x2="' + (w - padR) + '" y2="' + padT + '" stroke="#E2E8F0" stroke-dasharray="3 3"/>' +
+          '<text x="' + (padL - 6) + '" y="' + (padT + 3) + '" text-anchor="end" class="fill-slate-400 text-[9px] font-mono">' + max + '</text>' +
+          '<line x1="' + padL + '" y1="' + (padT + plotH / 2) + '" x2="' + (w - padR) + '" y2="' + (padT + plotH / 2) + '" stroke="#E2E8F0" stroke-dasharray="3 3"/>' +
+          '<text x="' + (padL - 6) + '" y="' + (padT + plotH / 2 + 3) + '" text-anchor="end" class="fill-slate-400 text-[9px] font-mono">' + mid + '</text>' +
+          '<line x1="' + padL + '" y1="' + (padT + plotH) + '" x2="' + (w - padR) + '" y2="' + (padT + plotH) + '" stroke="#CBD5E1"/>' +
+          '<text x="' + (padL - 6) + '" y="' + (padT + plotH + 3) + '" text-anchor="end" class="fill-slate-400 text-[9px] font-mono">0</text>' +
+          '<path d="' + ap + '" fill="url(#dashAreaGrad)"/>' +
+          '<path d="' + lp + '" fill="none" stroke="#0B2545" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>' +
+          pts.map(function (p, idx) {
+            var lbl = '';
+            if (idx === 0 || idx === Math.floor(pts.length / 2) || idx === pts.length - 1) {
+              var anc = idx === 0 ? 'start' : (idx === pts.length - 1 ? 'end' : 'middle');
+              lbl = '<text x="' + p.x + '" y="' + (h - 4) + '" text-anchor="' + anc + '" class="fill-slate-400 text-[9.5px] font-semibold">' + (idx === pts.length - 1 ? 'Today' : escapeHtml(p.sd)) + '</text>';
+            }
+            return '<g class="chart-pt-group cursor-pointer" data-date="' + escapeHtml(p.sd) + '" data-count="' + p.count + '" tabindex="0" aria-label="' + escapeHtml(p.sd) + ': ' + p.count + ' events"><rect x="' + (p.x - 14) + '" y="' + padT + '" width="28" height="' + plotH + '" fill="transparent"/><circle cx="' + p.x + '" cy="' + p.y + '" r="3.5" class="fill-white stroke-[#0B2545] transition-all" stroke-width="2"/>' + lbl + '</g>';
+          }).join('');
         if (readout) readout.textContent = '14d Total: ' + totalEv + ' events';
         bindChartHover(totalEv);
       }
@@ -737,10 +824,10 @@ const sys = summary?.system;
       var actBody = document.getElementById('live-activity-body');
       if (actBody && Array.isArray(data.recentActivity)) {
         if (data.recentActivity.length === 0) {
-          actBody.innerHTML = '<div class="admin-empty-state py-6"><p class="text-xs text-[color:var(--adm-muted)] font-medium">No activity recorded yet.</p></div>';
+          actBody.innerHTML = '<div class="admin-empty-state py-10"><p class="text-xs text-[color:var(--adm-muted)] font-medium">No activity recorded yet.</p></div>';
         } else {
           actBody.innerHTML = '<ol class="dash-timeline" aria-label="Recent administrative actions">' +
-            data.recentActivity.map(function (item) {
+            data.recentActivity.slice(0, 6).map(function (item) {
               var lbl = detailLabel(item.details, item.userName);
               return '<li class="dash-timeline-item"><span class="dash-timeline-dot" aria-hidden="true"></span><div class="min-w-0"><p class="text-xs font-bold text-slate-800">' + escapeHtml(prettyAction(item.action)) + '</p>' +
                 (lbl ? '<p class="text-[11px] text-[color:var(--adm-muted)] font-medium truncate">' + escapeHtml(lbl) + '</p>' : '') +
@@ -749,8 +836,8 @@ const sys = summary?.system;
         }
       }
 
-      // Update Active Tenders count
-      setText('tenders-count-badge', String((data.activeTenders || []).length));
+      // Update Active Tenders count (reconciled X of Y)
+      setText('tenders-count-badge', (data.activeTenders || []).length + ' of ' + s.tenderPipeline.open);
       setText('inquiries-count-badge', String((data.pendingApplications || []).length));
     } catch (e) {
       // ignore transient network errors
@@ -768,7 +855,7 @@ const sys = summary?.system;
     toggleBtn.addEventListener('click', function () {
       isLive = !isLive;
       toggleBtn.setAttribute('aria-pressed', isLive ? 'true' : 'false');
-      if (toggleLabel) toggleLabel.textContent = isLive ? 'Pause Live' : 'Resume Live';
+      if (toggleLabel) toggleLabel.textContent = isLive ? 'Pause' : 'Resume';
       if (statusText) statusText.textContent = isLive ? 'LIVE · 10s' : 'PAUSED';
       if (statusPill) {
         statusPill.className = isLive

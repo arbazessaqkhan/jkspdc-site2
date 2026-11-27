@@ -184,26 +184,42 @@ const visibleSections = NAV_SECTIONS.filter((s) => !s.adminOnly || userIsAdmin);
       <!-- Top Brand Accent Line (locked palette) -->
       <div class="admin-accent-line"></div>
 
-      <!-- Top Action Bar -->
-      <header class="admin-topbar h-16 px-6 flex items-center justify-between shrink-0 select-none">
+      <!-- Top Action Bar (56px fixed, single-line) -->
+      <header class="admin-topbar h-14 px-4 sm:px-6 flex items-center justify-between gap-3 shrink-0 select-none whitespace-nowrap">
 
         <!-- Toggle button on mobile -->
-        <button id="toggle-sidebar-btn" class="md:hidden p-2 text-[color:var(--adm-muted)] hover:bg-[color:var(--adm-bg-subtle)] rounded focus:outline-none" aria-label="Toggle Navigation Sidebar">
+        <button id="toggle-sidebar-btn" class="md:hidden p-2 text-[color:var(--adm-muted)] hover:bg-[color:var(--adm-bg-subtle)] rounded focus:outline-none shrink-0" aria-label="Toggle Navigation Sidebar">
           <Icon name="menu" size={20} />
         </button>
 
         <!-- Dynamic Page Title / Breadcrumb (desktop) -->
-        <h2 class="admin-topbar-crumb hidden md:block">
-          JKSPDC Admin / <span class="admin-topbar-current">{title}</span>
+        <h2 class="admin-topbar-crumb hidden md:flex items-center gap-1.5 text-xs font-bold tracking-wide uppercase truncate min-w-0">
+          <span class="text-slate-500">JKSPDC ADMIN</span>
+          <span class="text-slate-300">/</span>
+          <span class="admin-topbar-current text-[#0B2545] truncate">{title}</span>
         </h2>
 
+        <!-- Quick Command Jump Trigger (Ctrl+K) -->
+        <button
+          type="button"
+          id="admin-cmd-trigger"
+          class="hidden lg:inline-flex items-center justify-between gap-4 px-3 py-1.5 w-64 rounded border border-[#D8E0E8] bg-[#F4F6F9] hover:bg-white hover:border-[#0B2545]/40 text-xs text-slate-500 transition-colors cursor-pointer shrink-0"
+          aria-label="Quick jump to any admin module (Ctrl+K)"
+        >
+          <span class="inline-flex items-center gap-2">
+            <Icon name="search" size={13} class="text-slate-400" />
+            <span>Quick jump…</span>
+          </span>
+          <kbd class="px-1.5 py-0.5 text-[10px] font-mono font-bold text-slate-500 bg-white border border-slate-200 rounded">Ctrl K</kbd>
+        </button>
+
         <!-- Right Utilities & Profile Session -->
-        <div class="flex items-center gap-2.5 sm:gap-3 ml-auto">
+        <div class="flex items-center gap-2 sm:gap-2.5 ml-auto shrink-0 whitespace-nowrap">
           <a
             href="/"
             target="_blank"
             rel="noopener noreferrer"
-            class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-slate-200 bg-white hover:bg-slate-50 text-[11px] font-semibold text-slate-600 hover:text-[#0B3B60] transition-colors"
+            class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded border border-[#D8E0E8] bg-white hover:bg-slate-50 text-[11px] font-semibold text-slate-700 hover:text-[#0B2545] transition-colors whitespace-nowrap"
             title="Open Public Portal in new tab"
           >
             <Icon name="external-link" size={12} strokeWidth={2.2} />
@@ -211,18 +227,60 @@ const visibleSections = NAV_SECTIONS.filter((s) => !s.adminOnly || userIsAdmin);
           </a>
 
           <!-- Profile Badge -->
-          <span class="admin-role-badge select-none">
+          <span class="admin-role-badge select-none whitespace-nowrap">
             <span class="admin-role-dot" aria-hidden="true"></span>
             {userRole}
           </span>
 
           <form method="POST" action="/admin/logout" class="inline m-0 p-0">
-            <button type="submit" id="admin-logout-btn" class="admin-btn admin-btn-ghost-danger admin-btn-sm">
+            <button type="submit" id="admin-logout-btn" class="admin-btn admin-btn-ghost-danger admin-btn-sm whitespace-nowrap">
               <Icon name="x" size={13} strokeWidth={2.5} /> Sign Out
             </button>
           </form>
         </div>
       </header>
+
+      <!-- Global Quick-Jump Command Palette (Ctrl+K) -->
+      <div id="admin-cmd-modal" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-[1px] flex items-start justify-center pt-20 px-4" role="dialog" aria-modal="true" aria-label="Quick Command Jump">
+        <div class="w-full max-w-lg bg-white border border-[#D8E0E8] rounded-md shadow-lg overflow-hidden">
+          <div class="flex items-center gap-2.5 px-3.5 py-2.5 border-b border-[#D8E0E8]">
+            <Icon name="search" size={15} class="text-slate-400 shrink-0" />
+            <input
+              type="text"
+              id="admin-cmd-input"
+              placeholder="Jump to module (Tenders, Projects, Audit Logs, Users, Gallery…)"
+              class="w-full text-xs text-slate-800 bg-transparent border-0 outline-none focus:ring-0"
+              autocomplete="off"
+            />
+            <kbd class="px-1.5 py-0.5 text-[10px] font-mono text-slate-400 border border-slate-200 rounded">ESC</kbd>
+          </div>
+          <ul id="admin-cmd-list" class="max-h-72 overflow-y-auto divide-y divide-slate-100 text-xs">
+            {[
+              { label: 'Dashboard Overview', group: 'Overview', href: '/admin/dashboard' },
+              { label: 'Operational Projects', group: 'Projects', href: '/admin/operational-projects' },
+              { label: 'Under Construction', group: 'Projects', href: '/admin/under-construction' },
+              { label: 'Projects Under Development', group: 'Projects', href: '/admin/upcoming-projects' },
+              { label: 'IPP Projects (Phases I–X)', group: 'Projects', href: '/admin/ipp-projects' },
+              { label: 'Tenders & Bids', group: 'Procurement', href: '/admin/tenders' },
+              { label: 'Notifications & Circulars', group: 'Governance', href: '/admin/notifications' },
+              { label: 'Dignitaries & Board', group: 'Governance', href: '/admin/dignitaries' },
+              { label: 'Media Gallery & Carousel', group: 'Media', href: '/admin/gallery' },
+              { label: 'Resources & Downloads', group: 'Media', href: '/admin/resources' },
+              { label: 'Public Inquiries', group: 'Inbox', href: '/admin/contacts' },
+              { label: 'Security Audit Logs', group: 'Security', href: '/admin/audit-logs' },
+              { label: 'User Accounts & MFA', group: 'Security', href: '/admin/users' },
+              { label: 'Site Settings', group: 'Security', href: '/admin/site-settings' },
+            ].map((item) => (
+              <li class="admin-cmd-item" data-label={`${item.label} ${item.group}`.toLowerCase()}>
+                <a href={item.href} class="flex items-center justify-between px-4 py-2.5 hover:bg-[#F4F6F9] text-slate-800 font-semibold transition-colors">
+                  <span>{item.label}</span>
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">{item.group}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
 
       <!-- Main Slot Content -->
       <main id="main-admin-content" transition:animate="fade" class="flex-1 min-w-0 overflow-y-auto overflow-x-hidden p-5 sm:p-6 md:p-8 bg-[color:var(--adm-bg-subtle)] focus:outline-none" tabindex="-1">
@@ -871,6 +929,75 @@ const visibleSections = NAV_SECTIONS.filter((s) => !s.adminOnly || userIsAdmin);
           document.addEventListener('DOMContentLoaded', bindLiveFilters);
         } else {
           bindLiveFilters();
+        }
+      })();
+
+      // Ctrl+K Quick Command Palette
+      (function() {
+        function setupCmdPalette() {
+          var trigger = document.getElementById('admin-cmd-trigger');
+          var modal = document.getElementById('admin-cmd-modal');
+          var input = document.getElementById('admin-cmd-input');
+          var items = document.querySelectorAll('#admin-cmd-list .admin-cmd-item');
+          if (!modal || !input) return;
+
+          function openCmd() {
+            modal.classList.remove('hidden');
+            input.value = '';
+            items.forEach(function(li) { li.style.display = ''; });
+            setTimeout(function() { input.focus(); }, 10);
+          }
+          function closeCmd() {
+            modal.classList.add('hidden');
+          }
+
+          if (trigger && !trigger.dataset.cmdBound) {
+            trigger.dataset.cmdBound = 'true';
+            trigger.addEventListener('click', openCmd);
+          }
+          if (!modal.dataset.cmdBound) {
+            modal.dataset.cmdBound = 'true';
+            modal.addEventListener('click', function(e) {
+              if (e.target === modal) closeCmd();
+            });
+            input.addEventListener('input', function() {
+              var q = (input.value || '').toLowerCase().trim();
+              items.forEach(function(li) {
+                var lbl = li.getAttribute('data-label') || '';
+                li.style.display = !q || lbl.includes(q) ? '' : 'none';
+              });
+            });
+            input.addEventListener('keydown', function(e) {
+              if (e.key === 'Enter') {
+                var first = Array.from(items).find(function(li) { return li.style.display !== 'none'; });
+                var link = first && first.querySelector('a');
+                if (link) window.location.href = link.getAttribute('href');
+              } else if (e.key === 'Escape') {
+                closeCmd();
+              }
+            });
+          }
+
+          if (!window.__adminCmdKeyBound) {
+            window.__adminCmdKeyBound = true;
+            document.addEventListener('keydown', function(e) {
+              if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                var m = document.getElementById('admin-cmd-modal');
+                if (m && m.classList.contains('hidden')) openCmd();
+                else closeCmd();
+              } else if (e.key === 'Escape') {
+                closeCmd();
+              }
+            });
+          }
+        }
+
+        document.addEventListener('astro:page-load', setupCmdPalette);
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', setupCmdPalette);
+        } else {
+          setupCmdPalette();
         }
       })();
     </script>
