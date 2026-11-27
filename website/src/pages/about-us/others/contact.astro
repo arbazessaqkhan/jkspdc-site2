@@ -47,7 +47,7 @@ function formatEmail(email?: string | null) {
   title="Contact Us - Corporate Offices & Directory" 
   description="Official contact directory, Srinagar Corporate Office and Jammu Camp Office locations, interactive maps, and wing contacts of JKSPDCL."
 >
-  <div class="space-y-0 max-w-5xl mx-auto">
+  <div class="space-y-0 w-full">
     <!-- Premium Page Header Band (Strict Tender Details Shell Reference) -->
     <div class="page-header-band animate-fadeInUp">
       <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
@@ -75,35 +75,42 @@ function formatEmail(email?: string | null) {
           <p class="text-xs sm:text-sm text-slate-800 leading-relaxed">
             <strong class="font-bold text-slate-900">Corporate Office Address:</strong> Jammu and Kashmir State Power Development Corporation, PDD Building, Exhibition Grounds, Opposite High Court, Jahangir Chowk, Srinagar (J&amp;K).
           </p>
-          <div class="text-xs sm:text-sm text-slate-700 space-y-0.5 pt-1">
+          <div class="text-xs sm:text-sm text-slate-700 space-y-1 pt-1">
             <p><strong class="font-bold text-slate-900">PIN:</strong> 190009</p>
-            <p><strong class="font-bold text-slate-900">Phone:</strong> 0194-2483783</p>
+            <p><strong class="font-bold text-slate-900">Phone:</strong> <a href="tel:01942483783" class="text-[#0B3B60] hover:underline font-semibold">0194-2483783</a></p>
             <p><strong class="font-bold text-slate-900">Fax:</strong> 0194-2451665</p>
-            <p><strong class="font-bold text-slate-900">Email:</strong> <a href="mailto:md-jkspdcl@jk.gov.in" class="text-[#0B3B60] hover:underline font-medium">md-jkspdcl[at]jk[dot]gov[dot]in</a></p>
+            <p><strong class="font-bold text-slate-900">Email:</strong> <a href="mailto:md-jkspdcl@jk.gov.in" class="text-[#0B3B60] hover:underline font-medium gov-email">md-jkspdcl[at]jk[dot]gov[dot]in</a></p>
           </div>
         </div>
 
-        <!-- Interactive Map Container (Srinagar) with "Open in Maps" action -->
-        <div class="relative w-full h-72 bg-slate-100 border-t border-slate-200">
+        <!-- Interactive Map Container (Srinagar) with Mobile Scroll-Trap Guard -->
+        <div class="relative w-full h-56 sm:h-64 lg:h-72 bg-slate-100 border-t border-slate-200 map-guard-container">
           <!-- Accessible "Open in Google Maps" Button Overlay -->
-          <div class="absolute top-2.5 left-2.5 z-20">
+          <div class="absolute top-2.5 left-2.5 z-20 flex flex-wrap items-center gap-2">
             <a 
               href="https://www.google.com/maps/place/JKPDCL+CORPORATE+HQ/@34.0718076,74.802229,17z/data=!3m1!4b1!4m6!3m5!1s0x38e18fece6632a1b:0x3cb1b664082eb9c0!8m2!3d34.0718076!4d74.802229!16s%2Fg%2F11clsczfyc" 
               target="_blank" 
               rel="noopener noreferrer"
-              class="px-2.5 py-1.5 bg-white hover:bg-slate-50 text-[#0B3B60] hover:text-[#002B49] text-xs font-bold rounded shadow-md border border-slate-300 flex items-center gap-1.5 transition-all focus:ring-2 focus:ring-focus select-none cursor-pointer"
+              class="min-h-[40px] px-3 py-1.5 bg-white hover:bg-slate-50 text-[#0B3B60] hover:text-[#002B49] text-xs font-bold rounded shadow-md border border-slate-300 flex items-center gap-1.5 transition-all focus:ring-2 focus:ring-focus select-none cursor-pointer"
               title="Open JKPDCL Corporate HQ Srinagar in Google Maps (opens in new tab)"
             >
               <span>Open in Maps</span>
               <Icon name="external-link" size={13} strokeWidth={2.5} />
             </a>
+            <button
+              type="button"
+              class="map-interact-toggle md:hidden min-h-[40px] px-3 py-1.5 bg-[#0B3B60] text-white text-xs font-bold rounded shadow-md cursor-pointer"
+              aria-pressed="false"
+            >
+              Tap to pan map
+            </button>
           </div>
 
           <!-- Embedded Interactive Map (Srinagar Corporate HQ) -->
           <iframe 
             src="https://maps.google.com/maps?q=JKPDCL+CORPORATE+HQ&t=&z=16&ie=UTF8&iwloc=&output=embed" 
             title="Interactive Map - Corporate Office Srinagar (JKPDCL Corporate HQ)"
-            class="w-full h-full border-0" 
+            class="map-iframe w-full h-full border-0 pointer-events-none md:pointer-events-auto" 
             loading="lazy" 
             referrerpolicy="no-referrer-when-downgrade"
             allowfullscreen
@@ -117,35 +124,42 @@ function formatEmail(email?: string | null) {
           <p class="text-xs sm:text-sm text-slate-800 leading-relaxed">
             <strong class="font-bold text-slate-900">Camp Office Address:</strong> Jammu and Kashmir State Power Development Corporation, Ashok Nagar, Satwari, Jammu (J&amp;K).
           </p>
-          <div class="text-xs sm:text-sm text-slate-700 space-y-0.5 pt-1">
+          <div class="text-xs sm:text-sm text-slate-700 space-y-1 pt-1">
             <p><strong class="font-bold text-slate-900">PIN:</strong> 180004</p>
-            <p><strong class="font-bold text-slate-900">Phone:</strong> 0191-2430548</p>
+            <p><strong class="font-bold text-slate-900">Phone:</strong> <a href="tel:01912430548" class="text-[#0B3B60] hover:underline font-semibold">0191-2430548</a></p>
             <p><strong class="font-bold text-slate-900">Fax:</strong> 0191-2435403</p>
-            <p><strong class="font-bold text-slate-900">Email:</strong> <a href="mailto:md-jkspdcl@jk.gov.in" class="text-[#0B3B60] hover:underline font-medium">md-jkspdcl[at]jk[dot]gov[dot]in</a></p>
+            <p><strong class="font-bold text-slate-900">Email:</strong> <a href="mailto:md-jkspdcl@jk.gov.in" class="text-[#0B3B60] hover:underline font-medium gov-email">md-jkspdcl[at]jk[dot]gov[dot]in</a></p>
           </div>
         </div>
 
-        <!-- Interactive Map Container (Jammu) with "Open in Maps" action -->
-        <div class="relative w-full h-72 bg-slate-100 border-t border-slate-200">
+        <!-- Interactive Map Container (Jammu) with Mobile Scroll-Trap Guard -->
+        <div class="relative w-full h-56 sm:h-64 lg:h-72 bg-slate-100 border-t border-slate-200 map-guard-container">
           <!-- Accessible "Open in Google Maps" Button Overlay -->
-          <div class="absolute top-2.5 left-2.5 z-20">
+          <div class="absolute top-2.5 left-2.5 z-20 flex flex-wrap items-center gap-2">
             <a 
               href="https://www.google.com/maps/place/JKPDCL+CAMP+OFFICE,+JAMMU/@32.6902516,74.8496825,17z/data=!3m1!4b1!4m6!3m5!1s0x391e84cab0cd7a3f:0xbe9d30145dd09cde!8m2!3d32.6902516!4d74.8496825!16s%2Fg%2F11c2lffpk9" 
               target="_blank" 
               rel="noopener noreferrer"
-              class="px-2.5 py-1.5 bg-white hover:bg-slate-50 text-[#0B3B60] hover:text-[#002B49] text-xs font-bold rounded shadow-md border border-slate-300 flex items-center gap-1.5 transition-all focus:ring-2 focus:ring-focus select-none cursor-pointer"
+              class="min-h-[40px] px-3 py-1.5 bg-white hover:bg-slate-50 text-[#0B3B60] hover:text-[#002B49] text-xs font-bold rounded shadow-md border border-slate-300 flex items-center gap-1.5 transition-all focus:ring-2 focus:ring-focus select-none cursor-pointer"
               title="Open JKPDCL Camp Office Jammu in Google Maps (opens in new tab)"
             >
               <span>Open in Maps</span>
               <Icon name="external-link" size={13} strokeWidth={2.5} />
             </a>
+            <button
+              type="button"
+              class="map-interact-toggle md:hidden min-h-[40px] px-3 py-1.5 bg-[#0B3B60] text-white text-xs font-bold rounded shadow-md cursor-pointer"
+              aria-pressed="false"
+            >
+              Tap to pan map
+            </button>
           </div>
 
           <!-- Embedded Interactive Map (Jammu Camp Office) -->
           <iframe 
             src="https://maps.google.com/maps?q=JKPDCL+CAMP+OFFICE,+JAMMU&t=&z=16&ie=UTF8&iwloc=&output=embed" 
             title="Interactive Map - Camp Office Jammu (JKPDCL Camp Office)"
-            class="w-full h-full border-0" 
+            class="map-iframe w-full h-full border-0 pointer-events-none md:pointer-events-auto" 
             loading="lazy" 
             referrerpolicy="no-referrer-when-downgrade"
             allowfullscreen
@@ -155,6 +169,24 @@ function formatEmail(email?: string | null) {
 
     </div>
 
+    <!-- Web Information Manager (WIM) GIGW 3.0 Callout -->
+    <div class="mb-8 bg-[#F4F8FB] border border-[#D9E5EE] border-l-4 border-l-[#0B3B60] rounded-lg p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <span class="text-[0.68rem] font-bold uppercase tracking-wider text-[#0B3B60]">GIGW 3.0 Portal Governance</span>
+        <h2 class="text-sm sm:text-base font-bold text-slate-900 mt-0.5">Web Information Manager (WIM) &amp; IT Cell</h2>
+        <p class="text-xs sm:text-sm text-slate-600 mt-1">For portal content updates, accessibility assistance, or broken link reports contact our IT &amp; Systems Cell.</p>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-2 shrink-0">
+        <a href="mailto:md-jkspdcl@jk.gov.in" class="min-h-[44px] px-3.5 py-2 rounded-md bg-white border border-slate-300 hover:border-[#0B3B60] text-xs font-bold text-[#0B3B60] inline-flex items-center justify-center gap-1.5 gov-email">
+          <Icon name="mail" size={14} />
+          <span>md-jkspdcl[at]jk[dot]gov[dot]in</span>
+        </a>
+        <a href="/feedback" class="min-h-[44px] px-4 py-2 rounded-md bg-[#0B3B60] hover:bg-[#002B49] text-white text-xs font-bold inline-flex items-center justify-center gap-1.5">
+          <span>Submit Feedback</span>
+        </a>
+      </div>
+    </div>
+
     <!-- Section 2: Corporate Office Contacts Table (Matches Screenshot 2) -->
     <section class="mt-4 mb-8 overflow-hidden rounded-xl border border-slate-200/80 shadow-xs bg-white" aria-labelledby="corporate-office-heading">
       <!-- Blue Rectangular Banner Header -->
@@ -162,8 +194,8 @@ function formatEmail(email?: string | null) {
         CORPORATE OFFICE
       </div>
 
-      <!-- Responsive Corporate Contacts Table -->
-      <div class="table-wrapper">
+      <!-- Desktop Corporate Contacts Table (md+) -->
+      <div class="table-wrapper hidden md:block">
         <table class="table-data w-full text-left" aria-label="Corporate Office Officials and Contacts">
           <thead>
             <tr>
@@ -182,35 +214,24 @@ function formatEmail(email?: string | null) {
             ) : (
               officialContacts.map((c: any) => (
                 <tr class="transition-colors">
-                  <!-- Name, Designation, Email -->
                   <td class="py-3.5 px-4 sm:px-6 border-r border-slate-200 text-center">
                     <p class="font-bold text-slate-900 text-xs sm:text-sm">{c.name}</p>
                     <p class="text-xs text-slate-700 mt-0.5">{c.position}</p>
                     {c.email && (
                       <p class="text-[11px] sm:text-xs text-slate-600 mt-0.5">
-                        email: <a href={`mailto:${c.email}`} class="text-[#0B3B60] hover:underline">{formatEmail(c.email)}</a>
+                        email: <a href={`mailto:${c.email}`} class="text-[#0B3B60] hover:underline gov-email">{formatEmail(c.email)}</a>
                       </p>
                     )}
                   </td>
-
-                  <!-- Srinagar Phone / Fax -->
                   <td class="py-3.5 px-4 sm:px-6 border-r border-slate-200 text-center text-xs sm:text-sm text-slate-700">
-                    {c.srinagarPhone && <p class="font-medium text-slate-900">{c.srinagarPhone}</p>}
+                    {c.srinagarPhone && <p class="font-medium text-slate-900"><a href={`tel:${c.srinagarPhone.replace(/[^+\d]/g, '')}`} class="hover:underline text-[#0B3B60]">{c.srinagarPhone}</a></p>}
                     {c.srinagarFax && <p class="text-xs text-slate-600 mt-0.5">Fax. {c.srinagarFax}</p>}
                     {!c.srinagarPhone && !c.srinagarFax && <span class="text-slate-400 italic">—</span>}
                   </td>
-
-                  <!-- Jammu Phone / Fax -->
                   <td class="py-3.5 px-4 sm:px-6 text-center text-xs sm:text-sm text-slate-700">
-                    {c.jammuPhone && <p class="font-medium text-slate-900">{c.jammuPhone}</p>}
-                    {c.jammuFax && (
-                      <p class="text-xs text-slate-600 mt-0.5">
-                        Fax. {c.jammuFax}
-                      </p>
-                    )}
-                    {c.jammuFax && (
-                      <p class="text-[11px] text-slate-500 italic mt-0.5">(Fax on Automode 24 x 7)</p>
-                    )}
+                    {c.jammuPhone && <p class="font-medium text-slate-900"><a href={`tel:${c.jammuPhone.replace(/[^+\d]/g, '')}`} class="hover:underline text-[#0B3B60]">{c.jammuPhone}</a></p>}
+                    {c.jammuFax && <p class="text-xs text-slate-600 mt-0.5">Fax. {c.jammuFax}</p>}
+                    {c.jammuFax && <p class="text-[11px] text-slate-500 italic mt-0.5">(Fax on Automode 24 x 7)</p>}
                     {!c.jammuPhone && !c.jammuFax && <span class="text-slate-400 italic">—</span>}
                   </td>
                 </tr>
@@ -219,17 +240,66 @@ function formatEmail(email?: string | null) {
           </tbody>
         </table>
       </div>
+
+      <!-- Mobile Stacked Corporate Contacts Cards (<768px) -->
+      <div class="md:hidden p-3 space-y-3 bg-slate-50/50">
+        {officialContacts.length === 0 ? (
+          <p class="text-center py-6 text-slate-500 font-semibold italic text-xs">No official directory contacts listed at this time.</p>
+        ) : (
+          officialContacts.map((c: any) => (
+            <div class="bg-white border border-slate-200 rounded-lg p-4 shadow-2xs space-y-2.5">
+              <div>
+                <h3 class="font-bold text-slate-900 text-sm">{c.name}</h3>
+                <p class="text-xs text-slate-600 mt-0.5">{c.position}</p>
+              </div>
+              <div class="grid grid-cols-1 gap-2 pt-2 border-t border-slate-100 text-xs">
+                {(c.srinagarPhone || c.srinagarFax) && (
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <span class="font-bold text-slate-500 uppercase text-[10px]">Srinagar Office</span>
+                    <div class="flex flex-wrap items-center gap-2">
+                      {c.srinagarPhone && (
+                        <a href={`tel:${c.srinagarPhone.replace(/[^+\d]/g, '')}`} class="min-h-[38px] px-3 py-1.5 rounded bg-[#F4F8FB] border border-[#D9E5EE] text-[#0B3B60] font-bold inline-flex items-center gap-1.5">
+                          <Icon name="phone" size={12} /> {c.srinagarPhone}
+                        </a>
+                      )}
+                      {c.srinagarFax && <span class="text-slate-500">Fax: {c.srinagarFax}</span>}
+                    </div>
+                  </div>
+                )}
+                {(c.jammuPhone || c.jammuFax) && (
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <span class="font-bold text-slate-500 uppercase text-[10px]">Jammu Office</span>
+                    <div class="flex flex-wrap items-center gap-2">
+                      {c.jammuPhone && (
+                        <a href={`tel:${c.jammuPhone.replace(/[^+\d]/g, '')}`} class="min-h-[38px] px-3 py-1.5 rounded bg-[#F4F8FB] border border-[#D9E5EE] text-[#0B3B60] font-bold inline-flex items-center gap-1.5">
+                          <Icon name="phone" size={12} /> {c.jammuPhone}
+                        </a>
+                      )}
+                      {c.jammuFax && <span class="text-slate-500">Fax: {c.jammuFax}</span>}
+                    </div>
+                  </div>
+                )}
+                {c.email && (
+                  <a href={`mailto:${c.email}`} class="min-h-[40px] px-3 py-1.5 rounded bg-slate-50 border border-slate-200 text-[#0B3B60] font-semibold inline-flex items-center gap-1.5 gov-email">
+                    <Icon name="mail" size={12} class="shrink-0" /> {formatEmail(c.email)}
+                  </a>
+                )}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </section>
 
-    <!-- Section 3: Wing Contacts Table (Matches Screenshot 3) -->
+    <!-- Section 3: Wing Contacts Table & Mobile Cards -->
     <section class="mb-8 overflow-hidden rounded-xl border border-slate-200/80 shadow-xs bg-white" aria-labelledby="wing-contacts-heading">
       <!-- Blue Rectangular Banner Header -->
       <div id="wing-contacts-heading" class="bg-[#0B3B60] text-white font-bold text-center py-2.5 px-4 text-xs sm:text-sm uppercase tracking-wider select-none">
-        Wing Contacts
+        Wing Contacts &amp; Sub-Offices
       </div>
 
-      <!-- Responsive Wing Contacts Table -->
-      <div class="table-wrapper">
+      <!-- Desktop Wing Contacts Table (md+) -->
+      <div class="table-wrapper hidden md:block">
         <table class="table-data w-full text-left" aria-label="Wing Officials and Contacts">
           <thead>
             <tr>
@@ -248,26 +318,21 @@ function formatEmail(email?: string | null) {
             ) : (
               wingContacts.map((w: any) => (
                 <tr class="transition-colors">
-                  <!-- Wing -->
                   <td class="py-3.5 px-4 sm:px-6 border-r border-slate-200 text-center font-bold text-slate-900">
                     {w.wing}
                     {w.address && <p class="text-[11px] font-normal text-slate-500 mt-0.5">{w.address}</p>}
                   </td>
-
-                  <!-- Official with designation & email -->
                   <td class="py-3.5 px-4 sm:px-6 border-r border-slate-200 text-center">
                     <p class="font-bold text-slate-900">{w.name}</p>
                     <p class="text-xs text-slate-700 mt-0.5">{w.designation}</p>
                     {w.email && (
                       <p class="text-[11px] sm:text-xs text-slate-600 mt-0.5">
-                        <a href={`mailto:${w.email}`} class="text-[#0B3B60] hover:underline">{formatEmail(w.email)}</a>
+                        <a href={`mailto:${w.email}`} class="text-[#0B3B60] hover:underline gov-email">{formatEmail(w.email)}</a>
                       </p>
                     )}
                   </td>
-
-                  <!-- Phone -->
                   <td class="py-3.5 px-4 sm:px-6 text-center text-xs sm:text-sm font-medium text-slate-900">
-                    {w.phone ? w.phone : <span class="text-slate-400 italic">—</span>}
+                    {w.phone ? <a href={`tel:${w.phone.replace(/[^+\d]/g, '')}`} class="hover:underline text-[#0B3B60]">{w.phone}</a> : <span class="text-slate-400 italic">—</span>}
                   </td>
                 </tr>
               ))
@@ -275,7 +340,60 @@ function formatEmail(email?: string | null) {
           </tbody>
         </table>
       </div>
+
+      <!-- Mobile Stacked Wing / Sub-Offices Cards (<768px) -->
+      <div class="md:hidden p-3 space-y-3 bg-slate-50/50">
+        {wingContacts.length === 0 ? (
+          <p class="text-center py-6 text-slate-500 font-semibold italic text-xs">No wing contacts listed at this time.</p>
+        ) : (
+          wingContacts.map((w: any) => (
+            <div class="bg-white border border-slate-200 rounded-lg p-4 shadow-2xs space-y-2">
+              <div class="flex items-start justify-between gap-2">
+                <span class="inline-block px-2 py-0.5 rounded bg-[#0B3B60]/10 text-[#0B3B60] text-[10px] font-bold uppercase tracking-wider">{w.wing}</span>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-900 text-sm">{w.name}</h3>
+                <p class="text-xs text-slate-600 mt-0.5">{w.designation}</p>
+                {w.address && <p class="text-[11px] text-slate-500 mt-1">{w.address}</p>}
+              </div>
+              <div class="flex flex-wrap gap-2 pt-2 border-t border-slate-100 text-xs">
+                {w.phone && (
+                  <a href={`tel:${w.phone.replace(/[^+\d]/g, '')}`} class="min-h-[42px] px-3 py-1.5 rounded bg-[#F4F8FB] border border-[#D9E5EE] text-[#0B3B60] font-bold inline-flex items-center gap-1.5">
+                    <Icon name="phone" size={12} /> {w.phone}
+                  </a>
+                )}
+                {w.email && (
+                  <a href={`mailto:${w.email}`} class="min-h-[42px] px-3 py-1.5 rounded bg-slate-50 border border-slate-200 text-[#0B3B60] font-semibold inline-flex items-center gap-1.5 gov-email">
+                    <Icon name="mail" size={12} class="shrink-0" /> {formatEmail(w.email)}
+                  </a>
+                )}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </section>
 
   </div>
+
+  <script is:inline>
+    (function() {
+      document.querySelectorAll('.map-guard-container').forEach(function(box) {
+        var btn = box.querySelector('.map-interact-toggle');
+        var iframe = box.querySelector('.map-iframe');
+        if (!btn || !iframe) return;
+        btn.addEventListener('click', function() {
+          var active = btn.getAttribute('aria-pressed') === 'true';
+          btn.setAttribute('aria-pressed', String(!active));
+          if (!active) {
+            iframe.classList.remove('pointer-events-none');
+            btn.textContent = 'Lock map scroll';
+          } else {
+            iframe.classList.add('pointer-events-none');
+            btn.textContent = 'Tap to pan map';
+          }
+        });
+      });
+    })();
+  </script>
 </Layout>

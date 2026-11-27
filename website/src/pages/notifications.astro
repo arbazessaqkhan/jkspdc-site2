@@ -38,7 +38,7 @@ const formatDate = (dateStr: string) => {
   title="Notifications & Circulars - JKSPDC" 
   description="Official notifications, circulars, office orders, and public notices of JKSPDC."
 >
-  <div class="space-y-0 max-w-5xl mx-auto">
+  <div class="space-y-0 w-full">
     <!-- Page Header Band -->
     <div class="page-header-band animate-fadeInUp">
       <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
@@ -133,8 +133,8 @@ const formatDate = (dateStr: string) => {
 
         <!-- Notifications Table Card (Standardized .table-data) -->
         <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
-          <div class="table-wrapper overflow-x-auto" tabindex="0" role="region" aria-label="Notifications & Circulars Data Table">
-            <table class="table-data min-w-full text-left" id="notifications-table" style="table-layout: auto;">
+          <div class="table-wrapper is-card-table overflow-x-auto" tabindex="0" role="region" aria-label="Notifications & Circulars Data Table">
+            <table class="table-data mobile-cards-table min-w-full text-left" id="notifications-table" style="table-layout: auto;">
               <thead>
                 <tr>
                   <th scope="col" class="w-16 text-center">S.No</th>
@@ -178,7 +178,7 @@ const formatDate = (dateStr: string) => {
                             </div>
                           )}
                         </td>
-                        <td class="text-left whitespace-nowrap text-xs font-semibold text-slate-700">
+                        <td class="text-left whitespace-nowrap text-xs font-semibold text-slate-700" data-label="Published">
                           {formatDate(notif.publishDate)}
                         </td>
                         <td class="text-center whitespace-nowrap">

@@ -7,7 +7,7 @@ import Icon from '../components/Icon.astro';
   title="Feedback & Inquiries - JKSPDC"
   description="Submit general citizen inquiries, grievances, suggestions, and feedback to Jammu & Kashmir State Power Development Corporation Limited."
 >
-  <div class="space-y-0 max-w-5xl mx-auto">
+  <div class="space-y-0 w-full">
     <!-- Page Header Band -->
     <div class="page-header-band animate-fadeInUp">
       <nav class="breadcrumb-trail" aria-label="breadcrumb">
@@ -171,11 +171,11 @@ import Icon from '../components/Icon.astro';
             </div>
 
             <!-- Submit & Reset Actions -->
-            <div class="flex gap-3 items-center pt-2">
-              <button type="submit" id="feedback-submit-btn" class="btn-primary">
+            <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center pt-2">
+              <button type="submit" id="feedback-submit-btn" class="btn-primary w-full sm:w-auto min-h-[48px] justify-center">
                 Submit Inquiry / Feedback
               </button>
-              <button type="reset" id="feedback-reset-btn" class="btn-outline">
+              <button type="reset" id="feedback-reset-btn" class="btn-outline w-full sm:w-auto min-h-[48px] justify-center">
                 Clear Form
               </button>
             </div>

@@ -39,7 +39,7 @@ const pagedProjects = safeProjects.slice((currentPage - 1) * PAGE_SIZE, currentP
   title="Operating Power Stations - Our Business" 
   description="Operating power stations managed and owned by JKSPDC."
 >
-  <div class="space-y-0 max-w-5xl mx-auto">
+  <div class="space-y-0 w-full">
     <!-- Premium Page Header Band -->
     <div class="page-header-band animate-fadeInUp">
       <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
@@ -65,9 +65,9 @@ const pagedProjects = safeProjects.slice((currentPage - 1) * PAGE_SIZE, currentP
           </span>
         </div>
 
-        <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs p-4 space-y-3">
-          <div class="table-wrapper">
-            <table class="table-data" role="table" aria-label="Operating Power Stations">
+        <div class="bg-white rounded-xl border border-slate-200/80 shadow-xs p-3 sm:p-4 space-y-3">
+          <div class="table-wrapper is-card-table">
+            <table class="table-data mobile-cards-table" role="table" aria-label="Operating Power Stations">
               <thead>
                 <tr>
                   <th scope="col" class="text-center w-12">#</th>
@@ -89,21 +89,21 @@ const pagedProjects = safeProjects.slice((currentPage - 1) * PAGE_SIZE, currentP
                 ) : (
                   pagedProjects.map((p, idx) => (
                     <tr class="cursor-pointer" onclick={`window.location.href='/our-business/power-station-details?id=${p.id}'`}>
-                      <td class="text-center font-bold text-slate-500">{(currentPage - 1) * PAGE_SIZE + idx + 1}</td>
+                      <td class="text-center font-bold text-slate-500 row-idx">{(currentPage - 1) * PAGE_SIZE + idx + 1}</td>
                       <td class="font-bold text-[#0B3B60]">
                         <a href={`/our-business/power-station-details?id=${p.id}`} class="text-[#0B3B60] hover:text-[#0B3B60] hover:underline" onclick="event.stopPropagation();">
                           {formatProjectName(p.name)}
                         </a>
                       </td>
-                      <td class="text-slate-700">{p.configuration || '—'}</td>
-                      <td>
+                      <td class="text-slate-700" data-label="Configuration">{p.configuration || '—'}</td>
+                      <td data-label="Capacity">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold bg-[#EAF4FF] text-[#0B3B60] border border-[#BDD7EE]">
                           {p.capacityMw} MW
                         </span>
                       </td>
-                      <td class="text-slate-700">{p.designEnergy ? `${p.designEnergy} MU` : '—'}</td>
-                      <td class="text-slate-700">{p.yearOfCommissioning || '—'}</td>
-                      <td>
+                      <td class="text-slate-700" data-label="Design Energy">{p.designEnergy ? `${p.designEnergy} MU` : '—'}</td>
+                      <td class="text-slate-700" data-label="Commissioned">{p.yearOfCommissioning || '—'}</td>
+                      <td data-label="Status">
                         <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                           Operational
                         </span>

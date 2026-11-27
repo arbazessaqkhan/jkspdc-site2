@@ -96,7 +96,7 @@ const allFilterLocations = Array.from(new Set([
   title="Procurement & Tenders Portal" 
   description="Active procurement notices, standard bidding documents, corrigendums, awards, and compliance notices from JKSPDCL."
 >
-  <div class="space-y-0 max-w-5xl mx-auto">
+  <div class="space-y-0 w-full">
     <!-- Premium Page Header Band -->
     <div class="page-header-band animate-fadeInUp">
       <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
@@ -194,8 +194,8 @@ const allFilterLocations = Array.from(new Set([
       <article class="w-full">
         <!-- Tenders Table Card (Matching IPP & AGM modules) -->
         <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
-          <div class="table-wrapper overflow-x-auto" tabindex="0" role="region" aria-label="Procurement Tenders Data Table">
-            <table class="table-data min-w-full text-left" id="tenders-table" style="table-layout: auto;">
+          <div class="table-wrapper is-card-table overflow-x-auto" tabindex="0" role="region" aria-label="Procurement Tenders Data Table">
+            <table class="table-data mobile-cards-table min-w-full text-left" id="tenders-table" style="table-layout: auto;">
               <thead>
                 <tr>
                   <th scope="col" class="w-16 text-center">S.No</th>
@@ -253,10 +253,10 @@ const allFilterLocations = Array.from(new Set([
                           </div>
                         )}
                       </td>
-                      <td class="text-left font-mono font-semibold text-xs text-slate-700 whitespace-nowrap">
+                      <td class="text-left font-mono font-semibold text-xs text-slate-700 gov-code" data-label="NIT No.">
                         {tender.referenceNo}
                       </td>
-                      <td class="text-left text-xs font-medium text-slate-600">
+                      <td class="text-left text-xs font-medium text-slate-600" data-label="Location">
                         {locationClean}
                       </td>
                       <td class="text-center whitespace-nowrap">

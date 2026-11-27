@@ -284,7 +284,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
   <!-- HERO CAROUSEL (admin-managed slides — GIGW 3.0 / UX4G directional scrim overlay) -->
   <section
     id="home"
-    class="hero-section relative w-full h-[300px] sm:h-[340px] lg:h-[370px] xl:h-[420px] overflow-hidden bg-slate-900"
+    class="hero-section relative w-full min-h-[260px] sm:min-h-[310px] lg:min-h-[360px] xl:min-h-[410px] overflow-hidden bg-slate-900 flex flex-col justify-center"
     aria-roledescription="carousel"
     aria-label="Featured highlights"
     data-hero-duration={heroSlideMs}
@@ -292,17 +292,17 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
   >
     {heroSlides.length > 0 ? (
       <>
-        <div id="hero-slides" class="absolute inset-0">
+        <div id="hero-slides" class="grid w-full flex-1 min-h-[260px] sm:min-h-[310px] lg:min-h-[360px] xl:min-h-[410px]">
           {heroSlides.map((slide, i) => (
             <div
-              class={`hero-slide absolute inset-0 transition-opacity duration-700 ease-out ${i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}
+              class={`hero-slide col-start-1 row-start-1 relative w-full min-h-[260px] sm:min-h-[310px] lg:min-h-[360px] xl:min-h-[410px] flex items-center transition-opacity duration-700 ease-out ${i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}
               aria-hidden={i === 0 ? undefined : 'true'}
             >
               {slide.imageUrl ? (
                 <img
                   src={getImageUrl(slide.imageUrl)}
                   alt={slide.title || ''}
-                  class="absolute inset-0 h-full w-full object-cover"
+                  class="absolute inset-0 h-full w-full object-cover object-center"
                   fetchpriority={i === 0 ? 'high' : 'auto'}
                   loading={i === 0 ? 'eager' : 'lazy'}
                 />
@@ -311,18 +311,18 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
               )}
 
               <!-- Directional edge-only scrims: keep center/right photo bright while guaranteeing WCAG AA text contrast -->
-              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/15 to-transparent pointer-events-none" aria-hidden="true"></div>
-              <div class="absolute inset-y-0 left-0 w-full sm:w-3/5 bg-gradient-to-r from-[#0B3B60]/80 via-[#0B3B60]/35 to-transparent pointer-events-none" aria-hidden="true"></div>
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent pointer-events-none" aria-hidden="true"></div>
+              <div class="absolute inset-y-0 left-0 w-full sm:w-3/5 bg-gradient-to-r from-[#0B3B60]/85 via-[#0B3B60]/40 to-transparent pointer-events-none" aria-hidden="true"></div>
 
-              <!-- Safe-Zone Caption (No Box, Fits Above the Fold on 13.3" Laptops) -->
-              <div class="absolute inset-0 z-10 flex items-center pointer-events-none">
-                <div class="max-w-7xl mx-auto w-full px-14 sm:px-20 pb-4">
+              <!-- Safe-Zone Caption (Responsive flow with generous inset clearing arrows and bottom indicators) -->
+              <div class="relative z-10 w-full pointer-events-none">
+                <div class="site-container pt-6 pb-12 px-14 sm:px-20 lg:px-24">
                   <div class="pointer-events-auto max-w-lg">
-                    <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold text-white leading-tight tracking-tight drop-shadow-sm">
+                    <h2 class="text-[1.3rem] sm:text-[1.6rem] lg:text-[1.9rem] font-bold text-white leading-tight tracking-tight drop-shadow-sm">
                       {slide.title}
                     </h2>
                     {slide.description && (
-                      <p class="text-xs sm:text-sm lg:text-base text-slate-100 mt-1.5 leading-snug line-clamp-2 drop-shadow-xs">
+                      <p class="text-[0.8125rem] sm:text-[0.9rem] lg:text-base text-slate-100 mt-1.5 leading-snug line-clamp-2 drop-shadow-xs">
                         {slide.description}
                       </p>
                     )}
@@ -330,7 +330,7 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                       <div class="mt-3.5">
                         <a
                           href={slide.ctaHref}
-                          class="inline-flex items-center gap-1.5 bg-white text-[#0B3B60] hover:bg-slate-100 text-xs sm:text-sm font-semibold px-4 py-2 rounded-md shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                          class="inline-flex items-center min-h-[40px] gap-1.5 bg-white text-[#0B3B60] hover:bg-slate-100 text-[0.78rem] sm:text-sm font-semibold px-4 py-2 rounded-md shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                         >
                           <span>{slide.ctaText || 'Explore Details'}</span>
                           <span aria-hidden="true">&rarr;</span>
@@ -404,8 +404,8 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     <!-- ============================================================ -->
     <!-- WELCOME, TENDERS & NOTIFICATIONS (3-COLUMN LAYOUT)            -->
     <!-- ============================================================ -->
-    <section class="bg-slate-50 border-b border-slate-200 py-12 lg:py-16">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section class="bg-slate-50 border-b border-slate-200 py-8 sm:py-11 lg:py-14">
+      <div class="site-container">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
           
           <!-- COLUMN 1: WELCOME & OFFICE GALLERY CAROUSEL -->
@@ -516,8 +516,10 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                   class={feedTenders.length >= 4 ? "feed-scroll-track flex flex-col" : "flex flex-col"}
                   style={feedTenders.length >= 4 ? `--scroll-duration: ${feedTenders.length * 1.5}s;` : undefined}
                 >
-                  {(feedTenders.length >= 4 ? [1, 2] : [1]).map(() => (
-                    <>
+                  {(feedTenders.length >= 4 ? [0, 1] : [0]).map((dupIdx) => (
+                    <div
+                      aria-hidden={dupIdx > 0 ? 'true' : undefined}
+                    >
                       {feedTenders.map((tender: any) => {
                         const isCorr = tender.isCorrigendum;
                         const isNew = tender.isNew;
@@ -529,37 +531,38 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                             href={targetHref} 
                             target="_blank" 
                             rel="noopener noreferrer" 
+                            tabindex={dupIdx > 0 ? -1 : undefined}
                             onclick="this.blur()"
-                            class="feed-row block border-b border-slate-100 py-3 last:border-b-0 transition-colors text-left select-none group"
+                            class="feed-row block border-b border-slate-100 py-3 last:border-b-0 transition-colors text-left select-none group min-h-[44px]"
                           >
                             <div class="flex items-center gap-1.5 mb-1 flex-wrap">
-                              <span class="text-[11px] font-medium text-slate-500 inline-flex items-center gap-1">
+                              <span class="text-[0.7rem] font-medium text-slate-500 inline-flex items-center gap-1">
                                 <Icon name="calendar" size={11} class="shrink-0 text-slate-400" />
                                 <span>{formatRefDate(tender.publishDate)}</span>
                               </span>
                               {isNew && (
-                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#D9381E] text-white">
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[0.65rem] font-bold uppercase tracking-wider bg-[#D9381E] text-white">
                                   NEW
                                 </span>
                               )}
                               {isCorr && (
-                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300">
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[0.65rem] font-bold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300">
                                   Corrigendum
                                 </span>
                               )}
                               {tender.referenceNo && (
-                                <span class="text-[10.5px] text-slate-400 font-mono truncate max-w-[140px]">
+                                <span class="text-[0.68rem] text-slate-400 font-mono gov-code max-w-[160px] truncate">
                                   {tender.referenceNo}
                                 </span>
                               )}
                             </div>
-                            <h4 class="text-[13.5px] font-semibold text-slate-800 group-hover:text-[#0B3B60] line-clamp-2 leading-snug transition-colors">
+                            <h4 class="text-[0.84rem] font-semibold text-slate-800 group-hover:text-[#0B3B60] line-clamp-2 leading-snug transition-colors">
                               {isCorr ? (tender.title && tender.title.toLowerCase().startsWith('corrigendum') ? `${tender.title}${tender.parentTitle ? ` — ${tender.parentTitle}` : ''}` : `Corrigendum: ${tender.title}${tender.parentTitle ? ` — ${tender.parentTitle}` : ''}`) : tender.title}
                             </h4>
                           </a>
                         );
                       })}
-                    </>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -613,8 +616,10 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                   class={feedNotifications.length >= 4 ? "feed-scroll-track flex flex-col" : "flex flex-col"}
                   style={feedNotifications.length >= 4 ? `--scroll-duration: ${feedNotifications.length * 2.2}s;` : undefined}
                 >
-                  {(feedNotifications.length >= 4 ? [1, 2] : [1]).map(() => (
-                    <>
+                  {(feedNotifications.length >= 4 ? [0, 1] : [0]).map((dupIdx) => (
+                    <div
+                      aria-hidden={dupIdx > 0 ? 'true' : undefined}
+                    >
                       {feedNotifications.map((notif: any) => {
                         const isNew = notif.isNew;
                         const docUrl = getDocUrl(notif.documentUrl) || `/notifications`;
@@ -623,32 +628,33 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
                             href={docUrl} 
                             target="_blank" 
                             rel="noopener noreferrer" 
+                            tabindex={dupIdx > 0 ? -1 : undefined}
                             onclick="this.blur()"
-                            class="feed-row block border-b border-slate-100 py-3 last:border-b-0 transition-colors text-left select-none group"
+                            class="feed-row block border-b border-slate-100 py-3 last:border-b-0 transition-colors text-left select-none group min-h-[44px]"
                           >
                             <div class="flex items-center gap-1.5 mb-1 flex-wrap">
-                              <span class="text-[11px] font-medium text-slate-500 inline-flex items-center gap-1">
+                              <span class="text-[0.7rem] font-medium text-slate-500 inline-flex items-center gap-1">
                                 <Icon name="calendar" size={11} class="shrink-0 text-slate-400" />
                                 <span>{formatRefDate(notif.publishDate)}</span>
                               </span>
                               {isNew && (
-                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#D9381E] text-white">
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[0.65rem] font-bold uppercase tracking-wider bg-[#D9381E] text-white">
                                   NEW
                                 </span>
                               )}
                               {notif.documentUrl && (
-                                <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-slate-100 text-slate-600">
+                                <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[0.65rem] font-semibold uppercase tracking-wider bg-slate-100 text-slate-600">
                                   PDF
                                 </span>
                               )}
                             </div>
-                            <h4 class="text-[13.5px] font-semibold text-slate-800 group-hover:text-[#0B3B60] line-clamp-2 leading-snug transition-colors">
+                            <h4 class="text-[0.84rem] font-semibold text-slate-800 group-hover:text-[#0B3B60] line-clamp-2 leading-snug transition-colors">
                               {notif.title}
                             </h4>
                           </a>
                         );
                       })}
-                    </>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -680,8 +686,8 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     <!-- ============================================================ -->
     <!-- HONORABLE DIGNITARIES (BOD) (FULL WIDTH BELOW UPDATES)        -->
     <!-- ============================================================ -->
-    <section id="dignitaries" aria-labelledby="dignitaries-heading" class="bg-white border-b border-slate-200 py-12 lg:py-16">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="dignitaries" aria-labelledby="dignitaries-heading" class="bg-white border-b border-slate-200 py-8 sm:py-11 lg:py-14">
+      <div class="site-container">
         <!-- Section Header -->
         <div class="text-left mb-8 flex-shrink-0">
           <span class="inline-block text-xs font-semibold tracking-wider uppercase text-[#0B3B60]">LEADERSHIP &amp; GOVERNANCE</span>
@@ -746,8 +752,8 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     <!-- ============================================================ -->
     <!-- ABOUT & PHOTO GALLERY MERGED SECTION                         -->
     <!-- ============================================================ -->
-    <section id="about" aria-labelledby="about-heading" class="text-left bg-slate-50 border-b border-slate-200 py-12 lg:py-16">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="about" aria-labelledby="about-heading" class="text-left bg-slate-50 border-b border-slate-200 py-8 sm:py-11 lg:py-14">
+      <div class="site-container">
         <!-- Section Header -->
         <div class="text-left mb-8 flex-shrink-0">
           <span class="inline-block text-xs font-semibold tracking-wider uppercase text-[#0B3B60]">CORPORATE PROFILE &amp; MEDIA</span>
@@ -906,8 +912,8 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
       </div>
     </section>
 
-    <section id="projects" aria-labelledby="projects-heading" class="text-left bg-white border-b border-slate-200 py-12 lg:py-16">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="projects" aria-labelledby="projects-heading" class="text-left bg-white border-b border-slate-200 py-8 sm:py-11 lg:py-14">
+      <div class="site-container">
         <!-- Header + Summary Counts Row -->
         <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-8">
           <div>
@@ -1096,8 +1102,8 @@ const feedNotifications = displayNotifs.slice(0, 10).map((item: any, rankIdx: nu
     <!-- ============================================================ -->
     <!-- QUICK LINKS LOGO DIRECTORY SECTION                            -->
     <!-- ============================================================ -->
-    <section id="quick-links-section" aria-labelledby="marquee-heading" class="text-center bg-slate-50 border-b border-slate-200 py-12 lg:py-16">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="quick-links-section" aria-labelledby="marquee-heading" class="text-center bg-slate-50 border-b border-slate-200 py-8 sm:py-11 lg:py-14">
+      <div class="site-container">
         <!-- Centered Section Header -->
         <div class="text-center mb-8 flex-shrink-0">
           <span class="inline-block text-xs font-semibold tracking-wider uppercase text-[#0B3B60]">GOVERNMENT &amp; REGULATORY PORTALS</span>

@@ -181,13 +181,13 @@ const tickerItems = records
 
 <div
   data-ticker
-  class="relative flex h-10 w-full items-stretch overflow-hidden border-y border-[#0B3B60] bg-[#0E4976] text-slate-100"
+  class="relative flex min-h-[40px] w-full items-stretch overflow-hidden border-y border-[#0B3B60] bg-[#0E4976] text-slate-100"
   aria-label="Latest updates"
 >
   <!-- UPDATES label (fixed on left) -->
-  <div class="relative z-20 flex shrink-0 items-center gap-2 border-r border-white/15 bg-[#0B3B60] px-4 shadow-[2px_0_6px_rgba(0,0,0,0.15)]">
+  <div class="relative z-20 flex shrink-0 items-center gap-2 border-r border-white/15 bg-[#0B3B60] px-3 sm:px-4 shadow-[2px_0_6px_rgba(0,0,0,0.15)]">
     <span class="h-2 w-2 shrink-0 rounded-full bg-[#38BDF8]" aria-hidden="true"></span>
-    <span class="text-[11px] font-bold uppercase tracking-[0.16em] text-white">Updates</span>
+    <span class="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-white">Updates</span>
   </div>
 
   <!-- Marquee viewport -->
@@ -234,7 +234,7 @@ const tickerItems = records
     <button
       id="ticker-toggle"
       type="button"
-      class="relative z-20 flex shrink-0 items-center gap-1.5 border-l border-white/15 bg-[#0B3B60] px-3.5 text-[11px] font-semibold uppercase tracking-wider text-white transition-colors hover:bg-[#002B49] focus-visible:bg-[#002B49] focus-visible:outline-none"
+      class="relative z-20 flex shrink-0 items-center justify-center min-w-[44px] min-h-[40px] gap-1.5 border-l border-white/15 bg-[#0B3B60] px-3 text-[0.6875rem] font-semibold uppercase tracking-wider text-white transition-colors hover:bg-[#002B49] focus-visible:bg-[#002B49] focus-visible:outline-none cursor-pointer"
       aria-label="Pause updates"
       aria-pressed="true"
     >

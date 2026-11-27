@@ -1,6 +1,5 @@
 ---
 import '../styles/global.css';
-import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import Icon from '../components/Icon.astro';
 import Ticker from '../components/Ticker.astro';
@@ -16,6 +15,90 @@ const { title, description, canonicalUrl, isHome = false } = Astro.props;
 const canonical = canonicalUrl || Astro.url.href;
 const currentYear = new Date().getFullYear();
 const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
+
+const NAV_ITEMS = [
+  { key: 'home', label: 'Home', href: '/' },
+  {
+    key: 'about',
+    label: 'About Us',
+    children: [
+      { label: 'About Us', href: '/about-us/explore/overview' },
+      { label: 'MoA & AoA', href: '/about-us/explore/association-memorandum' },
+      { label: 'Organizational Structure', href: '/about-us/explore/organization-chart' },
+      { label: 'Board Of Director', href: '/about-us/management/board' },
+      { label: 'GSTIN Registration Details', href: '/about-us/explore/gstin-registration' },
+      { label: 'Policies', href: '/about-us/explore/policies' },
+      { label: 'CSR Policy', href: '/sustainability/csr/policy' },
+    ],
+  },
+  {
+    key: 'projects',
+    label: 'Projects',
+    children: [
+      { label: 'Operational Projects', href: '/our-business/power-stations' },
+      { label: 'Projects Under Construction', href: '/our-business/construction' },
+      { label: 'Upcoming Projects', href: '/our-business/under-development' },
+    ],
+  },
+  {
+    key: 'tenders',
+    label: 'Tenders',
+    children: [
+      { label: 'Live Tenders & Notices', href: '/stakeholders/vendors/tender-bids' },
+      { label: 'JK Tenders Portal', href: 'https://jktenders.gov.in/nicgep/app', external: true },
+    ],
+  },
+  { key: 'notifications', label: 'Notifications', href: '/notifications' },
+  {
+    key: 'investors',
+    label: 'Investors Corner',
+    children: [
+      { label: 'Annual General Meetings', href: '/stakeholders/investors/agm' },
+      { label: 'IPP Projects', href: '/stakeholders/investors/ipp-projects' },
+    ],
+  },
+  {
+    key: 'rti',
+    label: 'RTI',
+    children: [{ label: 'RTI Act (Sec 4)', href: '/about-us/explore/rti' }],
+  },
+  { key: 'gallery', label: 'Gallery', href: '/media/gallery' },
+  { key: 'downloads', label: 'Downloads', href: '/media/downloads' },
+  {
+    key: 'employees',
+    label: 'Employees Corner',
+    alignRight: true,
+    children: [
+      { label: 'Web Mail', href: 'https://www.jkspdcl.com:2096/', external: true },
+      { label: 'Nic-e-File', href: 'https://saccess.nic.in/', external: true },
+      { label: 'E-Office', href: 'https://eoffice.jk.gov.in/', external: true },
+      { label: 'JKHRMS', href: 'https://hrms.jk.gov.in/', external: true },
+      { label: 'EETMS', href: 'https://law.pmgatishakti.gov.in/EETMS/login', external: true },
+      { label: 'BG Management', href: 'https://bg.jkspdc.in/', external: true },
+      { label: 'Asset Management', href: 'https://asset.jkspdcl.co.in/login', external: true },
+      {
+        label: 'JKSPDC RAS',
+        href: 'https://janparichay.meripehchaan.gov.in/v1/pehchaan/login.html?service=passive&active=true&rm_5=false&continue=https%3A%2F%2Fjan_com%2Fmail%2F&pp=1&scc=1&lmpl=default&ltmplcache=2&emr=1&osid=1&flowName=GlifWebSignIn&flowEntry=ServiceLogin&sid=JanSugamJK&v=2.0&lang=&urlid=82ae2068-ada6-4154-ae21-649b90598534',
+        external: true,
+      },
+    ],
+  },
+  {
+    key: 'contact',
+    label: 'Contact Us',
+    alignRight: true,
+    children: [
+      { label: 'Contact Us', href: '/about-us/others/contact' },
+      { label: 'Feedback', href: '/feedback' },
+    ],
+  },
+];
+
+function isSublinkActive(href: string): boolean {
+  if (!href || href.startsWith('http')) return false;
+  const clean = href.replace(/\/$/, '');
+  return currentPath === clean || currentPath.startsWith(clean + '/') || currentPath.startsWith(clean + '?');
+}
 
 function isSectionActive(section: string): boolean {
   if (section === 'home') return currentPath === '/' || isHome;
@@ -109,7 +192,7 @@ function isSectionActive(section: string): boolean {
         display: none !important;
       }
 
-      /* ── Navigation Menu Dropdown Toggle ─────────────────── */
+      /* ── Navigation Menu Dropdown Toggle (Click / Keyboard + Hover fallback) ── */
       .nav-dropdown-item:hover > .nav-dropdown-menu:not(.is-closed),
       .nav-dropdown-item.is-open > .nav-dropdown-menu {
         display: block !important;
@@ -132,18 +215,18 @@ function isSectionActive(section: string): boolean {
       .nav-dropdown-item:hover > .nav-dropdown-btn:not(.nav-item-active),
       .nav-dropdown-item.is-open > .nav-dropdown-btn:not(.nav-item-active),
       .nav-link:hover:not(.nav-item-active) {
-        background-color: rgba(255, 255, 255, 0.10) !important;
-        border-bottom-color: rgba(255, 255, 255, 0.6) !important;
+        background-color: rgba(255, 255, 255, 0.12) !important;
+        border-bottom-color: rgba(255, 255, 255, 0.7) !important;
       }
 
       .nav-item-active,
       .nav-dropdown-btn.nav-item-active,
       .nav-dropdown-item.is-open > .nav-dropdown-btn.nav-item-active,
       .nav-dropdown-item:hover > .nav-dropdown-btn.nav-item-active {
-        border-bottom-color: #0B3B60 !important;
+        border-bottom-color: #52B5E8 !important;
         border-bottom-width: 3px !important;
         border-bottom-style: solid !important;
-        background-color: rgba(255, 255, 255, 0.12) !important;
+        background-color: rgba(255, 255, 255, 0.14) !important;
         color: #ffffff !important;
       }
 
@@ -154,29 +237,8 @@ function isSectionActive(section: string): boolean {
         border-left: 4px solid #0B3B60 !important;
       }
 
-      /* ── Navigation Bar Horizontal Scrolling ─────────────────── */
-      .nav-scroll-container {
-        overflow-x: auto;
-        overflow-y: visible;
-        -webkit-overflow-scrolling: touch;
-      }
-      @media (min-width: 1024px) {
-        .nav-scroll-container {
-          overflow-x: visible;
-        }
-      }
-      .nav-scroll-container::-webkit-scrollbar {
-        height: 3px;
-      }
-      .nav-scroll-container::-webkit-scrollbar-track {
-        background: rgba(0, 0, 0, 0.15);
-      }
-      .nav-scroll-container::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.35);
-        border-radius: 2px;
-      }
-      .nav-scroll-container::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.6);
+      .desktop-nav-list {
+        overflow: visible;
       }
     </style>
 
@@ -198,6 +260,9 @@ function isSectionActive(section: string): boolean {
         try {
           localStorage.setItem('preferred-font-size', sizeStr);
         } catch (e) {}
+        if (typeof window.__checkDesktopNavOverflow === 'function') {
+          window.__checkDesktopNavOverflow();
+        }
       }
 
       function toggleHighContrast() {
@@ -215,14 +280,15 @@ function isSectionActive(section: string): boolean {
         } catch (e) {}
       }
 
-      function toggleLangDropdown(event) {
+      function toggleLangDropdown(event, suffix) {
         if (event) {
           event.preventDefault();
           event.stopPropagation();
         }
-        var menu = document.getElementById('lang-dropdown-menu');
-        var btn = document.getElementById('lang-dropdown-btn');
-        var arrow = document.getElementById('lang-arrow');
+        var s = suffix || '';
+        var menu = document.getElementById('lang-dropdown-menu' + s);
+        var btn = document.getElementById('lang-dropdown-btn' + s);
+        var arrow = document.getElementById('lang-arrow' + s);
         if (!menu) return;
         
         // Immediately close and clear search suggestions if open
@@ -267,10 +333,30 @@ function isSectionActive(section: string): boolean {
           var labelText = labels[preferredLang] || 'English';
           
           document.addEventListener('DOMContentLoaded', function() {
-            var labelEl = document.getElementById('current-lang-label');
-            if (labelEl) labelEl.textContent = labelText;
+            document.querySelectorAll('.lang-label-text').forEach(function(el) {
+              el.textContent = labelText;
+            });
             
-            // Navigation Menu Toggle & Smart Viewport Edge Alignment Logic
+            // Overflow fallback guard: if desktop nav overflows horizontally (+A / Hindi), switch cleanly to drawer
+            function checkDesktopNavOverflow() {
+              var htmlEl = document.documentElement;
+              if (window.innerWidth < 1200) {
+                htmlEl.classList.remove('nav-force-drawer');
+                return;
+              }
+              htmlEl.classList.remove('nav-force-drawer');
+              var ul = document.getElementById('desktop-nav-list');
+              if (ul && ul.scrollWidth > ul.clientWidth + 2) {
+                htmlEl.classList.add('nav-force-drawer');
+              }
+            }
+            window.__checkDesktopNavOverflow = checkDesktopNavOverflow;
+            checkDesktopNavOverflow();
+            if (document.fonts && document.fonts.ready) {
+              document.fonts.ready.then(checkDesktopNavOverflow);
+            }
+
+            // Desktop Navigation Menu Toggle & Smart Viewport Edge Alignment + Keyboard Support
             var navItems = document.querySelectorAll('.nav-dropdown-item');
             
             function positionDropdown(item) {
@@ -285,23 +371,34 @@ function isSectionActive(section: string): boolean {
               menu.style.zIndex = '9999';
 
               if (itemCenter > windowWidth / 2) {
-                // Item is on right half of screen -> align right so menu opens to the left
                 menu.style.left = 'auto';
                 menu.style.right = Math.max(8, windowWidth - rect.right) + 'px';
               } else {
-                // Item is on left half of screen -> align left so menu opens to the right
                 menu.style.left = Math.max(8, rect.left) + 'px';
                 menu.style.right = 'auto';
               }
+            }
+
+            function closeAllDesktopDropdowns(exceptItem) {
+              navItems.forEach(function(other) {
+                if (other !== exceptItem) {
+                  other.classList.remove('is-open');
+                  other.classList.add('is-closed');
+                  var otherBtn = other.querySelector('.nav-dropdown-btn');
+                  if (otherBtn) otherBtn.setAttribute('aria-expanded', 'false');
+                }
+              });
             }
 
             function updateAllDropdownPositions() {
               navItems.forEach(positionDropdown);
             }
 
-            // Initial positioning
             updateAllDropdownPositions();
-            window.addEventListener('resize', updateAllDropdownPositions);
+            window.addEventListener('resize', function() {
+              checkDesktopNavOverflow();
+              updateAllDropdownPositions();
+            });
             window.addEventListener('scroll', updateAllDropdownPositions, { passive: true });
 
             navItems.forEach(function(item) {
@@ -309,7 +406,6 @@ function isSectionActive(section: string): boolean {
               var menu = item.querySelector('.nav-dropdown-menu');
               if (!btn || !menu) return;
 
-              // Ensure correct positioning before opening on mouseenter
               item.addEventListener('mouseenter', function() {
                 positionDropdown(item);
               });
@@ -318,33 +414,41 @@ function isSectionActive(section: string): boolean {
                 e.preventDefault();
                 e.stopPropagation();
                 positionDropdown(item);
-
                 var isClosed = item.classList.contains('is-closed');
                 var isOpen = item.classList.contains('is-open');
-
-                // Determine if menu is currently visible
                 var isShowing = isOpen || (!isClosed && window.getComputedStyle(menu).display !== 'none');
 
-                // Close all other dropdowns
-                navItems.forEach(function(other) {
-                  if (other !== item) {
-                    other.classList.remove('is-open');
-                    other.classList.add('is-closed');
-                    var otherBtn = other.querySelector('.nav-dropdown-btn');
-                    if (otherBtn) otherBtn.setAttribute('aria-expanded', 'false');
-                  }
-                });
+                closeAllDesktopDropdowns(item);
 
                 if (isShowing) {
-                  // SECOND CLICK -> MINIMIZE / CLOSE
                   item.classList.remove('is-open');
                   item.classList.add('is-closed');
                   btn.setAttribute('aria-expanded', 'false');
                 } else {
-                  // FIRST CLICK -> MAXIMIZE / OPEN
                   item.classList.remove('is-closed');
                   item.classList.add('is-open');
                   btn.setAttribute('aria-expanded', 'true');
+                }
+              });
+
+              // Keyboard: Enter/Space toggles, Escape closes & restores focus to button
+              item.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                  item.classList.remove('is-open');
+                  item.classList.add('is-closed');
+                  btn.setAttribute('aria-expanded', 'false');
+                  btn.focus();
+                } else if ((e.key === ' ' || e.key === 'Enter') && e.target === btn) {
+                  e.preventDefault();
+                  btn.click();
+                }
+              });
+
+              item.addEventListener('focusout', function(e) {
+                if (!item.contains(e.relatedTarget)) {
+                  item.classList.remove('is-open');
+                  item.classList.add('is-closed');
+                  btn.setAttribute('aria-expanded', 'false');
                 }
               });
 
@@ -355,7 +459,7 @@ function isSectionActive(section: string): boolean {
               });
             });
 
-            // Close dropdown when clicking outside
+            // Close dropdowns when clicking outside
             window.addEventListener('click', function(e) {
               navItems.forEach(function(item) {
                 if (!item.contains(e.target)) {
@@ -365,16 +469,18 @@ function isSectionActive(section: string): boolean {
                   if (btn) btn.setAttribute('aria-expanded', 'false');
                 }
               });
-              var menu = document.getElementById('lang-dropdown-menu');
-              var btn = document.getElementById('lang-dropdown-btn');
-              var arrow = document.getElementById('lang-arrow');
-              if (menu && !menu.classList.contains('hidden')) {
-                if (btn && !btn.contains(e.target) && !menu.contains(e.target)) {
-                  menu.classList.add('hidden');
-                  btn.setAttribute('aria-expanded', 'false');
-                  if (arrow) arrow.classList.remove('rotate-180');
+              ['', '-mob'].forEach(function(s) {
+                var menu = document.getElementById('lang-dropdown-menu' + s);
+                var btn = document.getElementById('lang-dropdown-btn' + s);
+                var arrow = document.getElementById('lang-arrow' + s);
+                if (menu && !menu.classList.contains('hidden')) {
+                  if (btn && !btn.contains(e.target) && !menu.contains(e.target)) {
+                    menu.classList.add('hidden');
+                    btn.setAttribute('aria-expanded', 'false');
+                    if (arrow) arrow.classList.remove('rotate-180');
+                  }
                 }
-              }
+              });
             });
           });
         } catch (e) {}
@@ -393,389 +499,326 @@ function isSectionActive(section: string): boolean {
       </div>
     </noscript>
 
-    <header class="bg-white border-t-[3px] border-[#0B3B60] border-b border-slate-200/90 shadow-2xs relative z-[60]" style="position: relative; z-index: 60;">
-      <div class="max-w-[1400px] mx-auto px-3 sm:px-5 lg:px-6 py-2.5 sm:py-3 flex flex-col md:flex-row items-center justify-between gap-3 md:gap-6">
-        
+    <!-- Desktop Header (1200px+, aligned to .site-container) -->
+    <header class="desktop-brand-bar hidden min-[1200px]:block bg-white border-t-[3px] border-[#0B3B60] border-b border-slate-200/90 shadow-2xs relative z-[60]">
+      <div class="site-container py-2.5 flex items-center justify-between gap-6">
         <!-- Left: Official Institutional Identity Lockup -->
-        <div class="flex items-center gap-3 sm:gap-4 min-w-0 flex-1 w-full md:w-auto">
-          <!-- Official Logo -->
+        <div class="flex items-center gap-4 min-w-0 flex-1">
           <a href="/" class="flex-shrink-0 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B3B60] rounded-lg p-0.5 transition-transform duration-150 hover:scale-[1.02]" aria-label="JKSPDCL Official Portal Home">
-            <img src="/logo.png" alt="JKSPDCL Official Emblem" class="h-12 sm:h-14 md:h-15 lg:h-16 w-auto object-contain" />
+            <img src="/logo.png" alt="JKSPDCL Official Emblem" width="64" height="64" fetchpriority="high" loading="eager" class="h-15 w-auto object-contain" />
           </a>
-
-          <!-- Subtle Institutional Divider -->
-          <div class="w-px h-11 sm:h-12 bg-slate-200/90 hidden sm:block shrink-0"></div>
-
-          <!-- Official Organization Typography -->
+          <div class="w-px h-12 bg-slate-200/90 shrink-0"></div>
           <div class="flex flex-col min-w-0 justify-center text-left">
-            <h1 class="font-extrabold text-[#002B49] text-[14px] sm:text-[16px] md:text-[17px] lg:text-[18.5px] xl:text-[19.5px] leading-tight tracking-tight">
+            <h1 class="font-extrabold text-[#002B49] text-[1.1rem] xl:text-[1.18rem] leading-tight tracking-tight">
               Jammu &amp; Kashmir State Power Development Corporation Limited
             </h1>
-            <div class="flex items-center gap-1.5 sm:gap-2 mt-0.5 flex-wrap">
-              <span class="text-slate-600 font-semibold text-[11px] sm:text-xs tracking-wide">
-                A Government of J&amp;K Undertaking
-              </span>
-              <span class="text-slate-300 hidden sm:inline">•</span>
-              <span class="text-[#0B3B60] font-bold text-[11px] sm:text-xs">
-                (JKSPDCL)
-              </span>
+            <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+              <span class="text-slate-600 font-semibold text-[0.75rem] tracking-wide">A Government of J&amp;K Undertaking</span>
+              <span class="text-slate-300">•</span>
+              <span class="text-[#0B3B60] font-bold text-[0.75rem]">(JKSPDCL)</span>
             </div>
-            <p class="text-slate-700 font-medium text-[11px] sm:text-xs leading-snug mt-0.5 font-devanagari" lang="hi">
+            <p class="text-slate-700 font-medium text-[0.78rem] leading-snug mt-0.5 font-devanagari" lang="hi">
               जम्मू और कश्मीर राज्य विद्युत विकास निगम लिमिटेड (जेकेएसपीडीसीएल)
             </p>
           </div>
         </div>
 
-        <!-- Right: Utility Controls & Integrated Search Toolbar -->
-        <div class="flex flex-col items-center md:items-end gap-2 shrink-0 w-full md:w-auto">
-          
-          <!-- Accessibility Controls & Language Cluster -->
-          <div class="flex items-center justify-between md:justify-end gap-2 w-full md:w-auto text-xs text-slate-700 select-none">
-            
-            <!-- Font Sizing (Segmented Pill) -->
+        <!-- Right: Accessibility Controls & Search -->
+        <div class="flex flex-col items-end gap-2 shrink-0">
+          <div class="flex items-center justify-end gap-2 text-xs text-slate-700 select-none">
             <div class="inline-flex items-center bg-slate-100/90 hover:bg-slate-100 p-0.5 rounded-lg border border-slate-200/80 shadow-2xs" role="group" aria-label="Font Size Controls">
-              <button 
-                type="button"
-                class="flex items-center gap-0.5 px-2 py-1 bg-transparent hover:bg-white text-slate-700 hover:text-[#0B3B60] rounded-md text-[11px] font-bold transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0B3B60]" 
-                onclick="adjustFontSize('dec')" 
-                aria-label="Decrease Font Size" 
-                title="Decrease font size (-A)"
-              >
+              <button type="button" class="flex items-center gap-0.5 px-2 py-1 bg-transparent hover:bg-white text-slate-700 hover:text-[#0B3B60] rounded-md text-[0.7rem] font-bold transition-all cursor-pointer" onclick="adjustFontSize('dec')" aria-label="Decrease Font Size" title="Decrease font size (-A)">
                 <Icon name="minus" size={8} strokeWidth={2.5} /> A
               </button>
               <div class="w-px h-3.5 bg-slate-200"></div>
-              <button 
-                type="button"
-                class="px-2.5 py-1 bg-transparent hover:bg-white text-slate-700 hover:text-[#0B3B60] rounded-md text-[11px] font-bold transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0B3B60]" 
-                onclick="adjustFontSize('reset')" 
-                aria-label="Reset Font Size" 
-                title="Reset font size (A)"
-              >
-                A
-              </button>
+              <button type="button" class="px-2.5 py-1 bg-transparent hover:bg-white text-slate-700 hover:text-[#0B3B60] rounded-md text-[0.7rem] font-bold transition-all cursor-pointer" onclick="adjustFontSize('reset')" aria-label="Reset Font Size" title="Reset font size (A)">A</button>
               <div class="w-px h-3.5 bg-slate-200"></div>
-              <button 
-                type="button"
-                class="flex items-center gap-0.5 px-2 py-1 bg-transparent hover:bg-white text-slate-700 hover:text-[#0B3B60] rounded-md text-[11px] font-bold transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0B3B60]" 
-                onclick="adjustFontSize('inc')" 
-                aria-label="Increase Font Size" 
-                title="Increase font size (+A)"
-              >
+              <button type="button" class="flex items-center gap-0.5 px-2 py-1 bg-transparent hover:bg-white text-slate-700 hover:text-[#0B3B60] rounded-md text-[0.7rem] font-bold transition-all cursor-pointer" onclick="adjustFontSize('inc')" aria-label="Increase Font Size" title="Increase font size (+A)">
                 <Icon name="plus" size={8} strokeWidth={2.5} /> A
               </button>
             </div>
-
-            <!-- Contrast Switcher -->
-            <button 
-              type="button"
-              class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100/90 hover:bg-white text-slate-700 hover:text-[#0B3B60] border border-slate-200/80 hover:border-[#0B3B60]/30 rounded-lg text-[11px] font-bold transition-all duration-150 cursor-pointer shadow-2xs hover:shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0B3B60]" 
-              onclick="toggleHighContrast()" 
-              aria-label="Toggle High Contrast Mode"
-              title="Toggle high contrast"
-            >
+            <button type="button" class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100/90 hover:bg-white text-slate-700 hover:text-[#0B3B60] border border-slate-200/80 rounded-lg text-[0.7rem] font-bold transition-all cursor-pointer" onclick="toggleHighContrast()" aria-label="Toggle High Contrast Mode" title="Toggle high contrast">
               <Icon name="eye" size={12} strokeWidth={2.2} class="text-[#0B3B60]" />
               <span>Contrast</span>
             </button>
-
-            <!-- Language Switcher Dropdown -->
             <div class="relative" id="lang-dropdown-wrapper">
-              <button
-                type="button"
-                id="lang-dropdown-btn"
-                class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100/90 hover:bg-white text-slate-700 hover:text-[#0B3B60] border border-slate-200/80 hover:border-[#0B3B60]/30 rounded-lg text-[11px] font-bold transition-all duration-150 cursor-pointer shadow-2xs hover:shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0B3B60]"
-                aria-haspopup="true"
-                aria-expanded="false"
-                aria-controls="lang-dropdown-menu"
-                onclick="toggleLangDropdown(event)"
-                title="Select language"
-              >
+              <button type="button" id="lang-dropdown-btn" class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100/90 hover:bg-white text-slate-700 hover:text-[#0B3B60] border border-slate-200/80 rounded-lg text-[0.7rem] font-bold transition-all cursor-pointer" aria-haspopup="true" aria-expanded="false" aria-controls="lang-dropdown-menu" onclick="toggleLangDropdown(event)" title="Select language">
                 <Icon name="globe" size={12} strokeWidth={2.2} class="text-[#0B3B60]" />
-                <span id="current-lang-label">English</span>
+                <span class="lang-label-text">English</span>
                 <Icon name="chevron-down" size={10} strokeWidth={2.5} class="text-slate-400" id="lang-arrow" />
               </button>
-              <div
-                id="lang-dropdown-menu"
-                class="absolute right-0 mt-1.5 w-44 bg-white text-slate-800 rounded-lg shadow-xl border border-slate-200/90 hidden z-[10000] py-1 text-left"
-                style="z-index: 10000;"
-                role="menu"
-                aria-orientation="vertical"
-                aria-labelledby="lang-dropdown-btn"
-              >
-                <button class="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-50 hover:text-[#0B3B60] font-semibold transition-colors block cursor-pointer" role="menuitem" onclick="changeLanguage('en')">English</button>
-                <button class="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-50 hover:text-[#0B3B60] font-semibold transition-colors block cursor-pointer" role="menuitem" onclick="changeLanguage('hi')">हिन्दी (Hindi)</button>
-                <button class="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-50 hover:text-[#0B3B60] font-semibold transition-colors block cursor-pointer" role="menuitem" onclick="changeLanguage('ur')">اردو (Urdu)</button>
-                <button class="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-50 hover:text-[#0B3B60] font-semibold transition-colors block cursor-pointer" role="menuitem" onclick="changeLanguage('ks')">کٲشُر (Kashmiri)</button>
-                <button class="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-50 hover:text-[#0B3B60] font-semibold transition-colors block cursor-pointer" role="menuitem" onclick="changeLanguage('doi')">डोगरी (Dogri)</button>
+              <div id="lang-dropdown-menu" class="absolute right-0 mt-1.5 w-44 bg-white text-slate-800 rounded-lg shadow-xl border border-slate-200/90 hidden z-[10000] py-1 text-left" role="menu" aria-orientation="vertical" aria-labelledby="lang-dropdown-btn">
+                <button class="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-50 hover:text-[#0B3B60] font-semibold block cursor-pointer" role="menuitem" onclick="changeLanguage('en')">English</button>
+                <button class="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-50 hover:text-[#0B3B60] font-semibold block cursor-pointer" role="menuitem" onclick="changeLanguage('hi')">हिन्दी (Hindi)</button>
+                <button class="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-50 hover:text-[#0B3B60] font-semibold block cursor-pointer" role="menuitem" onclick="changeLanguage('ur')">اردو (Urdu)</button>
+                <button class="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-50 hover:text-[#0B3B60] font-semibold block cursor-pointer" role="menuitem" onclick="changeLanguage('ks')">کٲشُر (Kashmiri)</button>
+                <button class="w-full text-left px-3 py-1.5 text-xs hover:bg-slate-50 hover:text-[#0B3B60] font-semibold block cursor-pointer" role="menuitem" onclick="changeLanguage('doi')">डोगरी (Dogri)</button>
               </div>
             </div>
           </div>
 
-          <!-- Integrated Government Search Form -->
           <form action="/search" method="GET" class="flex items-center w-full justify-end relative" id="header-search-form" autocomplete="off">
-            <div class="relative flex items-center w-full max-w-full md:max-w-[270px] lg:max-w-[290px]">
+            <div class="relative flex items-center w-[280px]">
               <label for="header-search" class="sr-only">Search portal pages, tenders, notifications</label>
-              <div class="flex items-center w-full bg-white hover:bg-slate-50/50 focus-within:bg-white border border-slate-300 focus-within:border-[#0B3B60] focus-within:ring-2 focus-within:ring-[#0B3B60]/25 rounded-lg pl-2.5 pr-1 py-0.5 transition-all duration-150 shadow-2xs outline-none focus-within:outline-none">
+              <div class="flex items-center w-full bg-white hover:bg-slate-50/50 focus-within:bg-white border border-slate-300 focus-within:border-[#0B3B60] focus-within:ring-2 focus-within:ring-[#0B3B60]/25 rounded-lg pl-2.5 pr-1 py-0.5 transition-all shadow-2xs">
                 <Icon name="search" size={13} strokeWidth={2.2} class="text-slate-400 shrink-0 mr-1.5" />
-                <input 
-                  type="search" 
-                  name="q" 
-                  id="header-search" 
-                  placeholder="Search portal, tenders…" 
-                  class="w-full bg-transparent text-xs text-slate-700 placeholder:text-slate-400 font-normal py-1 px-1 border-0 focus:ring-0"
-                  style="outline: none !important; box-shadow: none !important; font-weight: 400 !important;"
-                  required
-                />
-                <button 
-                  type="submit" 
-                  class="shrink-0 px-2.5 py-1 bg-[#0B3B60] hover:bg-[#002B49] text-white text-[11px] font-semibold rounded-md transition-colors duration-150 shadow-2xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0B3B60] cursor-pointer" 
-                  aria-label="Submit Search"
-                >
-                  Search
-                </button>
+                <input type="search" name="q" id="header-search" placeholder="Search portal, tenders…" class="w-full bg-transparent text-xs text-slate-700 placeholder:text-slate-400 font-normal py-1 px-1 border-0 focus:ring-0 outline-none" style="outline:none!important;box-shadow:none!important;" required />
+                <button type="submit" class="shrink-0 px-2.5 py-1 bg-[#0B3B60] hover:bg-[#002B49] text-white text-[0.7rem] font-semibold rounded-md transition-colors cursor-pointer" aria-label="Submit Search">Search</button>
               </div>
-              <!-- Suggestions Dropdown Container -->
-              <div id="header-search-suggestions" class="absolute left-0 right-0 top-full mt-1 bg-white text-slate-800 border border-slate-200 rounded-lg shadow-2xl hidden z-[9999] max-h-72 overflow-y-auto text-left py-1 w-full sm:w-[320px] sm:left-auto sm:right-0">
-              </div>
+              <div id="header-search-suggestions" class="absolute right-0 top-full mt-1 bg-white text-slate-800 border border-slate-200 rounded-lg shadow-2xl hidden z-[9999] max-h-72 overflow-y-auto text-left py-1 w-[320px]"></div>
             </div>
           </form>
+        </div>
+      </div>
+    </header>
 
+    <!-- Non-Sticky Mobile & Mid Identity + Accessibility Strip (<1200px) -->
+    <div class="mobile-identity-strip flex flex-col min-[1200px]:hidden bg-white border-t-[3px] border-[#0B3B60] border-b border-slate-200 relative z-[60]">
+      <div class="site-container py-1.5 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-700 select-none">
+        <div class="inline-flex items-center bg-slate-100 p-0.5 rounded-md border border-slate-200" role="group" aria-label="Font Size Controls">
+          <button type="button" class="px-2 py-1 text-[0.7rem] font-bold hover:bg-white rounded cursor-pointer min-h-[32px]" onclick="adjustFontSize('dec')" aria-label="Decrease Font Size">-A</button>
+          <button type="button" class="px-2.5 py-1 text-[0.7rem] font-bold hover:bg-white rounded cursor-pointer min-h-[32px]" onclick="adjustFontSize('reset')" aria-label="Reset Font Size">A</button>
+          <button type="button" class="px-2 py-1 text-[0.7rem] font-bold hover:bg-white rounded cursor-pointer min-h-[32px]" onclick="adjustFontSize('inc')" aria-label="Increase Font Size">+A</button>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button type="button" class="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 hover:bg-white border border-slate-200 rounded-md text-[0.7rem] font-bold cursor-pointer min-h-[32px]" onclick="toggleHighContrast()" aria-label="Toggle High Contrast Mode">
+            <Icon name="eye" size={12} class="text-[#0B3B60]" />
+            <span>Contrast</span>
+          </button>
+          <div class="relative">
+            <button type="button" id="lang-dropdown-btn-mob" class="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 hover:bg-white border border-slate-200 rounded-md text-[0.7rem] font-bold cursor-pointer min-h-[32px]" aria-haspopup="true" aria-expanded="false" aria-controls="lang-dropdown-menu-mob" onclick="toggleLangDropdown(event, '-mob')">
+              <Icon name="globe" size={12} class="text-[#0B3B60]" />
+              <span class="lang-label-text">English</span>
+              <Icon name="chevron-down" size={10} class="text-slate-400" id="lang-arrow-mob" />
+            </button>
+            <div id="lang-dropdown-menu-mob" class="absolute right-0 mt-1 w-44 bg-white text-slate-800 rounded-lg shadow-xl border border-slate-200 hidden z-[10000] py-1 text-left" role="menu">
+              <button class="w-full text-left px-3 py-2 text-xs hover:bg-slate-50 font-semibold block cursor-pointer" role="menuitem" onclick="changeLanguage('en')">English</button>
+              <button class="w-full text-left px-3 py-2 text-xs hover:bg-slate-50 font-semibold block cursor-pointer" role="menuitem" onclick="changeLanguage('hi')">हिन्दी (Hindi)</button>
+              <button class="w-full text-left px-3 py-2 text-xs hover:bg-slate-50 font-semibold block cursor-pointer" role="menuitem" onclick="changeLanguage('ur')">اردو (Urdu)</button>
+              <button class="w-full text-left px-3 py-2 text-xs hover:bg-slate-50 font-semibold block cursor-pointer" role="menuitem" onclick="changeLanguage('ks')">کٲشُر (Kashmiri)</button>
+              <button class="w-full text-left px-3 py-2 text-xs hover:bg-slate-50 font-semibold block cursor-pointer" role="menuitem" onclick="changeLanguage('doi')">डोगरी (Dogri)</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="site-container pb-2 pt-0.5 border-t border-slate-100">
+        <p class="font-extrabold text-[#002B49] text-[0.82rem] sm:text-[0.95rem] leading-snug">
+          Jammu &amp; Kashmir State Power Development Corporation Limited
+        </p>
+        <p class="text-slate-600 font-medium text-[0.7rem] leading-snug font-devanagari mt-0.5" lang="hi">
+          जम्मू और कश्मीर राज्य विद्युत विकास निगम लिमिटेड (जेकेएसपीडीसीएल)
+        </p>
+      </div>
+    </div>
+
+    <!-- Compact Sticky Mobile / Mid Bar (<1200px): ONLY [Logo] JKSPDCL + Search + Menu -->
+    <div class="mobile-sticky-bar sticky top-0 z-50 min-[1200px]:hidden bg-[#0B3B60] text-white border-b-2 border-[#002B49] shadow-sm min-h-[52px] py-1.5 flex flex-col justify-center">
+      <div class="site-container flex items-center justify-between gap-2">
+        <a href="/" class="flex items-center gap-2.5 min-w-0 py-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white rounded" aria-label="JKSPDCL Home">
+          <span class="bg-white p-1 rounded-md shrink-0 inline-flex items-center justify-center">
+            <img src="/logo.png" alt="JKSPDCL" width="32" height="32" class="h-7 w-auto object-contain" />
+          </span>
+          <span class="font-extrabold tracking-wide text-[1rem] text-white whitespace-nowrap">JKSPDCL</span>
+        </a>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button
+            type="button"
+            id="mobile-search-toggle"
+            class="min-w-[44px] min-h-[44px] rounded-md bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            aria-label="Toggle Search"
+            aria-expanded="false"
+            aria-controls="mobile-search-panel"
+          >
+            <Icon name="search" size={18} strokeWidth={2.2} />
+          </button>
+          <button
+            type="button"
+            id="mobile-menu-toggle"
+            class="min-w-[44px] min-h-[44px] px-2.5 rounded-md bg-white/10 hover:bg-white/20 text-white inline-flex items-center gap-1.5 text-xs font-bold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            aria-label="Open Navigation Menu"
+            aria-expanded="false"
+            aria-controls="mobile-nav-drawer"
+          >
+            <Icon name="menu" size={19} strokeWidth={2.2} />
+            <span class="hidden sm:inline">Menu</span>
+          </button>
         </div>
       </div>
 
-      <!-- Homepage announcements ticker -->
-      <Ticker />
-    </header>
-
-    <!-- Navigation Bar (Sticky Top-0 Globally Across Entire Website) -->
-    <nav class="bg-[#0B3B60] border-t-2 border-[#002B49] sticky top-0 z-50" aria-label="Primary Navigation">
-        <div class="max-w-[1400px] mx-auto px-2 sm:px-3 lg:px-4 nav-scroll-container">
-          <ul class="flex flex-nowrap w-full justify-between items-center text-[13px] sm:text-[13.5px] lg:text-[13.5px] xl:text-[14.5px] 2xl:text-[15.5px] font-bold whitespace-nowrap min-w-0">
-            <!-- Home -->
-            <li>
-              <a 
-                href="/" 
-                class={`nav-link block px-2.5 xl:px-3.5 py-3.5 text-white transition-colors duration-150 border-b-[3px] focus-visible:outline-none focus-visible:bg-white/15 ${
-                  isSectionActive('home')
-                    ? 'border-[#0B3B60] bg-white/10 font-bold nav-item-active' 
-                    : 'border-transparent hover:border-white/60 hover:bg-white/10'
-                }`}
-              >
-                Home
-              </a>
-            </li>
-
-            <!-- About Us -->
-            <li class="relative nav-dropdown-item">
-              <button 
-                class={`nav-dropdown-btn flex items-center gap-1 px-2.5 xl:px-3.5 py-3.5 transition-colors duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
-                  isSectionActive('about')
-                    ? 'border-[#0B3B60] bg-white/10 font-bold nav-item-active'
-                    : 'border-transparent hover:border-white/60 hover:bg-white/10'
-                }`} 
-                aria-haspopup="true" 
-                aria-expanded="false"
-              >
-                About Us
-                <Icon name="chevron-down" size={10} strokeWidth={2.5} class="dropdown-arrow transition-transform duration-200 shrink-0" />
-              </button>
-              <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-lg border-t-[3px] border-[#0B3B60] rounded-b-sm z-50 py-2 w-[260px]">
-                <ul class="flex flex-col gap-0.5 px-2 pb-1.5">
-                  <li><a href="/about-us/explore/overview" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath === '/about-us/explore/overview' ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>About Us</a></li>
-                  <li><a href="/about-us/explore/association-memorandum" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath === '/about-us/explore/association-memorandum' ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>MoA &amp; AoA</a></li>
-                  <li><a href="/about-us/explore/organization-chart" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath === '/about-us/explore/organization-chart' ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>Organizational Structure</a></li>
-                  <li><a href="/about-us/management/board" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath === '/about-us/management/board' ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>Board Of Director</a></li>
-                  <li><a href="/about-us/explore/gstin-registration" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath === '/about-us/explore/gstin-registration' ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>GSTIN Registration Details</a></li>
-                  <li><a href="/about-us/explore/policies" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath === '/about-us/explore/policies' ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>Policies</a></li>
-                  <li><a href="/sustainability/csr/policy" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath === '/sustainability/csr/policy' ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>CSR Policy</a></li>
-                </ul>
-              </div>
-            </li>
-
-            <!-- Projects -->
-            <li class="relative nav-dropdown-item">
-              <button 
-                class={`nav-dropdown-btn flex items-center gap-1 px-2.5 xl:px-3.5 py-3.5 transition-colors duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
-                  isSectionActive('projects')
-                    ? 'border-[#0B3B60] bg-white/10 font-bold nav-item-active'
-                    : 'border-transparent hover:border-white/60 hover:bg-white/10'
-                }`} 
-                aria-haspopup="true" 
-                aria-expanded="false"
-              >
-                Projects
-                <Icon name="chevron-down" size={10} strokeWidth={2.5} class="dropdown-arrow transition-transform duration-200 shrink-0" />
-              </button>
-              <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-lg border-t-[3px] border-[#0B3B60] rounded-b-sm z-50 py-2 w-[260px]">
-                <ul class="flex flex-col gap-0.5 px-2 pb-1.5">
-                  <li><a href="/our-business/power-stations" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath.startsWith('/our-business/power-stations') ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>Operational Projects</a></li>
-                  <li><a href="/our-business/construction" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath.startsWith('/our-business/construction') ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>Projects Under Construction</a></li>
-                  <li><a href="/our-business/under-development" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath.startsWith('/our-business/under-development') ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>Upcoming Projects</a></li>
-                </ul>
-              </div>
-            </li>
-
-            <!-- Tenders -->
-            <li class="relative nav-dropdown-item">
-              <button 
-                class={`nav-dropdown-btn flex items-center gap-1 px-2.5 xl:px-3.5 py-3.5 transition-colors duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
-                  isSectionActive('tenders')
-                    ? 'border-[#0B3B60] bg-white/10 font-bold nav-item-active'
-                    : 'border-transparent hover:border-white/60 hover:bg-white/10'
-                }`} 
-                aria-haspopup="true" 
-                aria-expanded="false"
-              >
-                Tenders
-                <Icon name="chevron-down" size={10} strokeWidth={2.5} class="dropdown-arrow transition-transform duration-200 shrink-0" />
-              </button>
-              <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-lg border-t-[3px] border-[#0B3B60] rounded-b-sm z-50 py-2 w-[260px]">
-                <ul class="flex flex-col gap-0.5 px-2 pb-1.5">
-                  <li><a href="/stakeholders/vendors/tender-bids" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath.startsWith('/stakeholders/vendors') || currentPath.startsWith('/tenders') ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>Live Tenders &amp; Notices</a></li>
-                  <li><a href="https://jktenders.gov.in/nicgep/app" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B3B60]">JK Tenders Portal<span class="sr-only"> (opens in new tab)</span></a></li>
-                </ul>
-              </div>
-            </li>
-
-            <!-- Notifications -->
-            <li>
-              <a 
-                href="/notifications" 
-                class={`nav-link block px-2.5 xl:px-3.5 py-3.5 text-white transition-colors duration-150 border-b-[3px] focus-visible:outline-none focus-visible:bg-white/15 ${
-                  isSectionActive('notifications')
-                    ? 'border-[#0B3B60] bg-white/10 font-bold nav-item-active'
-                    : 'border-transparent hover:border-white/60 hover:bg-white/10'
-                }`}
-              >
-                Notifications
-              </a>
-            </li>
-
-            <!-- Investors Corner -->
-            <li class="relative nav-dropdown-item">
-              <button 
-                class={`nav-dropdown-btn flex items-center gap-1 px-2.5 xl:px-3.5 py-3.5 transition-colors duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
-                  isSectionActive('investors')
-                    ? 'border-[#0B3B60] bg-white/10 font-bold nav-item-active'
-                    : 'border-transparent hover:border-white/60 hover:bg-white/10'
-                }`} 
-                aria-haspopup="true" 
-                aria-expanded="false"
-              >
-                Investors Corner
-                <Icon name="chevron-down" size={10} strokeWidth={2.5} class="dropdown-arrow transition-transform duration-200 shrink-0" />
-              </button>
-              <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-lg border-t-[3px] border-[#0B3B60] rounded-b-sm z-50 py-2 w-[260px]">
-                <ul class="flex flex-col gap-0.5 px-2 pb-1.5">
-                  <li><a href="/stakeholders/investors/agm" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath.startsWith('/stakeholders/investors/agm') ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>Annual General Meetings</a></li>
-                  <li><a href="/stakeholders/investors/ipp-projects" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath.startsWith('/stakeholders/investors/ipp') ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>IPP Projects</a></li>
-                </ul>
-              </div>
-            </li>
-
-            <!-- RTI -->
-            <li class="relative nav-dropdown-item">
-              <button 
-                class={`nav-dropdown-btn flex items-center gap-1 px-2.5 xl:px-3.5 py-3.5 transition-colors duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
-                  isSectionActive('rti')
-                    ? 'border-[#0B3B60] bg-white/10 font-bold nav-item-active'
-                    : 'border-transparent hover:border-white/60 hover:bg-white/10'
-                }`} 
-                aria-haspopup="true" 
-                aria-expanded="false"
-              >
-                RTI
-                <Icon name="chevron-down" size={10} strokeWidth={2.5} class="dropdown-arrow transition-transform duration-200 shrink-0" />
-              </button>
-              <div class="nav-dropdown-menu absolute left-0 mt-0 hidden bg-white text-slate-800 shadow-lg border-t-[3px] border-[#0B3B60] rounded-b-sm z-50 py-2 w-[260px]">
-                <ul class="flex flex-col gap-0.5 px-2 pb-1.5">
-                  <li><a href="/about-us/explore/rti" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath.includes('/rti') ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>RTI Act (Sec 4)</a></li>
-                </ul>
-              </div>
-            </li>
-
-            <!-- Gallery -->
-            <li>
-              <a 
-                href="/media/gallery" 
-                class={`nav-link block px-2.5 xl:px-3.5 py-3.5 text-white transition-colors duration-150 border-b-[3px] focus-visible:outline-none focus-visible:bg-white/15 ${
-                  isSectionActive('gallery')
-                    ? 'border-[#0B3B60] bg-white/10 font-bold nav-item-active'
-                    : 'border-transparent hover:border-white/60 hover:bg-white/10'
-                }`}
-              >
-                Gallery
-              </a>
-            </li>
-
-            <!-- Downloads -->
-            <li>
-              <a 
-                href="/media/downloads" 
-                class={`nav-link block px-2.5 xl:px-3.5 py-3.5 text-white transition-colors duration-150 border-b-[3px] focus-visible:outline-none focus-visible:bg-white/15 ${
-                  isSectionActive('downloads')
-                    ? 'border-[#0B3B60] bg-white/10 font-bold nav-item-active'
-                    : 'border-transparent hover:border-white/60 hover:bg-white/10'
-                }`}
-              >
-                Downloads
-              </a>
-            </li>
-
-            <!-- Employees Corner -->
-            <li class="relative nav-dropdown-item">
-              <button 
-                class={`nav-dropdown-btn flex items-center gap-1 px-2.5 xl:px-3.5 py-3.5 transition-colors duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
-                  isSectionActive('employees')
-                    ? 'border-[#0B3B60] bg-white/10 font-bold nav-item-active'
-                    : 'border-transparent hover:border-white/60 hover:bg-white/10'
-                }`} 
-                aria-haspopup="true" 
-                aria-expanded="false"
-              >
-                Employees Corner
-                <Icon name="chevron-down" size={10} strokeWidth={2.5} class="dropdown-arrow transition-transform duration-200 shrink-0" />
-              </button>
-              <div class="nav-dropdown-menu absolute right-0 mt-0 hidden bg-white text-slate-800 shadow-lg border-t-[3px] border-[#0B3B60] rounded-b-sm z-50 py-2 w-[260px]">
-                <ul class="flex flex-col gap-0.5 px-2 pb-1.5">
-                  <li><a href="https://www.jkspdcl.com:2096/" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B3B60]">Web Mail<span class="sr-only"> (opens in new tab)</span></a></li>
-                  <li><a href="https://saccess.nic.in/" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B3B60]">Nic-e-File<span class="sr-only"> (opens in new tab)</span></a></li>
-                  <li><a href="https://eoffice.jk.gov.in/" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B3B60]">E-Office<span class="sr-only"> (opens in new tab)</span></a></li>
-                  <li><a href="https://hrms.jk.gov.in/" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B3B60]">JKHRMS<span class="sr-only"> (opens in new tab)</span></a></li>
-                  <li><a href="https://law.pmgatishakti.gov.in/EETMS/login" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B3B60]">EETMS<span class="sr-only"> (opens in new tab)</span></a></li>
-                  <li><a href="https://bg.jkspdc.in/" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B3B60]">BG Management<span class="sr-only"> (opens in new tab)</span></a></li>
-                  <li><a href="https://asset.jkspdcl.co.in/login" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B3B60]">Asset Management<span class="sr-only"> (opens in new tab)</span></a></li>
-                  <li><a href="https://janparichay.meripehchaan.gov.in/v1/pehchaan/login.html?service=passive&active=true&rm_5=false&continue=https%3A%2F%2Fjan_com%2Fmail%2F&pp=1&scc=1&lmpl=default&ltmplcache=2&emr=1&osid=1&flowName=GlifWebSignIn&flowEntry=ServiceLogin&sid=JanSugamJK&v=2.0&lang=&urlid=82ae2068-ada6-4154-ae21-649b90598534" target="_blank" rel="noopener noreferrer" class="block p-2 rounded hover:bg-slate-100 hover:text-[#0B3B60]">JKSPDC RAS<span class="sr-only"> (opens in new tab)</span></a></li>
-                </ul>
-              </div>
-            </li>
-
-            <!-- Contact Us -->
-            <li class="relative nav-dropdown-item">
-              <button 
-                class={`nav-dropdown-btn flex items-center gap-1 px-2.5 xl:px-3.5 py-3.5 transition-colors duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
-                  isSectionActive('contact')
-                    ? 'border-[#0B3B60] bg-white/10 font-bold nav-item-active'
-                    : 'border-transparent hover:border-white/60 hover:bg-white/10'
-                }`} 
-                aria-haspopup="true" 
-                aria-expanded="false"
-              >
-                Contact Us
-                <Icon name="chevron-down" size={10} strokeWidth={2.5} class="dropdown-arrow transition-transform duration-200 shrink-0" />
-              </button>
-              <div class="nav-dropdown-menu absolute right-0 mt-0 hidden bg-white text-slate-800 shadow-lg border-t-[3px] border-[#0B3B60] rounded-b-sm z-50 py-2 w-[260px]">
-                <ul class="flex flex-col gap-0.5 px-2 pb-1.5">
-                  <li><a href="/about-us/others/contact" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath === '/about-us/others/contact' ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>Contact Us</a></li>
-                  <li><a href="/feedback" class={`block px-3 py-2.5 rounded-sm text-[13px] leading-snug font-medium transition-colors ${currentPath === '/feedback' ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'}`}>Feedback</a></li>
-                </ul>
-              </div>
-            </li>
-          </ul>
+      <!-- Expandable Mobile Search Panel -->
+      <div id="mobile-search-panel" class="hidden border-t border-white/15 bg-[#072945] mt-1.5">
+        <div class="site-container py-2.5 relative">
+          <form action="/search" method="GET" id="mobile-search-form" autocomplete="off" class="flex items-center gap-2">
+            <label for="mobile-search-input" class="sr-only">Search portal pages, tenders, notifications</label>
+            <input
+              type="search"
+              name="q"
+              id="mobile-search-input"
+              placeholder="Search portal, tenders, projects…"
+              class="flex-1 min-w-0 min-h-[44px] px-3 rounded-md bg-white text-slate-800 text-[1rem] sm:text-sm border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#52B5E8]"
+              required
+            />
+            <button type="submit" class="min-h-[44px] px-4 rounded-md bg-[#0EA4E5] hover:bg-[#0B3B60] text-white text-xs font-bold shrink-0 cursor-pointer">
+              Search
+            </button>
+          </form>
+          <div id="mobile-search-suggestions" class="mt-1 bg-white text-slate-800 border border-slate-200 rounded-md shadow-xl hidden max-h-64 overflow-y-auto py-1"></div>
         </div>
-      </nav>
+      </div>
+    </div>
+
+    <!-- Desktop Primary Navigation Bar (1200px+ — Preserves All 11 Official Links) -->
+    <nav class="desktop-nav-bar hidden min-[1200px]:block bg-[#0B3B60] border-t-2 border-[#002B49] sticky top-0 z-50" aria-label="Primary Navigation">
+      <div class="site-container">
+        <ul id="desktop-nav-list" class="desktop-nav-list flex flex-nowrap w-full justify-between items-center text-[0.8125rem] min-[1320px]:text-[0.875rem] font-bold whitespace-nowrap min-w-0">
+          {NAV_ITEMS.map((item) =>
+            item.children ? (
+              <li class="relative nav-dropdown-item">
+                <button
+                  type="button"
+                  class={`nav-dropdown-btn flex items-center gap-1 px-2 min-[1320px]:px-3 py-3 transition-colors duration-150 border-b-[3px] text-white focus-visible:outline-none focus-visible:bg-white/15 cursor-pointer ${
+                    isSectionActive(item.key)
+                      ? 'border-[#52B5E8] bg-white/12 font-bold nav-item-active'
+                      : 'border-transparent hover:border-white/60 hover:bg-white/10'
+                  }`}
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
+                  <span>{item.label}</span>
+                  <Icon name="chevron-down" size={10} strokeWidth={2.5} class="dropdown-arrow transition-transform duration-200 shrink-0" />
+                </button>
+                <div class={`nav-dropdown-menu absolute ${item.alignRight ? 'right-0' : 'left-0'} mt-0 hidden bg-white text-slate-800 shadow-lg border-t-[3px] border-[#0B3B60] rounded-b-sm z-50 py-2 w-[260px]`}>
+                  <ul class="flex flex-col gap-0.5 px-2 pb-1.5">
+                    {item.children.map((sub) => (
+                      <li>
+                        <a
+                          href={sub.href}
+                          target={sub.external ? '_blank' : undefined}
+                          rel={sub.external ? 'noopener noreferrer' : undefined}
+                          class={`block px-3 py-2 rounded-sm text-[0.8125rem] leading-snug font-medium transition-colors ${
+                            isSublinkActive(sub.href) ? 'nav-sublink-active' : 'hover:bg-[#F4F8FB] hover:text-[#0B3B60]'
+                          }`}
+                        >
+                          {sub.label}
+                          {sub.external && <span class="sr-only"> (opens in new tab)</span>}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </li>
+            ) : (
+              <li>
+                <a
+                  href={item.href}
+                  class={`nav-link block px-2 min-[1320px]:px-3 py-3 text-white transition-colors duration-150 border-b-[3px] focus-visible:outline-none focus-visible:bg-white/15 ${
+                    isSectionActive(item.key)
+                      ? 'border-[#52B5E8] bg-white/12 font-bold nav-item-active'
+                      : 'border-transparent hover:border-white/60 hover:bg-white/10'
+                  }`}
+                >
+                  {item.label}
+                </a>
+              </li>
+            )
+          )}
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Mobile & Tablet Accordion Drawer (<1200px or overflow fallback) -->
+    <div id="mobile-nav-drawer" class="fixed inset-0 z-[100] hidden" role="dialog" aria-modal="true" aria-label="Mobile Navigation Menu">
+      <div id="mobile-drawer-backdrop" class="fixed inset-0 bg-slate-950/60 backdrop-blur-[1px]"></div>
+      <aside class="relative ml-auto w-[88vw] max-w-[340px] h-full bg-white shadow-2xl flex flex-col overflow-hidden z-10 border-l border-slate-200">
+        <!-- Drawer Header with Full Bilingual Lockup -->
+        <div class="px-4 py-3.5 bg-[#0B3B60] text-white flex items-start justify-between gap-3 border-b-2 border-[#002B49]">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span class="bg-white p-1 rounded-md shrink-0">
+              <img src="/logo.png" alt="" class="h-8 w-auto object-contain" />
+            </span>
+            <div class="min-w-0">
+              <p class="font-extrabold text-sm leading-tight">JKSPDCL</p>
+              <p class="text-[0.68rem] text-slate-200 leading-snug mt-0.5">Jammu &amp; Kashmir State Power Development Corp. Ltd.</p>
+              <p class="text-[0.65rem] text-[#A4D7F4] font-devanagari leading-snug mt-0.5" lang="hi">जम्मू और कश्मीर राज्य विद्युत विकास निगम लिमिटेड</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            id="mobile-drawer-close"
+            class="min-w-[44px] min-h-[44px] rounded-md bg-white/10 hover:bg-white/20 text-white flex items-center justify-center shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            aria-label="Close Navigation Menu"
+          >
+            <Icon name="x" size={20} strokeWidth={2.5} />
+          </button>
+        </div>
+
+        <!-- Accordion Links List (All 11 Official Items) -->
+        <nav class="flex-1 overflow-y-auto divide-y divide-slate-100" aria-label="Mobile Navigation">
+          {NAV_ITEMS.map((item) =>
+            item.children ? (
+              <div class="mobile-acc-group">
+                <button
+                  type="button"
+                  class={`mobile-acc-btn w-full min-h-[48px] px-4 py-3 flex items-center justify-between text-left text-[0.95rem] font-bold transition-colors cursor-pointer ${
+                    isSectionActive(item.key) ? 'bg-[#F4F8FB] text-[#0B3B60]' : 'text-slate-800 hover:bg-slate-50'
+                  }`}
+                  aria-expanded={isSectionActive(item.key) ? 'true' : 'false'}
+                >
+                  <span>{item.label}</span>
+                  <Icon name="chevron-down" size={14} strokeWidth={2.5} class={`mobile-acc-icon text-slate-400 transition-transform duration-200 ${isSectionActive(item.key) ? 'rotate-180' : ''}`} />
+                </button>
+                <ul class={`mobile-acc-panel bg-slate-50/70 border-t border-slate-100 py-1 ${isSectionActive(item.key) ? '' : 'hidden'}`}>
+                  {item.children.map((sub) => (
+                    <li>
+                      <a
+                        href={sub.href}
+                        target={sub.external ? '_blank' : undefined}
+                        rel={sub.external ? 'noopener noreferrer' : undefined}
+                        class={`flex items-center min-h-[44px] pl-7 pr-4 py-2 text-[0.875rem] font-medium transition-colors ${
+                          isSublinkActive(sub.href)
+                            ? 'text-[#0B3B60] font-bold bg-white border-l-4 border-[#0B3B60]'
+                            : 'text-slate-700 hover:text-[#0B3B60] hover:bg-white'
+                        }`}
+                      >
+                        {sub.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <a
+                href={item.href}
+                class={`flex items-center min-h-[48px] px-4 py-3 text-[0.95rem] font-bold transition-colors ${
+                  isSectionActive(item.key)
+                    ? 'bg-[#F4F8FB] text-[#0B3B60] border-l-4 border-[#0B3B60]'
+                    : 'text-slate-800 hover:bg-slate-50'
+                }`}
+              >
+                {item.label}
+              </a>
+            )
+          )}
+        </nav>
+
+        <!-- Drawer Quick Footer -->
+        <div class="p-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-2 text-xs">
+          <button type="button" onclick="toggleHighContrast()" class="min-h-[40px] px-3 rounded border border-slate-300 bg-white text-slate-700 font-bold inline-flex items-center gap-1.5 cursor-pointer">
+            <Icon name="eye" size={13} class="text-[#0B3B60]" />
+            <span>Contrast</span>
+          </button>
+          <a href="/about-us/others/contact" class="min-h-[40px] px-3 rounded bg-[#0B3B60] text-white font-bold inline-flex items-center">
+            Official Contacts
+          </a>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Announcements Ticker (Scrolls naturally below header/nav band) -->
+    <Ticker />
 
     <!-- Main Content Container -->
-    <main id="main-content" class={isHome ? "flex-grow focus:outline-none" : "flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 focus:outline-none"} tabindex="-1">
+    <main id="main-content" class={isHome ? "flex-grow focus:outline-none" : "flex-grow site-container py-6 sm:py-8 focus:outline-none"} tabindex="-1">
       <slot />
     </main>
 
@@ -813,138 +856,101 @@ function isSectionActive(section: string): boolean {
       })();
     </script>
 
-    <!-- Dropdown positioning helper -->
+    <!-- Mobile Accordion Drawer & Search Drawer Logic -->
     <script is:inline>
       (function() {
-        function adjustDropdownPosition(li) {
-          var dropdown = li.querySelector('div.absolute');
-          if (!dropdown) return;
-          dropdown.style.left = '';
-          dropdown.style.right = '';
-          var rect = dropdown.getBoundingClientRect();
-          var viewportWidth = window.innerWidth;
-          if (rect.right > viewportWidth) {
-            dropdown.style.right = '0';
-            dropdown.style.left = 'auto';
-          } else if (rect.left < 0) {
-            dropdown.style.left = '0';
-            dropdown.style.right = 'auto';
+        var drawer = document.getElementById('mobile-nav-drawer');
+        var backdrop = document.getElementById('mobile-drawer-backdrop');
+        var openBtn = document.getElementById('mobile-menu-toggle');
+        var closeBtn = document.getElementById('mobile-drawer-close');
+        var searchToggle = document.getElementById('mobile-search-toggle');
+        var searchPanel = document.getElementById('mobile-search-panel');
+        var mobileSearchInput = document.getElementById('mobile-search-input');
+
+        function openDrawer() {
+          if (!drawer) return;
+          drawer.classList.remove('hidden');
+          document.body.classList.add('mobile-drawer-open');
+          if (openBtn) openBtn.setAttribute('aria-expanded', 'true');
+          if (searchPanel && !searchPanel.classList.contains('hidden')) {
+            searchPanel.classList.add('hidden');
+            if (searchToggle) searchToggle.setAttribute('aria-expanded', 'false');
+          }
+          setTimeout(function() { if (closeBtn) closeBtn.focus(); }, 20);
+        }
+
+        function closeDrawer() {
+          if (!drawer || drawer.classList.contains('hidden')) return;
+          drawer.classList.add('hidden');
+          document.body.classList.remove('mobile-drawer-open');
+          if (openBtn) {
+            openBtn.setAttribute('aria-expanded', 'false');
+            openBtn.focus();
           }
         }
 
-        document.querySelectorAll('nav li.relative.group').forEach(function(li) {
-          li.addEventListener('mouseenter', function() {
-            adjustDropdownPosition(li);
+        if (openBtn) openBtn.addEventListener('click', openDrawer);
+        if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+        if (backdrop) backdrop.addEventListener('click', closeDrawer);
+
+        document.querySelectorAll('.mobile-acc-btn').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            var group = btn.closest('.mobile-acc-group');
+            var panel = group && group.querySelector('.mobile-acc-panel');
+            var icon = btn.querySelector('.mobile-acc-icon');
+            if (!panel) return;
+            var expanded = btn.getAttribute('aria-expanded') === 'true';
+            btn.setAttribute('aria-expanded', String(!expanded));
+            panel.classList.toggle('hidden', expanded);
+            if (icon) icon.classList.toggle('rotate-180', !expanded);
           });
-          li.addEventListener('focusin', function() {
-            adjustDropdownPosition(li);
+        });
+
+        if (searchToggle && searchPanel) {
+          searchToggle.addEventListener('click', function() {
+            var isHidden = searchPanel.classList.toggle('hidden');
+            searchToggle.setAttribute('aria-expanded', String(!isHidden));
+            if (!isHidden && mobileSearchInput) {
+              setTimeout(function() { mobileSearchInput.focus(); }, 20);
+            }
           });
+        }
+
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape') {
+            if (drawer && !drawer.classList.contains('hidden')) {
+              closeDrawer();
+            }
+            if (searchPanel && !searchPanel.classList.contains('hidden')) {
+              searchPanel.classList.add('hidden');
+              if (searchToggle) {
+                searchToggle.setAttribute('aria-expanded', 'false');
+                searchToggle.focus();
+              }
+            }
+          }
         });
       })();
     </script>
 
-    <!-- Active Nav Indicator (GIGW 3.0 Requirement) -->
-    <script is:inline>
-      (function() {
-        function updateActiveNav() {
-          var path = window.location.pathname.replace(/\/$/, '') || '/';
-
-          // Reset all inline borders
-          document.querySelectorAll('nav .nav-link, nav .nav-dropdown-btn').forEach(function(el) {
-            el.style.borderBottomColor = '';
-            el.style.borderBottomWidth = '';
-            el.style.borderBottomStyle = '';
-          });
-
-          // Match section rules
-          var activeSection = '';
-          if (path === '/') {
-            activeSection = 'home';
-          } else if (path.includes('/rti')) {
-            activeSection = 'rti';
-          } else if (path.includes('/contact') || path === '/feedback') {
-            activeSection = 'contact';
-          } else if (path.startsWith('/about-us') || path.startsWith('/sustainability/csr')) {
-            activeSection = 'about';
-          } else if (path.startsWith('/our-business') || path.startsWith('/power-trading')) {
-            activeSection = 'projects';
-          } else if (path.startsWith('/stakeholders/vendors') || path.startsWith('/tenders')) {
-            activeSection = 'tenders';
-          } else if (path.startsWith('/notifications')) {
-            activeSection = 'notifications';
-          } else if (path.startsWith('/stakeholders/investors')) {
-            activeSection = 'investors';
-          } else if (path.startsWith('/media/gallery')) {
-            activeSection = 'gallery';
-          } else if (path.startsWith('/media/downloads')) {
-            activeSection = 'downloads';
-          } else if (path.startsWith('/employees')) {
-            activeSection = 'employees';
-          }
-
-          var items = [
-            { key: 'home', selector: 'nav a[href="/"]' },
-            { key: 'about', selector: 'nav li:nth-child(2) > .nav-dropdown-btn' },
-            { key: 'projects', selector: 'nav li:nth-child(3) > .nav-dropdown-btn' },
-            { key: 'tenders', selector: 'nav li:nth-child(4) > .nav-dropdown-btn' },
-            { key: 'notifications', selector: 'nav a[href="/notifications"]' },
-            { key: 'investors', selector: 'nav li:nth-child(6) > .nav-dropdown-btn' },
-            { key: 'rti', selector: 'nav li:nth-child(7) > .nav-dropdown-btn' },
-            { key: 'gallery', selector: 'nav a[href="/media/gallery"]' },
-            { key: 'downloads', selector: 'nav a[href="/media/downloads"]' },
-            { key: 'employees', selector: 'nav li:nth-child(10) > .nav-dropdown-btn' },
-            { key: 'contact', selector: 'nav li:nth-child(11) > .nav-dropdown-btn' }
-          ];
-
-          items.forEach(function(item) {
-            var el = document.querySelector(item.selector);
-            if (!el) return;
-            if (item.key === activeSection) {
-              el.classList.add('nav-item-active');
-              el.style.borderBottomColor = '#0B3B60';
-              el.style.borderBottomWidth = '3px';
-              el.style.borderBottomStyle = 'solid';
-            } else {
-              el.classList.remove('nav-item-active');
-              el.style.borderBottomColor = 'transparent';
-            }
-          });
-
-          // Highlight matching sublink in dropdowns
-          document.querySelectorAll('nav .nav-dropdown-menu a[href]').forEach(function(sublink) {
-            var href = (sublink.getAttribute('href') || '').replace(/\/$/, '');
-            if (href && (path === href || path.startsWith(href + '/') || path.startsWith(href + '?'))) {
-              sublink.classList.add('nav-sublink-active');
-            } else {
-              sublink.classList.remove('nav-sublink-active');
-            }
-          });
-        }
-
-        updateActiveNav();
-        window.addEventListener('popstate', updateActiveNav);
-      })();
-    </script>
-
-    <!-- Global Header Search Autocomplete -->
+    <!-- Global Search Autocomplete (Shared across Desktop & Mobile Search) -->
     <script is:inline>var API_BASE = window.__API_BASE__;
 
       (function() {
-        var searchForm = document.getElementById('header-search-form');
-        var searchInput = document.getElementById('header-search');
-        var suggestionsBox = document.getElementById('header-search-suggestions');
         var searchIndex = [];
         var loadPromise = null;
 
-        function closeLangDropdown() {
-          var langMenu = document.getElementById('lang-dropdown-menu');
-          var langArrow = document.getElementById('lang-arrow');
-          var langBtn = document.getElementById('lang-dropdown-btn');
-          if (langMenu && !langMenu.classList.contains('hidden')) {
-            langMenu.classList.add('hidden');
-            if (langBtn) langBtn.setAttribute('aria-expanded', 'false');
-            if (langArrow) langArrow.classList.remove('rotate-180');
-          }
+        function closeLangDropdowns() {
+          ['', '-mob'].forEach(function(s) {
+            var langMenu = document.getElementById('lang-dropdown-menu' + s);
+            var langArrow = document.getElementById('lang-arrow' + s);
+            var langBtn = document.getElementById('lang-dropdown-btn' + s);
+            if (langMenu && !langMenu.classList.contains('hidden')) {
+              langMenu.classList.add('hidden');
+              if (langBtn) langBtn.setAttribute('aria-expanded', 'false');
+              if (langArrow) langArrow.classList.remove('rotate-180');
+            }
+          });
         }
 
         async function loadIndex() {
@@ -952,11 +958,9 @@ function isSectionActive(section: string): boolean {
             var sitemapRes = await fetch('/search-index.json');
             if (sitemapRes.ok) {
               var sData = await sitemapRes.json();
-              if (Array.isArray(sData)) {
-                searchIndex = sData;
-              }
+              if (Array.isArray(sData)) searchIndex = sData;
             }
-          } catch(err) {
+          } catch (err) {
             console.error('Failed to load sitemap search index:', err);
           }
           try {
@@ -973,107 +977,94 @@ function isSectionActive(section: string): boolean {
                 });
               }
             }
-          } catch(e) {
-            // Ignore optional project lookup error
-          }
+          } catch (e) {}
         }
 
-        function renderSuggestions(query) {
-          if (!query) {
-            suggestionsBox.innerHTML = '';
-            suggestionsBox.classList.add('hidden');
-            return;
+        function bindSearchBox(formId, inputId, boxId) {
+          var searchForm = document.getElementById(formId);
+          var searchInput = document.getElementById(inputId);
+          var suggestionsBox = document.getElementById(boxId);
+          if (!searchForm || !searchInput || !suggestionsBox) return;
+
+          function renderSuggestions(query) {
+            if (!query) {
+              suggestionsBox.innerHTML = '';
+              suggestionsBox.classList.add('hidden');
+              return;
+            }
+            var matches = searchIndex.filter(function(item) {
+              return (item.title && item.title.toLowerCase().indexOf(query) !== -1) ||
+                     (item.description && item.description.toLowerCase().indexOf(query) !== -1);
+            }).slice(0, 8);
+
+            if (matches.length > 0) {
+              suggestionsBox.innerHTML = matches.map(function(item) {
+                var titleRegex = new RegExp('(' + query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + ')', 'gi');
+                var highlightedTitle = (item.title || '').replace(titleRegex, '<mark style="background-color: #fef08a; color: #1e293b; font-weight: 700; padding: 0px 2px; border-radius: 2px;">$1</mark>');
+                return '<button type="button" class="w-full text-left px-3 py-2 hover:bg-slate-100 transition-colors block cursor-pointer border-b border-slate-100 last:border-0" data-url="' + item.url + '" style="font-size: 12px; text-align: left;">' +
+                       '<span style="color: #0B3B60; font-weight: 700; display: block;">' + highlightedTitle + '</span>' +
+                       '<span style="font-size: 10.5px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; margin-top: 2px;">' + (item.description || '') + '</span>' +
+                       '</button>';
+              }).join('');
+              suggestionsBox.classList.remove('hidden');
+            } else {
+              suggestionsBox.innerHTML = '';
+              suggestionsBox.classList.add('hidden');
+            }
           }
 
-          var matches = searchIndex.filter(function(item) {
-            return (item.title && item.title.toLowerCase().indexOf(query) !== -1) ||
-                   (item.description && item.description.toLowerCase().indexOf(query) !== -1);
-          }).slice(0, 8);
-
-          if (matches.length > 0) {
-            suggestionsBox.innerHTML = matches.map(function(item) {
-              var titleRegex = new RegExp('(' + query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + ')', 'gi');
-              var highlightedTitle = (item.title || '').replace(titleRegex, '<mark style="background-color: #fef08a; color: #1e293b; font-weight: 700; padding: 0px 2px; border-radius: 2px;">$1</mark>');
-              return '<button type="button" class="w-full text-left px-3 py-1.5 hover:bg-slate-100 transition-colors block cursor-pointer border-b border-slate-50 last:border-0" data-url="' + item.url + '" style="font-size: 11px; outline: none; border-bottom: 1px solid #f1f5f9; display: block; background: transparent; border-left: 0; border-right: 0; border-top: 0; font-family: inherit; margin: 0; padding: 6px 12px; width: 100%; text-align: left;">' +
-                     '<span style="color: #0B3B60; font-weight: 700; display: block;">' + highlightedTitle + '</span>' +
-                     '<span style="font-size: 9.5px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; margin-top: 2px;">' + (item.description || '') + '</span>' +
-                     '</button>';
-            }).join('');
-            suggestionsBox.classList.remove('hidden');
-          } else {
-            suggestionsBox.innerHTML = '';
-            suggestionsBox.classList.add('hidden');
-          }
-        }
-
-        function handleInput() {
-          var query = searchInput.value.toLowerCase().trim();
-          if (!query) {
-            suggestionsBox.innerHTML = '';
-            suggestionsBox.classList.add('hidden');
-            return;
-          }
-
-          if (searchIndex.length === 0) {
-            if (!loadPromise) loadPromise = loadIndex();
-            loadPromise.then(function() {
+          function handleInput() {
+            var query = searchInput.value.toLowerCase().trim();
+            if (!query) {
+              suggestionsBox.innerHTML = '';
+              suggestionsBox.classList.add('hidden');
+              return;
+            }
+            if (searchIndex.length === 0) {
+              if (!loadPromise) loadPromise = loadIndex();
+              loadPromise.then(function() { renderSuggestions(query); });
+            } else {
               renderSuggestions(query);
-            });
-          } else {
-            renderSuggestions(query);
+            }
           }
-        }
-
-        if (searchInput && searchForm && suggestionsBox) {
-          // Preload index immediately
-          loadPromise = loadIndex();
 
           searchInput.addEventListener('focus', function() {
-            closeLangDropdown();
-            if (searchInput.value.trim()) {
-              handleInput();
-            }
+            closeLangDropdowns();
+            if (searchInput.value.trim()) handleInput();
           });
 
           searchInput.addEventListener('input', function() {
-            closeLangDropdown();
+            closeLangDropdowns();
             handleInput();
           });
 
           suggestionsBox.addEventListener('click', function(e) {
             var btn = e.target.closest('button');
-            if (btn && btn.dataset.url) {
-              window.location.href = btn.dataset.url;
-            }
+            if (btn && btn.dataset.url) window.location.href = btn.dataset.url;
           });
 
           document.addEventListener('click', function(e) {
-            if (!e.target.closest('#header-search-form')) {
+            if (!e.target.closest('#' + formId) && !e.target.closest('#' + boxId)) {
               suggestionsBox.classList.add('hidden');
             }
           });
 
           document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-              suggestionsBox.classList.add('hidden');
-            }
+            if (e.key === 'Escape') suggestionsBox.classList.add('hidden');
           });
 
           searchForm.addEventListener('submit', function(e) {
             e.preventDefault();
             var query = searchInput.value.trim();
             if (!query) return;
-
             var lowerQuery = query.toLowerCase();
             var bestMatch = null;
-            
             for (var i = 0; i < searchIndex.length; i++) {
               if (searchIndex[i].title && searchIndex[i].title.toLowerCase() === lowerQuery) {
                 bestMatch = searchIndex[i];
                 break;
               }
             }
-            
             if (!bestMatch) {
               for (var i = 0; i < searchIndex.length; i++) {
                 if (searchIndex[i].title && searchIndex[i].title.toLowerCase().indexOf(lowerQuery) !== -1) {
@@ -1082,14 +1073,13 @@ function isSectionActive(section: string): boolean {
                 }
               }
             }
-
-            if (bestMatch) {
-              window.location.href = bestMatch.url;
-            } else {
-              window.location.href = '/search?q=' + encodeURIComponent(query);
-            }
+            window.location.href = bestMatch ? bestMatch.url : ('/search?q=' + encodeURIComponent(query));
           });
         }
+
+        loadPromise = loadIndex();
+        bindSearchBox('header-search-form', 'header-search', 'header-search-suggestions');
+        bindSearchBox('mobile-search-form', 'mobile-search-input', 'mobile-search-suggestions');
       })();
     </script>
 

@@ -55,7 +55,7 @@ const initialPhase = requestedPhaseParam ? phasesWithCalculations.find(p => p.id
   title="IPP Projects - Investors Corner" 
   description="Independent Power Producer (IPP) Hydroelectric & Renewable Energy Projects across J&K."
 >
-  <div class="space-y-0 max-w-5xl mx-auto">
+  <div class="space-y-0 w-full">
     <!-- Premium Page Header Band -->
     <div class="page-header-band animate-fadeInUp">
       <nav class="breadcrumb-trail" aria-label="Breadcrumbs">
@@ -143,12 +143,12 @@ const initialPhase = requestedPhaseParam ? phasesWithCalculations.find(p => p.id
 
         <!-- Projects Table Wrapper: Fixed column widths with <colgroup> so columns never shift position -->
         <div 
-          class="table-wrapper overflow-x-auto" 
+          class="table-wrapper is-card-table overflow-x-auto" 
           tabindex="0" 
           role="region" 
           aria-label="IPP Projects Data Table"
         >
-          <table class="table-data min-w-full text-left" style="table-layout: fixed;">
+          <table class="table-data mobile-cards-table min-w-full text-left" style="table-layout: fixed;">
             <caption class="sr-only" id="table-caption">
               {initialPhase ? `List of IPP projects under ${initialPhase.name}` : 'IPP Projects Table'}
             </caption>
@@ -177,13 +177,13 @@ const initialPhase = requestedPhaseParam ? phasesWithCalculations.find(p => p.id
                           {proj.location}{proj.basin ? ` • ${proj.basin}` : ''}
                         </div>
                       </td>
-                      <td class="text-left font-semibold text-slate-700 whitespace-nowrap" style="width: 25%;">
+                      <td class="text-left font-semibold text-slate-700 whitespace-nowrap" style="width: 25%;" data-label="Capacity">
                         {proj.capacityMw} MW
                       </td>
-                      <td class="text-left text-slate-600 break-words" style="width: 25%;">
+                      <td class="text-left text-slate-600 break-words" style="width: 25%;" data-label="Status">
                         {proj.status || '—'}
                       </td>
-                      <td class="text-left text-slate-600 break-words" style="width: 25%;">
+                      <td class="text-left text-slate-600 break-words" style="width: 25%;" data-label="Awarded To">
                         {proj.awardedTo || '—'}
                       </td>
                     </tr>
